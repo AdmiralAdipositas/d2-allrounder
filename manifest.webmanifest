@@ -1,0 +1,11 @@
+{
+  "name": "D2 Allrounder",
+  "short_name": "D2 Allrounder",
+  "description": "Vault, loadouts, optimizer and weekly rotation for Destiny 2.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0a1a",
+  "theme_color": "#0b0a1a",
+  "icons": [{ "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

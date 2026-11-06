@@ -1,0 +1,61 @@
+// Anmeldung und Zugriff auf die Bungie-API direkt aus dem Browser (öffentliche Bungie-App, kein Geheimschlüssel).
+import { CONFIG } from './config.js';
+
+const BASIS = 'https://www.bungie.net';
+const SPEICHER = 'd2a.token';
+export const KOMPONENTEN = '100,102,200,201,205,206,300,304,305';
+
+const lies = () => { try { return JSON.parse(localStorage.getItem(SPEICHER) || 'null'); } catch { return null; } };
+const schreib = (t) => { try { localStorage.setItem(SPEICHER, JSON.stringify(t)); } catch {} };
+
+export const eingerichtet = () => Boolean(CONFIG.apiKey && CONFIG.clientId);
+export const angemeldet = () => { const t = lies(); return Boolean(t && t.bis > Date.now() + 60_000); };
+export const abmelden = () => { try { localStorage.removeItem(SPEICHER); } catch {} };
+
+export function anmelden() {
+  const state = crypto.randomUUID();
+  try { sessionStorage.setItem('d2a.state', state); } catch {}
+  location.href = `${BASIS}/en/OAuth/Authorize?client_id=${encodeURIComponent(CONFIG.clientId)}&response_type=code&state=${state}`;
+}
+
+// Nach der Rückkehr von Bungie den Code gegen ein Token tauschen.
+export async function rueckkehr() {
+  const p = new URLSearchParams(location.search);
+  const code = p.get('code');
+  if (!code) return false;
+  let erwartet = null;
+  try { erwartet = sessionStorage.getItem('d2a.state'); } catch {}
+  history.replaceState(null, '', location.pathname);
+  if (erwartet && p.get('state') !== erwartet) throw new Error('Sign-in did not match. Try again.');
+  const r = await fetch(`${BASIS}/platform/app/oauth/token/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-API-Key': CONFIG.apiKey },
+    body: new URLSearchParams({ grant_type: 'authorization_code', code, client_id: CONFIG.clientId }),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || !d.access_token) throw new Error(`Bungie sign-in failed: ${d.error_description || r.status}`);
+  schreib({ token: d.access_token, bis: Date.now() + d.expires_in * 1000, mitglied: d.membership_id });
+  return true;
+}
+
+async function anfrage(pfad, optionen = {}) {
+  const t = lies();
+  const headers = { 'X-API-Key': CONFIG.apiKey, ...(optionen.body ? { 'Content-Type': 'application/json' } : {}) };
+  if (t && t.bis > Date.now()) headers.Authorization = `Bearer ${t.token}`;
+  const r = await fetch(`${BASIS}/Platform${pfad}`, { ...optionen, headers });
+  const d = await r.json().catch(() => null);
+  if (r.status === 401) { abmelden(); throw new Error('Session expired. Sign in again.'); }
+  if (!r.ok || !d || d.ErrorCode !== 1) throw new Error(`Bungie says: ${d?.Message || `HTTP ${r.status}`}`);
+  return d.Response;
+}
+export const get = (pfad) => anfrage(pfad);
+export const post = (pfad, inhalt) => anfrage(pfad, { method: 'POST', body: JSON.stringify(inhalt) });
+
+export async function konto() {
+  const d = await get('/User/GetMembershipsForCurrentUser/');
+  const k = d.destinyMemberships.find((x) => x.membershipId === d.primaryMembershipId)
+    || d.destinyMemberships.find((x) => x.crossSaveOverride === x.membershipType) || d.destinyMemberships[0];
+  if (!k) throw new Error('No Destiny profile on this Bungie account.');
+  return { ...k, name: d.bungieNetUser?.uniqueName || k.bungieGlobalDisplayName || k.displayName };
+}
+export const profil = (k) => get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/?components=${KOMPONENTEN}`);

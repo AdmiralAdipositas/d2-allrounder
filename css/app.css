@@ -1,0 +1,82 @@
+/* D2 Allrounder: dunkel, minimalistisch, Destiny-Akzente. */
+:root{
+  --bg:#0b0a1a;--bg2:#120f26;--flaeche:#181431;--flaeche2:#211b44;--linie:#2e2760;--text:#ece9fb;--matt:#9a93c4;
+  --gold:#e8c35a;--violett:#9b7bff;--gut:#5fe0a8;--warn:#ff7a6b;
+  --kinetic:#d8dbe2;--arc:#7fd5ff;--solar:#ff8a2a;--void:#b37bff;--stasis:#4f86ff;--strand:#3fe08f;
+  --rail:58px;--rail-offen:210px;--panel:330px;
+  --kopf:'Rajdhani',system-ui,sans-serif;--fliess:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);color-scheme:dark}
+body{margin:0;color:var(--text);font:14px/1.4 var(--fliess);min-height:100vh;
+  background:radial-gradient(900px 500px at 85% -10%,#3a1f7a55,transparent 70%),radial-gradient(700px 420px at 0% 110%,#0e4a5a44,transparent 70%),var(--bg);
+  display:grid;grid-template-columns:var(--rail) minmax(0,1fr) auto}
+button{font:inherit;color:inherit;cursor:pointer;background:var(--flaeche);border:1px solid var(--linie);border-radius:6px;padding:6px 12px}
+button:hover{border-color:var(--violett)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.haupt-knopf{background:var(--gold);color:#1d1400;border-color:var(--gold);font-weight:600}
+h1,h2,h3{font-family:var(--kopf);letter-spacing:.04em;text-transform:uppercase;margin:0}
+h1{font-size:1.6rem;font-weight:700}h2{font-size:1.15rem;font-weight:600}h3{font-size:.95rem;font-weight:600;color:var(--gold)}
+
+/* Seitenleiste: eingeklappt Symbole, Hover oder Antippen klappt sie über den Inhalt aus. */
+#rail{position:fixed;inset:0 auto 0 0;width:var(--rail);z-index:20;display:flex;flex-direction:column;gap:4px;padding:10px 7px;
+  background:linear-gradient(180deg,#15112ef2,#0d0b1ff2);border-right:1px solid var(--linie);transition:width .18s ease;overflow:hidden}
+#rail:hover,#rail.offen{width:var(--rail-offen);box-shadow:8px 0 30px #0009}
+#rail button,.logo{display:flex;align-items:center;gap:12px;width:100%;padding:9px 10px;border:0;border-radius:8px;background:none;white-space:nowrap;text-align:left;color:var(--matt)}
+#rail button:hover{background:var(--flaeche);color:var(--text)}
+#rail button.an{background:linear-gradient(90deg,#9b7bff33,transparent);color:var(--text);box-shadow:inset 3px 0 0 var(--gold)}
+#rail button.panel-an{color:var(--gold)}
+#rail svg{flex:none;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#rail span{opacity:0;transition:opacity .12s}#rail:hover span,#rail.offen span{opacity:1}
+.logo{color:var(--gold);font-family:var(--kopf);font-weight:700;letter-spacing:.06em;margin-bottom:8px}.logo svg{stroke:var(--gold)}
+.trenner{height:1px;background:var(--linie);margin:6px 4px}
+.gruppe{display:flex;flex-direction:column;gap:2px}.unten{margin-top:auto}
+
+main{grid-column:2;min-width:0;padding:18px 22px 60px}
+#panel{grid-column:3;width:var(--panel);position:sticky;top:0;height:100vh;overflow:auto;border-left:1px solid var(--linie);background:#110e25e8;padding:16px;scrollbar-width:thin}
+#panel[hidden]{display:none}
+
+.leer{color:var(--matt);max-width:60ch}
+.karte{background:linear-gradient(180deg,var(--flaeche),var(--bg2));border:1px solid var(--linie);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.kopf{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.kopf .platz{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border-radius:999px;padding:4px 12px;font-size:.85rem;background:var(--bg2)}
+.chip[aria-pressed=true]{background:var(--violett);border-color:var(--violett);color:#140c33;font-weight:600}
+
+/* Items */
+.reihe{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px;align-items:start;padding:8px 0;border-top:1px solid #241e4d}
+.reihe>h3{padding-top:12px;font-size:.85rem}
+.raster{display:flex;flex-wrap:wrap;gap:5px}
+.ic{position:relative;width:52px;height:52px;flex:none;border-radius:4px;background:#0f0c24 center/cover no-repeat;border:2px solid #3a3466;cursor:pointer}
+.ic:hover{transform:translateY(-1px);box-shadow:0 4px 14px #0008}
+.ic.exotic{box-shadow:inset 0 0 0 1px var(--gold)}
+.ic.el-1{border-color:var(--kinetic)}.ic.el-2{border-color:var(--arc)}.ic.el-3{border-color:var(--solar)}.ic.el-4{border-color:var(--void)}.ic.el-6{border-color:var(--stasis)}.ic.el-7{border-color:var(--strand)}
+.ic .pow{position:absolute;right:1px;bottom:0;font:600 .62rem var(--fliess);background:#000a;padding:0 3px;border-radius:2px}
+.ic .ch{position:absolute;left:2px;top:2px;width:15px;height:15px;border-radius:50%;background:#07051a center/cover;border:1px solid var(--gold)}
+.ic .ort{position:absolute;right:-4px;top:-4px;width:12px;height:12px;border-radius:50%;border:2px solid var(--bg)}
+.ort.tresor{background:var(--gold)}.ort.char{background:var(--gut)}
+.ic.dim{opacity:.25;filter:grayscale(.7)}
+
+#tipp{position:fixed;z-index:50;max-width:380px;background:#07051af2;border:1px solid var(--violett);border-radius:8px;padding:10px 12px;pointer-events:none;box-shadow:0 10px 30px #000b}
+#tipp b{font-family:var(--kopf);font-size:1.05rem;letter-spacing:.03em}#tipp small{display:block;color:var(--matt)}
+.perks{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.perks i{width:28px;height:28px;border-radius:50%;background:#0f0b28 center/cover;border:1px solid var(--linie)}
+#meldung{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--flaeche2);border:1px solid var(--linie);padding:10px 16px;border-radius:8px;display:none;z-index:60}
+#meldung.fehler{border-color:var(--warn)}
+
+.anmelden{max-width:520px;margin:10vh auto;text-align:center}.anmelden p{color:var(--matt)}
+
+/* Handy: Leiste wird zur Leiste unten, Panel zum Overlay. */
+@media(max-width:760px){
+  body{grid-template-columns:1fr;padding-bottom:64px}
+  #rail{inset:auto 0 0 0;width:100%;height:60px;flex-direction:row;padding:6px;border-right:0;border-top:1px solid var(--linie)}
+  #rail:hover,#rail.offen{width:100%;box-shadow:none}
+  #rail .logo,#rail .trenner,#rail span{display:none}
+  #rail .gruppe{flex-direction:row;flex:1;justify-content:space-around}#rail .gruppe:not([role]){flex:none}#rail .unten{margin:0}
+  #rail button{justify-content:center;padding:8px}
+  main{grid-column:1;padding:14px 12px 80px}
+  #panel{position:fixed;inset:0 0 60px 0;width:auto;height:auto;z-index:30}
+  .reihe{grid-template-columns:1fr}.reihe>h3{padding-top:0}
+  .ic{width:46px;height:46px}
+}
+@media(prefers-reduced-motion:reduce){#rail,#rail span{transition:none}.ic:hover{transform:none}}
