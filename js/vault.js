@@ -42,28 +42,97 @@ function kachel(x) {
     ${champ}<i class="ort ${ort}"></i>${x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
 }
 
+// Filtergruppen: innerhalb einer Gruppe ODER, zwischen Gruppen UND.
+const AMMO = { 1: 'Primary', 2: 'Special', 3: 'Heavy' };
+const SELTEN = { 6: 'Exotic', 5: 'Legendary', 4: 'Rare', 3: 'Uncommon', 2: 'Common' };
+const GRUPPEN = [
+  ['ort', 'Location'], ['element', 'Element'], ['ammo', 'Ammo'], ['champ', 'Champion'], ['art', 'Weapon type'], ['frame', 'Frame'],
+  ['selten', 'Rarity'], ['set', 'Armor set'], ['kopien', 'Copies'],
+];
+const merkmale = (x, anzahl, nachChar) => ({
+  ort: x.ort === 'tresor' ? 'Vault' : nachChar[x.ort] || 'Character',
+  element: x.d.t === 3 ? defs.schaden?.[x.element]?.n || '' : '',
+  ammo: AMMO[x.d.a] || '',
+  champ: x.champ ? CHAMP_NAME[x.champ.n] || x.champ.n : '',
+  art: x.d.t === 3 ? x.d.k : '',
+  frame: x.d.t === 3 ? x.plugs.map((p) => defs.items[p]).find((p) => p?.pc === 'intrinsics')?.n || '' : '',
+  selten: SELTEN[x.d.q] || '',
+  set: x.d.e ? defs.sets?.[x.d.e]?.n || '' : '',
+  kopien: anzahl[x.hash] > 1 ? 'Duplicates' : 'Single',
+});
+let filter = (() => { try { return JSON.parse(localStorage.getItem('d2a.filter') || '{}'); } catch { return {}; } })();
+let suche = '';
+const merke = () => { try { localStorage.setItem('d2a.filter', JSON.stringify(filter)); } catch {} };
+
+function passt(x) {
+  for (const [g, werte] of Object.entries(filter)) if (werte.length && !werte.includes(x.m[g])) return false;
+  if (!suche) return true;
+  const plugNamen = x.plugs.map((p) => defs.items[p]?.n || '').join(' ');
+  return suche.split(/\s+/).every((w) => `${x.d.n} ${x.d.k} ${plugNamen} ${Object.values(x.m).join(' ')}`.toLowerCase().includes(w));
+}
+
 export function zeigeVault(haupt, zustand) {
   const profil = zustand.profil;
   const chars = Object.values(profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
   if (klasse === null) klasse = chars[0]?.classType ?? 2;
   const alle = sammle(profil);
   const nachChar = Object.fromEntries(chars.map((c) => [c.characterId, KLASSE[c.classType]]));
+  const anzahl = {};
+  for (const x of alle) anzahl[x.hash] = (anzahl[x.hash] || 0) + 1;
+  for (const x of alle) x.m = merkmale(x, anzahl, nachChar);
 
+  haupt.innerHTML = `<div class="kopf"><h1>Vault</h1><input id="suche" type="search" placeholder="Search name, perk, frame…" aria-label="Search" value="${esc(suche)}">
+    <span class="platz"></span><div class="chips" role="group" aria-label="Class">
+    ${chars.map((c) => `<button class="chip" data-klasse="${c.classType}" aria-pressed="${c.classType === klasse}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}
+    </div></div><div id="filter" class="filter"></div><div id="reihen"></div>`;
+  const fBox = haupt.querySelector('#filter');
+  const rBox = haupt.querySelector('#reihen');
+  const offen = new Set(JSON.parse((() => { try { return localStorage.getItem('d2a.offen'); } catch { return null; } })() || '[]'));
+
+  const zeichneFilter = (sichtbar) => {
+    const aktiv = Object.values(filter).flat().length;
+    fBox.innerHTML = GRUPPEN.map(([g, titel]) => {
+      const zaehl = {};
+      for (const x of sichtbar) if (x.m[g]) zaehl[x.m[g]] = (zaehl[x.m[g]] || 0) + 1;
+      const werte = Object.keys(zaehl).sort((a, b) => zaehl[b] - zaehl[a] || a.localeCompare(b));
+      if (!werte.length) return '';
+      const gewaehlt = filter[g] || [];
+      return `<details data-gruppe="${g}" ${offen.has(g) ? 'open' : ''}><summary>${titel}${gewaehlt.length ? ` <b>${gewaehlt.length}</b>` : ''}</summary><div class="chips">
+        ${werte.map((w) => `<button class="chip" data-g="${g}" data-w="${esc(w)}" aria-pressed="${gewaehlt.includes(w)}">${esc(w)} <small>${zaehl[w]}</small></button>`).join('')}</div></details>`;
+    }).join('') + (aktiv ? '<button id="leeren" class="chip">Clear filters</button>' : '');
+  };
   const zeichne = () => {
-    const sichtbar = alle.filter((x) => WAFFE.has(x.d.b) || x.d.c === klasse || x.d.c === 3);
+    const klassenItems = alle.filter((x) => WAFFE.has(x.d.b) || x.d.c === klasse || x.d.c === 3);
+    zeichneFilter(klassenItems);
+    const sichtbar = klassenItems.filter(passt);
     const reihen = SLOTS.map(([b, name]) => {
       const st = sichtbar.filter((x) => x.d.b === b).sort((p, q) => (q.d.q === 6) - (p.d.q === 6) || q.power - p.power || p.d.n.localeCompare(q.d.n));
       return st.length ? `<section class="reihe"><h3>${name} <small>${st.length}</small></h3><div class="raster">${st.map(kachel).join('')}</div></section>` : '';
     }).join('');
-    haupt.innerHTML = `<div class="kopf"><h1>Vault</h1><span class="platz"></span><div class="chips" role="group" aria-label="Class">
-      ${chars.map((c) => `<button class="chip" data-klasse="${c.classType}" aria-pressed="${c.classType === klasse}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}
-      </div></div>${reihen || '<p class="leer">No weapons or armor found.</p>'}`;
+    rBox.innerHTML = reihen || '<p class="leer">Nothing matches these filters.</p>';
+    haupt.querySelectorAll('[data-klasse]').forEach((c) => c.setAttribute('aria-pressed', Number(c.dataset.klasse) === klasse));
   };
   zeichne();
 
+  haupt.querySelector('#suche').oninput = (e) => { suche = e.target.value.trim().toLowerCase(); zeichne(); };
+  fBox.addEventListener('toggle', (e) => {
+    const g = e.target.dataset?.gruppe;
+    if (!g) return;
+    if (e.target.open) offen.add(g); else offen.delete(g);
+    try { localStorage.setItem('d2a.offen', JSON.stringify([...offen])); } catch {}
+  }, true);
   haupt.onclick = (e) => {
     const c = e.target.closest('[data-klasse]');
-    if (c) { klasse = Number(c.dataset.klasse); zeichne(); }
+    if (c) { klasse = Number(c.dataset.klasse); return zeichne(); }
+    const f = e.target.closest('[data-g]');
+    if (f) {
+      const liste = filter[f.dataset.g] || [];
+      const w = f.dataset.w;
+      filter[f.dataset.g] = liste.includes(w) ? liste.filter((x) => x !== w) : [...liste, w];
+      merke();
+      return zeichne();
+    }
+    if (e.target.id === 'leeren') { filter = {}; merke(); zeichne(); }
   };
   const tipp = document.querySelector('#tipp');
   const zeige = (el, x, y) => {
@@ -71,8 +140,10 @@ export function zeigeVault(haupt, zustand) {
     if (!it) return;
     const perks = it.plugs.map((p) => defs.items[p]).filter((p) => p?.i && p.pc && !NEBENSACHE.test(p.pc));
     const wo = it.ort === 'tresor' ? 'Vault' : `${nachChar[it.ort] || 'Character'}${it.angelegt ? ', equipped' : ''}`;
-    const champ = it.champ ? ` · ${esc(CHAMP_NAME[it.champ.n] || it.champ.n)}` : '';
-    tipp.innerHTML = `<b>${esc(it.d.n)}</b><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${champ} · ${wo}</small>
+    const champ = it.champ ? ` · ${esc(it.m.champ)}` : '';
+    const frame = it.m.frame ? ` · ${esc(it.m.frame)}` : '';
+    const set = it.m.set ? ` · ${esc(it.m.set)}` : '';
+    tipp.innerHTML = `<b>${esc(it.d.n)}</b><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${frame}${champ}${set} · ${wo}</small>
       <div class="perks">${perks.slice(0, 10).map((p) => `<i title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})"></i>`).join('')}</div>`;
     tipp.hidden = false;
     const r = tipp.getBoundingClientRect();

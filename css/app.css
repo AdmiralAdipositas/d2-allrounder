@@ -80,3 +80,17 @@ main{grid-column:2;min-width:0;padding:18px 22px 60px}
   .ic{width:46px;height:46px}
 }
 @media(prefers-reduced-motion:reduce){#rail,#rail span{transition:none}.ic:hover{transform:none}}
+
+/* Suche und Filter im Tresor */
+#suche{background:var(--bg2);border:1px solid var(--linie);border-radius:8px;color:var(--text);padding:7px 12px;font:inherit;width:min(320px,100%)}
+.filter{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:flex-start;margin-bottom:10px}
+.filter details{background:var(--bg2);border:1px solid var(--linie);border-radius:8px;padding:0}
+.filter details[open]{flex-basis:100%;padding-bottom:8px}
+.filter summary{cursor:pointer;padding:5px 12px;font:600 .85rem var(--kopf);letter-spacing:.05em;text-transform:uppercase;color:var(--matt);list-style:none}
+.filter summary::-webkit-details-marker{display:none}
+.filter summary::after{content:' ▾';opacity:.6}.filter details[open] summary::after{content:' ▴'}
+.filter summary b{background:var(--gold);color:#1d1400;border-radius:999px;padding:0 6px;font-size:.75rem}
+.filter details .chips{padding:2px 10px}
+.chip small{opacity:.6}
+#leeren{border-color:var(--warn);color:var(--warn)}
+@media(max-width:760px){#suche{width:100%;order:3}}
