@@ -7,7 +7,10 @@ const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
 const haupt = $('#haupt');
 const panel = $('#panel');
-export const zustand = { konto: null, profil: null, tab: 'vault' };
+export const zustand = { konto: null, profil: null, tab: 'vault', neuLaden: async () => {
+  meldung('Loading from Bungie…');
+  try { await ladeProfil(); TABS[zustand.tab](); meldung('Up to date.'); } catch (e) { meldung(e.message, true); }
+} };
 
 export function meldung(text, fehler = false) {
   const m = $('#meldung');

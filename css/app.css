@@ -94,3 +94,26 @@ main{grid-column:2;min-width:0;padding:18px 22px 60px}
 .chip small{opacity:.6}
 #leeren{border-color:var(--warn);color:var(--warn)}
 @media(max-width:760px){#suche{width:100%;order:3}}
+
+/* Item-Detail */
+#detail{width:min(860px,96vw);max-height:90vh;overflow:auto;background:linear-gradient(180deg,#1a1538,#0e0b22);color:var(--text);border:1px solid var(--violett);border-radius:12px;padding:16px 18px;box-shadow:0 20px 60px #000c}
+#detail::backdrop{background:#05031088;backdrop-filter:blur(2px)}
+.dkopf{display:flex;gap:14px;align-items:center}.dkopf .ic{width:64px;height:64px;cursor:default}.dkopf>div{flex:1;min-width:0}
+.dkopf small{display:block;color:var(--matt)}.dkopf .wo{color:var(--gut)}
+.zu{background:none;border:0;font-size:1.1rem;color:var(--matt)}
+.aktionen{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;padding-bottom:12px;border-bottom:1px solid var(--linie)}
+.aktionen button,.pinfo button{padding:5px 12px;font-size:.85rem}
+button:disabled{opacity:.45;cursor:progress}
+.dkoerper{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:18px}
+.pgrid{display:flex;flex-wrap:wrap;gap:4px 10px}
+.pcol{display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px;border-radius:8px;background:#ffffff06;min-width:52px}
+.pcol small{font-size:.62rem;color:var(--matt);max-width:70px;text-align:center;line-height:1.1;min-height:1.4em}
+.pl{width:40px;height:40px;padding:0;border-radius:50%;background:#120e2c center/cover no-repeat;border:2px solid transparent;opacity:.55}
+.pl:hover{opacity:1}.pl.an{opacity:1;border-color:var(--arc);box-shadow:0 0 0 2px #7fd5ff33}.pl.wahl{opacity:1;border-color:var(--gold)}
+.pinfo{margin-top:12px;background:var(--bg2);border:1px solid var(--linie);border-radius:8px;padding:10px 12px}
+.pinfo small{display:block;color:var(--matt)}.pinfo p{margin:6px 0 8px}.pinfo em{color:var(--gut);font-style:normal}
+.klein{font-size:.85rem;margin-top:10px}
+.st{display:grid;grid-template-columns:110px 1fr 30px;gap:8px;align-items:center;font-size:.8rem;margin-bottom:4px}
+.st span{color:var(--matt)}.st i{height:6px;background:#ffffff12;border-radius:3px;overflow:hidden}.st b{display:block;height:100%;background:linear-gradient(90deg,var(--violett),var(--gold))}.st em{font-style:normal;text-align:right}
+.ort.post{background:var(--warn)}
+@media(max-width:760px){.dkoerper{grid-template-columns:1fr}#detail{padding:12px}}

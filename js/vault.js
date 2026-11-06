@@ -1,5 +1,6 @@
 // Tresor: alle Waffen und Rüstungen, gruppiert nach Slot, nebeneinander gestapelt.
 import { defs, champion, CHAMP_NAME } from './defs.js';
+import { oeffneDetail } from './detail.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -8,17 +9,25 @@ const SLOTS = [
   [3448274439, 'Helmet'], [3551918588, 'Gauntlets'], [14239492, 'Chest'], [20886954, 'Legs'], [1585787867, 'Class item'],
 ];
 const WAFFE = new Set([1498876634, 2465295065, 953998645]);
-const NEBENSACHE = /shader|skins|tracker|masterworks?\b|mementos|crafting|empty|v400\.plugs\.weapons\.masterworks|origins|enhancements\.(season|universal)/i;
+export const NEBENSACHE = /shader|skins|tracker|masterworks?\b|mementos|crafting|empty|v400\.plugs\.weapons\.masterworks|origins|enhancements\.(season|universal)/i;
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 let klasse = null;
+const POST = 215593132;
+// Lokale Änderungen nach Aktionen, bis Bungies Profil nachgezogen hat.
+export const aenderungen = new Map();
+export function merkeAenderung(id, werte) { aenderungen.set(id, { ...werte, zeit: Date.now() }); }
 
 // Alles aus dem Profil zu einer flachen Liste machen.
 export function sammle(profil) {
   const inst = profil.itemComponents?.instances?.data || {};
   const sockel = profil.itemComponents?.sockets?.data || {};
   const liste = [];
-  const nimm = (it, ort, angelegt = false) => {
+  const nimm = (it, ort0, angelegt0 = false) => {
+    const neu = aenderungen.get(it.itemInstanceId);
+    const frisch = neu && Date.now() - neu.zeit < 120_000;
+    const ort = frisch ? neu.ort : (it.bucketHash === POST ? `post:${ort0}` : ort0);
+    const angelegt = frisch ? neu.angelegt : angelegt0;
     const d = defs.items[it.itemHash];
     if (!d || !it.itemInstanceId || !SLOTS.some(([b]) => b === d.b)) return;
     const i = inst[it.itemInstanceId] || {};
@@ -37,7 +46,7 @@ export function sammle(profil) {
 
 function kachel(x) {
   const champ = x.champ ? `<i class="ch" style="background-image:url(${BILD}${x.champ.i})" aria-label="${esc(CHAMP_NAME[x.champ.n] || x.champ.n)}"></i>` : '';
-  const ort = x.ort === 'tresor' ? 'tresor' : 'char';
+  const ort = x.ort === 'tresor' ? 'tresor' : x.ort.startsWith('post:') ? 'post' : 'char';
   return `<div class="ic ${x.d.q === 6 ? 'exotic' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:url(${BILD}${x.d.i})">
     ${champ}<i class="ort ${ort}"></i>${x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
 }
@@ -50,7 +59,7 @@ const GRUPPEN = [
   ['selten', 'Rarity'], ['set', 'Armor set'], ['kopien', 'Copies'],
 ];
 const merkmale = (x, anzahl, nachChar) => ({
-  ort: x.ort === 'tresor' ? 'Vault' : nachChar[x.ort] || 'Character',
+  ort: x.ort === 'tresor' ? 'Vault' : x.ort.startsWith('post:') ? 'Postmaster' : nachChar[x.ort] || 'Character',
   element: x.d.t === 3 ? defs.schaden?.[x.element]?.n || '' : '',
   ammo: AMMO[x.d.a] || '',
   champ: x.champ ? CHAMP_NAME[x.champ.n] || x.champ.n : '',
@@ -82,7 +91,7 @@ export function zeigeVault(haupt, zustand) {
   for (const x of alle) x.m = merkmale(x, anzahl, nachChar);
 
   haupt.innerHTML = `<div class="kopf"><h1>Vault</h1><input id="suche" type="search" placeholder="Search name, perk, frame…" aria-label="Search" value="${esc(suche)}">
-    <span class="platz"></span><div class="chips" role="group" aria-label="Class">
+    <button id="neu" class="chip" title="Reload from Bungie">↻ Refresh</button><span class="platz"></span><div class="chips" role="group" aria-label="Class">
     ${chars.map((c) => `<button class="chip" data-klasse="${c.classType}" aria-pressed="${c.classType === klasse}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}
     </div></div><div id="filter" class="filter"></div><div id="reihen"></div>`;
   const fBox = haupt.querySelector('#filter');
@@ -132,14 +141,17 @@ export function zeigeVault(haupt, zustand) {
       merke();
       return zeichne();
     }
-    if (e.target.id === 'leeren') { filter = {}; merke(); zeichne(); }
+    if (e.target.id === 'leeren') { filter = {}; merke(); return zeichne(); }
+    if (e.target.id === 'neu') return zustand.neuLaden();
+    const k = e.target.closest('.ic');
+    if (k) { tipp.hidden = true; oeffneDetail(alle.find((a) => a.id === k.dataset.id), zustand, () => zeigeVault(haupt, zustand)); }
   };
   const tipp = document.querySelector('#tipp');
   const zeige = (el, x, y) => {
     const it = alle.find((a) => a.id === el.dataset.id);
     if (!it) return;
     const perks = it.plugs.map((p) => defs.items[p]).filter((p) => p?.i && p.pc && !NEBENSACHE.test(p.pc));
-    const wo = it.ort === 'tresor' ? 'Vault' : `${nachChar[it.ort] || 'Character'}${it.angelegt ? ', equipped' : ''}`;
+    const wo = `${it.m.ort}${it.angelegt ? ', equipped' : ''}`;
     const champ = it.champ ? ` · ${esc(it.m.champ)}` : '';
     const frame = it.m.frame ? ` · ${esc(it.m.frame)}` : '';
     const set = it.m.set ? ` · ${esc(it.m.set)}` : '';
