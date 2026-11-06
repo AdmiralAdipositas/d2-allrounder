@@ -117,3 +117,5 @@ button:disabled{opacity:.45;cursor:progress}
 .st span{color:var(--matt)}.st i{height:6px;background:#ffffff12;border-radius:3px;overflow:hidden}.st b{display:block;height:100%;background:linear-gradient(90deg,var(--violett),var(--gold))}.st em{font-style:normal;text-align:right}
 .ort.post{background:var(--warn)}
 @media(max-width:760px){.dkoerper{grid-template-columns:1fr}#detail{padding:12px}}
+.pcol.breit{flex-direction:row;flex-wrap:wrap;justify-content:flex-start;max-width:236px;align-content:flex-start}.pcol.breit small{flex-basis:100%;max-width:none}
+.pcol.breit .pl{width:34px;height:34px}

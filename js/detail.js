@@ -41,7 +41,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     if (it.ort !== 'tresor') b.push(`<button data-a="tresor">To Vault</button>`);
     return b.join('');
   };
-  const raster = () => spalten.map((sp) => `<div class="pcol"><small>${esc(sp.art)}</small>${sp.plugs.map((h) => {
+  const raster = () => spalten.map((sp) => `<div class="pcol ${sp.plugs.length > 6 ? 'breit' : ''}"><small>${esc(sp.art)}</small>${sp.plugs.map((h) => {
     const p = defs.items[h];
     return `<button class="pl ${h === sp.aktiv ? 'an' : ''} ${wahl?.h === h && wahl?.s === sp.s ? 'wahl' : ''}" data-s="${sp.s}" data-h="${h}" title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})"></button>`;
   }).join('')}</div>`).join('');
