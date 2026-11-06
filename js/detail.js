@@ -41,10 +41,18 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     if (it.ort !== 'tresor') b.push(`<button data-a="tresor">To Vault</button>`);
     return b.join('');
   };
-  const raster = () => spalten.map((sp) => `<div class="pcol ${sp.plugs.length > 6 ? 'breit' : ''}"><small>${esc(sp.art)}</small>${sp.plugs.map((h) => {
+  // Lange Spalten (z. B. Weapon Mods) zeigen nur den aktiven Plug, ein Klick klappt sie als breites Raster auf.
+  let offen = null;
+  const knopf = (sp, h) => {
     const p = defs.items[h];
     return `<button class="pl ${h === sp.aktiv ? 'an' : ''} ${wahl?.h === h && wahl?.s === sp.s ? 'wahl' : ''}" data-s="${sp.s}" data-h="${h}" title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})"></button>`;
-  }).join('')}</div>`).join('');
+  };
+  const raster = () => spalten.map((sp) => {
+    if (sp.plugs.length <= 6) return `<div class="pcol"><small>${esc(sp.art)}</small>${sp.plugs.map((h) => knopf(sp, h)).join('')}</div>`;
+    const auf = offen === sp.s;
+    return `<div class="pcol ${auf ? 'breit' : ''}"><small>${esc(sp.art)}</small>${auf ? sp.plugs.map((h) => knopf(sp, h)).join('') : knopf(sp, sp.aktiv)}
+      <button class="mehr" data-mehr="${sp.s}">${auf ? 'Less' : `+${sp.plugs.length - 1}`}</button></div>`;
+  }).join('');
   const infoBox = () => {
     if (!wahl) return '<p class="leer klein">Click a perk or mod to read it. Click “Apply” to switch to it.</p>';
     const p = defs.items[wahl.h];
@@ -60,7 +68,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
       <div><h2>${esc(it.d.n)}</h2><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${it.m.frame ? ` · ${esc(it.m.frame)}` : ''}${it.m.champ ? ` · Stuns ${esc(it.m.champ)}` : ''}${it.m.set ? ` · ${esc(it.m.set)}` : ''}</small>
       <small class="wo">${ortText()}</small></div><button class="zu" data-a="schliessen" aria-label="Close">✕</button></div>
       <div class="aktionen">${knoepfe()}</div>
-      ${laed ? '<p class="leer">Loading perks…</p>' : `<div class="dkoerper"><div><div class="pgrid">${raster() || '<p class="leer">No changeable perks.</p>'}</div>${infoBox()}</div><div class="dstats">${stats}</div></div>`}`;
+      ${laed ? '<p class="leer">Loading perks…</p>' : `<div class="dkoerper"><div class="pgrid">${raster() || '<p class="leer">No changeable perks.</p>'}</div><div class="dseite">${infoBox()}<div class="dstats">${stats}</div></div></div>`}`;
     if (d.open) d.append(m);
     d.querySelectorAll('button').forEach((x) => { x.disabled = beschaeftigt && x.dataset.a !== 'schliessen'; });
   };
@@ -124,6 +132,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     const b = e.target.closest('button');
     if (!b || b.disabled) return;
     if (b.dataset.a === 'schliessen') return d.close();
+    if (b.dataset.mehr) { offen = offen === Number(b.dataset.mehr) ? null : Number(b.dataset.mehr); return zeichne(); }
     if (b.dataset.h) { wahl = { s: Number(b.dataset.s), h: Number(b.dataset.h) }; return zeichne(); }
     if (b.dataset.a) fuehreAus(b.dataset.a, b.dataset.c);
   };

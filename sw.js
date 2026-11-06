@@ -1,5 +1,5 @@
 // Offline-Hülle: App-Dateien aus dem Cache, Spieldaten im Hintergrund frisch, Bungie-API nie aus dem Cache.
-const CACHE = 'd2a-v1';
+const CACHE = 'd2a-v2';
 const HUELLE = ['./', 'index.html', 'css/app.css', 'js/app.js', 'js/bungie.js', 'js/defs.js', 'js/vault.js', 'js/config.js', 'icons/icon.svg', 'manifest.webmanifest'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(HUELLE))); self.skipWaiting(); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((k) => Promise.all(k.filter((x) => x !== CACHE).map((x) => caches.delete(x))))); self.clients.claim(); });
