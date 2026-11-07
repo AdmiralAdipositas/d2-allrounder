@@ -13,6 +13,7 @@ import { zeigeXur, xurDa } from './xur.js';
 import { zeigePost, postAnzahl } from './post.js';
 import { zeigeKonto } from './konto.js';
 import { zeigeWiki, setzeWikiSuche } from './wiki.js';
+import { zeigeSymbole } from './symbole.js';
 import { zeigeSquad } from './squad.js';
 
 const $ = (s) => document.querySelector(s);
@@ -66,7 +67,14 @@ const ANSICHTEN = {
   stats: ['Stats', (el) => zeigeStats(el, zustand)],
   wiki: ['Wiki', (el) => zeigeWiki(el, zustand)],
   squad: ['Squad check', (el) => zeigeSquad(el, zustand)],
-  guide: ['Raid Guide', (el) => { el.innerHTML = '<div class="guide-kopf"><button class="chip" data-panelart="squad">👥 Squad check</button></div><iframe class="guide" src="guide/index.html" title="Raid briefing"></iframe><p class="leer klein">Your raid and dungeon briefing with animations, roles, challenges and callouts (DE/EN). <a href="guide/index.html" target="_blank" rel="noopener">Open full screen ↗</a></p>'; }],
+  guide: ['Raid Guide', (el) => {
+    const teil = (() => { try { return localStorage.getItem('d2a.guideTeil') || 'briefing'; } catch { return 'briefing'; } })();
+    el.innerHTML = `<div class="guide-kopf"><button class="chip" data-gteil="briefing" aria-pressed="${teil === 'briefing'}">🎬 Briefing</button><button class="chip" data-gteil="symbole" aria-pressed="${teil === 'symbole'}">🔣 Symbols & callouts</button><button class="chip" data-panelart="squad">👥 Squad check</button></div><div id="gInhalt"></div>`;
+    const inhalt = el.querySelector('#gInhalt');
+    if (teil === 'symbole') zeigeSymbole(inhalt);
+    else inhalt.innerHTML = '<iframe class="guide" src="guide/index.html" title="Raid briefing"></iframe><p class="leer klein">Your raid and dungeon briefing with animations, roles, challenges and callouts (DE/EN). <a href="guide/index.html" target="_blank" rel="noopener">Open full screen ↗</a></p>';
+    el.querySelectorAll('[data-gteil]').forEach((b) => { b.onclick = () => { try { localStorage.setItem('d2a.guideTeil', b.dataset.gteil); } catch {} ANSICHTEN.guide[1](el); }; });
+  }],
 };
 const TABS = Object.fromEntries(['vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
