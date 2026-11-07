@@ -6,7 +6,7 @@ import { NEBENSACHE, merkeAenderung, sammle } from './vault.js';
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-const plugOk = (h) => { const p = defs.items[h]; return p && p.n && p.i && !NEBENSACHE.test(p.pc || '') && !/^Empty|Default (Shader|Ornament)/.test(p.n); };
+export const plugOk = (h) => { const p = defs.items[h]; return p && p.n && p.i && !NEBENSACHE.test(p.pc || '') && !/^Empty|Default (Shader|Ornament)/.test(p.n); };
 
 let dlg = null;
 function fenster() {

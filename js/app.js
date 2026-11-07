@@ -2,6 +2,8 @@
 import * as bungie from './bungie.js';
 import { ladeDefs } from './defs.js';
 import { zeigeVault } from './vault.js';
+import { zeigeWoche } from './woche.js';
+import { zeigeXur, xurDa } from './xur.js';
 
 const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
@@ -28,6 +30,7 @@ document.addEventListener('pointerdown', (e) => { if (!rail.contains(e.target)) 
 const TABS = {
   vault: () => zeigeVault(haupt, zustand, 'waffen'),
   armor: () => zeigeVault(haupt, zustand, 'ruestung'),
+  xur: () => zeigeXur(haupt, zustand),
   loadouts: () => platzhalter('Loadouts', 'Saved loadouts and one-click equip come in the next patch.'),
   optimizer: () => platzhalter('Optimizer', 'The armor optimizer with live stat bars comes in the next patch.'),
   finder: () => platzhalter('Build Finder', 'Finds builds from what you own. Comes in the next patch.'),
@@ -39,7 +42,7 @@ function wechsle(tab) {
   zustand.tab = tab;
   rail.querySelectorAll('[data-tab]').forEach((b) => { const an = b.dataset.tab === tab; b.classList.toggle('an', an); b.setAttribute('aria-selected', an); });
   try { localStorage.setItem('d2a.tab', tab); } catch {}
-  if (!zustand.profil && !['vault', 'armor'].includes(tab)) return platzhalter(titelVon(tab), 'Sign in with Bungie first.');
+  if (!zustand.profil) return platzhalter(titelVon(tab), 'Sign in with Bungie first.');
   TABS[tab]();
 }
 const titelVon = (tab) => rail.querySelector(`[data-tab="${tab}"] span`).textContent;
@@ -53,6 +56,16 @@ rail.addEventListener('click', (e) => {
   if (matchMedia('(pointer: coarse)').matches) rail.classList.remove('offen');
 });
 
+panel.addEventListener('click', (e) => { const g = e.target.closest('[data-geh]'); if (g) wechsle(g.dataset.geh); });
+panel.addEventListener('pointerover', (e) => {
+  const m = e.target.closest('[data-tn]'); const t = $('#tipp');
+  if (!m) { t.hidden = true; return; }
+  t.innerHTML = `<b>${m.dataset.tn.replace(/</g, '&lt;')}</b><p class="tt">${m.dataset.td.replace(/</g, '&lt;')}</p>`;
+  t.hidden = false;
+  const r = m.getBoundingClientRect(), b = t.getBoundingClientRect();
+  t.style.left = `${Math.max(8, r.left - b.width - 8)}px`; t.style.top = `${Math.min(r.top, innerHeight - b.height - 8)}px`;
+});
+panel.addEventListener('pointerleave', () => { $('#tipp').hidden = true; });
 // Panels liegen neben dem aktiven Tab und lassen ihn unberührt.
 function schaltePanel(b) {
   const offen = !panel.hidden && panel.dataset.art === b.dataset.panel;
@@ -61,7 +74,7 @@ function schaltePanel(b) {
   panel.dataset.art = b.dataset.panel;
   b.classList.add('panel-an');
   panel.hidden = false;
-  panel.innerHTML = '<h2>This week</h2><p class="leer">Weekly and daily rotation with loot tiers comes in the next patch.</p>';
+  zeigeWoche(panel, zustand, zustand.xur);
 }
 
 function kontoKlick() {
@@ -101,7 +114,14 @@ async function start() {
     $('#kontoName').textContent = zustand.konto.name;
     $('#konto').title = 'Sign out';
     await ladeProfil();
+    if (zustand.tab === 'xur') zustand.tab = 'vault';
     wechsle(zustand.tab);
+    // Xûr-Tab nur zeigen, wenn er da ist.
+    xurDa(zustand).then((bis) => {
+      zustand.xur = bis;
+      rail.querySelector('[data-tab="xur"]').hidden = !bis;
+      if (!panel.hidden && panel.dataset.art === 'woche') zeigeWoche(panel, zustand, bis);
+    });
   } catch (e) {
     meldung(e.message, true);
     if (!bungie.angemeldet()) anmeldeSeite();
