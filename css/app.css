@@ -552,3 +552,24 @@ body.ziehe{user-select:none;cursor:ew-resize}
 .kwerte span.erreicht b{color:var(--gut)}
 .klegende{display:block;font-size:.7rem;color:var(--matt);margin:2px 0 6px}.klegende ins{text-decoration:none;color:var(--gut)}
 .kweg{display:block;flex-basis:100%;font-size:.74rem;opacity:.8;margin:2px 0 0}
+
+/* Hüter-Ansicht (Startseite): Charakter-Banner, Stats, Slots wie im Spiel */
+.cwahl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:12px}
+.cbanner{position:relative;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;align-items:center;height:66px;padding:8px 14px 8px 76px;border:2px solid transparent;border-radius:6px;background:#1a1530 left center/cover no-repeat;text-align:left;color:#fff;text-shadow:0 1px 3px #000}
+.cbanner b{font-family:var(--kopf);font-size:1.1rem;letter-spacing:.04em}.cbanner small{grid-row:2;opacity:.85}.cbanner span{grid-row:1/3;grid-column:2;font-family:var(--kopf);font-size:1.3rem;color:var(--gold)}
+.cbanner.an{border-color:var(--gold);box-shadow:0 0 14px #e8c35a44}.cbanner:not(.an){filter:saturate(.6) brightness(.8)}.cbanner:hover{filter:none}
+.cstats{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:14px}.cstats span{display:flex;align-items:center;gap:6px}.cstats i{width:20px;height:20px;background:center/contain no-repeat}.cstats small{color:var(--matt);font-size:.75rem}.cstats b{font-size:1rem}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px;align-items:start}
+.ckarte{border:1px solid var(--linie);border-radius:12px;padding:10px 12px;background:var(--bg2)}.ckarte h3{margin:0 0 8px;font-size:.85rem}.ckarte h3 small{color:var(--matt);font-weight:400}
+.creihe{position:relative;padding:6px 0;border-top:1px solid #241e4d}.creihe>small{display:block;font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--matt);margin-bottom:3px}
+.cr-in{display:flex;gap:10px;align-items:flex-start}
+.cgitter{display:grid;grid-template-columns:repeat(3,38px);gap:4px}.cgitter.breit{grid-template-columns:repeat(auto-fill,38px)}
+.ck{position:relative;width:38px;height:38px;padding:0;border:1px solid #3a3466;border-radius:3px;background:#0f0c24 center/cover no-repeat;cursor:pointer}
+.ck.gross{width:62px;height:62px;border-width:2px}.ck.exo{border-color:var(--gold)}.ck.mw{box-shadow:inset 0 0 0 1px #e8c35a88}
+.ck.leer-k{cursor:default;background:#ffffff05;border-style:dashed;border-color:#2a2450}
+.ck em{position:absolute;right:1px;bottom:1px;font-style:normal;font-size:.6rem;line-height:1;padding:1px 2px;background:#000a;color:#fff;border-radius:2px}.ck.gross em{font-size:.72rem}
+.ck em.arc{color:#7fd8ff}.ck em.solar{color:#ff9b4a}.ck em.void{color:#c69bff}.ck em.stasis{color:#6fa8ff}.ck em.strand{color:#5fe08a}
+.ck-lock{position:absolute;left:1px;top:1px;font-size:.55rem;font-style:normal}
+.cvoll{position:absolute;right:0;top:6px;font-size:.62rem;color:var(--danger,#ff6156);text-transform:uppercase}
+.cpost{margin-top:14px!important}
+@media(max-width:760px){.cgrid{grid-template-columns:1fr}.cwahl{grid-template-columns:1fr}.cgitter{grid-template-columns:repeat(3,34px)}.ck{width:34px;height:34px}.ck.gross{width:56px;height:56px}}

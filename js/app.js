@@ -15,6 +15,7 @@ import { zeigeKonto } from './konto.js';
 import { zeigeWiki, setzeWikiSuche } from './wiki.js';
 import { zeigeSquad } from './squad.js';
 import { setzeNav } from './info.js';
+import { zeigeCharakter } from './charakter.js';
 import { starte as starteSprache } from './sprache.js';
 import { sammle } from './vault.js';
 
@@ -22,7 +23,7 @@ const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
 const haupt = $('#haupt');
 const panel = $('#panel');
-export const zustand = { konto: null, profil: null, tab: 'vault', neuLaden: async () => { zustand.alleItems = null;
+export const zustand = { konto: null, profil: null, tab: 'char', neuLaden: async () => { zustand.alleItems = null;
   meldung('Loading from Bungie…');
   try { await ladeProfil(); TABS[zustand.tab](); meldung('Up to date.'); } catch (e) { meldung(e.message, true); }
 } };
@@ -61,6 +62,7 @@ const ANSICHTEN = {
   xur: ['Xûr', (el) => zeigeXur(el, zustand)],
   post: ['Postmaster', (el) => zeigePost(el, zustand)],
   konto: ['Account', (el) => zeigeKonto(el, zustand, { neuLaden: zustand.neuLaden, abmelden })],
+  char: ['Guardians', (el) => zeigeCharakter(el, zustand)],
   vault: ['Weapons', (el) => zeigeVault(el, zustand, 'waffen')],
   armor: ['Armor', (el) => zeigeVault(el, zustand, 'ruestung')],
   loadouts: ['Loadouts', (el) => zeigeLoadouts(el, zustand)],
@@ -82,7 +84,7 @@ setzeNav({
   items: () => zustand.alleItems || (zustand.profil ? (zustand.alleItems = sammle(zustand.profil)) : []),
 });
 export const springeGuide = (id) => { zustand.guideZiel = id; wechsle('guide'); };
-const TABS = Object.fromEntries(['vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
+const TABS = Object.fromEntries(['char', 'vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
 
 function wechsle(tab) {
@@ -143,7 +145,7 @@ $('#logo').addEventListener('click', async () => {
   const l = $('#logo');
   if (l.classList.contains('dreht')) return;
   l.classList.add('dreht');
-  wechsle('vault'); scrollTo({ top: 0, behavior: 'smooth' });
+  wechsle('char'); scrollTo({ top: 0, behavior: 'smooth' });
   try { if (zustand.profil) await zustand.neuLaden?.(); } finally { l.classList.remove('dreht'); }
 });
 panel.addEventListener('change', (e) => { if (e.target.id === 'pArt') { pz.art = e.target.value; merkePanel(); zeigePanel(); } });
@@ -211,7 +213,8 @@ async function start() {
   }
   try { await bungie.rueckkehr(); } catch (e) { meldung(e.message, true); }
   const gespeichert = (() => { try { return localStorage.getItem('d2a.tab'); } catch { return null; } })();
-  if (gespeichert && TABS[gespeichert]) zustand.tab = gespeichert;
+  // Start ist immer die Hüter-Übersicht (Startseite).
+  void gespeichert;
   // Abgelaufene Anmeldung: Bungie kennt die Freigabe schon und leitet ohne Rückfrage zurück.
   if (bungie.eingerichtet() && !bungie.angemeldet() && bungie.warAngemeldet() && !new URLSearchParams(location.search).has('error') && Date.now() - Number(sessionStorage.getItem('d2a.auto') || 0) > 120_000) {
     sessionStorage.setItem('d2a.auto', String(Date.now())); haupt.innerHTML = '<p class="leer">Renewing your Bungie sign-in…</p>'; return bungie.anmelden(); }
@@ -220,7 +223,7 @@ async function start() {
   try {
     await Promise.all([ladeDefs(), ladeRolls(), ladeQuellen()]);
     zustand.oeffnePanel = oeffnePanel; zustand.postZahl = postZahl;
-    if (!TABS[zustand.tab]) zustand.tab = 'vault';
+    if (!TABS[zustand.tab]) zustand.tab = 'char';
     // Schnellstart: letztes Profil sofort zeigen, frische Daten kommen im Hintergrund.
     const alt = await gespeichertesProfil();
     let klicks = 0;
