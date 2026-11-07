@@ -36,6 +36,7 @@ export function zeigeLoadouts(haupt, zustand) {
   if (!charWahl || !chars.some((c) => c.characterId === charWahl)) charWahl = chars[0]?.characterId;
   const hashes = alleHashes(profil);
   let bestaetigen = null;
+  let loeschen = null;
 
   const zeichne = () => {
     const los = profil.characterLoadouts?.data?.[charWahl]?.loadouts || [];
@@ -48,7 +49,8 @@ export function zeigeLoadouts(haupt, zustand) {
           <div class="lo-kopf"><i class="lo-icon" style="background-image:url(${BILD}${defs.lo?.i?.[l.iconHash] || ''}),url(${BILD}${defs.lo?.f?.[l.colorHash] || ''})"></i><b>${leer ? `Empty slot ${i + 1}` : esc(name)}</b><small>#${i + 1}</small></div>
           <div class="lo-items">${items.map((x) => { const d = defs.items[hashes.get(x.itemInstanceId)]; return d ? `<i title="${esc(d.n)}" class="${d.q === 6 ? 'exo' : ''}" style="background-image:url(${BILD}${d.i})"></i>` : '<i class="fehlt" title="Item no longer exists"></i>'; }).join('')}</div>
           <div class="lo-knoepfe">${leer ? '' : `<button class="haupt-knopf" data-equip="${i}" ${laeuft ? 'disabled' : ''}>Equip</button>`}
-            <button data-snap="${i}" ${laeuft ? 'disabled' : ''}>${bestaetigen === i ? 'Click again to overwrite' : 'Save current gear here'}</button></div>
+            <button data-snap="${i}" ${laeuft ? 'disabled' : ''}>${bestaetigen === i ? 'Click again to overwrite' : 'Save current gear here'}</button>
+            ${leer ? '' : `<button class="loeschen" data-clear="${i}" ${laeuft ? 'disabled' : ''}>${loeschen === i ? 'Click again to delete' : 'Delete'}</button>`}</div>
         </article>`;
       }).join('') || '<p class="leer">No in-game loadouts on this character.</p>'}</div>`;
   };
@@ -56,7 +58,20 @@ export function zeigeLoadouts(haupt, zustand) {
 
   haupt.onclick = async (e) => {
     const c = e.target.closest('[data-char]');
-    if (c) { charWahl = c.dataset.char; bestaetigen = null; return zeichne(); }
+    if (c) { charWahl = c.dataset.char; bestaetigen = loeschen = null; return zeichne(); }
+    const cl = e.target.closest('[data-clear]');
+    if (cl && !laeuft) {
+      const i = Number(cl.dataset.clear);
+      if (loeschen !== i) { loeschen = i; bestaetigen = null; return zeichne(); }
+      loeschen = null; laeuft = true; zeichne();
+      try {
+        await bungie.post('/Destiny2/Actions/Loadouts/ClearLoadout/', { loadoutIndex: i, characterId: charWahl, membershipType: zustand.konto.membershipType });
+        const lo = profil.characterLoadouts.data[charWahl].loadouts[i];
+        lo.items = [];
+        meldung(`Loadout slot ${i + 1} cleared.`);
+      } catch (err) { meldung(err.message, true); }
+      laeuft = false; return zeichne();
+    }
     const k = zustand.konto;
     const eq = e.target.closest('[data-equip]');
     if (eq && !laeuft) {
@@ -81,7 +96,7 @@ export function zeigeLoadouts(haupt, zustand) {
     const sn = e.target.closest('[data-snap]');
     if (sn && !laeuft) {
       const i = Number(sn.dataset.snap);
-      if (bestaetigen !== i) { bestaetigen = i; return zeichne(); }
+      if (bestaetigen !== i) { bestaetigen = i; loeschen = null; return zeichne(); }
       bestaetigen = null;
       const lo = profil.characterLoadouts.data[charWahl].loadouts[i];
       const erst = (o) => Number(Object.keys(o || {}).find((h) => o[h]) || 0);
