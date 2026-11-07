@@ -67,7 +67,7 @@ export const profil = (k) => get(`/Destiny2/${k.membershipType}/Profile/${k.memb
 export const item = (k, id) => get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/Item/${id}/?components=300,304,305,310`);
 const aktion = (pfad, k, inhalt) => post(`/Destiny2/Actions/Items/${pfad}/`, { ...inhalt, membershipType: k.membershipType });
 export const verschiebe = (k, it, charId, inTresor) => aktion('TransferItem', k, { itemReferenceHash: it.hash, stackSize: 1, transferToVault: inTresor, itemId: it.id, characterId: charId });
-export const abholen = (k, it, charId) => aktion('PullFromPostmaster', k, { itemReferenceHash: it.hash, stackSize: 1, itemId: it.id, characterId: charId });
+export const abholen = (k, it, charId) => aktion('PullFromPostmaster', k, { itemReferenceHash: it.hash, stackSize: it.menge || 1, itemId: it.id, characterId: charId });
 export const ausruesten = (k, it, charId) => aktion('EquipItem', k, { itemId: it.id, characterId: charId });
 export const plugSetzen = (k, it, charId, sockel, plug) => aktion('InsertSocketPlugFree', k, { plug: { socketIndex: sockel, socketArrayType: 0, plugItemHash: plug }, itemId: it.id, characterId: charId });
 export const ausruestenAlle = (k, ids, charId) => aktion('EquipItems', k, { itemIds: ids, characterId: charId });

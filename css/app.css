@@ -245,3 +245,5 @@ button:disabled{opacity:.45;cursor:progress}
 #panel .ic{width:44px;height:44px}#panel .statmin label{font-size:.7rem}
 .xur-box{margin-bottom:8px}.xur-box>summary{list-style:none;cursor:pointer;display:block;border:1px solid var(--gold);border-radius:6px;padding:7px 12px}.xur-box>summary::-webkit-details-marker{display:none}
 .xur-box[open]>summary{margin-bottom:8px}.xur-inhalt .xg{font-size:.95rem;margin:10px 0 6px}
+.post-kopf{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.post-kopf small{color:var(--matt)}
+.pk{padding:0}.postchip{border-color:var(--warn);color:#ffb3a8}

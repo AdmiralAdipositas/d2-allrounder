@@ -9,6 +9,7 @@ import { zeigeOptimizer, setzeOptimizer } from './optimizer.js';
 import { zeigeFinder } from './finder.js';
 import { zeigeStats } from './stats.js';
 import { zeigeXur, xurDa } from './xur.js';
+import { zeigePost, postAnzahl } from './post.js';
 
 const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
@@ -36,6 +37,7 @@ document.addEventListener('pointerdown', (e) => { if (!rail.contains(e.target)) 
 const ANSICHTEN = {
   woche: ['This week', (el) => zeigeWoche(el, zustand, zustand.xur)],
   xur: ['Xûr', (el) => zeigeXur(el, zustand)],
+  post: ['Postmaster', (el) => zeigePost(el, zustand)],
   vault: ['Weapons', (el) => zeigeVault(el, zustand, 'waffen')],
   armor: ['Armor', (el) => zeigeVault(el, zustand, 'ruestung')],
   loadouts: ['Loadouts', (el) => zeigeLoadouts(el, zustand)],
@@ -90,6 +92,8 @@ function zeigePanel() {
   if (!zustand.profil) { inhalt.innerHTML = '<p class="leer">Sign in first.</p>'; return; }
   ANSICHTEN[pz.art][1](inhalt);
 }
+export function oeffnePanel(art) { pz.art = art; merkePanel(); zeigePanel(); }
+export const postZahl = () => postAnzahl(zustand.profil);
 function schliessePanel() { panel.hidden = true; rail.querySelector('[data-panel]').classList.remove('panel-an'); document.body.classList.remove('panel-fest'); }
 function schaltePanel() { if (!panel.hidden) { pz.fest = false; merkePanel(); schliessePanel(); } else zeigePanel(); }
 panel.addEventListener('change', (e) => { if (e.target.id === 'pArt') { pz.art = e.target.value; merkePanel(); zeigePanel(); } });
@@ -140,6 +144,7 @@ async function start() {
     $('#kontoName').textContent = zustand.konto.name;
     $('#konto').title = 'Sign out';
     await ladeProfil();
+    zustand.oeffnePanel = oeffnePanel; zustand.postZahl = postZahl;
     if (!TABS[zustand.tab]) zustand.tab = 'vault';
     wechsle(zustand.tab);
     if (pz.fest && !matchMedia('(max-width: 760px)').matches) zeigePanel();

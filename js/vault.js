@@ -139,7 +139,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   aufraeumen(alle, profil);
 
   haupt.innerHTML = `<div class="kopf"><h1>${istWaffe ? 'Weapons' : 'Armor'}</h1><input id="suche" type="search" placeholder="Search name, perk, frame…" aria-label="Search" value="${esc(suche)}">
-    <button id="neu" class="chip" title="Reload from Bungie">↻ Refresh</button><span class="platz"></span><div class="chips" role="group" aria-label="Class" ${istWaffe ? 'hidden' : ''}>
+    <button id="neu" class="chip" title="Reload from Bungie">↻ Refresh</button>${zustand.postZahl?.() ? `<button id="zurPost" class="chip postchip">📬 Postmaster ${zustand.postZahl()}</button>` : ''}<span class="platz"></span><div class="chips" role="group" aria-label="Class" ${istWaffe ? 'hidden' : ''}>
     ${chars.map((c) => `<button class="chip" data-klasse="${c.classType}" aria-pressed="${c.classType === klasse}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}
     </div></div><div id="filter" class="filter"></div>${istWaffe ? '' : `<div class="statmin" aria-label="Minimum stats">${[...ARMOR_STATS, 'Total'].map((n) => `<label>${n}<select data-stat="${n}">${(n === 'Total' ? [0, 60, 65, 70, 75, 80, 85, 90] : [0, 5, 10, 15, 20, 25, 30, 35]).map((v) => `<option value="${v}" ${Number(statMin[n] || 0) === v ? 'selected' : ''}>${v ? `${v}+` : 'any'}</option>`).join('')}</select></label>`).join('')}</div>`}<div id="reihen"></div>`;
   const fBox = haupt.querySelector('#filter');
@@ -194,6 +194,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
     }
     if (e.target.id === 'leeren') { filter = {}; merke(); return zeichne(); }
     if (e.target.id === 'neu') return zustand.neuLaden();
+    if (e.target.closest('#zurPost')) return zustand.oeffnePanel?.('post');
     const r = e.target.closest('[data-reihe]');
     if (r) {
       const n = r.dataset.reihe;
