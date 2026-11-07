@@ -129,7 +129,13 @@ function anmeldeSeite() {
 }
 
 async function start() {
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator) {
+    // Neue Version veröffentlicht: der neue Service Worker übernimmt, die Seite lädt einmal neu.
+    const hatte = Boolean(navigator.serviceWorker.controller);
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hatte && !sessionStorage.getItem('d2a.neu')) { sessionStorage.setItem('d2a.neu', '1'); location.reload(); } });
+    setTimeout(() => sessionStorage.removeItem('d2a.neu'), 30_000);
+    navigator.serviceWorker.register('sw.js').then((r) => { r.update().catch(() => {}); setInterval(() => r.update().catch(() => {}), 15 * 60_000); }).catch(() => {});
+  }
   try { await bungie.rueckkehr(); } catch (e) { meldung(e.message, true); }
   const gespeichert = (() => { try { return localStorage.getItem('d2a.tab'); } catch { return null; } })();
   if (gespeichert && TABS[gespeichert]) zustand.tab = gespeichert;
