@@ -1,6 +1,7 @@
 // Tresor: alle Waffen und Rüstungen, gruppiert nach Slot, nebeneinander gestapelt.
 import { defs, champion, CHAMP_NAME } from './defs.js';
 import { oeffneDetail } from './detail.js';
+import { bewerte } from './rolls.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -60,7 +61,7 @@ function kachel(x) {
   const champ = x.champ ? `<i class="ch" style="background-image:url(${BILD}${x.champ.i})" aria-label="${esc(CHAMP_NAME[x.champ.n] || x.champ.n)}"></i>` : '';
   const ort = x.ort === 'tresor' ? 'tresor' : x.ort.startsWith('post:') ? 'post' : 'char';
   return `<div class="ic ${x.d.q === 6 ? 'exotic' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:url(${BILD}${x.d.i})">
-    ${champ}<i class="ort ${ort}"></i>${!(filter.putz || []).length ? '' : x.junk ? '<i class="mark junk" title="Dismantle suggestion"></i>' : x.fuel ? '<i class="mark fuel" title="Infusion fuel"></i>' : ''}${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
+    ${champ}<i class="ort ${ort}"></i>${/god/.test(x.m?.roll || '') ? `<i class="god ${/PvP/.test(x.m.roll) ? 'pvp' : ''}" title="${x.m.roll}"></i>` : ''}${!(filter.putz || []).length ? '' : x.junk ? '<i class="mark junk" title="Dismantle suggestion"></i>' : x.fuel ? '<i class="mark fuel" title="Infusion fuel"></i>' : ''}${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
 }
 
 // Filtergruppen: innerhalb einer Gruppe ODER, zwischen Gruppen UND.
@@ -68,7 +69,7 @@ const AMMO = { 1: 'Primary', 2: 'Special', 3: 'Heavy' };
 const SELTEN = { 6: 'Exotic', 5: 'Legendary', 4: 'Rare', 3: 'Uncommon', 2: 'Common' };
 const GRUPPEN = [
   ['ort', 'Location'], ['element', 'Element'], ['ammo', 'Ammo'], ['champ', 'Champion'], ['art', 'Weapon type'], ['frame', 'Frame'],
-  ['selten', 'Rarity'], ['set', 'Armor set'], ['kopien', 'Copies'], ['putz', 'Clean-up'],
+  ['selten', 'Rarity'], ['set', 'Armor set'], ['kopien', 'Copies'], ['roll', 'God rolls'], ['putz', 'Clean-up'],
 ];
 
 // Aufräumen: behalten, was in Loadouts steckt, angelegt oder gesperrt ist, sonst die Kopie mit den meisten Perks und höchstem Power.
@@ -91,9 +92,10 @@ function aufraeumen(alle, profil) {
   for (const x of alle) { x.genutzt = genutzt.has(x.id); x.fuel = fuel.has(x.id); x.junk = false; }
   for (const kopien of gruppen.values()) {
     if (kopien.length < 2) continue;
-    const wert = (k) => (k.genutzt ? 1000 : 0) + (k.locked ? 500 : 0) + k.plugs.length * 2 + k.power / 1000;
+    const wert = (k) => (k.genutzt ? 1000 : 0) + (k.locked ? 500 : 0) + (/god/.test(k.m.roll) ? 300 : /good/.test(k.m.roll) ? 100 : 0) + k.plugs.length * 2 + k.power / 1000;
     const beste = [...kopien].sort((a, b) => wert(b) - wert(a))[0];
-    for (const k of kopien) k.junk = !(k === beste || k.genutzt || k.locked || k.fuel);
+    const bestPvp = [...kopien].filter((k) => /PvP/.test(k.m.roll)).sort((a, b) => wert(b) - wert(a))[0];
+    for (const k of kopien) k.junk = !(k === beste || k === bestPvp || k.genutzt || k.locked || k.fuel);
   }
   for (const x of alle) x.m.putz = x.junk ? 'Dismantle suggestion' : x.fuel ? 'Infusion fuel' : x.genutzt ? 'In a loadout' : '';
 }
@@ -107,6 +109,7 @@ const merkmale = (x, anzahl, nachChar) => ({
   selten: SELTEN[x.d.q] || '',
   set: x.d.e ? defs.sets?.[x.d.e]?.n || '' : '',
   kopien: anzahl[x.hash] > 1 ? 'Duplicates' : 'Single',
+  roll: x.d.t === 3 ? bewerte(x.hash, x.plugs) : '',
 });
 let filter = (() => { try { return JSON.parse(localStorage.getItem('d2a.filter') || '{}'); } catch { return {}; } })();
 let suche = '';

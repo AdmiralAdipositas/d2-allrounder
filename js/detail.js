@@ -2,6 +2,7 @@
 import * as bungie from './bungie.js';
 import { defs } from './defs.js';
 import { NEBENSACHE, merkeAenderung, sammle } from './vault.js';
+import { empfehlung } from './rolls.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -43,9 +44,11 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
   };
   // Lange Spalten (z. B. Weapon Mods) zeigen nur den aktiven Plug, ein Klick klappt sie als breites Raster auf.
   let offen = null;
+  const emp = empfehlung(it.hash);
   const knopf = (sp, h) => {
     const p = defs.items[h];
-    return `<button class="pl ${h === sp.aktiv ? 'an' : ''} ${wahl?.h === h && wahl?.s === sp.s ? 'wahl' : ''}" data-s="${sp.s}" data-h="${h}" title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})"></button>`;
+    const tipp = emp ? `${emp.e?.includes(h) ? '<i class="dot pve"></i>' : ''}${emp.v?.includes(h) ? '<i class="dot pvp"></i>' : ''}` : '';
+    return `<button class="pl ${h === sp.aktiv ? 'an' : ''} ${wahl?.h === h && wahl?.s === sp.s ? 'wahl' : ''}" data-s="${sp.s}" data-h="${h}" title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})">${tipp}</button>`;
   };
   const raster = () => spalten.map((sp) => {
     if (sp.plugs.length <= 6) return `<div class="pcol"><small>${esc(sp.art)}</small>${sp.plugs.map((h) => knopf(sp, h)).join('')}</div>`;
@@ -54,7 +57,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
       <button class="mehr" data-mehr="${sp.s}">${auf ? 'Less' : `+${sp.plugs.length - 1}`}</button></div>`;
   }).join('');
   const infoBox = () => {
-    if (!wahl) return '<p class="leer klein">Click a perk or mod to read it. Click “Apply” to switch to it.</p>';
+    if (!wahl) return `<p class="leer klein">Click a perk or mod to read it. Click “Apply” to switch to it.${emp ? ' <span class="legende"><i class="dot pve"></i> PvE pick <i class="dot pvp"></i> PvP pick (community wish list)</span>' : ''}</p>`;
     const p = defs.items[wahl.h];
     const sp = spalten.find((x) => x.s === wahl.s);
     const aktiv = sp?.aktiv === wahl.h;
@@ -66,7 +69,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     const m = document.querySelector('#meldung');
     d.innerHTML = `<div class="dkopf"><i class="ic ${it.d.q === 6 ? 'exotic' : ''} ${it.d.t === 3 ? `el-${it.element}` : ''}" style="background-image:url(${BILD}${it.d.i})"></i>
       <div><h2>${esc(it.d.n)}</h2><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${it.m.frame ? ` · ${esc(it.m.frame)}` : ''}${it.m.champ ? ` · Stuns ${esc(it.m.champ)}` : ''}${it.m.set ? ` · ${esc(it.m.set)}` : ''}</small>
-      <small class="wo">${ortText()}${it.genutzt ? ' · in a loadout' : ''}${it.locked ? ' · locked' : ''}${it.junk ? ' · <span class="rot">dismantle suggestion</span>' : ''}${it.fuel ? ' · <span class="gold">infusion fuel</span>' : ''}</small></div><button class="zu" data-a="schliessen" aria-label="Close">✕</button></div>
+      ${it.m?.roll ? `<small class="rollinfo ${/PvP/.test(it.m.roll) ? 'pvp' : ''}">${it.m.roll}</small>` : ''}<small class="wo">${ortText()}${it.genutzt ? ' · in a loadout' : ''}${it.locked ? ' · locked' : ''}${it.junk ? ' · <span class="rot">dismantle suggestion</span>' : ''}${it.fuel ? ' · <span class="gold">infusion fuel</span>' : ''}</small></div><button class="zu" data-a="schliessen" aria-label="Close">✕</button></div>
       <div class="aktionen">${knoepfe()}</div>
       ${laed ? '<p class="leer">Loading perks…</p>' : `<div class="dkoerper"><div class="pgrid">${raster() || '<p class="leer">No changeable perks.</p>'}</div><div class="dseite">${infoBox()}<div class="dstats">${stats}</div></div></div>`}`;
     if (d.open) d.append(m);

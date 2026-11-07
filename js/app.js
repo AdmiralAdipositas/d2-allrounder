@@ -1,6 +1,7 @@
 // Rahmen der App: Seitenleiste, Tabs, Seitenpanel, Anmeldung.
 import * as bungie from './bungie.js';
 import { ladeDefs } from './defs.js';
+import { ladeRolls } from './rolls.js';
 import { zeigeVault } from './vault.js';
 import { zeigeWoche } from './woche.js';
 import { zeigeLoadouts } from './loadouts.js';
@@ -113,7 +114,7 @@ async function start() {
   if (!bungie.eingerichtet() || !bungie.angemeldet()) { wechsleNurLeiste(); return anmeldeSeite(); }
   haupt.innerHTML = '<p class="leer">Loading your guardians…</p>';
   try {
-    await ladeDefs();
+    await Promise.all([ladeDefs(), ladeRolls()]);
     zustand.konto = await bungie.konto();
     $('#kontoName').textContent = zustand.konto.name;
     $('#konto').title = 'Sign out';
