@@ -1,0 +1,11 @@
+{
+  "quelle": "d2rad.com (current week verified, later weeks predicted)",
+  "stand": "2026-11-07",
+  "wochen": [
+    { "ab": "2026-11-03", "raids": ["Crota's End", "Vault of Glass"], "dungeons": ["Pit of Heresy", "Spire of the Watcher"] },
+    { "ab": "2026-11-10", "raids": ["Salvation's Edge", "Vow of the Disciple"], "dungeons": ["Prophecy", "Ghosts of the Deep"] },
+    { "ab": "2026-11-17", "raids": ["Last Wish", "King's Fall"], "dungeons": ["Grasp of Avarice", "Warlord's Ruin"] },
+    { "ab": "2026-11-24", "raids": ["Garden of Salvation", "Root of Nightmares"], "dungeons": ["Duality", "Vesper's Host"] },
+    { "ab": "2026-12-01", "raids": ["Deep Stone Crypt", "Crota's End"], "dungeons": ["Spire of the Watcher", "Sundered Doctrine"] }
+  ]
+}

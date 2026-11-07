@@ -98,6 +98,16 @@ export async function zeigeWoche(panel, zustand, xur) {
   const xb = panel.querySelector('.xur-box');
   if (xb) xb.addEventListener('toggle', () => { if (xb.open && !xb.dataset.da) { xb.dataset.da = '1'; zeigeXur(xb.querySelector('.xur-inhalt'), zustand, true); } });
   if (!zustand.profil) { panel.querySelector('#wInhalt').innerHTML = '<p class="leer">Sign in first.</p>'; return; }
+  // Was die nächsten Wochen featured ist (Vorschau ohne Details; Klick öffnet den Raid im Wiki).
+  fetch('data/rotation.json').then((r) => r.json()).then((rot) => {
+    const heute = new Date();
+    const kommend = rot.wochen.filter((w) => new Date(`${w.ab}T17:00:00Z`) > heute).slice(0, 4);
+    if (!kommend.length) return;
+    const box = document.createElement('details');
+    box.className = 'kommend';
+    box.innerHTML = `<summary>Coming up · next ${kommend.length} weeks</summary>${kommend.map((w) => `<div class="kw"><b>${new Date(`${w.ab}T17:00:00Z`).toLocaleDateString([], { day: 'numeric', month: 'short' })}</b><span>${[...w.raids, ...w.dungeons].map((n, i) => `<button class="kwn ${i < w.raids.length ? 'raid' : ''}" data-wiki="${esc(n)}">${esc(n)}</button>`).join('')}</span></div>`).join('')}<small class="leer">${esc(rot.quelle)}</small>`;
+    panel.querySelector('#wInhalt')?.before(box);
+  }).catch(() => {});
   try {
     const g = await lade(zustand);
     panel.querySelector('#wInhalt').innerHTML = ['Raids', 'Dungeons', 'Portal'].filter((n) => g[n]?.length)

@@ -12,7 +12,7 @@ import { zeigeStats } from './stats.js';
 import { zeigeXur, xurDa } from './xur.js';
 import { zeigePost, postAnzahl } from './post.js';
 import { zeigeKonto } from './konto.js';
-import { zeigeWiki } from './wiki.js';
+import { zeigeWiki, setzeWikiSuche } from './wiki.js';
 
 const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
@@ -95,6 +95,7 @@ panel.addEventListener('pointerover', (e) => {
   const r = m.getBoundingClientRect(), b = t.getBoundingClientRect();
   t.style.left = `${Math.max(8, r.left - b.width - 8)}px`; t.style.top = `${Math.min(r.top, innerHeight - b.height - 8)}px`;
 });
+panel.addEventListener('click', (e) => { const w = e.target.closest('[data-wiki]'); if (w) { setzeWikiSuche(w.dataset.wiki); wechsle('wiki'); } });
 panel.addEventListener('pointerout', (e) => { if (e.target.closest('[data-tn]')) $('#tipp').hidden = true; });
 
 // Seitenpanel: zeigt "This week" oder eine Ansicht nach Wahl; angeheftet bleibt es offen, auch nach Neuladen.

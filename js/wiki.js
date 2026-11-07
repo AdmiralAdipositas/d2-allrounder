@@ -17,6 +17,7 @@ let eintraege = null;
 let setsFarm = {};
 const offen = new Set();
 let ansicht = { suche: '', kat: null };
+export function setzeWikiSuche(q) { ansicht = { suche: q, kat: null }; }
 
 async function baue(zustand) {
   if (eintraege) return eintraege;
