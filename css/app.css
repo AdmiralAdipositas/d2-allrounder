@@ -387,3 +387,6 @@ button:disabled{opacity:.45;cursor:progress}
 .sym a{color:var(--arc)}
 .sealbar{height:8px;background:#ffffff10;border-radius:4px;overflow:hidden;margin:6px 0 10px}.sealbar i{display:block;height:100%;background:linear-gradient(90deg,var(--violett),var(--gold))}
 .sok{color:var(--gut)!important}.soffen{color:#cfc9ee}
+/* QA: lange Chips im Filter umbrechen statt über den Rand zu laufen; Raster nie breiter als der Bildschirm */
+.filter details .chips{flex-wrap:wrap}.filter .chip{max-width:100%;white-space:normal;text-align:left}
+@media(max-width:760px){.raster{gap:4px}.ic{width:calc((100vw - 24px - 5*4px)/6);height:calc((100vw - 24px - 5*4px)/6);max-width:52px;max-height:52px}}
