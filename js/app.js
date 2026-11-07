@@ -85,7 +85,7 @@ function schaltePanel(b) {
 function kontoKlick() {
   if (!bungie.eingerichtet()) return meldung('The app is not connected to Bungie yet.', true);
   if (zustand.konto) {
-    bungie.abmelden();
+    bungie.abmelden(true);
     zustand.konto = zustand.profil = null;
     $('#kontoName').textContent = 'Sign in';
     return wechsle(zustand.tab);
@@ -111,6 +111,9 @@ async function start() {
   try { await bungie.rueckkehr(); } catch (e) { meldung(e.message, true); }
   const gespeichert = (() => { try { return localStorage.getItem('d2a.tab'); } catch { return null; } })();
   if (gespeichert && TABS[gespeichert]) zustand.tab = gespeichert;
+  // Abgelaufene Anmeldung: Bungie kennt die Freigabe schon und leitet ohne Rückfrage zurück.
+  if (bungie.eingerichtet() && !bungie.angemeldet() && bungie.warAngemeldet() && !new URLSearchParams(location.search).has('error') && Date.now() - Number(sessionStorage.getItem('d2a.auto') || 0) > 120_000) {
+    sessionStorage.setItem('d2a.auto', String(Date.now())); haupt.innerHTML = '<p class="leer">Renewing your Bungie sign-in…</p>'; return bungie.anmelden(); }
   if (!bungie.eingerichtet() || !bungie.angemeldet()) { wechsleNurLeiste(); return anmeldeSeite(); }
   haupt.innerHTML = '<p class="leer">Loading your guardians…</p>';
   try {

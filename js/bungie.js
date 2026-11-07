@@ -10,7 +10,9 @@ const schreib = (t) => { try { localStorage.setItem(SPEICHER, JSON.stringify(t))
 
 export const eingerichtet = () => Boolean(CONFIG.apiKey && CONFIG.clientId);
 export const angemeldet = () => { const t = lies(); return Boolean(t && t.bis > Date.now() + 60_000); };
-export const abmelden = () => { try { localStorage.removeItem(SPEICHER); } catch {} };
+export const abmelden = (bewusst = false) => { try { localStorage.removeItem(SPEICHER); if (bewusst) localStorage.removeItem('d2a.warDa'); } catch {} };
+// War schon einmal angemeldet und hat sich nicht selbst abgemeldet: dann still neu anmelden, wenn das Token abläuft.
+export const warAngemeldet = () => { try { return localStorage.getItem('d2a.warDa') === '1'; } catch { return false; } };
 
 export function anmelden() {
   const state = crypto.randomUUID();
@@ -35,6 +37,7 @@ export async function rueckkehr() {
   const d = await r.json().catch(() => ({}));
   if (!r.ok || !d.access_token) throw new Error(`Bungie sign-in failed: ${d.error_description || r.status}`);
   schreib({ token: d.access_token, bis: Date.now() + d.expires_in * 1000, mitglied: d.membership_id });
+  try { localStorage.setItem('d2a.warDa', '1'); } catch {}
   return true;
 }
 
