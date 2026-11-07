@@ -38,23 +38,27 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
   let beschaeftigt = false;
 
   const ortText = () => it.ort === 'tresor' ? 'Vault' : it.ort.startsWith('post:') ? `Postmaster (${name(it.ort.slice(5))})` : `${name(it.ort)}${it.angelegt ? ', equipped' : ''}`;
+  // Aktionen je Charakter gebündelt (Ausrüsten + Hinbringen), daneben Tresor und Sperre.
   const knoepfe = () => {
-    const b = [];
-    if (it.ort.startsWith('post:')) b.push(`<button data-a="hol">Pull from Postmaster</button>`);
-    for (const c of chars) {
-      if (passt(c) && !(it.ort === c.characterId && it.angelegt)) b.push(`<button data-a="an" data-c="${c.characterId}" class="haupt-knopf">Equip on ${KLASSE[c.classType]}</button>`);
-      if (it.ort !== c.characterId) b.push(`<button data-a="zu" data-c="${c.characterId}">To ${KLASSE[c.classType]}</button>`);
-    }
-    if (it.ort !== 'tresor') b.push(`<button data-a="tresor">To Vault</button>`);
-    return b.join('');
+    const gruppen = chars.map((c) => {
+      const hier = it.ort === c.characterId;
+      const an = passt(c) && !(hier && it.angelegt);
+      const zu = !hier;
+      if (!an && !zu) return `<div class="cgruppe aktiv"><span>${KLASSE[c.classType]}</span><em>${it.angelegt ? 'Equipped' : 'Here'}</em></div>`;
+      return `<div class="cgruppe ${hier ? 'aktiv' : ''}"><span>${KLASSE[c.classType]}</span>${an ? `<button data-a="an" data-c="${c.characterId}" class="haupt-knopf" title="Move here if needed, then equip">Equip</button>` : ''}${zu ? `<button data-a="zu" data-c="${c.characterId}" title="Move to ${KLASSE[c.classType]}">Transfer</button>` : ''}</div>`;
+    }).join('');
+    const rest = `${it.ort.startsWith('post:') ? '<button data-a="hol">📬 Pull from Postmaster</button>' : ''}${it.ort !== 'tresor' ? '<button data-a="tresor" title="Send to vault">To Vault</button>' : '<span class="imtresor">In vault</span>'}<button class="lockk" data-lock="${it.id}" aria-pressed="${it.locked}" title="${it.locked ? 'Unlock' : 'Lock'}">${it.locked ? '🔒' : '🔓'}</button>`;
+    return `<div class="cgruppen">${gruppen}</div><div class="arest">${rest}</div>`;
   };
   // Lange Spalten (z. B. Weapon Mods) zeigen nur den aktiven Plug, ein Klick klappt sie als breites Raster auf.
   let offen = null;
   const emp = empfehlung(it.hash);
   const knopf = (sp, h) => {
     const p = defs.items[h];
-    const tipp = emp ? `${emp.e?.includes(h) ? '<i class="dot pve"></i>' : ''}${emp.v?.includes(h) ? '<i class="dot pvp"></i>' : ''}` : '';
-    return `<button class="pl ${h === sp.aktiv ? 'an' : ''} ${wahl?.h === h && wahl?.s === sp.s ? 'wahl' : ''}" data-s="${sp.s}" data-h="${h}" title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})">${tipp}</button>`;
+    const tipp = '';
+    const god = emp && [...(emp.ge || []), ...(emp.gv || [])].some((k) => k.includes(h));
+    const rt = emp ? `${emp.e?.includes(h) ? 'rt-pve' : ''} ${emp.v?.includes(h) ? 'rt-pvp' : ''} ${god ? 'rt-god' : ''}` : '';
+    return `<button class="pl ${rt} ${h === sp.aktiv ? 'an' : ''} ${wahl?.h === h && wahl?.s === sp.s ? 'wahl' : ''}" data-s="${sp.s}" data-h="${h}" title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})">${tipp}</button>`;
   };
   const raster = () => spalten.map((sp) => {
     if (sp.plugs.length <= 6) return `<div class="pcol"><small>${esc(sp.art)}</small>${sp.plugs.map((h) => knopf(sp, h)).join('')}</div>`;
@@ -63,7 +67,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
       <button class="mehr" data-mehr="${sp.s}">${auf ? 'Less' : `+${sp.plugs.length - 1}`}</button></div>`;
   }).join('');
   const infoBox = () => {
-    if (!wahl) return `<p class="leer klein">Click a perk or mod to read it. Click “Apply” to switch to it.${emp ? ' <span class="legende"><i class="dot pve"></i> PvE pick <i class="dot pvp"></i> PvP pick (community wish list)</span>' : ''}</p>`;
+    if (!wahl) return `<p class="leer klein">Click a perk or mod to read it. Click “Apply” to switch to it.${emp ? ' <span class="legende"><span><i class="rt rt-pve"></i> PvE pick</span><span><i class="rt rt-pvp"></i> PvP pick</span><span><i class="rt rt-god"></i> god roll perk</span><small>Community wish list (DIM voltron)</small></span>' : ''}</p>`;
     const p = defs.items[wahl.h];
     const sp = spalten.find((x) => x.s === wahl.s);
     const aktiv = sp?.aktiv === wahl.h;
@@ -78,8 +82,8 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     const zeile = (x) => {
       const perks = x.plugs.map((p) => defs.items[p]).filter((p) => p?.i && /frames|barrels|magazines|tubes|stocks|grips|scopes|arrows|blades|guards|batteries|hafts|bowstrings/.test(p.pc || ''));
       return `<div class="kopie"><button class="kp-oeffnen" data-oeffne="${x.id}" title="Open this copy">${x.power || ''}</button>
-        <span class="kp-perks">${perks.slice(0, 6).map((p) => `<i title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})"></i>`).join('')}</span>
-        <small>${esc(x.m?.roll || '')}${x.st ? ` Total ${x.st.Total}` : ''} · ${esc(x.m?.ort || '')}</small>
+        <span class="kp-perks">${perks.slice(0, 6).map((p) => `<span class="kpp" title="${esc(p.d || p.n)}"><i style="background-image:url(${BILD}${p.i})"></i>${esc(p.n)}</span>`).join('')}${x.st ? `<span class="kpp">Total ${x.st.Total}</span>` : ''}</span>
+        <small>${esc(x.m?.roll || '')}${x.m?.roll ? ' · ' : ''}${esc(x.m?.ort || '')}${x.junk ? ' · <span class="rot">dismantle suggestion</span>' : ''}</small>
         <button class="kp-lock" data-lock="${x.id}" aria-pressed="${x.locked}">${x.locked ? '🔒' : '🔓'}</button></div>`;
     };
     return `<details class="kopien" ${alle.length < 4 ? 'open' : ''}><summary>Your other copies (${alle.length})</summary>${alle.map(zeile).join('')}</details>`;
@@ -89,7 +93,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     d.innerHTML = `<div class="dkopf"><i class="ic ${it.d.q === 6 ? 'exotic' : ''} ${it.d.t === 3 ? `el-${it.element}` : ''}" style="background-image:url(${BILD}${it.d.i})"></i>
       <div><h2>${esc(it.d.n)}</h2><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${it.m.frame ? ` · ${esc(it.m.frame)}` : ''}${it.m.champ ? ` · Stuns ${esc(it.m.champ)}` : ''}${it.m.set ? ` · ${esc(it.m.set)}` : ''}</small>
       ${it.m?.roll ? `<small class="rollinfo ${/PvP/.test(it.m.roll) ? 'pvp' : ''}">${it.m.roll}</small>` : ''}<small class="wo">${ortText()}${it.genutzt ? ' · in a loadout' : ''}${it.locked ? ' · locked' : ''}${it.junk ? ' · <span class="rot">dismantle suggestion</span>' : ''}${it.fuel ? ' · <span class="gold">infusion fuel</span>' : ''}</small></div><button class="zu" data-a="schliessen" aria-label="Close">✕</button></div>
-      <div class="aktionen">${knoepfe()}<button data-lock="${it.id}" aria-pressed="${it.locked}">${it.locked ? '🔒 Locked' : '🔓 Lock'}</button></div>${kopien()}
+      <div class="aktionen">${knoepfe()}</div>${it.grund && it.d.t === 3 ? `<p class="dputz ${it.junk ? 'weg' : ''}">${it.junk ? 'Can go' : 'Keeps'}: ${esc(it.grund)}</p>` : ''}${kopien()}
       ${laed ? '<p class="leer">Loading perks…</p>' : `<div class="dkoerper"><div class="pgrid">${raster() || '<p class="leer">No changeable perks.</p>'}</div><div class="dseite">${infoBox()}<div class="dstats">${stats}</div>${it.d.e && defs.sets?.[it.d.e] ? `<div class="tset"><b>${esc(defs.sets[it.d.e].n)}</b>${defs.sets[it.d.e].p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}${it.d.xd ? `<p class="tt"><b class="tgold">${esc(it.d.xp || 'Exotic perk')}</b> ${esc(it.d.xd)}</p>` : ''}</div></div>`}`;
     if (d.open) d.append(m);
     d.querySelectorAll('button').forEach((x) => { x.disabled = beschaeftigt && x.dataset.a !== 'schliessen'; });

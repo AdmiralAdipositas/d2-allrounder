@@ -37,6 +37,18 @@ export function zeigeLoadouts(haupt, zustand) {
   const hashes = alleHashes(profil);
   let bestaetigen = null;
   let loeschen = null;
+  let bearbeite = null; // { i, n, ic, f } während der Name/Icon/Farbe-Auswahl
+
+  // Wie im Spiel: Name, Symbol und Farbe aus Bungies festen Listen wählen.
+  const editor = () => {
+    const b = bearbeite;
+    const vorschau = `background-image:url(${BILD}${defs.lo?.i?.[b.ic] || ''}),url(${BILD}${defs.lo?.f?.[b.f] || ''})`;
+    return `<div class="lo-editor"><div class="lo-vor"><i class="lo-icon gross" style="${vorschau}"></i><b>${esc(defs.lo?.n?.[b.n] || '')}</b></div>
+      <small>Name</small><div class="lo-wahl">${Object.entries(defs.lo?.n || {}).map(([h, n]) => `<button class="chip" data-lon="${h}" aria-pressed="${String(b.n) === h}">${esc(n)}</button>`).join('')}</div>
+      <small>Icon</small><div class="lo-wahl">${Object.entries(defs.lo?.i || {}).map(([h, u]) => `<button class="lo-sw" data-loi="${h}" aria-pressed="${String(b.ic) === h}" style="background-image:url(${BILD}${u}),url(${BILD}${defs.lo?.f?.[b.f] || ''})"></button>`).join('')}</div>
+      <small>Color</small><div class="lo-wahl">${Object.entries(defs.lo?.f || {}).map(([h, u]) => `<button class="lo-sw" data-lof="${h}" aria-pressed="${String(b.f) === h}" style="background-image:url(${BILD}${u})"></button>`).join('')}</div>
+      <div class="lo-knoepfe"><button class="haupt-knopf" data-losave ${laeuft ? 'disabled' : ''}>Save</button><button data-locancel>Cancel</button></div></div>`;
+  };
 
   const zeichne = () => {
     const los = profil.characterLoadouts?.data?.[charWahl]?.loadouts || [];
@@ -46,7 +58,8 @@ export function zeigeLoadouts(haupt, zustand) {
         const leer = !items.length;
         const name = defs.lo?.n?.[l.nameHash] || `Slot ${i + 1}`;
         return `<article class="lo ${leer ? 'leer-slot' : ''}">
-          <div class="lo-kopf"><i class="lo-icon" style="background-image:url(${BILD}${defs.lo?.i?.[l.iconHash] || ''}),url(${BILD}${defs.lo?.f?.[l.colorHash] || ''})"></i><b>${leer ? `Empty slot ${i + 1}` : esc(name)}</b><small>#${i + 1}</small></div>
+          <div class="lo-kopf"><i class="lo-icon" style="background-image:url(${BILD}${defs.lo?.i?.[l.iconHash] || ''}),url(${BILD}${defs.lo?.f?.[l.colorHash] || ''})"></i><b>${leer ? `Empty slot ${i + 1}` : esc(name)}</b><small>#${i + 1}</small>${leer ? '' : `<button class="lo-edit" data-edit="${i}" title="Change name, icon and color" aria-label="Edit">✎</button>`}</div>
+          ${bearbeite?.i === i ? editor() : ''}
           <div class="lo-items">${items.map((x) => { const d = defs.items[hashes.get(x.itemInstanceId)]; return d ? `<i title="${esc(d.n)}" class="${d.q === 6 ? 'exo' : ''}" style="background-image:url(${BILD}${d.i})"></i>` : '<i class="fehlt" title="Item no longer exists"></i>'; }).join('')}</div>
           <div class="lo-knoepfe">${leer ? '' : `<button class="haupt-knopf" data-equip="${i}" ${laeuft ? 'disabled' : ''}>Equip</button>`}
             <button data-snap="${i}" ${laeuft ? 'disabled' : ''}>${bestaetigen === i ? 'Click again to overwrite' : 'Save current gear here'}</button>
@@ -58,6 +71,23 @@ export function zeigeLoadouts(haupt, zustand) {
   zeichne();
 
   haupt.onclick = async (e) => {
+    const ed = e.target.closest('[data-edit]');
+    if (ed) { const i = Number(ed.dataset.edit); const l = profil.characterLoadouts.data[charWahl].loadouts[i]; bearbeite = bearbeite?.i === i ? null : { i, n: l.nameHash, ic: l.iconHash, f: l.colorHash }; return zeichne(); }
+    if (bearbeite) {
+      const w = e.target.closest('[data-lon],[data-loi],[data-lof]');
+      if (w) { if (w.dataset.lon) bearbeite.n = Number(w.dataset.lon); if (w.dataset.loi) bearbeite.ic = Number(w.dataset.loi); if (w.dataset.lof) bearbeite.f = Number(w.dataset.lof); return zeichne(); }
+      if (e.target.closest('[data-locancel]')) { bearbeite = null; return zeichne(); }
+      if (e.target.closest('[data-losave]') && !laeuft) {
+        const b = bearbeite; laeuft = true; zeichne();
+        try {
+          await bungie.post('/Destiny2/Actions/Loadouts/UpdateLoadoutIdentifiers/', { loadoutIndex: b.i, characterId: charWahl, membershipType: zustand.konto.membershipType, nameHash: b.n, iconHash: b.ic, colorHash: b.f });
+          Object.assign(profil.characterLoadouts.data[charWahl].loadouts[b.i], { nameHash: b.n, iconHash: b.ic, colorHash: b.f });
+          meldung(`Loadout renamed to ${defs.lo?.n?.[b.n] || 'new name'}.`);
+          bearbeite = null;
+        } catch (err) { meldung(err.message, true); }
+        laeuft = false; return zeichne();
+      }
+    }
     const c = e.target.closest('[data-char]');
     if (c) { charWahl = c.dataset.char; bestaetigen = loeschen = null; return zeichne(); }
     const te = e.target.closest('[data-teilen]');

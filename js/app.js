@@ -115,11 +115,12 @@ const pz = (() => { try { return { art: 'woche', fest: false, breit: false, ...J
 const merkePanel = () => { try { localStorage.setItem('d2a.panel', JSON.stringify(pz)); } catch {} };
 function zeigePanel() {
   panel.hidden = false;
-  panel.classList.toggle('breit', pz.breit);
+  panel.classList.toggle('lang', Boolean(pz.text));
+  if (pz.w && !matchMedia('(max-width: 760px)').matches) panel.style.width = `${pz.w}px`;
   document.body.classList.toggle('panel-fest', pz.fest);
   rail.querySelector('[data-panel]').classList.add('panel-an');
   panel.innerHTML = `<div class="pkopf"><select id="pArt" aria-label="Panel content">${Object.entries(ANSICHTEN).map(([k, [n]]) => `<option value="${k}" ${k === pz.art ? 'selected' : ''}>${n}</option>`).join('')}</select>
-    <button id="pBreit" class="pknopf" title="${pz.breit ? 'Narrow' : 'Wide'}" aria-pressed="${pz.breit}">⇔</button>
+    <button id="pText" class="pknopf" title="${pz.text ? 'Names only' : 'Show short descriptions (modifiers, challenges)'}" aria-pressed="${Boolean(pz.text)}">${pz.text ? '☰' : 'ⓘ'}</button>
     <button id="pFest" class="pknopf" title="${pz.fest ? 'Unpin' : 'Pin: keep open'}" aria-pressed="${pz.fest}">📌</button>
     <button id="pZu" class="pknopf" title="Close">✕</button></div><div id="pInhalt"></div>`;
   const inhalt = panel.querySelector('#pInhalt');
@@ -130,13 +131,34 @@ export function oeffnePanel(art) { pz.art = art; merkePanel(); zeigePanel(); }
 export const postZahl = () => postAnzahl(zustand.profil);
 function schliessePanel() { panel.hidden = true; rail.querySelector('[data-panel]').classList.remove('panel-an'); document.body.classList.remove('panel-fest'); }
 function schaltePanel() { if (!panel.hidden) { pz.fest = false; merkePanel(); schliessePanel(); } else zeigePanel(); }
+// Logo = Home: zurück zum ersten Tab, nach oben, Inventar frisch von Bungie laden.
+$('#logo').addEventListener('click', async () => {
+  const l = $('#logo');
+  if (l.classList.contains('dreht')) return;
+  l.classList.add('dreht');
+  wechsle('vault'); scrollTo({ top: 0, behavior: 'smooth' });
+  try { if (zustand.profil) await zustand.neuLaden?.(); } finally { l.classList.remove('dreht'); }
+});
 panel.addEventListener('change', (e) => { if (e.target.id === 'pArt') { pz.art = e.target.value; merkePanel(); zeigePanel(); } });
 panel.addEventListener('click', (e) => {
   const id = e.target.closest('button')?.id;
   if (id === 'pZu') { pz.fest = false; merkePanel(); schliessePanel(); }
   if (id === 'pFest') { pz.fest = !pz.fest; merkePanel(); zeigePanel(); meldung(pz.fest ? 'Panel pinned. It stays open.' : 'Panel unpinned.'); }
-  if (id === 'pBreit') { pz.breit = !pz.breit; merkePanel(); zeigePanel(); }
+  if (id === 'pText') { pz.text = !pz.text; merkePanel(); panel.classList.toggle('lang', pz.text); const b = panel.querySelector('#pText'); b.setAttribute('aria-pressed', pz.text); b.textContent = pz.text ? '☰' : 'ⓘ'; b.title = pz.text ? 'Names only' : 'Show short descriptions (modifiers, challenges)'; }
 });
+// Breite per Ziehen am linken Rand (unsichtbarer Griff, Cursor zeigt ihn). Doppelklick = Standardbreite.
+const griff = document.createElement('div');
+griff.className = 'pgriff'; griff.title = 'Drag to resize · double-click to reset';
+document.body.append(griff);
+const setzeGriff = () => { const r = panel.getBoundingClientRect(); griff.hidden = panel.hidden || matchMedia('(max-width: 760px)').matches; griff.style.left = `${r.left - 4}px`; };
+new MutationObserver(setzeGriff).observe(panel, { attributes: true, attributeFilter: ['hidden', 'style'] });
+addEventListener('resize', setzeGriff);
+griff.onpointerdown = (e) => {
+  e.preventDefault(); griff.setPointerCapture(e.pointerId); document.body.classList.add('ziehe');
+  griff.onpointermove = (ev) => { pz.w = Math.round(Math.max(300, Math.min(innerWidth * 0.7, innerWidth - ev.clientX))); panel.style.width = `${pz.w}px`; setzeGriff(); };
+  griff.onpointerup = () => { griff.onpointermove = griff.onpointerup = null; document.body.classList.remove('ziehe'); merkePanel(); };
+};
+griff.ondblclick = () => { delete pz.w; panel.style.width = ''; merkePanel(); setzeGriff(); };
 
 function kontoKlick() {
   if (!bungie.eingerichtet()) return meldung('The app is not connected to Bungie yet.', true);

@@ -390,3 +390,51 @@ button:disabled{opacity:.45;cursor:progress}
 /* QA: lange Chips im Filter umbrechen statt über den Rand zu laufen; Raster nie breiter als der Bildschirm */
 .filter details .chips{flex-wrap:wrap}.filter .chip{max-width:100%;white-space:normal;text-align:left}
 @media(max-width:760px){.raster{gap:4px}.ic{width:calc((100vw - 24px - 5*4px)/6);height:calc((100vw - 24px - 5*4px)/6);max-width:52px;max-height:52px}}
+
+/* P1: Detail-Aktionen je Charakter, Perk-Bewertung als Ringhälften, Kopien mit Perknamen */
+.aktionen{flex-direction:column;align-items:stretch;flex-wrap:nowrap}.aktionen>*{flex:none}.legende{gap:2px 4px}.legende>i+*{white-space:nowrap}
+.cgruppen{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px}
+.cgruppe{display:flex;align-items:center;gap:6px;padding:5px 6px 5px 10px;border:1px solid var(--linie);border-radius:10px;background:#120e2c}
+.cgruppe span{font-weight:600;font-size:.82rem;margin-right:auto}.cgruppe.aktiv{border-color:var(--arc)}.cgruppe em{font-size:.75rem;color:var(--arc);font-style:normal}
+.cgruppe button{padding:4px 9px;font-size:.78rem}
+.arest{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.arest .imtresor{font-size:.8rem;color:var(--blass,#aaa)}
+.arest .lockk{margin-left:auto;font-size:1rem;padding:4px 10px}.arest .lockk[aria-pressed="true"]{border-color:var(--gold)}
+.pl.rt-pve::before,.pl.rt-pvp::after,.pl.rt-god::before,.pl.rt-god::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid transparent;pointer-events:none}
+.pl.rt-pve::before{border-left-color:#4ea8ff;border-top-color:#4ea8ff;transform:rotate(-45deg)}
+.pl.rt-pvp::after{border-right-color:#ff5b5b;border-bottom-color:#ff5b5b;transform:rotate(-45deg)}
+.pl.rt-god::before,.pl.rt-god::after{border-color:#f2c14e;transform:none;box-shadow:0 0 6px #f2c14e88}
+.pl.rt-god::after{display:none}
+.legende .rt{position:relative;display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid transparent;margin-left:6px}
+.legende .rt-pve{border-left-color:#4ea8ff;border-top-color:#4ea8ff;transform:rotate(-45deg)}.legende .rt-pvp{border-right-color:#ff5b5b;border-bottom-color:#ff5b5b;transform:rotate(-45deg)}.legende .rt-god{border-color:#f2c14e}
+.kopie{grid-template-columns:44px minmax(0,1fr) 34px;row-gap:3px}.kopie>small{grid-column:2}
+.kp-perks{flex-wrap:wrap;gap:4px 8px}.kpp{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;white-space:nowrap}
+.kp-perks .kpp i{width:20px;height:20px}
+.dputz,.tputz{font-size:.8rem;margin:0 0 10px;padding:6px 10px;border-left:3px solid var(--gut,#5c5);background:#0f0b28;border-radius:6px}
+.dputz.weg,.tputz.weg{border-left-color:#ff5b5b}.tputz{margin:6px 0 0}
+.putzregeln{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:1px solid var(--linie);border-radius:10px;margin-top:6px;background:#120e2c}
+.putzregeln small{opacity:.75}
+.warum{margin:0 0 10px;font-size:.82rem;border:1px solid var(--linie);border-radius:10px;padding:6px 12px;background:#120e2c}.warum summary{cursor:pointer;font-weight:600}.warum p{margin:6px 0}
+.kweg{font-size:.72rem;opacity:.75;margin-left:4px}
+.kopie .kp-lock{grid-column:3;grid-row:1}.kopie .kp-oeffnen{grid-row:1/3}
+.lo-kopf{position:relative}.lo-edit{margin-left:6px;padding:2px 8px;font-size:.85rem}
+.lo-editor{display:flex;flex-direction:column;gap:6px;padding:10px;border:1px solid var(--linie);border-radius:10px;background:#0f0b28;margin:6px 0}
+.lo-editor>small{opacity:.7;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+.lo-vor{display:flex;align-items:center;gap:10px}.lo-icon.gross{width:48px;height:48px}
+.lo-wahl{display:flex;flex-wrap:wrap;gap:4px;max-height:120px;overflow:auto}
+.lo-sw{width:34px;height:34px;padding:0;border-radius:6px;background-size:cover,cover;border:2px solid transparent}
+.lo-sw[aria-pressed="true"]{border-color:var(--gold)}
+.logo{cursor:pointer;font-size:inherit}.logo:hover svg{filter:drop-shadow(0 0 4px var(--gold))}
+.logo.dreht svg{animation:dreh 1s linear infinite}@keyframes dreh{to{transform:rotate(360deg)}}
+@media(max-width:760px){#rail .logo{display:flex;flex:none;width:auto;margin:0;padding:8px}#rail .logo span{display:none}}
+.pgriff{position:fixed;top:0;bottom:0;width:8px;cursor:ew-resize;z-index:25}.pgriff:hover,body.ziehe .pgriff{background:linear-gradient(90deg,transparent 3px,var(--gold) 3px,var(--gold) 5px,transparent 5px)}
+body.ziehe{user-select:none;cursor:ew-resize}
+.modz{display:inline-flex;align-items:center;gap:6px}.modz i{width:24px;height:24px;background:#0b0920 center/cover;border-radius:4px;flex:none}
+.modt{display:none}#panel.lang .mods{flex-direction:column;align-items:stretch}#panel.lang .modt{display:flex;flex-direction:column;font-size:.75rem;line-height:1.25}#panel.lang .modt small{color:var(--matt)}
+#panel:not(.lang) .chal span{display:none}
+#rail .logo{color:var(--gold)}
+.tage div{position:relative;cursor:default}.tage em{font-style:normal;font-size:.62rem;color:var(--matt)}
+.tage div:hover i,.tage div:focus i{filter:brightness(1.4)}
+.tage div:hover::after,.tage div:focus::after{content:attr(data-h);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);white-space:nowrap;background:#0b0920;border:1px solid var(--linie);padding:4px 8px;border-radius:6px;font-size:.75rem;z-index:5;pointer-events:none}
+.tage div:first-child:hover::after,.tage div:first-child:focus::after{left:0;transform:none}.tage div:last-child:hover::after,.tage div:last-child:focus::after{left:auto;right:0;transform:none}
+.legende>span{white-space:nowrap;display:inline-flex;align-items:center;gap:4px;margin-right:8px}.legende>small{flex-basis:100%;opacity:.7}
+.cgruppen{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.lo-wahl:first-of-type{max-height:none}

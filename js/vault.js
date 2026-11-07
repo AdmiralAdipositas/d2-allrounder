@@ -46,7 +46,7 @@ export function sammle(profil) {
     const plugs = roh.filter(Boolean);
     liste.push({
       id: it.itemInstanceId, hash: it.itemHash, d, ort, angelegt, plugs, sockel: roh, locked: (it.state & 1) === 1,
-      power: i.primaryStat?.value || 0, element: i.damageType || d.d0 || 0, energie: i.energy?.energyCapacity || 0,
+      power: i.primaryStat?.value || 0, mw: (it.state & 4) === 4, crafted: (it.state & 8) === 8, element: i.damageType || d.d0 || 0, energie: i.energy?.energyCapacity || 0,
       champ: d.t === 3 ? champion(it.itemHash, plugs, i.breakerType) : null,
       st: d.t === 2 ? armorStats(statDaten[it.itemInstanceId]) : null,
     });
@@ -72,7 +72,18 @@ const GRUPPEN = [
   ['selten', 'Rarity'], ['set', 'Armor set'], ['kopien', 'Copies'], ['roll', 'God rolls'], ['putz', 'Clean-up'],
 ];
 
-// Aufräumen: behalten, was in Loadouts steckt, angelegt oder gesperrt ist, sonst die Kopie mit den meisten Perks und höchstem Power.
+// Aufräumen-Regeln: jede Kopie bekommt einen Grund, warum sie bleibt oder weg kann. Schalter liegen in d2a.putz.
+export const PUTZ_REGELN = [
+  ['exo', 'Keep all exotics', 'Exotic weapons like Ergo Sum roll differently every drop, so copies are never suggested.'],
+  ['god', 'Keep every god roll', 'Any copy that matches a community PvE or PvP god roll stays, not only the best one.'],
+  ['gut', 'Keep good rolls', 'Copies with at least a decent community roll stay.'],
+  ['mw', 'Keep crafted & masterworked', 'Crafted, enhanced or masterworked copies cost resources, so they stay.'],
+  ['neu', 'Keep copies from the last 7 days', 'Fresh drops stay until you had time to look at them (needs the item to be newer than your last visit).'],
+];
+export let putzRegeln = (() => { try { return { exo: true, god: true, gut: false, mw: true, neu: false, ...JSON.parse(localStorage.getItem('d2a.putz') || '{}') }; } catch { return { exo: true, god: true, mw: true }; } })();
+export function setzePutz(k, v) { putzRegeln = { ...putzRegeln, [k]: v }; try { localStorage.setItem('d2a.putz', JSON.stringify(putzRegeln)); } catch {} }
+
+// Behalten: in Loadouts, angelegt, gesperrt, laut Schaltern geschützt, oder die beste Kopie (PvE und PvP getrennt).
 // Infusions-Futter: nicht genutzt, aber stärker als das schwächste genutzte Teil im gleichen Slot (pro Slot die zwei stärksten).
 function aufraeumen(alle, profil) {
   const genutzt = new Set();
@@ -89,13 +100,19 @@ function aufraeumen(alle, profil) {
   }
   const gruppen = new Map();
   for (const x of alle) if (x.d.t === 3) gruppen.set(x.hash, [...(gruppen.get(x.hash) || []), x]);
-  for (const x of alle) { x.genutzt = genutzt.has(x.id); x.fuel = fuel.has(x.id); x.junk = false; }
+  for (const x of alle) { x.genutzt = genutzt.has(x.id); x.fuel = fuel.has(x.id); x.junk = false; x.grund = ''; }
+  const R = putzRegeln;
   for (const kopien of gruppen.values()) {
-    if (kopien.length < 2) continue;
-    const wert = (k) => (k.genutzt ? 1000 : 0) + (k.locked ? 500 : 0) + (/god/.test(k.m.roll) ? 300 : /good/.test(k.m.roll) ? 100 : 0) + k.plugs.length * 2 + k.power / 1000;
+    if (kopien.length < 2) { kopien[0].grund = 'Only copy'; continue; }
+    const wert = (k) => (k.genutzt ? 1000 : 0) + (k.locked ? 500 : 0) + (/god/.test(k.m.roll) ? 300 : /good/.test(k.m.roll) ? 100 : 0) + (k.crafted ? 80 : 0) + (k.mw ? 40 : 0) + k.plugs.length * 2 + k.power / 1000;
     const beste = [...kopien].sort((a, b) => wert(b) - wert(a))[0];
     const bestPvp = [...kopien].filter((k) => /PvP/.test(k.m.roll)).sort((a, b) => wert(b) - wert(a))[0];
-    for (const k of kopien) k.junk = !(k === beste || k === bestPvp || k.genutzt || k.locked || k.fuel);
+    for (const k of kopien) {
+      k.grund = k.angelegt ? 'Equipped' : k.genutzt ? 'In an in-game loadout' : k.locked ? 'Locked' : R.exo && k.d.q === 6 ? 'Exotic (rule: keep all exotics)'
+        : k === beste ? `Best of your ${kopien.length} copies` : k === bestPvp ? 'Best PvP copy' : R.god && /god/.test(k.m.roll) ? `${k.m.roll} (rule)` : R.gut && /good/.test(k.m.roll) ? `${k.m.roll} (rule)`
+        : R.mw && (k.crafted || k.mw) ? `${k.crafted ? 'Crafted' : 'Masterworked'} (rule)` : k.fuel ? 'Infusion fuel (stronger than a weapon you use)' : '';
+      if (!k.grund) { k.junk = true; k.grund = `Duplicate: worse roll than your best copy${beste.m.roll ? ` (${beste.m.roll})` : ''}, not locked, not in a loadout`; }
+    }
   }
   for (const x of alle) x.m.putz = x.junk ? 'Dismantle suggestion' : x.fuel ? 'Infusion fuel' : x.genutzt ? 'In a loadout' : '';
 }
@@ -157,7 +174,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
       const gewaehlt = filter[g] || [];
       return `<details data-gruppe="${g}" ${offen.has(g) ? 'open' : ''}><summary>${titel}${gewaehlt.length ? ` <b>${gewaehlt.length}</b>` : ''}</summary><div class="chips">
         ${werte.map((w) => `<button class="chip" data-g="${g}" data-w="${esc(w)}" aria-pressed="${gewaehlt.includes(w)}">${esc(w)} <small>${zaehl[w]}</small></button>`).join('')}</div></details>`;
-    }).join('') + (aktiv ? '<button id="leeren" class="chip">Clear filters</button>' : '');
+    }).join('') + (aktiv ? '<button id="leeren" class="chip">Clear filters</button>' : '') + (offen.has('putz') && istWaffe ? `<div class="putzregeln"><b>Clean-up rules</b><small>Only duplicates get a red “dismantle” mark. Hover a weapon to see why it stays or goes.</small>${PUTZ_REGELN.filter(([k]) => k !== 'neu').map(([k, t, e]) => `<label class="haken" title="${esc(e)}"><input type="checkbox" data-putz="${k}" ${putzRegeln[k] ? 'checked' : ''}> ${t}</label>`).join('')}<small>Always kept: equipped, locked, in an in-game loadout, the best copy (and best PvP copy), infusion fuel.</small></div>` : '');
   };
   const zeichne = () => {
     const klassenItems = alle.filter((x) => (istWaffe ? WAFFE.has(x.d.b) : !WAFFE.has(x.d.b) && (x.d.c === klasse || x.d.c === 3)));
@@ -175,12 +192,14 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   zeichne();
 
   haupt.querySelectorAll('[data-stat]').forEach((sel) => { sel.onchange = () => { statMin[sel.dataset.stat] = Number(sel.value); try { localStorage.setItem('d2a.statmin', JSON.stringify(statMin)); } catch {} zeichne(); }; });
+  fBox.addEventListener('change', (e) => { const k = e.target.dataset?.putz; if (!k) return; setzePutz(k, e.target.checked); aufraeumen(alle, profil); zeichne(); });
   haupt.querySelector('#suche').oninput = (e) => { suche = e.target.value.trim().toLowerCase(); zeichne(); };
   fBox.addEventListener('toggle', (e) => {
     const g = e.target.dataset?.gruppe;
     if (!g) return;
     if (e.target.open) offen.add(g); else offen.delete(g);
     try { localStorage.setItem('d2a.offen', JSON.stringify([...offen])); } catch {}
+    if (g === 'putz') zeichne();
   }, true);
   haupt.onclick = (e) => {
     const c = e.target.closest('[data-klasse]');
@@ -222,7 +241,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
       ${it.d.xd ? `<p class="tt"><b class="tgold">${esc(it.d.xp || 'Exotic perk')}</b> ${esc(it.d.xd)}</p>` : ''}
       <div class="tperks">${perks.slice(0, 10).map((p) => `<div><i style="background-image:url(${BILD}${p.i})"></i><span><b>${esc(p.n)}</b>${p.d ? ` – ${satz(p.d)}` : ''}</span></div>`).join('')}</div>
       ${setDef ? `<div class="tset"><b>${esc(setDef.n)}</b>${setDef.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}
-      <small class="thint">Hold Shift to pin</small>`;
+      ${it.grund && it.d.t === 3 ? `<div class="tputz ${it.junk ? 'weg' : ''}"><b>${it.junk ? 'Can go' : 'Keeps'}:</b> ${esc(it.grund)}</div>` : ''}<small class="thint">Hold Shift to pin</small>`;
     tipp.hidden = false;
     const r = tipp.getBoundingClientRect();
     tipp.style.left = `${Math.min(x + 14, innerWidth - r.width - 8)}px`;
