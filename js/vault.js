@@ -80,7 +80,11 @@ function passt(x) {
   return suche.split(/\s+/).every((w) => `${x.d.n} ${x.d.k} ${plugNamen} ${Object.values(x.m).join(' ')}`.toLowerCase().includes(w));
 }
 
-export function zeigeVault(haupt, zustand) {
+const zuRaw = (() => { try { return JSON.parse(localStorage.getItem('d2a.zu') || '[]'); } catch { return []; } })();
+const zu = new Set(zuRaw);
+
+export function zeigeVault(haupt, zustand, art = 'waffen') {
+  const istWaffe = art === 'waffen';
   const profil = zustand.profil;
   const chars = Object.values(profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
   if (klasse === null) klasse = chars[0]?.classType ?? 2;
@@ -90,8 +94,8 @@ export function zeigeVault(haupt, zustand) {
   for (const x of alle) anzahl[x.hash] = (anzahl[x.hash] || 0) + 1;
   for (const x of alle) x.m = merkmale(x, anzahl, nachChar);
 
-  haupt.innerHTML = `<div class="kopf"><h1>Vault</h1><input id="suche" type="search" placeholder="Search name, perk, frame…" aria-label="Search" value="${esc(suche)}">
-    <button id="neu" class="chip" title="Reload from Bungie">↻ Refresh</button><span class="platz"></span><div class="chips" role="group" aria-label="Class">
+  haupt.innerHTML = `<div class="kopf"><h1>${istWaffe ? 'Weapons' : 'Armor'}</h1><input id="suche" type="search" placeholder="Search name, perk, frame…" aria-label="Search" value="${esc(suche)}">
+    <button id="neu" class="chip" title="Reload from Bungie">↻ Refresh</button><span class="platz"></span><div class="chips" role="group" aria-label="Class" ${istWaffe ? 'hidden' : ''}>
     ${chars.map((c) => `<button class="chip" data-klasse="${c.classType}" aria-pressed="${c.classType === klasse}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}
     </div></div><div id="filter" class="filter"></div><div id="reihen"></div>`;
   const fBox = haupt.querySelector('#filter');
@@ -111,12 +115,14 @@ export function zeigeVault(haupt, zustand) {
     }).join('') + (aktiv ? '<button id="leeren" class="chip">Clear filters</button>' : '');
   };
   const zeichne = () => {
-    const klassenItems = alle.filter((x) => WAFFE.has(x.d.b) || x.d.c === klasse || x.d.c === 3);
+    const klassenItems = alle.filter((x) => (istWaffe ? WAFFE.has(x.d.b) : !WAFFE.has(x.d.b) && (x.d.c === klasse || x.d.c === 3)));
     zeichneFilter(klassenItems);
     const sichtbar = klassenItems.filter(passt);
     const reihen = SLOTS.map(([b, name]) => {
       const st = sichtbar.filter((x) => x.d.b === b).sort((p, q) => (q.d.q === 6) - (p.d.q === 6) || q.power - p.power || p.d.n.localeCompare(q.d.n));
-      return st.length ? `<section class="reihe"><h3>${name} <small>${st.length}</small></h3><div class="raster">${st.map(kachel).join('')}</div></section>` : '';
+      if (!st.length) return '';
+      const offenR = !zu.has(name);
+      return `<section class="reihe ${offenR ? '' : 'zu'}"><h3><button class="klapp" data-reihe="${name}" aria-expanded="${offenR}">${offenR ? '▾' : '▸'} ${name} <small>${st.length}</small></button></h3>${offenR ? `<div class="raster">${st.map(kachel).join('')}</div>` : ''}</section>`;
     }).join('');
     rBox.innerHTML = reihen || '<p class="leer">Nothing matches these filters.</p>';
     haupt.querySelectorAll('[data-klasse]').forEach((c) => c.setAttribute('aria-pressed', Number(c.dataset.klasse) === klasse));
@@ -143,8 +149,15 @@ export function zeigeVault(haupt, zustand) {
     }
     if (e.target.id === 'leeren') { filter = {}; merke(); return zeichne(); }
     if (e.target.id === 'neu') return zustand.neuLaden();
+    const r = e.target.closest('[data-reihe]');
+    if (r) {
+      const n = r.dataset.reihe;
+      if (zu.has(n)) zu.delete(n); else zu.add(n);
+      try { localStorage.setItem('d2a.zu', JSON.stringify([...zu])); } catch {}
+      return zeichne();
+    }
     const k = e.target.closest('.ic');
-    if (k) { tipp.hidden = true; oeffneDetail(alle.find((a) => a.id === k.dataset.id), zustand, () => zeigeVault(haupt, zustand)); }
+    if (k) { tipp.hidden = true; oeffneDetail(alle.find((a) => a.id === k.dataset.id), zustand, () => zeigeVault(haupt, zustand, art)); }
   };
   const tipp = document.querySelector('#tipp');
   const zeige = (el, x, y) => {

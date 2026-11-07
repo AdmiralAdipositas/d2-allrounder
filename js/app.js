@@ -26,7 +26,8 @@ rail.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' && !
 document.addEventListener('pointerdown', (e) => { if (!rail.contains(e.target)) rail.classList.remove('offen'); });
 
 const TABS = {
-  vault: () => zeigeVault(haupt, zustand),
+  vault: () => zeigeVault(haupt, zustand, 'waffen'),
+  armor: () => zeigeVault(haupt, zustand, 'ruestung'),
   loadouts: () => platzhalter('Loadouts', 'Saved loadouts and one-click equip come in the next patch.'),
   optimizer: () => platzhalter('Optimizer', 'The armor optimizer with live stat bars comes in the next patch.'),
   finder: () => platzhalter('Build Finder', 'Finds builds from what you own. Comes in the next patch.'),
@@ -38,7 +39,7 @@ function wechsle(tab) {
   zustand.tab = tab;
   rail.querySelectorAll('[data-tab]').forEach((b) => { const an = b.dataset.tab === tab; b.classList.toggle('an', an); b.setAttribute('aria-selected', an); });
   try { localStorage.setItem('d2a.tab', tab); } catch {}
-  if (!zustand.profil && tab !== 'vault') return platzhalter(titelVon(tab), 'Sign in with Bungie first.');
+  if (!zustand.profil && !['vault', 'armor'].includes(tab)) return platzhalter(titelVon(tab), 'Sign in with Bungie first.');
   TABS[tab]();
 }
 const titelVon = (tab) => rail.querySelector(`[data-tab="${tab}"] span`).textContent;
