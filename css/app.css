@@ -348,3 +348,8 @@ button:disabled{opacity:.45;cursor:progress}
 .wf i{width:26px;height:26px;border-radius:3px;background:center/cover}.wf .gr{font-style:normal;font-size:.62rem;color:var(--gut);text-transform:uppercase;margin-left:2px}
 .wf .gr.el2{color:var(--arc)}.wf .gr.el3{color:var(--solar)}.wf .gr.el4{color:var(--void)}.wf .gr.el6{color:var(--stasis)}.wf .gr.el7{color:var(--strand)}
 .kteil small.aktivset{color:var(--gold);font-weight:700}
+.krang{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}.krang b{font:700 1.1rem var(--kopf);color:var(--gold)}.krang>span{color:var(--matt);font-size:.8rem;margin-right:6px}
+.schip{font-style:normal;font-size:.7rem;padding:2px 8px;border-radius:999px;border:1px solid color-mix(in srgb,var(--sf) 50%,transparent);color:color-mix(in srgb,var(--sf) 80%,white);background:color-mix(in srgb,var(--sf) 10%,transparent)}
+.schip.an{background:color-mix(in srgb,var(--sf) 30%,transparent);font-weight:700}
+.kteil .kset-l{border-bottom:2px solid var(--sf);padding-bottom:1px;color:#cfc9ee!important}.kteil .kset-l.aktivset{color:var(--gold)!important;font-weight:700}
+.kwerte span i{display:block;height:3px;margin:3px 6px 0;background:#ffffff12;border-radius:2px;overflow:hidden}.kwerte span u{display:block;height:100%;background:linear-gradient(90deg,var(--violett),var(--gold))}
