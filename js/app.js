@@ -4,6 +4,7 @@ import { ladeDefs } from './defs.js';
 import { zeigeVault } from './vault.js';
 import { zeigeWoche } from './woche.js';
 import { zeigeLoadouts } from './loadouts.js';
+import { zeigeOptimizer } from './optimizer.js';
 import { zeigeXur, xurDa } from './xur.js';
 
 const $ = (s) => document.querySelector(s);
@@ -33,7 +34,7 @@ const TABS = {
   armor: () => zeigeVault(haupt, zustand, 'ruestung'),
   xur: () => zeigeXur(haupt, zustand),
   loadouts: () => zeigeLoadouts(haupt, zustand),
-  optimizer: () => platzhalter('Optimizer', 'The armor optimizer with live stat bars comes in the next patch.'),
+  optimizer: () => zeigeOptimizer(haupt, zustand),
   finder: () => platzhalter('Build Finder', 'Finds builds from what you own. Comes in the next patch.'),
   stats: () => platzhalter('Stats', 'Your activity and weapon statistics. Comes in the next patch.'),
 };

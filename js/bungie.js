@@ -67,3 +67,4 @@ export const verschiebe = (k, it, charId, inTresor) => aktion('TransferItem', k,
 export const abholen = (k, it, charId) => aktion('PullFromPostmaster', k, { itemReferenceHash: it.hash, stackSize: 1, itemId: it.id, characterId: charId });
 export const ausruesten = (k, it, charId) => aktion('EquipItem', k, { itemId: it.id, characterId: charId });
 export const plugSetzen = (k, it, charId, sockel, plug) => aktion('InsertSocketPlugFree', k, { plug: { socketIndex: sockel, socketArrayType: 0, plugItemHash: plug }, itemId: it.id, characterId: charId });
+export const ausruestenAlle = (k, ids, charId) => aktion('EquipItems', k, { itemIds: ids, characterId: charId });

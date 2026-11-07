@@ -41,9 +41,10 @@ export function sammle(profil) {
     const d = defs.items[it.itemHash];
     if (!d || !it.itemInstanceId || !SLOTS.some(([b]) => b === d.b)) return;
     const i = inst[it.itemInstanceId] || {};
-    const plugs = (sockel[it.itemInstanceId]?.sockets || []).map((s) => s.plugHash).filter(Boolean);
+    const roh = (sockel[it.itemInstanceId]?.sockets || []).map((s) => (s.isEnabled === false ? 0 : s.plugHash || 0));
+    const plugs = roh.filter(Boolean);
     liste.push({
-      id: it.itemInstanceId, hash: it.itemHash, d, ort, angelegt, plugs,
+      id: it.itemInstanceId, hash: it.itemHash, d, ort, angelegt, plugs, sockel: roh,
       power: i.primaryStat?.value || 0, element: i.damageType || d.d0 || 0,
       champ: d.t === 3 ? champion(it.itemHash, plugs, i.breakerType) : null,
       st: d.t === 2 ? armorStats(statDaten[it.itemInstanceId]) : null,
