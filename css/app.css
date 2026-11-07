@@ -223,3 +223,7 @@ button:disabled{opacity:.45;cursor:progress}
 .blip{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:var(--violett);color:#140c33;font:700 .7rem var(--fliess);cursor:help}
 .fliste{margin:0;color:#cfc9ee;font-size:.85rem}
 .fb-fuss{display:flex;align-items:center;justify-content:space-between;margin-top:14px}.fb-fuss a{color:var(--arc);font-size:.85rem}
+.ic .mark{position:absolute;left:2px;bottom:2px;width:12px;height:12px;border-radius:2px}
+.ic .mark.junk{background:var(--warn);clip-path:polygon(20% 0,50% 30%,80% 0,100% 20%,70% 50%,100% 80%,80% 100%,50% 70%,20% 100%,0 80%,30% 50%,0 20%)}
+.ic .mark.fuel{background:var(--solar);clip-path:polygon(50% 0,80% 45%,70% 100%,30% 100%,20% 45%)}
+.rot{color:var(--warn)}.gold{color:var(--gold)}

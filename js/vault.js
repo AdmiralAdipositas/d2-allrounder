@@ -44,7 +44,7 @@ export function sammle(profil) {
     const roh = (sockel[it.itemInstanceId]?.sockets || []).map((s) => (s.isEnabled === false ? 0 : s.plugHash || 0));
     const plugs = roh.filter(Boolean);
     liste.push({
-      id: it.itemInstanceId, hash: it.itemHash, d, ort, angelegt, plugs, sockel: roh,
+      id: it.itemInstanceId, hash: it.itemHash, d, ort, angelegt, plugs, sockel: roh, locked: (it.state & 1) === 1,
       power: i.primaryStat?.value || 0, element: i.damageType || d.d0 || 0,
       champ: d.t === 3 ? champion(it.itemHash, plugs, i.breakerType) : null,
       st: d.t === 2 ? armorStats(statDaten[it.itemInstanceId]) : null,
@@ -60,7 +60,7 @@ function kachel(x) {
   const champ = x.champ ? `<i class="ch" style="background-image:url(${BILD}${x.champ.i})" aria-label="${esc(CHAMP_NAME[x.champ.n] || x.champ.n)}"></i>` : '';
   const ort = x.ort === 'tresor' ? 'tresor' : x.ort.startsWith('post:') ? 'post' : 'char';
   return `<div class="ic ${x.d.q === 6 ? 'exotic' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:url(${BILD}${x.d.i})">
-    ${champ}<i class="ort ${ort}"></i>${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
+    ${champ}<i class="ort ${ort}"></i>${x.junk ? '<i class="mark junk" title="Dismantle suggestion"></i>' : x.fuel ? '<i class="mark fuel" title="Infusion fuel"></i>' : ''}${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
 }
 
 // Filtergruppen: innerhalb einer Gruppe ODER, zwischen Gruppen UND.
@@ -68,8 +68,35 @@ const AMMO = { 1: 'Primary', 2: 'Special', 3: 'Heavy' };
 const SELTEN = { 6: 'Exotic', 5: 'Legendary', 4: 'Rare', 3: 'Uncommon', 2: 'Common' };
 const GRUPPEN = [
   ['ort', 'Location'], ['element', 'Element'], ['ammo', 'Ammo'], ['champ', 'Champion'], ['art', 'Weapon type'], ['frame', 'Frame'],
-  ['selten', 'Rarity'], ['set', 'Armor set'], ['kopien', 'Copies'],
+  ['selten', 'Rarity'], ['set', 'Armor set'], ['kopien', 'Copies'], ['putz', 'Clean-up'],
 ];
+
+// Aufräumen: behalten, was in Loadouts steckt, angelegt oder gesperrt ist, sonst die Kopie mit den meisten Perks und höchstem Power.
+// Infusions-Futter: nicht genutzt, aber stärker als das schwächste genutzte Teil im gleichen Slot (pro Slot die zwei stärksten).
+function aufraeumen(alle, profil) {
+  const genutzt = new Set();
+  for (const c of Object.values(profil.characterLoadouts?.data || {})) for (const l of c.loadouts || []) for (const i of l.items || []) genutzt.add(i.itemInstanceId);
+  for (const x of alle) if (x.angelegt) genutzt.add(x.id);
+  const fuel = new Set();
+  const proSlot = new Map();
+  for (const x of alle) { const f = proSlot.get(x.d.b) || { g: [], f: [] }; (genutzt.has(x.id) ? f.g : f.f).push(x); proSlot.set(x.d.b, f); }
+  for (const f of proSlot.values()) {
+    const p = f.g.map((x) => x.power).filter(Boolean);
+    if (!p.length) continue;
+    const schwach = Math.min(...p);
+    f.f.filter((x) => x.power > schwach).sort((a, b) => b.power - a.power).slice(0, 2).forEach((x) => fuel.add(x.id));
+  }
+  const gruppen = new Map();
+  for (const x of alle) if (x.d.t === 3) gruppen.set(x.hash, [...(gruppen.get(x.hash) || []), x]);
+  for (const x of alle) { x.genutzt = genutzt.has(x.id); x.fuel = fuel.has(x.id); x.junk = false; }
+  for (const kopien of gruppen.values()) {
+    if (kopien.length < 2) continue;
+    const wert = (k) => (k.genutzt ? 1000 : 0) + (k.locked ? 500 : 0) + k.plugs.length * 2 + k.power / 1000;
+    const beste = [...kopien].sort((a, b) => wert(b) - wert(a))[0];
+    for (const k of kopien) k.junk = !(k === beste || k.genutzt || k.locked || k.fuel);
+  }
+  for (const x of alle) x.m.putz = x.junk ? 'Dismantle suggestion' : x.fuel ? 'Infusion fuel' : x.genutzt ? 'In a loadout' : '';
+}
 const merkmale = (x, anzahl, nachChar) => ({
   ort: x.ort === 'tresor' ? 'Vault' : x.ort.startsWith('post:') ? 'Postmaster' : nachChar[x.ort] || 'Character',
   element: x.d.t === 3 ? defs.schaden?.[x.element]?.n || '' : '',
@@ -106,6 +133,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   const anzahl = {};
   for (const x of alle) anzahl[x.hash] = (anzahl[x.hash] || 0) + 1;
   for (const x of alle) x.m = merkmale(x, anzahl, nachChar);
+  aufraeumen(alle, profil);
 
   haupt.innerHTML = `<div class="kopf"><h1>${istWaffe ? 'Weapons' : 'Armor'}</h1><input id="suche" type="search" placeholder="Search name, perk, frame…" aria-label="Search" value="${esc(suche)}">
     <button id="neu" class="chip" title="Reload from Bungie">↻ Refresh</button><span class="platz"></span><div class="chips" role="group" aria-label="Class" ${istWaffe ? 'hidden' : ''}>

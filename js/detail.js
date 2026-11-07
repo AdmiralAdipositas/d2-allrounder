@@ -66,7 +66,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     const m = document.querySelector('#meldung');
     d.innerHTML = `<div class="dkopf"><i class="ic ${it.d.q === 6 ? 'exotic' : ''} ${it.d.t === 3 ? `el-${it.element}` : ''}" style="background-image:url(${BILD}${it.d.i})"></i>
       <div><h2>${esc(it.d.n)}</h2><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${it.m.frame ? ` · ${esc(it.m.frame)}` : ''}${it.m.champ ? ` · Stuns ${esc(it.m.champ)}` : ''}${it.m.set ? ` · ${esc(it.m.set)}` : ''}</small>
-      <small class="wo">${ortText()}</small></div><button class="zu" data-a="schliessen" aria-label="Close">✕</button></div>
+      <small class="wo">${ortText()}${it.genutzt ? ' · in a loadout' : ''}${it.locked ? ' · locked' : ''}${it.junk ? ' · <span class="rot">dismantle suggestion</span>' : ''}${it.fuel ? ' · <span class="gold">infusion fuel</span>' : ''}</small></div><button class="zu" data-a="schliessen" aria-label="Close">✕</button></div>
       <div class="aktionen">${knoepfe()}</div>
       ${laed ? '<p class="leer">Loading perks…</p>' : `<div class="dkoerper"><div class="pgrid">${raster() || '<p class="leer">No changeable perks.</p>'}</div><div class="dseite">${infoBox()}<div class="dstats">${stats}</div></div></div>`}`;
     if (d.open) d.append(m);
