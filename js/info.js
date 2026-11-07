@@ -87,5 +87,5 @@ document.addEventListener('click', (e) => {
   if (el && !el.closest('.infokarte') && !eigenerKlick(el)) { e.preventDefault(); return zeigeKarte(el); }
   if (karte && !e.target.closest('.infokarte')) zu();
 });
-document.addEventListener('contextmenu', (e) => { const el = e.target.closest('[data-ih],[data-mh],[data-ah],[data-sh]'); if (el) { e.preventDefault(); zeigeKarte(el); } });
+document.addEventListener('contextmenu', (e) => { if (document.body.classList.contains('zieht') || e.target.closest('.ck[data-cid]')) return; const el = e.target.closest('[data-ih],[data-mh],[data-ah],[data-sh]'); if (el) { e.preventDefault(); zeigeKarte(el); } });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') zu(); });

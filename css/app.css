@@ -573,3 +573,13 @@ body.ziehe{user-select:none;cursor:ew-resize}
 .cvoll{position:absolute;right:0;top:6px;font-size:.62rem;color:var(--danger,#ff6156);text-transform:uppercase}
 .cpost{margin-top:14px!important}
 @media(max-width:760px){.cgrid{grid-template-columns:1fr}.cwahl{grid-template-columns:1fr}.cgitter{grid-template-columns:repeat(3,34px)}.ck{width:34px;height:34px}.ck.gross{width:56px;height:56px}}
+.ctresor{display:flex;align-items:center;gap:10px;padding:8px 14px;margin:-4px 0 12px;border:2px dashed #3a3466;border-radius:10px;color:var(--matt);font-size:.8rem}
+.ctresor svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6}.ctresor b{color:var(--text);font-size:.9rem}
+body.zieht .ctresor{border-color:var(--gold);color:var(--text);background:#e8c35a12}
+.drop-an{outline:3px solid var(--gold)!important;outline-offset:2px;box-shadow:0 0 18px #e8c35a88!important}
+.ck.geist{position:fixed;z-index:200;width:48px;height:48px;pointer-events:none;opacity:.9;box-shadow:0 8px 24px #000c;transform:scale(1.1)}
+.ck.quelle{opacity:.35}
+body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
+.ck[data-cid]{touch-action:pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+@media(max-width:760px){.ctresor{position:sticky;top:0;z-index:15;background:var(--bg)}}
+@media(max-width:760px){.cwahl{grid-template-columns:repeat(3,1fr)!important;gap:6px}.cbanner{height:54px;padding:6px 8px 6px 10px;background-position:left center;grid-template-columns:1fr}.cbanner b{font-size:.85rem}.cbanner small{display:none}.cbanner span{grid-row:2;grid-column:1;font-size:.95rem}.ctresor small{font-size:.7rem}}
