@@ -503,7 +503,7 @@ function plateS(x,y,st,col,op,num,dis){if(op<=0)return'';const D=col==='D',c=D?C
  s+=`<text x="${x}" y="${y+28}" text-anchor="middle" class="pnum">${num}</text></g>`;return s;}
 function lblS(x,y,txt,c,o=1,cls='lbl'){return `<text x="${x}" y="${y}" text-anchor="middle" class="${cls}" fill="${c}" opacity="${o}">${esc(txt)}</text>`;}
 let HF=0;function hpBar(x,y,w,h,hp,gh){hp=hp==null?1:hp;gh=gh==null?hp:Math.max(gh,hp);return (HF>0?`<rect x="${x-1.5}" y="${y-1.5}" width="${w+3}" height="${h+3}" rx="${h/2+1.5}" fill="none" stroke="#fff" stroke-width="1.2" opacity="${HF}"/>`:'')+`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="#3a2a2a"/><rect x="${x}" y="${y}" width="${w*gh}" height="${h}" rx="${h/2}" fill="#ffe9c2" opacity=".85"/><rect x="${x}" y="${y}" width="${w*hp}" height="${h}" rx="${h/2}" fill="${C.enemy}"/>`+(HF>0?`<rect x="${x+w*hp}" y="${y}" width="${Math.max(2,w*(gh-hp))}" height="${h}" fill="#fff" opacity="${HF*.9}"/>`:'');}
-const ENEMY={fserv:1,atraks:1,taniks:1,nap:1,behe:1,leg:1,lack:1,harrow:1,sere:1,bshadow:1,vgob:1,vhob:1,vpra:1,vcyc:1,vwyv:1,vfan:1,witness:1,zhand:1,scorp:1,rhand:1,incend:1,herald:1,hblight:1,mino:1,subj:1,harpy:1,rface:1,riven:1,rheart:1,mknight:1,morgeth:1,dart:1,shuro:1,kalli:1,daughter:1,oryx:1,shade:1,golg:1,warpriest:1,knightO:1,taken:1,knightY:1,psion:1,torm:1,champ:1,cent:1,colossus:1,boss:1,nez:1,thrall:1,wizard:1,knight:1,ogre:1};
+const ENEMY={vmind:1,angel:1,fserv:1,atraks:1,taniks:1,nap:1,behe:1,leg:1,lack:1,harrow:1,sere:1,bshadow:1,vgob:1,vhob:1,vpra:1,vcyc:1,vwyv:1,vfan:1,witness:1,zhand:1,scorp:1,rhand:1,incend:1,herald:1,hblight:1,mino:1,subj:1,harpy:1,rface:1,riven:1,rheart:1,mknight:1,morgeth:1,dart:1,shuro:1,kalli:1,daughter:1,oryx:1,shade:1,golg:1,warpriest:1,knightO:1,taken:1,knightY:1,psion:1,torm:1,champ:1,cent:1,colossus:1,boss:1,nez:1,thrall:1,wizard:1,knight:1,ogre:1};
 function fxPre(u,o){if(!ENEMY[u.t])return'';let s=`<ellipse cx="${u.x}" cy="${u.y+(u.t==='boss'||u.t==='nez'?34:16)}" rx="${u.t==='boss'||u.t==='nez'?34:14}" ry="${u.t==='boss'||u.t==='nez'?8:4}" fill="#000" opacity="${.35*o}"/>`;
  if(o<1&&o>0&&!REDUCE){const q=1-o;s+=`<circle cx="${u.x}" cy="${u.y}" r="${16+26*q}" fill="rgba(20,8,36,${.55*q})" stroke="#6d4bd1" stroke-width="2" opacity="${q}"/>`;
   for(let i=0;i<8;i++){const a=i*0.785+now*1.5,rr=10+30*q+((i*7)%5);const px=u.x+Math.cos(a)*rr,py=u.y+Math.sin(a)*rr*.6-q*14-(i%3)*3;s+=`<circle cx="${px}" cy="${py}" r="${1.6+(i%3)*.6}" fill="${i%2?'#a982f5':'#2c1d4d'}" opacity="${q}"/>`;}}
@@ -813,6 +813,8 @@ function unitS(u,L){const o=u.o==null?1:u.o;if(o<=0)return'';const sc=u.sc==null
   case'fserv':s+=`<circle r="13" fill="#2a1d36" stroke="#c79bff" stroke-width="2.4"/><circle r="5" fill="#c79bff" opacity="${.7+.3*Math.sin(now*5)}"/>`+(u.hp!=null?hpBar(-18,18,36,5,u.hp,u.gh):'');break;
   case'atraks':s+=(u.glow?`<path d="M-15 -15 L15 15 M15 -15 L-15 15 M0 -19 L0 19 M-19 0 L19 0" stroke="#f6dc8e" stroke-width="1.4" opacity="${.6+.4*Math.sin(now*8)}"/><circle r="19" fill="none" stroke="#f6dc8e" stroke-width="2"/>`:'')+`<path d="M0 -13 L8 -4 L6 12 L-6 12 L-8 -4 Z" fill="#241f30" stroke="#a982f5" stroke-width="1.8"/><circle cy="-6" r="2.6" fill="#59b8ff"/>`+(u.hp!=null?hpBar(-18,20,36,5,u.hp,u.gh):'');break;
   case'taniks':{const sc=u.big?1.3:1;s+=`<g transform="scale(${sc})">`+(u.stun?`<circle r="${30+3*Math.sin(now*10)}" fill="rgba(89,184,255,.2)" stroke="#59b8ff" stroke-width="2.4"/>`:'')+(u.wing?`<path d="M-14 -4 L-40 -18 L-34 4 Z M14 -4 L40 -18 L34 4 Z" fill="#3a2414" stroke="#ff9a3c" stroke-width="1.8"/>`:'')+`<path d="M0 -20 L14 -6 L12 16 L-12 16 L-14 -6 Z" fill="#2c1e14" stroke="#ff9a3c" stroke-width="2.4"/><circle cy="-8" r="3.4" fill="#ff6156"/></g>`+(u.hp!=null?hpBar(-30,30*sc,60,6,u.hp,u.gh):'');break;}
+  case'vmind':{const sc=u.big?1.5:u.small?.8:1.1;s+=`<g transform="scale(${sc})"><path d="M-30 0 L0 -28 L30 0 L0 34 Z" fill="#2c2214" stroke="#d9a441" stroke-width="2.4"/><circle r="9" fill="#ff6156" opacity="${.7+.3*Math.sin(now*4)}"/>`+(u.eyes||[]).map(e=>{const p={t:[0,-30],i:[-26,4],o:[26,4],x:[0,30]}[e];return`<circle cx="${p[0]}" cy="${p[1]}" r="5.5" fill="#ff6156" stroke="#fff" stroke-width="1.4"/>`;}).join('')+(u.knee?`<circle cx="-20" cy="26" r="7" fill="none" stroke="#59b8ff" stroke-width="2.4"/>`:'')+(u.shoulder?`<circle cx="22" cy="-14" r="7" fill="none" stroke="#ff9a3c" stroke-width="2.4"/>`:'')+(u.plus?`<path d="M-8 -50 h16 M0 -58 v16" stroke="${u.plus}" stroke-width="4"/>`:'')+`</g>`+(u.hp!=null?hpBar(-40,46*sc,80,6,u.hp,u.gh):'');break;}
+  case'angel':s+=`<path d="M0 -10 C8 -16 16 -12 18 -4 C10 -6 4 -2 0 8 C-4 -2 -10 -6 -18 -4 C-16 -12 -8 -16 0 -10 Z" fill="#2c2214" stroke="#ece8f4" stroke-width="1.8"/>`+(u.sh?`<circle r="${17+1.5*Math.sin(now*6)}" fill="rgba(255,255,255,.12)" stroke="#ffffff" stroke-width="2"/>`:'')+(u.hp!=null?hpBar(-16,16,32,4,u.hp,u.gh):'');break;
   case'vfan':s+=`<circle r="7" fill="#2c2214" stroke="#ffffff" stroke-width="1.8"/><circle r="${3+1.2*Math.sin(now*12)}" fill="#ffffff"/>`;break;
   case'nap':s+=`<path d="M0 -12 L9 8 L0 4 L-9 8 Z" fill="#1a1426" stroke="#e7dbff" stroke-width="2"/><circle cy="-3" r="2.4" fill="#a982f5"/>`+(u.sh?`<circle r="17" fill="rgba(169,130,245,.12)" stroke="#e7dbff" stroke-width="2" stroke-dasharray="4 3" stroke-dashoffset="${-now*8}"/>`:'')+(u.ch>0?`<circle r="${14+26*u.ch}" fill="rgba(169,130,245,${.08+.12*u.ch})" stroke="#ffffff" stroke-width="${1+1.5*u.ch}" opacity="${.5+.5*Math.sin(now*14)}"/>`:'')+(u.hp!=null?hpBar(-18,16,36,4,u.hp,u.gh):'');break;
   case'behe':s+=`<g transform="rotate(${u.rot||0})"><rect x="-18" y="-13" width="36" height="26" rx="5" fill="#3a2414" stroke="${u.big?'#ffcf4a':C.enemy}" stroke-width="2.6"/><path d="M4 0 H26" stroke="${u.big?'#ffcf4a':C.enemy}" stroke-width="5" stroke-linecap="round"/><circle r="5" fill="${u.big?'#ffcf4a':C.enemy}"/></g>`+(u.hp!=null?hpBar(-22,20,44,5,u.hp,u.gh):'');break;
@@ -5474,6 +5476,210 @@ const DST=(function(){
  return{bg,S,base,finish:dscFinish(keys,floor)};
 })();
 
+
+/* =================== GARDEN OF SALVATION (shared) =================== */
+const gosChain=(pts,c,o)=>({t:'raw',x:0,y:0,svg:`<g opacity="${o==null?1:o}"><polyline points="${pts.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="${c||'#7fe3ff'}" stroke-width="3" stroke-linecap="round" stroke-dasharray="7 4" stroke-dashoffset="${-now*30}"/><polyline points="${pts.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="#e6fbff" stroke-width="1" opacity=".7"/></g>`});
+const gosBox=(p,on,o)=>({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><rect x="-10" y="-10" width="20" height="20" rx="3" transform="rotate(45)" fill="${on?'rgba(127,227,255,.3)':'#1d1a2c'}" stroke="${on?'#7fe3ff':'#4a4370'}" stroke-width="2"/></g>`});
+const gosOverflow=(p,o)=>({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><circle r="${10+2*Math.sin(now*10)}" fill="rgba(127,227,255,.35)" stroke="#e6fbff" stroke-width="2"/><path d="M-3 -7 L3 -1 L-1 1 L3 7" stroke="#e6fbff" stroke-width="2" fill="none"/></g>`});
+function gosFinish(keys,floor){return function(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)}];
+  s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));
+  keys.forEach(q=>{if(s.dead[q])return;const p=s.p[q];
+   if(s.ovf[q]!=null)units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y-22})"><rect x="-15" y="-7" width="30" height="13" rx="3" fill="#0f2430" stroke="#7fe3ff"/><text y="3.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" font-weight="700" fill="#e6fbff">${s.ovf[q]}</text></g>`});
+   if(s.enl[q])units.push({t:'raw',x:0,y:0,svg:`<circle cx="${p.x}" cy="${p.y}" r="13" fill="none" stroke="#fff4c2" stroke-width="1.6" opacity="${.6+.4*Math.sin(now*6)}"/>`});
+   if(s.mote[q])units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x+15} ${p.y+13})"><circle r="7" fill="${s.moteC||'#f6dc8e'}" opacity=".85"/><text y="3" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" font-weight="700" fill="#14121f">${s.mote[q]}</text></g>`});});
+  const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q],o:s.fade[q]==null?1:s.fade[q]}));
+  const hud=s.hud?{t:L(s.hud.t),v:fmt(s.hud.v),hi:false,paused:false,low:s.hud.v<15}:null;
+  return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud,plus:'',pips:s.pips?{at:[624,8],label:L(s.pips.lk)+' '+s.pips.done+'/'+s.pips.n,n:s.pips.n,done:s.pips.done}:null};};}
+function gosBase(keys,POS,extra){return function(){const s=Object.assign({p:{},ovf:{},enl:{},mote:{},units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{},fade:{}},extra||{});
+  keys.forEach(k=>s.p[k]={...POS[k]});return s;};}
+const gosFire=(s,k,key,b,i)=>{if(s.busy[key]||s.dead[key])return;s.busy[key]=1;if(Math.floor(k*70+(i||0))%2)s.shots.push({a:s.p[key],q:key,b,c:C.ally});};
+const gosBg=g=>{g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';};
+
+/* =================== GARDEN OF SALVATION: EVADE THE CONSECRATED MIND =================== */
+// SCHEMATIC: rooms from the bottom (spawn) upwards. Back team holds room 1 and takes Voltaic Overflow (about every
+// 60 s, 2:30 debuff, second pickup = death, missed = wipe). Front team kills the Angelic, tethers from the Vex box to
+// open the barrier; the boss moves ahead, the back team leapfrogs. The last barrier needs three boxes, then the field.
+const GSE=(function(){
+ const keys=['F1','F2','F3','B1','B2','B3'];
+ const POS={F1:{x:330,y:330},F2:{x:400,y:320},F3:{x:470,y:330},B1:{x:330,y:385},B2:{x:400,y:395},B3:{x:470,y:385}};
+ const BAR1={y:280},BAR2={y:150};
+ const BOX1={x:240,y:300},BOXES=[{x:560,y:175},{x:400,y:170},{x:240,y:175}];
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/>`;
+  o+=`<rect x="190" y="290" width="420" height="130" rx="10" fill="#141c1a" stroke="#2a4038"/><rect x="190" y="160" width="420" height="120" rx="10" fill="#141c1a" stroke="#2a4038"/><rect x="140" y="20" width="520" height="130" rx="12" fill="#151d1b" stroke="#2a4038"/>`;
+  [[BAR1.y,s.bar1],[BAR2.y,s.bar2]].forEach(([y,op])=>{o+=`<rect x="330" y="${y-5}" width="140" height="10" rx="3" fill="${op?'#1e3a26':'rgba(127,227,255,.35)'}" stroke="${op?'#3a6a4a':'#7fe3ff'}" stroke-width="${op?1:2}" opacity="${op?.5:1}"/>`;});
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN · schematic</text><text x="400" y="36" text-anchor="middle" class="hud-t" style="fill:#8ff0a4">EXIT</text>`;return o;}
+ const base=gosBase(keys,POS,{bar1:false,bar2:false});
+ const boss=(s,p,o)=>s.units.push({t:'vmind',x:p.x,y:p.y,o:o==null?1:o,small:1});
+ const S=[
+ // 1 layout
+ {d:18,f(k,s){boss(s,{x:400,y:240});const o1=win(k,0,.35),o2=win(k,.35,.7),o3=win(k,.7,1.01);s.adds.push(gosBox(BOX1,false));BOXES.forEach(b=>s.adds.push(gosBox(b,false)));
+   if(k<.35)s.spot=[{x:400,y:355,r:100,o:o1,w:true}];else if(k<.7)s.spot=[{...BOX1,r:22,o:o2,w:true},{x:400,y:BAR1.y,r:60,o:o2,w:true}];else s.spot=BOXES.map(b=>({...b,r:22,o:o3,w:true}));
+   s.fx=k<.35?{k:'fxE1Rooms',o:o1,c:'#ece8f4'}:k<.7?{k:'fxE1Box',o:o2,c:'#7fe3ff'}:{k:'fxE1Three',o:o3,c:'#7fe3ff'};}},
+ // 2 Voltaic Overflow: spawns, B1 picks it up (2:30), timer; nobody picks the next with a debuff
+ {d:22,f(k,s){boss(s,{x:400,y:240});const O={x:400,y:360};
+   if(k<.3)s.adds.push(gosOverflow(O,1));if(k<.3)s.labels.push({x:O.x,y:O.y-24,k:'lOvf',c:'#7fe3ff',o:win(k,.04,.3,.02)});
+   if(k>=.1&&k<.3)s.p.B1=mv(POS.B1,O,seg(k,.1,.28));
+   if(k>=.3){s.p.B1={...O};s.ovf.B1=fmt(150-(k-.3)*60);}
+   if(k>=.55&&k<.8){const O2={x:470,y:360};s.adds.push(gosOverflow(O2,1));s.p.B2=mv(POS.B2,O2,seg(k,.6,.78));s.labels.push({x:O2.x,y:O2.y-24,k:'lNext',c:C.ally,o:1});}
+   if(k>=.8)s.ovf.B2=fmt(150-(k-.8)*60);
+   s.hud={t:'lNextT',v:Math.max(0,60-k*60)};
+   s.fx=k<.3?{k:'fxE2Pick',o:win(k,0,.3,.02),c:'#7fe3ff'}:k<.55?{k:'fxE2Timer',o:win(k,.3,.55,.02),c:'#7fe3ff'}:{k:'fxE2Order',o:win(k,.55,1,.02),c:C.ally};}},
+ // 3 front: Angelic dies → box, chain tether to the barrier → open; boss moves ahead, back team leapfrogs
+ {d:26,f(k,s){const bp=k<.6?{x:400,y:240}:mv({x:400,y:240},{x:400,y:120},seg(k,.6,.7));boss(s,bp);
+   const A={x:250,y:330};if(k<.2){s.units.push({t:'angel',x:A.x,y:A.y,hp:1-seg(k,.04,.18)*.97});['F1','F2'].forEach((q,i)=>gosFire(s,k,q,A,i));}
+   s.adds.push(gosBox(BOX1,k>=.2));
+   if(k>=.24&&k<.55){s.p.F1=mv(POS.F1,{x:270,y:300},seg(k,.24,.3));s.p.F2=mv(POS.F2,{x:330,y:295},seg(k,.24,.3));s.p.F3=mv(POS.F3,{x:390,y:288},seg(k,.24,.3));
+     s.adds.push(gosChain([BOX1,s.p.F1,s.p.F2,s.p.F3,{x:400,y:BAR1.y}],null,seg(k,.3,.34)));['F1','F2','F3'].forEach(q=>s.enl[q]=k>=.34);}
+   s.bar1=k>=.5;if(k>=.5&&k<.56)s.bursts.push({x:400,y:BAR1.y,r:10+60*seg(k,.5,.56),c:'#7fe3ff',o:1-seg(k,.5,.56)});
+   if(k>=.62){['B1','B2','B3'].forEach((q,i)=>s.p[q]=mv(POS[q],{x:300+i*60,y:200},seg(k,.62,.9)));['F1','F2','F3'].forEach((q,i)=>s.p[q]=mv(s.p[q],{x:330+i*70,y:250},seg(k,.62,.75)));}
+   s.fx=k<.2?{k:'fxE3Ang',o:win(k,0,.2,.02),c:C.enemy}:k<.5?{k:'fxE3Chain',o:win(k,.2,.5,.02),c:'#7fe3ff'}:k<.62?{k:'fxE3Open',o:win(k,.5,.62,.02),c:C.good}:{k:'fxE3Leap',o:win(k,.62,1,.02),c:'#ece8f4'};}},
+ // 4 last barrier: three boxes right to left, then the field to the exit
+ {d:24,f(k,s){boss(s,{x:400,y:90},k<.7?1:1-seg(k,.7,.8));keys.forEach((q,i)=>s.p[q]={x:260+i*56,y:225});
+   BOXES.forEach((b,i)=>{const a=.08+i*.18;s.adds.push(gosBox(b,k>=a));if(k>=a&&k<.62){const q=['F1','F2','F3'][i];const t={x:b.x,y:b.y+38};s.p[q]=mv({x:260+i*56,y:225},t,seg(k,a-.04,a));s.adds.push(gosChain([b,s.p[q],{x:400,y:BAR2.y}],null,seg(k,a,a+.04)));}});
+   s.bar2=k>=.62;if(k>=.62&&k<.68)s.bursts.push({x:400,y:BAR2.y,r:10+60*seg(k,.62,.68),c:'#7fe3ff',o:1-seg(k,.62,.68)});
+   if(k>=.68)keys.forEach((q,i)=>{s.p[q]=mv(s.p[q],{x:330+i*28,y:60},seg(k,.68,.95));});
+   if(k>=.7&&k<.9){const c={x:560,y:90};s.units.push({t:'vcyc',x:c.x,y:c.y});s.labels.push({x:c.x,y:c.y-28,k:'lCyc',c:C.enemy,o:1});}
+   s.fx=k<.62?{k:'fxE4Boxes',o:win(k,0,.62,.02),c:'#7fe3ff'}:k<.95?{k:'fxE4Field',o:win(k,.62,.95,.02),c:'#ece8f4'}:{k:'fxE4Done',o:win(k,.95,1,.02),c:C.good};}}
+ ];
+ return{bg:gosBg,S,base,finish:gosFinish(keys,floor)};
+})();
+
+/* =================== GARDEN OF SALVATION: SUMMON THE CONSECRATED MIND =================== */
+// SCHEMATIC: four relays in the corners (1 start, 2 left, 3 opposite, 4 right) and one in the middle. One defender per
+// corner, two runners refresh Enlightened (44 s) by tethering from the Vex box. Enlightened breaks the white shields of
+// the Angelics. 12 Angelics (3 per relay) → the middle barrier drops → everyone defends the middle.
+const GSS=(function(){
+ const keys=['D1','D2','D3','D4','RL','RR'];
+ const R={1:{x:400,y:390},2:{x:150,y:220},3:{x:400,y:60},4:{x:650,y:220},5:{x:400,y:220}};
+ const BOX={1:{x:470,y:370},2:{x:170,y:290},3:{x:330,y:80},4:{x:630,y:150}};
+ const POS={D1:{x:400,y:360},D2:{x:180,y:220},D3:{x:400,y:90},D4:{x:620,y:220},RL:{x:300,y:330},RR:{x:500,y:330}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/><rect x="90" y="30" width="620" height="390" rx="14" fill="#141c1a" stroke="#2a4038"/>`;
+  Object.entries(R).forEach(([n,p])=>{const mid=n==='5';o+=`<circle cx="${p.x}" cy="${p.y}" r="${mid?34:24}" fill="${mid&&!s.open?'rgba(127,227,255,.12)':'#10201c'}" stroke="${mid&&!s.open?'#7fe3ff':'#3a6a4a'}" stroke-width="2" ${mid&&!s.open?'stroke-dasharray="5 4"':''}/><text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="12" font-weight="700" fill="#8ff0a4">${n}</text>`;});
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN = 1 · schematic</text>`;return o;}
+ const base=gosBase(keys,POS,{open:false});
+ const S=[
+ // 1 layout
+ {d:18,f(k,s){Object.values(BOX).forEach(b=>s.adds.push(gosBox(b,false)));const o1=win(k,0,.4),o2=win(k,.4,.7),o3=win(k,.7,1.01);
+   if(k<.4)s.spot=[1,2,3,4].map(n=>({...R[n],r:34,o:o1,w:true}));else if(k<.7)s.spot=Object.values(BOX).map(b=>({...b,r:20,o:o2,w:true}));else s.spot=[{...R[5],r:44,o:o3,w:true}];
+   s.fx=k<.4?{k:'fxU1Relays',o:o1,c:C.good}:k<.7?{k:'fxU1Box',o:o2,c:'#7fe3ff'}:{k:'fxU1Mid',o:o3,c:'#7fe3ff'};}},
+ // 2 runners: tether chain from the box, everyone in the chain Enlightened (44 s), rotate
+ {d:24,f(k,s){Object.values(BOX).forEach((b,i)=>s.adds.push(gosBox(b,true)));
+   if(k<.5){s.p.RL=mv(POS.RL,{x:200,y:300},seg(k,0,.15));s.adds.push(gosChain([BOX[2],s.p.RL,s.p.D2],null,seg(k,.15,.2)));if(k>=.2){s.enl.RL=1;s.enl.D2=1;}}
+   else{s.enl.RL=1;s.enl.D2=1;s.p.RL=mv({x:200,y:300},{x:340,y:110},seg(k,.5,.7));if(k>=.7){s.adds.push(gosChain([BOX[3],s.p.RL,s.p.D3],null,seg(k,.7,.75)));s.enl.D3=1;}}
+   s.p.RR=mv(POS.RR,{x:600,y:180},seg(k,.1,.3));if(k>=.3){s.adds.push(gosChain([BOX[4],s.p.RR,s.p.D4],null,seg(k,.3,.35)));if(k>=.35){s.enl.RR=1;s.enl.D4=1;}}
+   s.hud={t:'lEnlT',v:Math.max(0,44-Math.max(0,k-.2)*50)};
+   s.fx=k<.2?{k:'fxU2Chain',o:win(k,0,.2,.02),c:'#7fe3ff'}:k<.5?{k:'fxU2Enl',o:win(k,.2,.5,.02),c:'#fff4c2'}:{k:'fxU2Rot',o:win(k,.5,1,.02),c:C.ally};}},
+ // 3 Angelics at a relay: white shield, only Enlightened breaks it
+ {d:22,f(k,s){keys.forEach(q=>s.enl[q]=1);Object.values(BOX).forEach(b=>s.adds.push(gosBox(b,true)));
+   const sp=[{x:250,y:120},{x:250,y:320},{x:110,y:110}];sp.forEach((a,i)=>{const t0=.1+i*.25,t1=t0+.2;if(k<t1){const p=mv(a,R[2],seg(k,0,t1)*.5);s.units.push({t:'angel',x:p.x,y:p.y,sh:k<t0,hp:k<t0?1:1-seg(k,t0,t1)*.97});if(k>=t0-.05)['D2','RL'].forEach((q,j)=>gosFire(s,k,q,p,i+j));}});
+   s.p.RL={x:210,y:250};s.pips={lk:'lAngLbl',n:12,done:Math.min(3,Math.floor(seg(k,.1,.86)*3.2))};
+   s.cam=camK(k,[[0,400,220,1],[.06,220,220,1.5],[.92,220,220,1.5],[1,400,220,1]]);
+   s.fx=k<.1?{k:'fxU3Shield',o:win(k,0,.1,.01),c:'#fff4c2'}:{k:'fxU3Kill',o:win(k,.1,1,.02),c:C.ally};}},
+ // 4 12 Angelics done → middle opens, everyone defends relay 5
+ {d:20,f(k,s){s.pips={lk:'lAngLbl',n:12,done:12};s.open=k>=.12;if(k<.18)s.bursts.push({...R[5],r:10+50*seg(k,.12,.18),c:'#7fe3ff',o:1-seg(k,.12,.18)});
+   keys.forEach((q,i)=>{const t={x:R[5].x+Math.cos(i/6*6.28)*60,y:R[5].y+Math.sin(i/6*6.28)*45};s.p[q]=k<.15?{...POS[q]}:mv(POS[q],t,seg(k,.15,.35));});
+   if(k>=.35&&k<.92)[0,1,2,3].forEach(i=>{const a=i/4*6.28+k*2;const p={x:400+Math.cos(a)*230,y:220+Math.sin(a)*150};s.units.push({t:'vgob',x:p.x,y:p.y});gosFire(s,k,keys[i],p,i);});
+   if(k>=.94)s.bursts.push({...R[5],r:20+200*seg(k,.94,1),c:C.good,o:1-seg(k,.94,1)});
+   s.fx=k<.35?{k:'fxU4Open',o:win(k,0,.35,.02),c:'#7fe3ff'}:k<.94?{k:'fxU4Hold',o:win(k,.35,.94,.02),c:C.ally}:{k:'fxU4Done',o:win(k,.94,1,.02),c:C.good};}}
+ ];
+ return{bg:gosBg,S,base,finish:gosFinish(keys,floor)};
+})();
+
+/* =================== GARDEN OF SALVATION: CONSECRATED MIND =================== */
+// SCHEMATIC: boss in the middle, relays around it; one is the bank (beam). Mote team: Minotaurs drop 5 motes, hold
+// max 10, 60 s, bank 30. Eye team: whoever takes Voltaic Overflow is rooted and sees the glowing eyes, shoots the top
+// one, the other two call inner/outer. 30 banked → boss to the bank, break all eyes, shoot the centre, follow it back.
+const GSC=(function(){
+ const keys=['M1','M2','M3','E1','E2','E3'];
+ const BOSS={x:400,y:170};const BANK={x:620,y:330};const RELAY=[{x:180,y:330},{x:620,y:330},{x:400,y:400}];
+ const POS={M1:{x:240,y:360},M2:{x:280,y:380},M3:{x:320,y:360},E1:{x:400,y:290},E2:{x:330,y:270},E3:{x:470,y:270}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/><rect x="90" y="40" width="620" height="380" rx="14" fill="#141c1a" stroke="#2a4038"/>`;
+  RELAY.forEach(p=>{const bank=p===BANK;o+=`<circle cx="${p.x}" cy="${p.y}" r="22" fill="#10201c" stroke="${bank?'#f6dc8e':'#3a6a4a'}" stroke-width="${bank?2.6:1.4}"/>${bank?`<rect x="${p.x-3}" y="${p.y-330}" width="6" height="310" fill="rgba(246,220,142,.18)"/>`:''}`;});
+  if(s.bank!=null)o+=`<text x="${BANK.x}" y="${BANK.y+40}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="11" font-weight="700" fill="#f6dc8e">${s.bank}/30</text>`;
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN · schematic</text>`;return o;}
+ const base=gosBase(keys,POS,{bank:0,moteC:'#f6dc8e'});
+ const boss=(s,p,eyes,hp)=>s.units.push({t:'vmind',x:p.x,y:p.y,eyes,hp});
+ const S=[
+ // 1 layout
+ {d:18,f(k,s){boss(s,BOSS,null,null);const o1=win(k,0,.33),o2=win(k,.33,.66),o3=win(k,.66,1.01);
+   if(k<.33)s.spot=[{...BOSS,r:60,o:o1,w:true}];else if(k<.66)s.spot=[{...BANK,r:34,o:o2,w:true}];else s.spot=[{x:280,y:370,r:60,o:o3,w:true}];
+   s.fx=k<.33?{k:'fxC1Boss',o:o1,c:'#7fe3ff'}:k<.66?{k:'fxC1Bank',o:o2,c:C.light}:{k:'fxC1Teams',o:o3,c:'#ece8f4'};}},
+ // 2 motes: Minotaur → 5 motes, carry, bank in turns
+ {d:24,f(k,s){boss(s,BOSS,null,null);const Mn={x:200,y:250};
+   if(k<.25){s.units.push({t:'mino',x:Mn.x,y:Mn.y,hp:1-seg(k,.04,.22)*.97});['M1','M2','M3'].forEach((q,i)=>gosFire(s,k,q,Mn,i));}
+   if(k>=.25&&k<.35)[0,1,2,3,4].forEach(i=>s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${Mn.x+Math.cos(i*1.3)*20}" cy="${Mn.y+Math.sin(i*1.3)*14}" r="4" fill="#f6dc8e"/>`}));
+   if(k>=.28){s.p.M1=mv(POS.M1,Mn,seg(k,.26,.34));if(k>=.34){s.mote.M1=5;s.p.M1=mv(Mn,{x:BANK.x-30,y:BANK.y},seg(k,.36,.6));}}
+   s.bank=k<.62?0:5;if(k>=.6){s.mote.M1=0;if(k<.66)s.bursts.push({...BANK,r:10+30*seg(k,.6,.66),c:C.light,o:1-seg(k,.6,.66)});}
+   if(k>=.62){s.p.M2=mv(POS.M2,{x:BANK.x-50,y:BANK.y+20},seg(k,.62,.9));s.mote.M2=5;s.labels.push({x:BANK.x,y:BANK.y-36,k:'lTurn',c:C.light,o:win(k,.62,1,.02)});}
+   s.fx=k<.25?{k:'fxC2Mino',o:win(k,0,.25,.02),c:C.ally}:k<.6?{k:'fxC2Carry',o:win(k,.25,.6,.02),c:C.light}:{k:'fxC2Bank',o:win(k,.6,1,.02),c:C.light};}},
+ // 3 eyes: Overflow rooted player sees the eyes, shoots the top one, the others inner/outer
+ {d:24,f(k,s){s.bank=12;const p=mv(BOSS,{x:300,y:160},seg(k,0,.1));boss(s,p,k<.88?['t','i','o'].filter((e,i)=>k<.4+i*.16):null,null);
+   const O={x:300,y:280};if(k<.12){s.adds.push(gosOverflow(O,1));s.p.E1=mv(POS.E1,O,seg(k,.02,.12));}else{s.p.E1=O;s.ovf.E1=fmt(150-(k-.12)*40);}
+   s.p.E2=mv(POS.E2,{x:230,y:240},seg(k,0,.1));s.p.E3=mv(POS.E3,{x:370,y:240},seg(k,0,.1));
+   const tg=[[.24,.4,'E1',{x:p.x,y:p.y-30},'lTop'],[.4,.56,'E2',{x:p.x-26,y:p.y+4},'lInner'],[.56,.72,'E3',{x:p.x+26,y:p.y+4},'lOuter']];
+   tg.forEach(([a,b,q,t,l],i)=>{if(k>=a&&k<b){gosFire(s,k,q,t,i);s.labels.push({x:s.p[q].x,y:s.p[q].y+30,k:l,c:'#ff6156',o:1});}});
+   if(k>=.12&&k<.24)s.labels.push({x:O.x,y:O.y+30,k:'lRooted',c:'#7fe3ff',o:1});
+   s.cam=camK(k,[[0,400,220,1],[.08,320,220,1.4],[.9,320,220,1.4],[1,400,220,1]]);
+   s.fx=k<.24?{k:'fxC3Ovf',o:win(k,0,.24,.02),c:'#7fe3ff'}:k<.76?{k:'fxC3Eyes',o:win(k,.24,.76,.02),c:'#ff6156'}:{k:'fxC3Wrong',o:win(k,.76,1,.02),c:C.danger};}},
+ // 4 damage: 30 banked → boss to the bank, break all eyes, shoot the centre, follow it back
+ {d:24,f(k,s){s.bank=30;const p=k<.2?mv(BOSS,{x:560,y:260},seg(k,0,.2)):k<.55?{x:560,y:260}:mv({x:560,y:260},{x:420,y:150},seg(k,.55,.95));
+   const eyes=k<.4?['t','i','o','x'].slice(0,4-Math.floor(seg(k,.2,.4)*4)):[];boss(s,p,k<.4?eyes:null,k>=.4?1-seg(k,.4,.95)*.3:null);
+   keys.forEach((q,i)=>{const t={x:p.x-160+(i%3)*50,y:p.y+90+Math.floor(i/3)*40};s.p[q]=k<.2?mv(POS[q],t,seg(k,0,.2)):t;if(k>=.2)gosFire(s,k,q,k<.4?{x:p.x+(i%3-1)*26,y:p.y-10}:p,i);});
+   s.fx=k<.2?{k:'fxC4Move',o:win(k,0,.2,.02),c:C.light}:k<.4?{k:'fxC4Eyes',o:win(k,.2,.4,.02),c:'#ff6156'}:k<.55?{k:'fxC4Dmg',o:win(k,.4,.55,.02),c:C.ally}:{k:'fxC4Follow',o:win(k,.55,1,.02),c:C.ally};}}
+ ];
+ return{bg:gosBg,S,base,finish:gosFinish(keys,floor)};
+})();
+
+/* =================== GARDEN OF SALVATION: SANCTIFIED MIND =================== */
+// SCHEMATIC: boss in the middle over the water, platforms in front, blue relay left, orange relay right. Mote teams
+// break the left knee (blue portal) or right shoulder (orange portal), collect ~15 motes on the island, come back,
+// deposit (Enlightened). Each break spawns a Cyclops and the boss removes a platform; builders rebuild by tethering.
+// Both relays at 30 → plus symbol → tether from the matching relay → damage when the boss rises.
+const GSM=(function(){
+ const keys=['A1','A2','B1','B2','P1','P2'];
+ const BOSS={x:400,y:110};const BL={x:150,y:300},OR={x:650,y:300};const ISL={L:{x:110,y:110},R:{x:690,y:110}};
+ const PLAT=[{x:290,y:300},{x:400,y:320},{x:510,y:300},{x:340,y:390},{x:460,y:390}];
+ const POS={A1:{x:280,y:300},A2:{x:310,y:300},B1:{x:500,y:300},B2:{x:530,y:300},P1:{x:390,y:320},P2:{x:420,y:320}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0b1416"/>`;
+  PLAT.forEach((p,i)=>{const gone=(s.gone||[]).includes(i);o+=`<ellipse cx="${p.x}" cy="${p.y}" rx="46" ry="22" fill="${gone?'none':'#18241f'}" stroke="${gone?'#2a4038':'#4c7a62'}" stroke-dasharray="${gone?'4 4':'0'}"/>`;});
+  [[BL,'#59b8ff',s.bl],[OR,'#ff9a3c',s.or]].forEach(([p,c,v])=>{o+=`<circle cx="${p.x}" cy="${p.y}" r="24" fill="#10201c" stroke="${c}" stroke-width="2.4"/><text x="${p.x}" y="${p.y+42}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="11" font-weight="700" fill="${c}">${v||0}/30</text>`;});
+  ['L','R'].forEach(sd=>{const p=ISL[sd];o+=`<ellipse cx="${p.x}" cy="${p.y}" rx="60" ry="34" fill="#15201c" stroke="#2a4038" stroke-dasharray="4 4"/>`;});
+  if(s.portal)o+=`<circle cx="${s.portal==='L'?230:570}" cy="190" r="${16+2*Math.sin(now*6)}" fill="none" stroke="${s.portal==='L'?'#59b8ff':'#ff9a3c'}" stroke-width="3"/>`;
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN · schematic</text>`;return o;}
+ const base=gosBase(keys,POS,{gone:[],bl:0,or:0,portal:null,moteC:'#59b8ff'});
+ const boss=(s,o)=>s.units.push(Object.assign({t:'vmind',x:BOSS.x,y:BOSS.y,big:1},o||{}));
+ const S=[
+ // 1 layout
+ {d:20,f(k,s){boss(s);const o1=win(k,0,.25),o2=win(k,.25,.5),o3=win(k,.5,.75),o4=win(k,.75,1.01);
+   if(k<.25)s.spot=[{...BOSS,r:60,o:o1,w:true}];else if(k<.5)s.spot=[{...BL,r:34,o:o2,w:true},{...OR,r:34,o:o2,w:true}];else if(k<.75)s.spot=[{...ISL.L,r:60,o:o3,w:true},{...ISL.R,r:60,o:o3,w:true}];else s.spot=PLAT.map(p=>({...p,r:40,o:o4,w:true}));
+   s.fx=k<.25?{k:'fxM1Boss',o:o1,c:'#7fe3ff'}:k<.5?{k:'fxM1Relays',o:o2,c:C.light}:k<.75?{k:'fxM1Isl',o:o3,c:'#ece8f4'}:{k:'fxM1Plat',o:o4,c:C.good};}},
+ // 2 mote team A: break the knee → blue portal → island, collect ~15, back, deposit (Enlightened). Cyclops + platform gone.
+ {d:28,f(k,s){const kneeHit=k<.12;boss(s,{knee:kneeHit});s.portal=k>=.12&&k<.7?'L':null;
+   if(kneeHit)['A1','A2'].forEach((q,i)=>gosFire(s,k,q,{x:BOSS.x-30,y:BOSS.y+40},i));
+   if(k>=.12&&k<.5){['A1','A2'].forEach((q,i)=>{const t={x:ISL.L.x+i*30-15,y:ISL.L.y};s.p[q]=k<.2?mv(POS[q],{x:230,y:190},seg(k,.12,.18)):mv({x:230,y:190},t,seg(k,.2,.26));if(k>=.18&&k<.22)s.fade[q]=Math.abs(seg(k,.18,.22)*2-1);});
+     if(k>=.28){const n=Math.min(15,Math.floor((k-.28)*70));s.mote.A1=n;s.mote.A2=Math.max(0,n-1);s.units.push({t:'vgob',x:ISL.L.x+40*Math.sin(k*20),y:ISL.L.y-20});}}
+   if(k>=.12&&k<.4){s.units.push({t:'vcyc',x:400,y:230,hp:1-seg(k,.16,.38)*.97});['P1','P2','B1'].forEach((q,i)=>gosFire(s,k,q,{x:400,y:230},i));}
+   s.gone=k>=.14?[4]:[];
+   if(k>=.5){['A1','A2'].forEach((q,i)=>{s.p[q]=k<.6?mv({x:ISL.L.x+i*30-15,y:ISL.L.y},{x:BL.x+20+i*20,y:BL.y-30},seg(k,.5,.6)):{x:BL.x+20+i*20,y:BL.y-30};s.mote[q]=k<.62?15:0;});s.bl=k<.62?0:30;if(k>=.62){s.enl.A1=1;s.enl.A2=1;if(k<.68)s.bursts.push({...BL,r:10+30*seg(k,.62,.68),c:'#59b8ff',o:1-seg(k,.62,.68)});}}
+   if(k>=.7){s.adds.push(gosChain([BL,s.p.P1,{x:400,y:390},PLAT[4]],null,seg(k,.7,.75)));s.p.P1=mv(POS.P1,{x:300,y:340},seg(k,.68,.72));if(k>=.85)s.gone=[];}
+   s.fx=k<.12?{k:'fxM2Knee',o:win(k,0,.12,.02),c:C.ally}:k<.5?{k:'fxM2Isl',o:win(k,.12,.5,.02),c:'#59b8ff'}:k<.7?{k:'fxM2Dep',o:win(k,.5,.7,.02),c:'#fff4c2'}:{k:'fxM2Build',o:win(k,.7,1,.02),c:C.good};}},
+ // 3 same for team B on the orange side (shoulder)
+ {d:18,f(k,s){s.bl=30;boss(s,{shoulder:k<.12});s.portal=k>=.12&&k<.6?'R':null;s.moteC='#ff9a3c';
+   if(k<.12)['B1','B2'].forEach((q,i)=>gosFire(s,k,q,{x:BOSS.x+34,y:BOSS.y-20},i));
+   if(k>=.12&&k<.5)['B1','B2'].forEach((q,i)=>{s.p[q]=mv(POS[q],{x:ISL.R.x+i*30-15,y:ISL.R.y},seg(k,.12,.3));if(k>=.3)s.mote[q]=Math.min(15,Math.floor((k-.3)*80));});
+   if(k>=.5)['B1','B2'].forEach((q,i)=>{s.p[q]=mv({x:ISL.R.x+i*30-15,y:ISL.R.y},{x:OR.x-40+i*20,y:OR.y-30},seg(k,.5,.62));s.mote[q]=k<.64?15:0;});
+   s.or=k<.64?0:30;s.gone=k>=.14?[0]:[];
+   s.fx=k<.5?{k:'fxM3Sh',o:win(k,0,.5,.02),c:'#ff9a3c'}:{k:'fxM3Both',o:win(k,.5,1,.02),c:C.good};}},
+ // 4 damage: plus symbol → tether from the matching relay → boss rises → damage
+ {d:24,f(k,s){s.bl=30;s.or=30;const up=k>=.45;boss(s,{plus:k>=.08&&k<.45?'#59b8ff':null,hp:up?1-seg(k,.5,.95)*.4:null,y:up?BOSS.y-20*seg(k,.45,.5):BOSS.y});
+   const A={x:200,y:220};if(k>=.1&&k<.24){s.units.push({t:'angel',x:A.x,y:A.y,hp:1-seg(k,.12,.24)*.97});['A1','A2'].forEach((q,i)=>gosFire(s,k,q,A,i));}
+   if(k>=.24&&k<.5){const ch=['A1','A2','P1','B1'];ch.forEach((q,i)=>s.p[q]=mv(POS[q],{x:BL.x+60+i*55,y:BL.y-40-i*35},seg(k,.24,.3)));s.adds.push(gosChain([BL,...ch.map(q=>s.p[q]),BOSS],null,seg(k,.3,.34)));}
+   if(k>=.45)keys.forEach((q,i)=>{s.p[q]=mv(s.p[q],{x:300+i*40,y:310},seg(k,.45,.5));gosFire(s,k,q,{x:BOSS.x,y:BOSS.y+20},i);});
+   s.fx=k<.1?{k:'fxM4Plus',o:win(k,0,.1,.02),c:'#59b8ff'}:k<.24?{k:'fxM4Ang',o:win(k,.1,.24,.02),c:C.enemy}:k<.45?{k:'fxM4Chain',o:win(k,.24,.45,.02),c:'#7fe3ff'}:{k:'fxM4Dmg',o:win(k,.45,1,.02),c:C.ally};}}
+ ];
+ return{bg:gosBg,S,base,finish:gosFinish(keys,floor)};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -7685,6 +7891,188 @@ const RG_DST=[{id:'op',slots:['OP'],focus:[2],de:{name:'Operator',steps:['Fessel
  {id:'su',slots:['SU'],focus:[3],de:{name:'Suppressor',steps:['Drei Drohnen, Taniks treffen.'],watch:['Timing mit den Fesselblasen.']},en:{name:'Suppressor',steps:['Three drones, hit Taniks.'],watch:['Timing with the detainments.']}},
  {id:'car',slots:['C1','C2','C3'],focus:[2,4,5],de:{name:'Träger',steps:['Flügel schießen, Kern tragen.','Tauschen vor 10.','Schaden zwischen den Ringen.'],watch:['Lila Strahl.']},en:{name:'Carriers',steps:['Shoot wings, carry the core.','Swap before 10.','Damage between the rings.'],watch:['Purple beam.']}}];
 
+const SV_GSE=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="110" y="140" width="200" height="60" rx="6" fill="#141c1a" stroke="#2a4038"/><rect x="110" y="78" width="200" height="54" rx="6" fill="#141c1a" stroke="#2a4038"/><rect x="80" y="10" width="260" height="60" rx="6" fill="#151d1b" stroke="#2a4038"/><rect x="175" y="133" width="70" height="5" fill="#7fe3ff"/><rect x="175" y="71" width="70" height="5" fill="#7fe3ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="176" fill="#9c95b0">{0}</text><text x="210" y="110" fill="#9c95b0">{1}</text><text x="210" y="44" fill="#8ff0a4">{2}</text></g></svg>`;
+const SV_GSS=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="60" y="10" width="300" height="190" rx="10" fill="#141c1a" stroke="#2a4038"/>${[[210,185,1],[90,105,2],[210,25,3],[330,105,4],[210,105,5]].map(([x,y,n])=>`<circle cx="${x}" cy="${y}" r="13" fill="#10201c" stroke="${n===5?'#7fe3ff':'#3a6a4a'}"/><text x="${x}" y="${y+4}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="10" fill="#8ff0a4">${n}</text>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="9" text-anchor="middle"><text x="210" y="140" fill="#7fe3ff">{0}</text></g></svg>`;
+const SV_GSC=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="60" y="10" width="300" height="190" rx="10" fill="#141c1a" stroke="#2a4038"/><path d="M180 70 L210 40 L240 70 L210 104 Z" fill="#2c2214" stroke="#d9a441"/>${[[210,36],[184,74],[236,74]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#ff6156"/>`).join('')}<circle cx="320" cy="160" r="14" fill="#10201c" stroke="#f6dc8e" stroke-width="2"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="24" fill="#ff6156">{0}</text><text x="160" y="80" fill="#ff6156">{1}</text><text x="262" y="80" fill="#ff6156">{2}</text><text x="320" y="190" fill="#f6dc8e">{3}</text></g></svg>`;
+const SV_GSM=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="0" y="0" width="420" height="210" fill="#0b1416"/><path d="M180 50 L210 20 L240 50 L210 84 Z" fill="#2c2214" stroke="#d9a441"/><circle cx="80" cy="150" r="16" fill="#10201c" stroke="#59b8ff" stroke-width="2"/><circle cx="340" cy="150" r="16" fill="#10201c" stroke="#ff9a3c" stroke-width="2"/>${[[160,150],[210,160],[260,150]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="24" ry="11" fill="#18241f" stroke="#4c7a62"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="80" y="182" fill="#59b8ff">{0}</text><text x="340" y="182" fill="#ff9a3c">{1}</text><text x="210" y="192" fill="#8ff0a4">{2}</text></g></svg>`;
+const gosLede=(de)=>de?'Positionen schematisch nach den Text-Guides.':'Positions schematic after the written guides.';
+const ENC_GSE={num:1,name:'Evade the Consecrated Mind',eng:GSE,diags:[SV_GSE],order:['F1','F2','F3','B1','B2','B3'],
+ slots:[['F1','Vorne','Front'],['F2','Vorne','Front'],['F3','Vorne','Front'],['B1','Hinten (Overflow)','Back (Overflow)'],['B2','Hinten (Overflow)','Back (Overflow)'],['B3','Hinten (Overflow)','Back (Overflow)']],
+ de:{kicker:'Garden of Salvation · Encounter 1 · Evade the Consecrated Mind',
+  gear:{crit:['Overload-Waffe oder Overload-Fähigkeit für die Overload-Minotauren.'],top:['Ad-Clear für die Räume.'],budget:['Wenig Ausrüstung? Spiel hinten und nimm Overflow, das braucht keinen Schaden.']},
+  lede:'Eine Verfolgungsjagd ohne Schadensphase. Hinten hält ein Team den ersten Raum und nimmt den Voltaic Overflow, der etwa alle 60 Sekunden erscheint: nimmt ihn niemand, Wipe. Wer ihn nimmt, hat 2:30 einen Debuff, ein zweiter tötet ihn. Vorne tötet ein Team den Angelic, verbindet die Vex-Kiste per Tether mit der Barriere und öffnet sie. Dann zieht der Boss weiter, das hintere Team springt vor. Die letzte Barriere braucht drei Kisten, danach das offene Feld bis zum Ausgang. '+gosLede(1),
+  sc:[['Aufbau','Räume von unten (Spawn) nach oben. Erste Barriere mit einer Kiste, zweite mit drei Kisten, oben das offene Feld und der Ausgang.'],
+   ['Voltaic Overflow','Erscheint etwa alle 60 Sekunden. Einer vom hinteren Team nimmt ihn: 2:30 Debuff. Den nächsten nimmt jemand ohne Debuff. Reihenfolge vorher festlegen.'],
+   ['Barriere öffnen','Vorne den Angelic töten, dann ist die Kiste frei. Tether von der Kiste über die Spieler bis zur Barriere: die Kette darf nicht reißen. Barriere offen, Boss zieht weiter, das hintere Team springt nach vorn.'],
+   ['Letzte Barriere','Drei Kisten von rechts nach links, je ein Spieler. Danach das offene Feld mit Cyclops und Overload-Minotauren, weitere Overflows. Ausgang erreichen, fertig.']],
+  tip:{1:'Wer vorne, wer hinten?',2:'Overflow-Reihenfolge ansagen.',3:'Kette eng halten.',4:'Rechts nach links.'},
+  m:{},
+  roles:[['Vorne','Angelic, Kisten, Tether, Barrieren.','runner'],['Hinten','Raum halten, Voltaic Overflow nehmen.','']],
+  rules:['Overflow muss jemand nehmen.','Nie zwei Overflows in 2:30.','Kette nicht reißen lassen.'],
+  wipes:['Overflow nicht genommen.','Zweiter Overflow mit Debuff (der Spieler stirbt).','Auf dem Boss stehen, wenn er teleportiert.'],
+  tips:['<b>Challenge:</b> „Leftovers“: die Cyclops der ersten zwei Räume nicht töten.'],
+  diags:[['Der Weg','Zwei Räume, zwei Barrieren, oben der Ausgang. Schematisch.',['Raum 1','Raum 2','Ausgang']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Overflow: ich','Overflow: me','Reihenfolge'],['Kette steht','Chain up','Tether'],['Rüber!','Leap!','vorrücken']],
+  L:{lNextT:'NÄCHSTER OVERFLOW',fxE1Rooms:'Räume von unten nach oben',fxE1Box:'Kiste + Barriere',fxE1Three:'Letzte Barriere: drei Kisten',lOvf:'Voltaic Overflow',lNext:'der Nächste ohne Debuff',
+   fxE2Pick:'Overflow nehmen, sonst Wipe',fxE2Timer:'2:30 Debuff',fxE2Order:'Nächster Overflow: jemand anderes',
+   fxE3Ang:'Angelic töten → Kiste frei',fxE3Chain:'Tether-Kette bis zur Barriere',fxE3Open:'Barriere offen',fxE3Leap:'Boss zieht weiter, hinten springt vor',
+   fxE4Boxes:'Drei Kisten, rechts nach links',fxE4Field:'Offenes Feld bis zum Ausgang',fxE4Done:'Geschafft',lCyc:'Cyclops'}},
+ en:{kicker:'Garden of Salvation · Encounter 1 · Evade the Consecrated Mind',
+  gear:{crit:['An Overload weapon or ability for the Overload Minotaurs.'],top:['Ad clear for the rooms.'],budget:['Short on gear? Play back and take Overflow, that needs no damage.']},
+  lede:'A chase with no damage phase. At the back one team holds the first room and takes the Voltaic Overflow, which appears about every 60 seconds: if nobody takes it, wipe. Whoever takes it gets a 2:30 debuff, a second one kills them. At the front one team kills the Angelic, tethers the Vex box to the barrier and opens it. Then the boss moves on and the back team leapfrogs. The last barrier needs three boxes, then the open field to the exit. '+gosLede(0),
+  sc:[['Layout','Rooms from the bottom (spawn) upwards. First barrier with one box, second with three boxes, the open field and exit on top.'],
+   ['Voltaic Overflow','Appears about every 60 seconds. Someone from the back team takes it: 2:30 debuff. Someone without a debuff takes the next. Set the order beforehand.'],
+   ['Open the barrier','At the front kill the Angelic, then the box is free. Tether from the box over the players to the barrier: the chain must not break. Barrier open, the boss moves on, the back team leaps forward.'],
+   ['Last barrier','Three boxes from right to left, one player each. Then the open field with Cyclops and Overload Minotaurs, more Overflows. Reach the exit, done.']],
+  tip:{1:'Who’s front, who’s back?',2:'Call the Overflow order.',3:'Keep the chain tight.',4:'Right to left.'},
+  m:{},
+  roles:[['Front','Angelic, boxes, tether, barriers.','runner'],['Back','Hold the room, take Voltaic Overflow.','']],
+  rules:['Someone must take Overflow.','Never two Overflows within 2:30.','Don’t break the chain.'],
+  wipes:['Overflow not taken.','Second Overflow with the debuff (that player dies).','Standing on the boss when it teleports.'],
+  tips:['<b>Challenge:</b> “Leftovers”: don’t kill the Cyclops in the first two rooms.'],
+  diags:[['The route','Two rooms, two barriers, the exit on top. Schematic.',['room 1','room 2','exit']]],
+  master:['Master variant not shown here.'],
+  calls:[['Overflow: ich','Overflow: me','order'],['Kette steht','Chain up','tether'],['Rüber!','Leap!','advance']],
+  L:{lNextT:'NEXT OVERFLOW',fxE1Rooms:'Rooms from bottom to top',fxE1Box:'Box + barrier',fxE1Three:'Last barrier: three boxes',lOvf:'Voltaic Overflow',lNext:'next one: no debuff',
+   fxE2Pick:'Take Overflow, or wipe',fxE2Timer:'2:30 debuff',fxE2Order:'Next Overflow: someone else',
+   fxE3Ang:'Kill the Angelic → box free',fxE3Chain:'Tether chain to the barrier',fxE3Open:'Barrier open',fxE3Leap:'Boss moves on, back team leaps',
+   fxE4Boxes:'Three boxes, right to left',fxE4Field:'Open field to the exit',fxE4Done:'Done',lCyc:'Cyclops'}}};
+const ENC_GSS={num:2,name:'Summon the Consecrated Mind',eng:GSS,diags:[SV_GSS],order:['D1','D2','D3','D4','RL','RR'],
+ slots:[['D1','Relais 1 (Start)','Relay 1 (start)'],['D2','Relais 2 (links)','Relay 2 (left)'],['D3','Relais 3 (gegenüber)','Relay 3 (opposite)'],['D4','Relais 4 (rechts)','Relay 4 (right)'],['RL','Läufer links','Runner left'],['RR','Läufer rechts','Runner right']],
+ de:{kicker:'Garden of Salvation · Encounter 2 · Summon the Consecrated Mind',
+  gear:{crit:['Ad-Clear, die Relais werden von Wellen angegriffen.'],top:['Etwas gegen Gruppen (Supplicants können überraschen).'],budget:['Wenig Ausrüstung? Ein Relais verteidigen geht mit allem.']},
+  lede:'Vier Relais in den Ecken (1 Start, 2 links, 3 gegenüber, 4 rechts) und eins in der Mitte. An jeder Ecke ein Verteidiger, zwei Läufer frischen Enlightened auf: Tether von der Vex-Kiste über die Spieler, alle in der Kette werden Enlightened (laut Guide 44 Sekunden). Nur mit Enlightened brechen die weißen Schilde der Angelics. Pro Relais kommen drei, zwölf insgesamt, dann fällt die Barriere in der Mitte und alle verteidigen Relais 5. Allein kann man nicht tethern. '+gosLede(1),
+  sc:[['Aufbau','Vier Relais in den Ecken, eins in der Mitte, an jeder Ecke eine Vex-Kiste. Spawn = Relais 1.'],
+   ['Enlightened','Läufer gehen zur Kiste, Tether über den Verteidiger: beide sind Enlightened. Der linke Läufer deckt 2 und 3, der rechte 1 und 4, laut Guide etwa alle 15 Sekunden rotieren.'],
+   ['Angelics','Drei Angelics greifen ein Relais an, mit weißem Schild. Nur Enlightened bricht ihn. Zwölf insgesamt.'],
+   ['Mitte','Alle zwölf tot: die Barriere in der Mitte fällt, alle an Relais 5, Wellen abwehren, bis die Truhe kommt.']],
+  tip:{1:'Relais nummerieren.',2:'Läufer: Kette nie allein.',3:'Enlightened vor den Angelics.',4:'Alle in die Mitte.'},
+  m:{},
+  roles:[['Verteidiger','Ein Relais halten.',''],['Läufer','Kisten, Tether, Enlightened verteilen.','runner']],
+  rules:['Weiße Schilde nur mit Enlightened.','Nicht allein tethern.','12 Angelics, dann die Mitte.'],
+  wipes:['Ein Relais wird überrannt.'],
+  tips:['<b>Challenge:</b> „A Link to the Chain“: alle sechs müssen gleichzeitig Enlightened bekommen.'],
+  diags:[['Die Relais','Vier Ecken, Mitte 5. Schematisch.',['Mitte']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Angelics auf 3','Angelics on 3','Relais'],['Brauche Licht','Need Enlightened','Läufer'],['Mitte!','Middle!','Ende']],
+  L:{lEnlT:'ENLIGHTENED',lAngLbl:'ANGELICS',fxU1Relays:'Vier Relais in den Ecken',fxU1Box:'Vex-Kisten für den Tether',fxU1Mid:'Relais 5 in der Mitte',
+   fxU2Chain:'Läufer tethern über den Verteidiger',fxU2Enl:'Alle in der Kette: Enlightened',fxU2Rot:'Rotieren, bevor es ausläuft',
+   fxU3Shield:'Weißer Schild: nur Enlightened bricht ihn',fxU3Kill:'Angelics am Relais töten',
+   fxU4Open:'12 tot: Mitte offen',fxU4Hold:'Alle an Relais 5',fxU4Done:'Geschafft'}},
+ en:{kicker:'Garden of Salvation · Encounter 2 · Summon the Consecrated Mind',
+  gear:{crit:['Ad clear, the relays are attacked by waves.'],top:['Something against groups (Supplicants can ambush).'],budget:['Short on gear? Defending a relay works with anything.']},
+  lede:'Four relays in the corners (1 start, 2 left, 3 opposite, 4 right) and one in the middle. One defender per corner, two runners refresh Enlightened: tether from the Vex box over the players, everyone in the chain becomes Enlightened (44 seconds per the guide). Only Enlightened breaks the Angelics’ white shields. Three come per relay, twelve in total, then the middle barrier drops and everyone defends relay 5. You can’t tether alone. '+gosLede(0),
+  sc:[['Layout','Four relays in the corners, one in the middle, a Vex box at each corner. Spawn = relay 1.'],
+   ['Enlightened','Runners go to the box, tether over the defender: both are Enlightened. The left runner covers 2 and 3, the right one 1 and 4, rotating about every 15 seconds per the guide.'],
+   ['Angelics','Three Angelics attack a relay, with a white shield. Only Enlightened breaks it. Twelve in total.'],
+   ['Middle','All twelve dead: the middle barrier drops, everyone at relay 5, hold off the waves until the chest appears.']],
+  tip:{1:'Number the relays.',2:'Runners: never chain alone.',3:'Enlightened before the Angelics.',4:'Everyone to the middle.'},
+  m:{},
+  roles:[['Defender','Hold one relay.',''],['Runner','Boxes, tether, hand out Enlightened.','runner']],
+  rules:['White shields only with Enlightened.','Don’t tether alone.','12 Angelics, then the middle.'],
+  wipes:['A relay gets overrun.'],
+  tips:['<b>Challenge:</b> “A Link to the Chain”: all six must get Enlightened at the same time.'],
+  diags:[['The relays','Four corners, middle 5. Schematic.',['middle']]],
+  master:['Master variant not shown here.'],
+  calls:[['Angelics auf 3','Angelics on 3','relay'],['Brauche Licht','Need Enlightened','runner'],['Mitte!','Middle!','end']],
+  L:{lEnlT:'ENLIGHTENED',lAngLbl:'ANGELICS',fxU1Relays:'Four relays in the corners',fxU1Box:'Vex boxes for the tether',fxU1Mid:'Relay 5 in the middle',
+   fxU2Chain:'Runners tether over the defender',fxU2Enl:'Everyone in the chain: Enlightened',fxU2Rot:'Rotate before it runs out',
+   fxU3Shield:'White shield: only Enlightened breaks it',fxU3Kill:'Kill the Angelics at the relay',
+   fxU4Open:'12 dead: middle open',fxU4Hold:'Everyone at relay 5',fxU4Done:'Done'}}};
+const ENC_GSC={num:3,name:'Consecrated Mind',eng:GSC,diags:[SV_GSC],order:['M1','M2','M3','E1','E2','E3'],
+ slots:[['M1','Motes','Motes'],['M2','Motes','Motes'],['M3','Motes','Motes'],['E1','Augen (Overflow)','Eyes (Overflow)'],['E2','Augen','Eyes'],['E3','Augen','Eyes']],
+ de:{kicker:'Garden of Salvation · Encounter 3 · Consecrated Mind',
+  gear:{crit:['Präzision für die Augen.','Schaden auf die Mitte, wenn der Boss zurückweicht.'],top:['Ad-Clear für die Minotauren (Mote-Team).'],budget:['Wenig Ausrüstung? Spiel Mote-Team.']},
+  lede:'Zwei Teams. Mote-Team: nur Minotauren lassen Motes fallen (je 5), man trägt höchstens 10, jedes verfällt nach 60 Sekunden. 30 am aktiven Relais (Lichtstrahl) ablegen. Augen-Team: wer den Voltaic Overflow nimmt, ist festgewurzelt und sieht als Einziger die leuchtenden Augen. Er schießt das obere, die anderen zwei schießen innen oder außen nach Ansage. Falsche Augen kosten den Festgewurzelten das Leben. Bei 30 Motes zieht der Boss zum Relais: alle Augen brechen, in die Mitte schießen, ihm folgen. '+gosLede(1),
+  sc:[['Aufbau','Boss in der Mitte, Relais drumherum. Eines ist die Bank (Lichtstrahl). Mote-Team links unten, Augen-Team beim Boss.'],
+   ['Motes','Minotaurus töten, 5 Motes. Nacheinander zur Bank laufen und ablegen, dann der Nächste. Opfern sich Vex, gehen Motes verloren, also nachsammeln.'],
+   ['Augen','Ein Spieler nimmt Overflow: festgewurzelt, 2:30 Debuff, sieht die Augen. Er schießt das obere, sagt innen/außen an, die anderen zwei schießen. Falsch = er stirbt. Eine Quelle: Haben alle drei den Debuff, übernimmt jemand vom Mote-Team eine Ladung.'],
+   ['Schaden','Bank voll: der Boss zieht hin. Alle Augen brechen, dann auf die Mitte schießen, während er zurückweicht. Mitlaufen, sonst blocken Barrieren. Wiederholen bis tot.']],
+  tip:{1:'Teams festlegen.',2:'5 auf einmal, nicht stapeln bis zum Verfall.',3:'„Oben, innen, außen.“',4:'Mitlaufen!'},
+  m:{},
+  roles:[['Mote-Team','Minotauren, Motes, Bank.',''],['Augen-Team','Overflow, Augen ansagen und schießen.','runner']],
+  rules:['Max. 10 Motes, 60 Sekunden.','30 Motes zur Schadensphase.','Nur der Festgewurzelte sieht die Augen.'],
+  wipes:['Overflow nicht genommen.','Falsche Augen: der Festgewurzelte stirbt.'],
+  tips:['<b>Challenge:</b> „To the Top“: immer genau 10 Motes auf einmal ablegen.'],
+  diags:[['Boss und Bank','Augen oben, innen, außen; die Bank mit Lichtstrahl. Schematisch.',['oben','innen','außen','Bank']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Oben, innen','Top, inner','Augen'],['Ich habe 5','I have 5','Motes'],['Bank voll','Bank full','Schaden']],
+  L:{fxC1Boss:'Boss in der Mitte',fxC1Bank:'Die Bank: aktives Relais',fxC1Teams:'Mote-Team und Augen-Team',
+   fxC2Mino:'Minotaurus → 5 Motes',fxC2Carry:'Tragen, max. 10, 60 s',fxC2Bank:'Nacheinander ablegen',lTurn:'der Nächste',
+   fxC3Ovf:'Overflow nehmen → festgewurzelt',fxC3Eyes:'Oben selbst, innen/außen ansagen',fxC3Wrong:'Falsch geschossen = er stirbt',lTop:'„oben“',lInner:'„innen“',lOuter:'„außen“',lRooted:'sieht die Augen',
+   fxC4Move:'Bank voll: Boss zieht hin',fxC4Eyes:'Alle Augen brechen',fxC4Dmg:'Auf die Mitte',fxC4Follow:'Mitlaufen, weiterschießen'}},
+ en:{kicker:'Garden of Salvation · Encounter 3 · Consecrated Mind',
+  gear:{crit:['Precision for the eyes.','Damage on the centre while the boss backs off.'],top:['Ad clear for the Minotaurs (mote team).'],budget:['Short on gear? Play mote team.']},
+  lede:'Two teams. Mote team: only Minotaurs drop motes (5 each), you carry at most 10, each expires after 60 seconds. Bank 30 at the active relay (light beam). Eye team: whoever takes the Voltaic Overflow is rooted and the only one who sees the glowing eyes. They shoot the top one, the other two shoot inner or outer as called. Wrong eyes kill the rooted player. At 30 motes the boss moves to the relay: break all eyes, shoot the centre, follow it. '+gosLede(0),
+  sc:[['Layout','Boss in the middle, relays around it. One is the bank (light beam). Mote team bottom left, eye team at the boss.'],
+   ['Motes','Kill a Minotaur, 5 motes. Run to the bank one after another and deposit, then the next. If Vex sacrifice themselves motes are lost, so collect more.'],
+   ['Eyes','One player takes Overflow: rooted, 2:30 debuff, sees the eyes. They shoot the top one, call inner/outer, the other two shoot. Wrong = they die. One source: once all three have the debuff, someone from the mote team takes a charge.'],
+   ['Damage','Bank full: the boss moves there. Break all eyes, then shoot the centre while it backs off. Follow, otherwise barriers block you. Repeat until dead.']],
+  tip:{1:'Set the teams.',2:'5 at a time, don’t hold them until they expire.',3:'“Top, inner, outer.”',4:'Follow it!'},
+  m:{},
+  roles:[['Mote team','Minotaurs, motes, bank.',''],['Eye team','Overflow, call and shoot the eyes.','runner']],
+  rules:['Max 10 motes, 60 seconds.','30 motes for the damage phase.','Only the rooted player sees the eyes.'],
+  wipes:['Overflow not taken.','Wrong eyes: the rooted player dies.'],
+  tips:['<b>Challenge:</b> “To the Top”: always deposit exactly 10 motes at a time.'],
+  diags:[['Boss and bank','Eyes top, inner, outer; the bank with its light beam. Schematic.',['top','inner','outer','bank']]],
+  master:['Master variant not shown here.'],
+  calls:[['Oben, innen','Top, inner','eyes'],['Ich habe 5','I have 5','motes'],['Bank voll','Bank full','damage']],
+  L:{fxC1Boss:'Boss in the middle',fxC1Bank:'The bank: active relay',fxC1Teams:'Mote team and eye team',
+   fxC2Mino:'Minotaur → 5 motes',fxC2Carry:'Carry, max 10, 60 s',fxC2Bank:'Deposit in turns',lTurn:'next one',
+   fxC3Ovf:'Take Overflow → rooted',fxC3Eyes:'Top yourself, call inner/outer',fxC3Wrong:'Wrong shot = they die',lTop:'“top”',lInner:'“inner”',lOuter:'“outer”',lRooted:'sees the eyes',
+   fxC4Move:'Bank full: boss moves there',fxC4Eyes:'Break all eyes',fxC4Dmg:'Shoot the centre',fxC4Follow:'Follow, keep shooting'}}};
+const ENC_GSM={num:4,name:'Sanctified Mind',eng:GSM,diags:[SV_GSM],order:['A1','A2','B1','B2','P1','P2'],
+ slots:[['A1','Mote-Team 1','Mote team 1'],['A2','Mote-Team 1','Mote team 1'],['B1','Mote-Team 2','Mote team 2'],['B2','Mote-Team 2','Mote team 2'],['P1','Bauer','Builder'],['P2','Bauer','Builder']],
+ de:{kicker:'Garden of Salvation · Encounter 4 · Sanctified Mind',
+  gear:{crit:['Boss-Schaden: Izanagi’s Burden nennt ein Guide als stärkste Wahl.'],top:['Ward of Dawn mit Weapons of Light und Well of Radiance.'],budget:['Wenig Ausrüstung? Spiel Bauer, die töten Cyclops und tethern.']},
+  lede:'Der Boss steht über dem Wasser, davor Plattformen, links das blaue Relais, rechts das orange. Die Mote-Teams schießen das linke Knie (blaues Portal) oder die rechte Schulter (oranges Portal), holen auf der Insel etwa 15 Motes, kommen zurück und legen ab (Enlightened). Jedes Portal bringt einen Cyclops, und der Boss zerstört eine Plattform: darauf stehen = tot. Die Bauer bauen sie per Tether wieder. Beide Relais auf 30: Plus-Zeichen am Boss, Tether vom passenden Relais, Schaden, wenn er aufsteigt. '+gosLede(1),
+  sc:[['Aufbau','Boss in der Mitte, fünf Plattformen, blaues Relais links, oranges rechts, zwei Inseln für die Motes.'],
+   ['Mote-Team 1','Knie schießen → blaues Portal → Insel, Vex töten, etwa 15 Motes (laut Guide 18, wenn Harpien kommen). Zurück, blau ablegen = Enlightened. Cyclops und eine Plattform weniger: Bauer töten ihn und tethern die Plattform neu.'],
+   ['Mote-Team 2','Dasselbe auf der orangen Seite über die Schulter. Jedes Relais braucht 30.'],
+   ['Schaden','Plus-Zeichen in einer Farbe: vom Relais dieser Farbe tethern (mindestens drei, besser vier Spieler), Angelic vorher töten. Wenn der Boss aufsteigt, Schaden. Wiederholen.']],
+  tip:{1:'Teams zu zweit.',2:'„Ready“ ansagen, dann wechseln.',3:'Nicht auf die markierte Plattform.',4:'Farbe beachten.'},
+  m:{},
+  roles:[['Mote-Teams','Portal, Insel, Motes, ablegen.','runner'],['Bauer','Cyclops, Plattformen tethern.','']],
+  rules:['30 Motes pro Relais.','Plattform weg = Wasser schadet.','Tether vom Relais in der Farbe des Plus.'],
+  wipes:['Auf einer Plattform stehen, wenn sie zerstört wird.','Ins Wasser fallen ohne Plattformen.'],
+  tips:['<b>Challenge:</b> „Zero to One Hundred“: jede Bank innerhalb von 10 Sekunden nach der ersten Ablage auf 30 füllen.'],
+  diags:[['Die Arena','Blau links, orange rechts, Plattformen vor dem Boss. Schematisch.',['blau','orange','Plattformen']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Ready','Ready','Mote-Team'],['Plattform links weg','Left platform gone','Bauer'],['Plus blau','Plus blue','Schaden']],
+  L:{fxM1Boss:'Boss über dem Wasser',fxM1Relays:'Blaues und oranges Relais',fxM1Isl:'Inseln für Motes',fxM1Plat:'Plattformen',
+   fxM2Knee:'Knie schießen → blaues Portal',fxM2Isl:'Insel: ~15 Motes, Cyclops vorne',fxM2Dep:'Ablegen = Enlightened',fxM2Build:'Bauer tethern die Plattform neu',
+   fxM3Sh:'Team 2: Schulter → oranges Portal',fxM3Both:'Beide Relais auf 30',
+   fxM4Plus:'Plus in Blau',fxM4Ang:'Angelic töten',fxM4Chain:'Tether vom blauen Relais',fxM4Dmg:'Boss steigt auf: Schaden'}},
+ en:{kicker:'Garden of Salvation · Encounter 4 · Sanctified Mind',
+  gear:{crit:['Boss damage: one guide names Izanagi’s Burden as the strongest option.'],top:['Ward of Dawn with Weapons of Light and Well of Radiance.'],budget:['Short on gear? Be a builder, they kill Cyclops and tether.']},
+  lede:'The boss stands over the water with platforms in front, the blue relay on the left, the orange one on the right. The mote teams shoot the left knee (blue portal) or the right shoulder (orange portal), collect about 15 motes on the island, come back and deposit (Enlightened). Each portal brings a Cyclops and the boss destroys a platform: standing on it = dead. Builders rebuild it by tethering. Both relays at 30: a plus sign on the boss, tether from the matching relay, damage when he rises. '+gosLede(0),
+  sc:[['Layout','Boss in the middle, five platforms, blue relay left, orange right, two islands for motes.'],
+   ['Mote team 1','Shoot the knee → blue portal → island, kill Vex, about 15 motes (18 if Harpies show up per the guide). Back, deposit blue = Enlightened. A Cyclops and one platform less: builders kill it and tether the platform back.'],
+   ['Mote team 2','Same on the orange side via the shoulder. Each relay needs 30.'],
+   ['Damage','Plus sign in one colour: tether from the relay of that colour (at least three, better four players), kill the Angelic first. When the boss rises, damage. Repeat.']],
+  tip:{1:'Teams of two.',2:'Call “ready”, then swap.',3:'Don’t stand on the marked platform.',4:'Mind the colour.'},
+  m:{},
+  roles:[['Mote teams','Portal, island, motes, deposit.','runner'],['Builders','Cyclops, tether platforms.','']],
+  rules:['30 motes per relay.','Platform gone = the water hurts.','Tether from the relay matching the plus colour.'],
+  wipes:['Standing on a platform when it’s destroyed.','Falling into the water with no platforms.'],
+  tips:['<b>Challenge:</b> “Zero to One Hundred”: fill each bank to 30 within 10 seconds of the first deposit.'],
+  diags:[['The arena','Blue left, orange right, platforms in front of the boss. Schematic.',['blue','orange','platforms']]],
+  master:['Master variant not shown here.'],
+  calls:[['Ready','Ready','mote team'],['Plattform links weg','Left platform gone','builders'],['Plus blau','Plus blue','damage']],
+  L:{fxM1Boss:'Boss over the water',fxM1Relays:'Blue and orange relay',fxM1Isl:'Islands for motes',fxM1Plat:'Platforms',
+   fxM2Knee:'Shoot the knee → blue portal',fxM2Isl:'Island: ~15 motes, Cyclops at the front',fxM2Dep:'Deposit = Enlightened',fxM2Build:'Builders tether the platform back',
+   fxM3Sh:'Team 2: shoulder → orange portal',fxM3Both:'Both relays at 30',
+   fxM4Plus:'Plus in blue',fxM4Ang:'Kill the Angelic',fxM4Chain:'Tether from the blue relay',fxM4Dmg:'Boss rises: damage'}}};
+const RG_GSE=[{id:'front',slots:['F1','F2','F3'],focus:[3,4],de:{name:'Vorne',steps:['Angelic töten.','Kette von der Kiste zur Barriere.','Letzte Barriere: drei Kisten.'],watch:['Kette nicht reißen lassen.']},en:{name:'Front',steps:['Kill the Angelic.','Chain from the box to the barrier.','Last barrier: three boxes.'],watch:['Don’t break the chain.']}},
+ {id:'back',slots:['B1','B2','B3'],focus:[2,3],de:{name:'Hinten',steps:['Raum halten.','Overflow in fester Reihenfolge.','Vorspringen, wenn die Barriere offen ist.'],watch:['Nie zweimal in 2:30.']},en:{name:'Back',steps:['Hold the room.','Overflow in a fixed order.','Leap forward when the barrier opens.'],watch:['Never twice within 2:30.']}}];
+const RG_GSS=[{id:'def',slots:['D1','D2','D3','D4'],focus:[3,4],de:{name:'Verteidiger',steps:['Eigenes Relais halten.','Angelics mit Enlightened brechen.'],watch:['Enlightened-Timer.']},en:{name:'Defender',steps:['Hold your relay.','Break Angelics with Enlightened.'],watch:['Enlightened timer.']}},
+ {id:'run',slots:['RL','RR'],focus:[2],de:{name:'Läufer',steps:['Kiste, Tether über den Verteidiger.','Links: 2 und 3. Rechts: 1 und 4.'],watch:['Nie allein tethern.']},en:{name:'Runner',steps:['Box, tether over the defender.','Left: 2 and 3. Right: 1 and 4.'],watch:['Never tether alone.']}}];
+const RG_GSC=[{id:'mote',slots:['M1','M2','M3'],focus:[2,4],de:{name:'Mote-Team',steps:['Minotauren töten.','5 Motes, zur Bank, ablegen.','Der Nächste läuft.'],watch:['60 Sekunden pro Mote.']},en:{name:'Mote team',steps:['Kill Minotaurs.','5 motes, to the bank, deposit.','Next one runs.'],watch:['60 seconds per mote.']}},
+ {id:'eye',slots:['E1','E2','E3'],focus:[3,4],de:{name:'Augen-Team',steps:['Overflow nehmen (festgewurzelt).','Oben selbst, innen/außen ansagen.','Schaden: Augen brechen, Mitte.'],watch:['Falsch = tot.']},en:{name:'Eye team',steps:['Take Overflow (rooted).','Top yourself, call inner/outer.','Damage: break eyes, centre.'],watch:['Wrong = dead.']}}];
+const RG_GSM=[{id:'mote',slots:['A1','A2','B1','B2'],focus:[2,3],de:{name:'Mote-Teams',steps:['Knie (blau) oder Schulter (orange).','Insel: ~15 Motes.','„Ready“, zurück, ablegen.'],watch:['Motes verfallen nach 60 s.']},en:{name:'Mote teams',steps:['Knee (blue) or shoulder (orange).','Island: ~15 motes.','“Ready”, back, deposit.'],watch:['Motes expire after 60 s.']}},
+ {id:'build',slots:['P1','P2'],focus:[2,4],de:{name:'Bauer',steps:['Cyclops töten.','Plattform vom Relais aus neu tethern.'],watch:['Nicht auf der markierten Plattform stehen.']},en:{name:'Builders',steps:['Kill the Cyclops.','Re-tether the platform from the relay.'],watch:['Don’t stand on the marked platform.']}}];
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -7972,7 +8360,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -8032,6 +8420,7 @@ const ACT={
  lw:{name:'Last Wish',encs:['kalli','shurochi','morgeth','vault','riven','queenswalk'],src:[['Vaexil – Last Wish raid guide','https://destiny2.vaexil.tv/guides/raids/last-wish'],['Shacknews – Last Wish raid guide','https://shacknews.com/article/107313/destiny-2-last-wish-raid-guide'],['Mein-MMO – Raid-Guide Letzter Wunsch','https://mein-mmo.de/en/destiny-2-raid-guide-letzter-wunsch,269971'],['Destinypedia – Last Wish','https://www.destinypedia.com/Last_Wish'],['Assist City – Kalli','https://assistcity.gitbook.io/destiny/raid-guides/last-wish/encounters/kalli-the-corrupted'],['D2 Raid Guide – Last Wish','https://d2raidguide.com/Raid%20Guides/LW'],['GameSpot – Last Wish won’t get a hard mode','https://www.gamespot.com/articles/destiny-2-forsakens-last-wish-raid-wont-get-a-hard/1100-6462326/']]},
  vog:{name:'Vault of Glass',encs:['vgopen','vgconf','vgoracle','vgtemplar','vgmaze','vggate','vgatheon'],src:[['Kyber’s Corner – Vault of Glass','https://kyberscorner.com/destiny2/vaultofglass/'],['Blueberries – Vex Mythoclast + Catalyst','https://www.blueberries.gg/weapons/vex-mythoclast-exotic-catalyst/'],['Shacknews – Vault of Glass raid guide','https://www.shacknews.com/article/124508/vault-of-glass-raid-guide-destiny-2'],['Windows Central – Vault of Glass raid guide','https://www.windowscentral.com/destiny-2-vault-glass-raid-guide'],['PCGamesN – Vault of Glass guide','https://www.pcgamesn.com/destiny-2/vault-of-glass-guide'],['Prima Games – Conflux and Oracle guide','https://primagames.com/gaming/destiny-2-vault-of-glass-conflux-oracle-guide'],['DestinyTracker – Vault of Glass guide','https://destinytracker.com/destiny-2/guides/vault-of-glass-complete-raid-guide-by-suttledge-e61ebd34'],['Templar’s Well map (Reddit, via TheGamer)','https://www.reddit.com/r/raidsecrets/']]},
  dsc:{name:'Deep Stone Crypt',encs:['dscsec','dscatr','dscrap','dsctan'],src:[['Shacknews – Deep Stone Crypt raid guide','https://shacknews.com/article/121651/deep-stone-crypt-raid-guide-destiny-2'],['Yardbarker – Deep Stone Crypt 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_deep_stone_crypt_2026_raid_guide/s1_17456_43911788'],['Kyber’s Corner – Deep Stone Crypt','https://kyberscorner.com/destiny2/deep-stone-crypt/'],['Destinypedia – Deep Stone Crypt (raid)','https://destinypedia.com/Deep_Stone_Crypt_(Raid)'],['Dot Esports – Of All Trades challenge','https://dotesports.com/destiny/news/how-to-complete-the-of-all-trades-rapture-challenge-in-destiny-2s-deep-stone-crypt-raid']]},
+ gos:{name:'Garden of Salvation',encs:['gsevade','gssummon','gscons','gssanct'],src:[['Shacknews – Garden of Salvation raid guide','https://shacknews.com/article/114369/garden-of-salvation-raid-guide-destiny-2'],['Yardbarker – Garden of Salvation 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_garden_of_salvation_2026_raid_guide/s1_17456_43890120'],['Kyber’s Corner – Garden of Salvation','https://kyberscorner.com/destiny2/gardenofsalvation/'],['TheGamer – Enlightened title','https://www.thegamer.com/destiny-2-enlightened-title-triumphs-guide/'],['Destinypedia – Garden of Salvation','https://www.destinypedia.com/Garden_of_Salvation']]},
  se:{name:'Salvation’s Edge',encs:['substratum','dissipation','repository','verity','zenith'],src:[['Shacknews – Salvation’s Edge raid guide','https://www.shacknews.com/article/140025/salvations-edge-raid-guide-destiny-2'],['PCGamesN – Salvation’s Edge guide','https://www.pcgamesn.com/destiny-2/salvations-edge-guide'],['Professionalism.gg – Salvation’s Edge','https://professionalism.gg/raid-guides/salvations-edge'],['Backdash – Salvation’s Edge raid guide','https://www.thebackdash.com/destiny/destiny-2-salvations-edge-raid-guide'],['Sportskeeda – Substratum guide','https://sportskeeda.com/mmo/destiny-2-salvation-s-edge-raid-first-encounter-guide-substratum'],['Paracausality – Salvation’s Edge guide','https://www.paracausality.com/se_guide'],['Destiny 2 Wiki – Salvation’s Edge','https://d2.destinygamewiki.com/wiki/Salvation%27s_Edge'],['Destructoid – Substratum map','https://www.destructoid.com/destiny-2-salvations-edge-first-encounter-raid-guide/'],['Destinypedia – Salvation’s Edge','https://www.destinypedia.com/Salvation%27s_Edge'],['Destructoid – Verity map','https://www.destructoid.com/destiny-2-salvations-edge-fourth-encounter-raid-guide-verity/'],['Destructoid – Zenith','https://www.destructoid.com/destiny-2-salvations-edge-5th-encounter-raid-guide-zenith/']]}
 ,
  eq:{name:'Equilibrium',kind:'dungeon',encs:['eqharv','eqharrow','eqsere'],src:[['Destinypedia – Equilibrium','https://www.destinypedia.com/Equilibrium'],['Shacknews – Equilibrium dungeon guide','https://www.shacknews.com/article/147168/how-to-complete-the-equilibrium-dungeon-in-destiny-2'],['Vaexil – Equilibrium field guide (PDF)','https://destiny2.vaexil.tv/downloads/guides/dungeons/equilibrium/equilibrium-complete-guide.pdf'],['Grindout – Equilibrium guide','https://grindout.com/destiny-2/guides/equilibrium-guide'],['The Game Post – Equilibrium dungeon guide','https://thegamepost.com/destiny-2-equilibrium-dungeon-guide/'],['ProGameTalk – Equilibrium walkthrough','https://progametalk.com/destiny-2/equilibrium-dungeon-walkthrough/'],['Kyber’s Corner – Equilibrium','https://kyberscorner.com/destiny-2-equilibrium-dungeon/'],['Total Apex Gaming – Harrow guide','https://totalapexgaming.com/action/equilibrium-harrow-guide/']]}};
@@ -8135,7 +8524,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
@@ -8243,6 +8632,10 @@ function render(){const E=eng(),sc=E.S[cur],k=cl(el_t/sc.d);const st=E.base();sc
 /* =================== CHALLENGES & EXTRAS =================== */
 // one challenge per encounter (shown at that encounter only) and a small extras card per raid
 const CHAL={
+ gsevade:{n:'Leftovers',de:'Die Cyclops in den ersten zwei Räumen dürfen nicht getötet werden. Ad-Clear vorsichtig mit Flächenschaden.',en:'The Cyclops in the first two rooms must not be killed. Careful with area damage when clearing adds.'},
+ gssummon:{n:'A Link to the Chain',de:'Alle sechs müssen gleichzeitig Enlightened bekommen: eine lange Kette mit allen Spielern von einer Kiste.',en:'All six must get Enlightened at the same time: one long chain with every player from one box.'},
+ gscons:{n:'To the Top',de:'Immer genau 10 Motes auf einmal ablegen. Also zwei Minotauren pro Lauf sammeln.',en:'Always deposit exactly 10 motes at a time. So collect two Minotaurs per run.'},
+ gssanct:{n:'Zero to One Hundred',de:'Jede Bank muss innerhalb von 10 Sekunden nach der ersten Ablage auf 30 sein. Beide Spieler eines Teams legen also fast gleichzeitig ab.',en:'Each bank must reach 30 within 10 seconds of the first deposit. So both players of a team deposit almost together.'},
  dscsec:{n:'Red Rover',de:'Jeder Spieler muss einmal Operator sein und unten die zwei Tafeln schießen, über drei Phasen. Also nach jeder Phase einen anderen in den Keller schicken.',en:'Every player must be Operator once and shoot the two panels downstairs, across three phases. So send someone new into the basement after each phase.'},
  dscatr:{n:'Copies of Copies',de:'Kein Replication-Debuff darf in eine Schleuse oder ins All geschickt werden. Wie man das im Detail löst, beschreibt unsere Quelle nicht, vor dem Versuch einen aktuellen Guide ansehen.',en:'No Replication debuff may be sent into an airlock or into space. Our source doesn’t explain how to solve it in detail, check a current guide before trying.'},
  dscrap:{n:'Of All Trades',de:'Jeder Spieler muss jede Rolle (Operator, Scanner, Suppressor) mindestens einmal übernehmen. Vorher eine Reihenfolge festlegen und die Buffs am Terminal durchrotieren.',en:'Every player must take every role (Operator, Scanner, Suppressor) at least once. Set an order beforehand and rotate the buffs through the terminal.'},
@@ -8275,6 +8668,16 @@ const CHAL={
  verity:{n:'Varied Geometry',de:'Derselbe 3D-Schlüssel darf nicht wiederholt werden. Die Guides beschreiben es unterschiedlich: nicht zweimal hintereinander, oder erst wieder, wenn alle sechs Formen dran waren.',en:'The same 3D key may not be repeated. Guides describe it differently: not twice in a row, or only again once all six shapes have been used.'},
  zenith:{n:'Coordinated Efforts',de:'Alle sechs Knöpfe innerhalb weniger Sekunden nach dem ersten zerstören. Dafür sammeln alle sechs vorher Glyphbreaker und schießen dann gleichzeitig.',en:'Break all six buttons within a few seconds of the first. So all six collect Glyphbreaker first, then shoot together.'}};
 const XTRA={
+ gos:{de:[['Titel','„Enlightened“: Raid-Triumphe inklusive aller Challenges.'],
+   ['Exotic','Divinity (Arc-Trace-Rifle, Heavy): über die Quest „Divine Fragmentation“ im Raid: Vex-Kern dreimal analysieren, Decryption Core reparieren, Kern stärken, vollständig analysieren. Divinity betäubt und schwächt Ziele bei Dauerfeuer.'],
+   ['Versteckte Truhen','Zwei, mit schon erhaltenen Rüstungsteilen, Raid-Mods und Vex Mind Components.'],
+   ['Beute','Kentarch-3-Rüstung; u. a. Accrued Redemption, Zealot’s Reward, Prophet of Doom, Reckless Oracle, Sacred Provenance, Ancient Gospel, Omniscient Eye.'],
+   ['2026','Seit dem Update vom 9. Juni 2026 hat jeder Raid gestufte Beute und ein eigenes Rüstungsset mit Set-Boni. Details für GoS haben wir noch nicht geprüft.']],
+  en:[['Title','“Enlightened”: raid triumphs including all challenges.'],
+   ['Exotic','Divinity (Arc trace rifle, heavy): via the quest “Divine Fragmentation” in the raid: analyse the Vex core three times, repair the Decryption Core, empower the core, analyse it fully. Divinity stuns and weakens targets under sustained fire.'],
+   ['Hidden chests','Two, with armor you already have, raid mods and Vex Mind Components.'],
+   ['Loot','Kentarch 3 armor; among others Accrued Redemption, Zealot’s Reward, Prophet of Doom, Reckless Oracle, Sacred Provenance, Ancient Gospel, Omniscient Eye.'],
+   ['2026','Since the June 9, 2026 update every raid has tiered loot and its own armor set with set bonuses. We haven’t checked the GoS details yet.']]},
  dsc:{de:[['Titel','„Descendant“: u. a. alle Challenges und weitere Raid-Triumphe.'],
    ['Exotic','Eyes of Tomorrow (Solar-Raketenwerfer), seltener Drop vom Endboss, nur farmbar wenn DSC der wöchentliche Raid ist. Triumphe erhöhen die Chance: Survival of the Fittest +3, Control Group +2, Freezing Point +1, je +1 für jede Challenge und Complication.'],
    ['Versteckte Truhen','Zwei: eine im Abstieg (Sprungpuzzle) auf einer Plattform links, die zweite laut Quelle ebenfalls im Raid; sie geben schon erhaltene Items und Spoils of Conquest.'],
