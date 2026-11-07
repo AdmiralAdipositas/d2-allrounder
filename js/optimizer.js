@@ -97,7 +97,7 @@ function rechne(liste, wunsch) {
     const alle = noetig.reduce((a, b) => a + b, 0);
     for (let n = 0; n < 6; n++) {
       const andere = alle - noetig[n];
-      if (andere <= frei) max[n] = Math.max(max[n], s[n] + (frei - andere) * modWert[n]);
+      if (andere <= frei) max[n] = Math.min(SKALA, Math.max(max[n], s[n] + (frei - andere) * modWert[n]));
     }
     if (alle > frei) return;
     anzahl += 1;
