@@ -60,7 +60,7 @@ function kachel(x) {
   const champ = x.champ ? `<i class="ch" style="background-image:url(${BILD}${x.champ.i})" aria-label="${esc(CHAMP_NAME[x.champ.n] || x.champ.n)}"></i>` : '';
   const ort = x.ort === 'tresor' ? 'tresor' : x.ort.startsWith('post:') ? 'post' : 'char';
   return `<div class="ic ${x.d.q === 6 ? 'exotic' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:url(${BILD}${x.d.i})">
-    ${champ}<i class="ort ${ort}"></i>${x.junk ? '<i class="mark junk" title="Dismantle suggestion"></i>' : x.fuel ? '<i class="mark fuel" title="Infusion fuel"></i>' : ''}${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
+    ${champ}<i class="ort ${ort}"></i>${!(filter.putz || []).length ? '' : x.junk ? '<i class="mark junk" title="Dismantle suggestion"></i>' : x.fuel ? '<i class="mark fuel" title="Infusion fuel"></i>' : ''}${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
 }
 
 // Filtergruppen: innerhalb einer Gruppe ODER, zwischen Gruppen UND.
