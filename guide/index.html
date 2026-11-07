@@ -503,7 +503,7 @@ function plateS(x,y,st,col,op,num,dis){if(op<=0)return'';const D=col==='D',c=D?C
  s+=`<text x="${x}" y="${y+28}" text-anchor="middle" class="pnum">${num}</text></g>`;return s;}
 function lblS(x,y,txt,c,o=1,cls='lbl'){return `<text x="${x}" y="${y}" text-anchor="middle" class="${cls}" fill="${c}" opacity="${o}">${esc(txt)}</text>`;}
 let HF=0;function hpBar(x,y,w,h,hp,gh){hp=hp==null?1:hp;gh=gh==null?hp:Math.max(gh,hp);return (HF>0?`<rect x="${x-1.5}" y="${y-1.5}" width="${w+3}" height="${h+3}" rx="${h/2+1.5}" fill="none" stroke="#fff" stroke-width="1.2" opacity="${HF}"/>`:'')+`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="#3a2a2a"/><rect x="${x}" y="${y}" width="${w*gh}" height="${h}" rx="${h/2}" fill="#ffe9c2" opacity=".85"/><rect x="${x}" y="${y}" width="${w*hp}" height="${h}" rx="${h/2}" fill="${C.enemy}"/>`+(HF>0?`<rect x="${x+w*hp}" y="${y}" width="${Math.max(2,w*(gh-hp))}" height="${h}" fill="#fff" opacity="${HF*.9}"/>`:'');}
-const ENEMY={nap:1,behe:1,leg:1,lack:1,harrow:1,sere:1,bshadow:1,vgob:1,vhob:1,vpra:1,vcyc:1,vwyv:1,vfan:1,witness:1,zhand:1,scorp:1,rhand:1,incend:1,herald:1,hblight:1,mino:1,subj:1,harpy:1,rface:1,riven:1,rheart:1,mknight:1,morgeth:1,dart:1,shuro:1,kalli:1,daughter:1,oryx:1,shade:1,golg:1,warpriest:1,knightO:1,taken:1,knightY:1,psion:1,torm:1,champ:1,cent:1,colossus:1,boss:1,nez:1,thrall:1,wizard:1,knight:1,ogre:1};
+const ENEMY={fserv:1,atraks:1,taniks:1,nap:1,behe:1,leg:1,lack:1,harrow:1,sere:1,bshadow:1,vgob:1,vhob:1,vpra:1,vcyc:1,vwyv:1,vfan:1,witness:1,zhand:1,scorp:1,rhand:1,incend:1,herald:1,hblight:1,mino:1,subj:1,harpy:1,rface:1,riven:1,rheart:1,mknight:1,morgeth:1,dart:1,shuro:1,kalli:1,daughter:1,oryx:1,shade:1,golg:1,warpriest:1,knightO:1,taken:1,knightY:1,psion:1,torm:1,champ:1,cent:1,colossus:1,boss:1,nez:1,thrall:1,wizard:1,knight:1,ogre:1};
 function fxPre(u,o){if(!ENEMY[u.t])return'';let s=`<ellipse cx="${u.x}" cy="${u.y+(u.t==='boss'||u.t==='nez'?34:16)}" rx="${u.t==='boss'||u.t==='nez'?34:14}" ry="${u.t==='boss'||u.t==='nez'?8:4}" fill="#000" opacity="${.35*o}"/>`;
  if(o<1&&o>0&&!REDUCE){const q=1-o;s+=`<circle cx="${u.x}" cy="${u.y}" r="${16+26*q}" fill="rgba(20,8,36,${.55*q})" stroke="#6d4bd1" stroke-width="2" opacity="${q}"/>`;
   for(let i=0;i<8;i++){const a=i*0.785+now*1.5,rr=10+30*q+((i*7)%5);const px=u.x+Math.cos(a)*rr,py=u.y+Math.sin(a)*rr*.6-q*14-(i%3)*3;s+=`<circle cx="${px}" cy="${py}" r="${1.6+(i%3)*.6}" fill="${i%2?'#a982f5':'#2c1d4d'}" opacity="${q}"/>`;}}
@@ -810,6 +810,9 @@ function unitS(u,L){const o=u.o==null?1:u.o;if(o<=0)return'';const sc=u.sc==null
   case'vpra':s+=`<rect x="-11" y="-13" width="22" height="26" rx="5" fill="#2c2214" stroke="#d9a441" stroke-width="2.4"/><circle cy="-3" r="3.4" fill="#ff6156"/><circle r="${17+1.5*Math.sin(now*5)}" fill="none" stroke="#d9a441" stroke-width="1.2" opacity=".55"/>`+(u.hp!=null?hpBar(-18,18,36,5,u.hp,u.gh):'');break;
   case'vcyc':s+=`<circle r="15" fill="#2c2214" stroke="#d9a441" stroke-width="2.6"/><circle r="6" fill="#ff6156" opacity="${.75+.25*Math.sin(now*6)}"/>`+(u.hp!=null?hpBar(-20,20,40,5,u.hp,u.gh):'');break;
   case'vwyv':s+=`<path d="M0 -8 C10 -16 22 -10 26 0 C16 -4 8 0 0 8 C-8 0 -16 -4 -26 0 C-22 -10 -10 -16 0 -8 Z" fill="#2c2214" stroke="#d9a441" stroke-width="2"/><circle r="3" fill="#ff6156"/>`+(u.hp!=null?hpBar(-20,14,40,5,u.hp,u.gh):'');break;
+  case'fserv':s+=`<circle r="13" fill="#2a1d36" stroke="#c79bff" stroke-width="2.4"/><circle r="5" fill="#c79bff" opacity="${.7+.3*Math.sin(now*5)}"/>`+(u.hp!=null?hpBar(-18,18,36,5,u.hp,u.gh):'');break;
+  case'atraks':s+=(u.glow?`<path d="M-15 -15 L15 15 M15 -15 L-15 15 M0 -19 L0 19 M-19 0 L19 0" stroke="#f6dc8e" stroke-width="1.4" opacity="${.6+.4*Math.sin(now*8)}"/><circle r="19" fill="none" stroke="#f6dc8e" stroke-width="2"/>`:'')+`<path d="M0 -13 L8 -4 L6 12 L-6 12 L-8 -4 Z" fill="#241f30" stroke="#a982f5" stroke-width="1.8"/><circle cy="-6" r="2.6" fill="#59b8ff"/>`+(u.hp!=null?hpBar(-18,20,36,5,u.hp,u.gh):'');break;
+  case'taniks':{const sc=u.big?1.3:1;s+=`<g transform="scale(${sc})">`+(u.stun?`<circle r="${30+3*Math.sin(now*10)}" fill="rgba(89,184,255,.2)" stroke="#59b8ff" stroke-width="2.4"/>`:'')+(u.wing?`<path d="M-14 -4 L-40 -18 L-34 4 Z M14 -4 L40 -18 L34 4 Z" fill="#3a2414" stroke="#ff9a3c" stroke-width="1.8"/>`:'')+`<path d="M0 -20 L14 -6 L12 16 L-12 16 L-14 -6 Z" fill="#2c1e14" stroke="#ff9a3c" stroke-width="2.4"/><circle cy="-8" r="3.4" fill="#ff6156"/></g>`+(u.hp!=null?hpBar(-30,30*sc,60,6,u.hp,u.gh):'');break;}
   case'vfan':s+=`<circle r="7" fill="#2c2214" stroke="#ffffff" stroke-width="1.8"/><circle r="${3+1.2*Math.sin(now*12)}" fill="#ffffff"/>`;break;
   case'nap':s+=`<path d="M0 -12 L9 8 L0 4 L-9 8 Z" fill="#1a1426" stroke="#e7dbff" stroke-width="2"/><circle cy="-3" r="2.4" fill="#a982f5"/>`+(u.sh?`<circle r="17" fill="rgba(169,130,245,.12)" stroke="#e7dbff" stroke-width="2" stroke-dasharray="4 3" stroke-dashoffset="${-now*8}"/>`:'')+(u.ch>0?`<circle r="${14+26*u.ch}" fill="rgba(169,130,245,${.08+.12*u.ch})" stroke="#ffffff" stroke-width="${1+1.5*u.ch}" opacity="${.5+.5*Math.sin(now*14)}"/>`:'')+(u.hp!=null?hpBar(-18,16,36,4,u.hp,u.gh):'');break;
   case'behe':s+=`<g transform="rotate(${u.rot||0})"><rect x="-18" y="-13" width="36" height="26" rx="5" fill="#3a2414" stroke="${u.big?'#ffcf4a':C.enemy}" stroke-width="2.6"/><path d="M4 0 H26" stroke="${u.big?'#ffcf4a':C.enemy}" stroke-width="5" stroke-linecap="round"/><circle r="5" fill="${u.big?'#ffcf4a':C.enemy}"/></g>`+(u.hp!=null?hpBar(-22,20,44,5,u.hp,u.gh):'');break;
@@ -5204,6 +5207,273 @@ const VGL=(function(){
  return{bg,S,base,finish};
 })();
 
+
+/* =================== DEEP STONE CRYPT (shared) =================== */
+// Augments: Operator red, Scanner yellow, Suppressor blue. Drawn as a small ring + letter over the holder.
+const DSC_AUG={op:['#ff6156','O'],sc:['#f6dc8e','S'],su:['#59b8ff','U']};
+function dscMark(p,a,o){const [c,l]=DSC_AUG[a];return{t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y-21})" opacity="${o==null?1:o}"><circle r="7.5" fill="#100d19" stroke="${c}" stroke-width="2"/><text y="3.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" font-weight="700" fill="${c}">${l}</text></g>`};}
+function dscRad(p,n){return{t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x+15} ${p.y+14})"><rect x="-9" y="-6" width="18" height="12" rx="3" fill="${n>=8?'#ff6156':'#2a2440'}" stroke="#8ff0a4"/><text y="3.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" font-weight="700" fill="#e9fbe9">${n}</text></g>`};}
+function dscCore(p,o){return{t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><circle r="${6+1.2*Math.sin(now*9)}" fill="#8ff0a4" stroke="#e9fbe9" stroke-width="1.6"/><circle r="12" fill="none" stroke="#8ff0a4" stroke-opacity=".4"/></g>`};}
+function dscFinish(keys,floor){return function(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)}];
+  s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));
+  keys.forEach(q=>{if(s.dead[q])return;const p=s.p[q];(s.aug[q]||[]).forEach((a,i)=>{const m=dscMark({x:p.x+i*16-((s.aug[q].length-1)*8),y:p.y},a,s.fade[q]);units.push(m);});
+   if(s.core&&s.core[q])units.push(dscCore({x:p.x-15,y:p.y+12}));if(s.rad&&s.rad[q]!=null)units.push(dscRad(p,s.rad[q]));
+   if(s.repl&&s.repl[q]!=null)units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y-24})"><circle r="9" fill="rgba(169,130,245,.25)" stroke="#a982f5" stroke-width="2" stroke-dasharray="3 2"/><text y="3.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" font-weight="700" fill="#e7dbff">${s.repl[q]}</text></g>`});});
+  const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q],o:s.fade[q]==null?1:s.fade[q]}));
+  const hud=s.hud?{t:L(s.hud.t),v:fmt(s.hud.v),hi:false,paused:false,low:s.hud.v<10}:null;
+  return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud,plus:'',pips:s.pips?{at:[624,8],label:L(s.pips.lk)+' '+s.pips.done+'/'+s.pips.n,n:s.pips.n,done:s.pips.done}:null};};}
+function dscBase(keys,POS,extra){return function(){const s=Object.assign({p:{},aug:{},core:{},rad:{},repl:{},units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{},fade:{}},extra||{});
+  keys.forEach(k=>s.p[k]={...POS[k]});return s;};}
+const dscFire=(s,k,key,b,i)=>{if(s.busy[key]||s.dead[key])return;s.busy[key]=1;if(Math.floor(k*70+(i||0))%2)s.shots.push({a:s.p[key],q:key,b,c:C.ally});};
+
+/* =================== DEEP STONE CRYPT: CRYPT SECURITY =================== */
+// SCHEMATIC after the written guides: upper room split into a Light side (left) and Dark side (right) with a glass
+// floor; below, the basement with 5 panels per side. One Operator goes into the basement, the Scanner reads the two
+// glowing panels per side through the glass and calls them. Then the fuse phase: the basement player swaps Operator
+// for Scanner at a terminal and calls the one glowing fuse, the upstairs side shoots it. Six fuses, basement on a timer.
+const DSE=(function(){
+ const keys=['OP','SC','L2','L3','D2','D3'];
+ const POS={OP:{x:240,y:150},SC:{x:560,y:150},L2:{x:170,y:120},L3:{x:300,y:110},D2:{x:500,y:110},D3:{x:630,y:120}};
+ const BASE={y0:250,y1:410};
+ const PAN={L:[0,1,2,3,4].map(i=>({x:110+i*58,y:395})),D:[0,1,2,3,4].map(i=>({x:458+i*58,y:395}))};
+ const FUSE={L:[0,1,2].map(i=>({x:150+i*100,y:232})),D:[0,1,2].map(i=>({x:450+i*100,y:232}))};
+ const TERM={U:{x:400,y:150},B:{x:400,y:330}};
+ const WALL={x:400,y:405};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/>`;
+  o+=`<rect x="70" y="60" width="660" height="160" rx="10" fill="#17142a" stroke="#2f2a4a"/><line x1="400" y1="64" x2="400" y2="216" stroke="#2f2a4a" stroke-dasharray="5 5"/>`;
+  o+=`<text x="235" y="80" text-anchor="middle" class="hud-t" style="fill:#ece8f4">LIGHT</text><text x="565" y="80" text-anchor="middle" class="hud-t" style="fill:#a982f5">DARK</text>`;
+  o+=`<rect x="70" y="${BASE.y0}" width="660" height="${BASE.y1-BASE.y0+20}" rx="10" fill="#120f1c" stroke="${s.purge?'#ff6156':'#2f2a4a'}" stroke-width="${s.purge?2:1}"/><text x="400" y="${BASE.y0+18}" text-anchor="middle" class="hud-t" style="fill:#5f587a">BASEMENT</text>`;
+  o+=`<rect x="70" y="222" width="660" height="26" fill="rgba(120,200,255,.06)" stroke="rgba(120,200,255,.25)"/>`;
+  ['L','D'].forEach(sd=>{PAN[sd].forEach((p,i)=>{const on=(s.glow[sd]||[]).includes(i),shot=(s.shot[sd]||[]).includes(i);
+    o+=`<rect x="${p.x-14}" y="${p.y-10}" width="28" height="20" rx="3" fill="${shot?'#1e3a26':on?'rgba(255,97,86,.35)':'#1d1a2c'}" stroke="${shot?'#8ff0a4':on?'#ff6156':'#3a3356'}" stroke-width="${on||shot?2:1}"/><text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#9c95b0">${i+1}</text>`;});
+   FUSE[sd].forEach((p,i)=>{const id=sd+i,dead=(s.fdone||[]).includes(id),on=s.fglow===id;
+    o+=`<rect x="${p.x-12}" y="${p.y-8}" width="24" height="16" rx="3" fill="${dead?'#0e0c16':on?'rgba(246,220,142,.45)':'#26213a'}" stroke="${dead?'#3a3356':on?'#f6dc8e':'#4a4370'}" stroke-width="${on?2.4:1}"/>${dead?`<path d="M${p.x-8} ${p.y-5} L${p.x+8} ${p.y+5} M${p.x+8} ${p.y-5} L${p.x-8} ${p.y+5}" stroke="#5f587a" stroke-width="1.6"/>`:''}`;});});
+  [['U','TERMINAL'],['B','TERMINAL']].forEach(([w,n])=>{const t=TERM[w];o+=`<rect x="${t.x-14}" y="${t.y-12}" width="28" height="24" rx="4" fill="#211c33" stroke="${s.term===w?'#f6dc8e':'#4a4370'}" stroke-width="${s.term===w?2.4:1.2}"/>`;});
+  o+=`<rect x="${WALL.x-30}" y="${WALL.y-6}" width="60" height="12" rx="3" fill="#1a1630" stroke="#3a3356"/>`;
+  o+=`<text x="720" y="44" text-anchor="end" class="hud-t" style="fill:#5f587a">schematic</text>`;return o;}
+ const base=dscBase(keys,POS,{glow:{},shot:{},fdone:[],fglow:null,term:null,purge:false});
+ function bg(g){g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';}
+ const S=[
+ // 1 layout
+ {d:20,f(k,s){const o1=win(k,0,.25),o2=win(k,.25,.5),o3=win(k,.5,.75),o4=win(k,.75,1.01);
+   if(k<.25)s.spot=[{x:235,y:140,r:90,o:o1,w:true},{x:565,y:140,r:90,o:o1,w:true}];else if(k<.5)s.spot=[{x:400,y:330,r:150,o:o2,w:true}];else if(k<.75)s.spot=[...FUSE.L,...FUSE.D].map(p=>({...p,r:16,o:o3,w:true}));else s.spot=[{...TERM.U,r:22,o:o4,w:true},{...TERM.B,r:22,o:o4,w:true}];
+   if(k>=.25&&k<.5){s.glow={L:[1,3],D:[0,4]};}
+   s.fx=k<.25?{k:'fxS1Sides',o:o1,c:'#ece8f4'}:k<.5?{k:'fxS1Base',o:o2,c:C.light}:k<.75?{k:'fxS1Fuse',o:o3,c:C.light}:{k:'fxS1Term',o:o4,c:C.light};}},
+ // 2 panels: Operator into the basement, Scanner reads through the glass, Operator shoots the four called panels
+ {d:28,f(k,s){s.aug={OP:['op'],SC:['sc']};const B0={x:400,y:380};
+   if(k<.2){s.p.OP=mv(POS.OP,{x:380,y:240},seg(k,.02,.12));if(k>=.12){s.fade.OP=1-seg(k,.12,.2);}}
+   else{s.p.OP=mv(WALL,B0,seg(k,.2,.26));s.fade.OP=seg(k,.2,.24);}
+   s.glow={L:[1,3],D:[0,4]};
+   const hits=[['L',1,.42],['L',3,.52],['D',0,.66],['D',4,.76]];s.shot={L:[],D:[]};
+   hits.forEach(([sd,i,t],n)=>{const p=PAN[sd][i];if(k>=t-.08&&k<t){s.p.OP=mv(s.p.OP,{x:p.x,y:345},.5);s.shots.push({a:s.p.OP,q:'OP',b:p,c:C.ally});}if(k>=t)s.shot[sd].push(i);if(k>=t-.1&&k<t)s.labels.push({x:p.x,y:p.y-26,k:'lPanel'+(i+1),c:'#ff6156',o:1});});
+   if(k>=.26&&k<.8){s.p.SC=mv(POS.SC,{x:430,y:205},seg(k,.26,.3));s.p.L2=mv(POS.L2,{x:370,y:205},seg(k,.26,.3));s.labels.push({x:430,y:190,k:'lRead',c:C.light,o:win(k,.28,.8,.02)});}
+   s.cam=camK(k,[[0,400,220,1],[.22,400,300,1.25],[.85,400,300,1.25],[1,400,220,1]]);
+   s.fx=k<.2?{k:'fxS2Down',o:win(k,0,.2,.02),c:'#ff6156'}:k<.36?{k:'fxS2Read',o:win(k,.2,.36,.02),c:C.light}:k<.8?{k:'fxS2Shoot',o:win(k,.36,.8,.02),c:'#ff6156'}:{k:'fxS2Done',o:win(k,.8,1,.02),c:C.good};}},
+ // 3 fuses: basement swaps Operator for Scanner, calls the glowing fuse, the matching side shoots it, six times
+ {d:32,f(k,s){s.shot={L:[1,3],D:[0,4]};s.p.OP={x:400,y:350};s.hud={t:'lBaseT',v:Math.max(0,120-k*95)};
+   if(k<.14){s.aug={OP:['op'],SC:['sc']};s.p.OP=mv({x:400,y:350},{x:TERM.B.x+20,y:TERM.B.y+10},seg(k,0,.06));s.p.SC=mv(POS.SC,{x:TERM.U.x+20,y:TERM.U.y},seg(k,0,.06));s.term=k<.07?'B':'U';
+     if(k>=.07)s.aug={OP:[],SC:['sc']};if(k>=.1)s.aug={OP:['sc'],SC:[]};}
+   else{s.aug={OP:['sc'],SC:['op']};s.p.OP={x:TERM.B.x+20,y:TERM.B.y+10};s.p.SC={x:TERM.U.x+20,y:TERM.U.y};}
+   const order=['L0','D2','L2','D0','L1','D1'];s.fdone=[];
+   order.forEach((id,i)=>{const a=.16+i*.13,b=a+.11;if(k>=b)s.fdone.push(id);else if(k>=a){s.fglow=id;const sd=id[0],f=FUSE[sd][+id[1]];
+     s.labels.push({x:s.p.OP.x,y:s.p.OP.y-40,k:'lFuse'+sd,c:C.light,o:1});
+     const team=sd==='L'?['L2','L3']:['D2','D3'];if(k>=a+.04)team.forEach((q,j)=>dscFire(s,k,q,f,j));}});
+   if(k>=.96)s.bursts.push({x:400,y:232,r:20+200*seg(k,.96,1),c:C.good,o:1-seg(k,.96,1)});
+   s.fx=k<.14?{k:'fxS3Swap',o:win(k,0,.14,.02),c:C.light}:k<.94?{k:'fxS3Fuse',o:win(k,.14,.94,.02),c:C.light}:{k:'fxS3Done',o:win(k,.94,1,.02),c:C.good};}},
+ // 4 watch out: Servitor blocks the terminal, basement purge on timer
+ {d:20,f(k,s){s.aug={OP:['op'],SC:['sc']};s.p.OP={x:300,y:350};
+   if(k<.5){const sv={x:TERM.U.x,y:TERM.U.y-34};s.units.push({t:'fserv',x:sv.x,y:sv.y,hp:1-seg(k,.18,.46)*.97,lb:'lServ',lc:C.enemy,ly:-24});s.term='X';if(k>=.16)['L2','L3','D2'].forEach((q,i)=>dscFire(s,k,q,sv,i));}
+   if(k>=.5){s.purge=true;s.hud={t:'lBaseT',v:Math.max(0,8-(k-.5)*16)};if(k>=.82){s.dead.OP=1;s.bursts.push({x:400,y:330,r:40+120*seg(k,.82,.9),c:C.danger,o:1-seg(k,.82,.9)});}}
+   s.fx=k<.5?{k:'fxS4Serv',o:win(k,0,.5,.03),c:C.enemy}:{k:'fxS4Purge',o:win(k,.5,1,.03),c:C.danger};}}
+ ];
+ return{bg,S,base,finish:dscFinish(keys,floor)};
+})();
+
+/* =================== DEEP STONE CRYPT: ATRAKS-1 =================== */
+// SCHEMATIC: two areas, the Crypt below and the space station above, three players each. Four replicants per area;
+// the Scanner sees the real one (yellow lattice). Killing it drops Replication (40 s timer) on a non-buff player,
+// the Operator opens the glowing airlock and shoots the debuff off: the copy is ejected. Scanner is passed via terminal.
+// After 4 ejections the other area; after 8 the last stand, everyone in space.
+const DSA=(function(){
+ const keys=['SC','OP','C3','S1','S2','S3'];
+ const STA={y:110},CRY={y:330};
+ const POS={SC:{x:330,y:350},OP:{x:400,y:370},C3:{x:470,y:350},S1:{x:330,y:130},S2:{x:400,y:150},S3:{x:470,y:130}};
+ const LOCK={C:[{x:110,y:330},{x:690,y:330}],S:[{x:110,y:110},{x:690,y:110}]};
+ const TERM={C:{x:400,y:250},S:{x:400,y:200}};
+ const REP={C:[{x:220,y:290},{x:330,y:270},{x:470,y:270},{x:580,y:290}],S:[{x:220,y:70},{x:330,y:60},{x:470,y:60},{x:580,y:70}]};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/>`;
+  o+=`<rect x="80" y="30" width="640" height="170" rx="12" fill="#151a2a" stroke="#2f3a5a"/><text x="100" y="52" class="hud-t" style="fill:#59b8ff">SPACE STATION</text>`;
+  o+=`<rect x="80" y="240" width="640" height="170" rx="12" fill="#17142a" stroke="#2f2a4a"/><text x="100" y="262" class="hud-t" style="fill:#5f587a">CRYPT · SPAWN · schematic</text>`;
+  ['C','S'].forEach(a=>{LOCK[a].forEach((p,i)=>{const on=s.lock===a+i;o+=`<rect x="${p.x-22}" y="${p.y-26}" width="44" height="52" rx="6" fill="${on?'rgba(255,97,86,.18)':'#100d19'}" stroke="${on?'#ff6156':'#3a3356'}" stroke-width="${on?2.4:1.2}"/><rect x="${p.x+(i?-34:26)}" y="${p.y-6}" width="8" height="12" rx="2" fill="${on?'#ff6156':'#3a3356'}"/>`;});
+   const t=TERM[a];o+=`<rect x="${t.x-14}" y="${t.y-11}" width="28" height="22" rx="4" fill="#211c33" stroke="${s.term===a?'#f6dc8e':'#4a4370'}" stroke-width="${s.term===a?2.4:1.2}"/>`;});
+  return o;}
+ const base=dscBase(keys,POS,{lock:null,term:null});
+ function bg(g){g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';}
+ const atr=(s,p,real,hp,o)=>s.units.push({t:'atraks',x:p.x,y:p.y,glow:real,hp,o});
+ const S=[
+ // 1 layout
+ {d:20,f(k,s){s.aug={SC:['sc'],OP:['op']};const o1=win(k,0,.3),o2=win(k,.3,.6),o3=win(k,.6,.8),o4=win(k,.8,1.01);
+   REP.C.forEach((p,i)=>atr(s,p,i===2&&k>=.3&&k<.6,null,1));REP.S.forEach(p=>atr(s,p,false,null,1));
+   if(k<.3)s.spot=[{x:400,y:120,r:150,o:o1,w:true},{x:400,y:330,r:150,o:o1,w:true}];else if(k<.6)s.spot=[{...REP.C[2],r:26,o:o2,w:true}];else if(k<.8)s.spot=[...LOCK.C,...LOCK.S].map(p=>({...p,r:30,o:o3,w:true}));else s.spot=[{...TERM.C,r:22,o:o4,w:true},{...TERM.S,r:22,o:o4,w:true}];
+   s.fx=k<.3?{k:'fxA1Areas',o:o1,c:'#ece8f4'}:k<.6?{k:'fxA1Real',o:o2,c:C.light}:k<.8?{k:'fxA1Locks',o:o3,c:'#ff6156'}:{k:'fxA1Term',o:o4,c:C.light};}},
+ // 2 Crypt: Scanner finds the real one, team kills it, Replication on C3 (40 s)
+ {d:22,f(k,s){s.aug={SC:['sc'],OP:['op']};
+   const real=REP.C[2],dead=.5;REP.C.forEach((p,i)=>{if(i===2&&k>=dead)return;atr(s,p,i===2,i===2?1-seg(k,.24,dead)*.97:null,1);});REP.S.forEach(p=>atr(s,p,false,null,.5));
+   if(k<.2)s.labels.push({x:real.x,y:real.y-34,k:'lReal',c:C.light,o:win(k,.04,.2,.02)});
+   if(k>=.2&&k<dead)['SC','OP','C3'].forEach((q,i)=>dscFire(s,k,q,real,i));
+   if(k>=dead&&k<dead+.04)s.bursts.push({...real,r:10+24*seg(k,dead,dead+.04),c:'#a982f5',o:1-seg(k,dead,dead+.04)});
+   if(k>=dead+.04){s.repl.C3=Math.round(40-(k-dead-.04)*30);}
+   s.cam=camK(k,[[0,400,220,1],[.06,400,310,1.4],[.9,400,310,1.4],[1,400,220,1]]);
+   s.fx=k<.2?{k:'fxA2Find',o:win(k,0,.2,.02),c:C.light}:k<dead?{k:'fxA2Kill',o:win(k,.2,dead,.02),c:C.ally}:{k:'fxA2Repl',o:win(k,dead,1,.02),c:'#a982f5'};}},
+ // 3 eject: Operator shoots the glowing keypad, C3 into the airlock, Operator shoots the debuff off, door closes. Scanner to the terminal.
+ {d:26,f(k,s){s.aug={SC:k<.62?['sc']:[],OP:['op']};if(k>=.7)s.aug.S1=['sc'];
+   REP.C.forEach((p,i)=>{if(i!==2)atr(s,p,false,null,1);});REP.S.forEach((p,i)=>atr(s,p,i===1&&k>=.7,null,1));
+   const L=LOCK.C[1];s.lock=k>=.08&&k<.6?'C1':null;
+   if(k<.08){s.shots.push({a:s.p.OP,q:'OP',b:{x:L.x-34,y:L.y},c:C.ally});}
+   s.repl.C3=k<.42?Math.round(31-k*20):null;
+   s.p.C3=k<.34?mv(POS.C3,L,seg(k,.08,.3)):{...L};
+   if(k>=.34&&k<.42){s.p.OP=mv(POS.OP,{x:600,y:360},seg(k,.3,.36));s.shots.push({a:s.p.OP,q:'OP',b:{x:L.x,y:L.y-22},c:C.ally});}
+   if(k>=.42&&k<.5){s.p.C3=mv(L,{x:600,y:330},seg(k,.42,.5));s.adds.push({t:'raw',x:0,y:0,svg:`<g opacity="${1-seg(k,.44,.56)}"><circle cx="${L.x+20+80*seg(k,.42,.56)}" cy="${L.y}" r="10" fill="rgba(169,130,245,.4)" stroke="#a982f5" stroke-dasharray="3 2"/></g>`});}
+   if(k>=.5)s.p.C3={x:600,y:330};
+   if(k>=.42&&k<.5)s.labels.push({x:L.x-20,y:L.y-44,k:'lEject',c:C.good,o:1});
+   if(k>=.56){s.p.SC=mv(POS.SC,{x:TERM.C.x-20,y:TERM.C.y+16},seg(k,.56,.62));s.term=k<.66?'C':'S';s.p.S1=mv(POS.S1,{x:TERM.S.x-22,y:TERM.S.y-10},seg(k,.6,.68));}
+   s.pips={lk:'lEjLbl',n:8,done:1};
+   s.cam=camK(k,[[0,400,220,1],[.04,560,320,1.5],[.54,560,320,1.5],[.6,400,220,1]]);
+   s.fx=k<.1?{k:'fxA3Pad',o:win(k,0,.1,.02),c:'#ff6156'}:k<.34?{k:'fxA3In',o:win(k,.1,.34,.02),c:'#a982f5'}:k<.52?{k:'fxA3Shoot',o:win(k,.34,.52,.02),c:'#ff6156'}:k<.74?{k:'fxA3Pass',o:win(k,.52,.74,.02),c:C.light}:{k:'fxA3Loop',o:win(k,.74,1,.02),c:'#ece8f4'};}},
+ // 4 wrong: timer runs out → a new copy spawns
+ {d:14,f(k,s){s.aug={SC:['sc'],OP:['op']};s.p.C3={x:520,y:340};s.repl.C3=k<.45?Math.max(0,Math.round(6-k*14)):null;
+   REP.C.forEach((p,i)=>{if(i!==2)atr(s,p,false,null,1);});
+   if(k>=.45){const p={x:540,y:300};atr(s,p,false,null,seg(k,.45,.55));atr(s,{x:640,y:280},false,null,seg(k,.5,.6));if(k<.55)s.bursts.push({...p,r:10+30*seg(k,.45,.55),c:C.danger,o:1-seg(k,.45,.55)});}
+   s.fx=k<.45?{k:'fxA4Time',o:win(k,0,.45,.03),c:C.danger}:{k:'fxA4Copy',o:win(k,.45,1,.03),c:C.danger};}},
+ // 5 last stand: everyone in space, eight replicants, Scanner calls each highlighted one, burst it fast
+ {d:22,f(k,s){s.aug={S1:['sc'],S2:['op']};
+   const ring=['SC','OP','C3','S1','S2','S3'];ring.forEach((q,i)=>{const t={x:250+i*60,y:150};s.p[q]=k<.12?mv(q[0]==='S'?POS[q]:{x:400,y:250},t,seg(k,0,.12)):t;if(q[0]!=='S'&&k<.08)s.fade[q]=seg(k,0,.08);});
+   const spots=[{x:160,y:70},{x:260,y:55},{x:360,y:60},{x:460,y:55},{x:560,y:60},{x:650,y:70},{x:200,y:100},{x:600,y:100}];
+   const nKill=Math.floor(seg(k,.15,.95)*8);
+   spots.forEach((p,i)=>{if(i<nKill)return;const real=i===nKill&&k>=.15;atr(s,p,real,real?1-((seg(k,.15,.95)*8)%1)*.97:null,1);if(real)ring.forEach((q,j)=>dscFire(s,k,q,p,j));});
+   s.pips={lk:'lKillLbl',n:8,done:Math.min(8,nKill)};
+   if(k>=.95)s.bursts.push({x:400,y:80,r:20+200*seg(k,.95,1),c:C.good,o:1-seg(k,.95,1)});
+   s.fx=k<.15?{k:'fxA5Up',o:win(k,0,.15,.02),c:'#ece8f4'}:k<.95?{k:'fxA5Burst',o:win(k,.15,.95,.02),c:C.light}:{k:'fxA5Done',o:win(k,.95,1,.02),c:C.good};}}
+ ];
+ return{bg,S,base,finish:dscFinish(keys,floor)};
+})();
+
+/* =================== DEEP STONE CRYPT: TANIKS, REBORN (RAPTURE) =================== */
+// SCHEMATIC: Taniks in the middle, four core boxes (entrance left/right, boss left/right), core dispensers with
+// keypads, three drones. Scanner calls the two glowing boxes, Operator shoots a keypad, two carriers take cores
+// (radiation, 10 = death, swap). Suppressor stands under all three drones and shoots Taniks → stunned → deposit.
+// After each deposit one augment goes dark and is swapped at the terminal. Enough deposits → hatch opens → run.
+const DSR=(function(){
+ const keys=['SC','OP','SU','C1','C2','RT'];
+ const TAN={x:400,y:200};
+ const BOX={EL:{x:180,y:340},ER:{x:620,y:340},BL:{x:180,y:110},BR:{x:620,y:110}};
+ const DISP={L:{x:90,y:225},R:{x:710,y:225}};
+ const DRONE=[{x:300,y:290},{x:500,y:290},{x:400,y:95}];
+ const TERM={x:400,y:395};
+ const POS={SC:{x:340,y:350},OP:{x:460,y:350},SU:{x:400,y:330},C1:{x:300,y:370},C2:{x:500,y:370},RT:{x:400,y:375}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/><circle cx="${TAN.x}" cy="${TAN.y}" r="180" fill="#17142a" stroke="#2f2a4a"/>`;
+  if(s.hatch)o+=`<circle cx="${TAN.x}" cy="${TAN.y+40}" r="${30*s.hatch}" fill="#05040a" stroke="#8ff0a4" stroke-width="2"/>`;
+  Object.entries(BOX).forEach(([n,p])=>{const on=(s.glow||[]).includes(n),full=(s.full||[]).includes(n);o+=`<rect x="${p.x-18}" y="${p.y-14}" width="36" height="28" rx="5" fill="${full?'#1e3a26':on?'rgba(143,240,164,.25)':'#1d1a2c'}" stroke="${full||on?'#8ff0a4':'#3a3356'}" stroke-width="${on?2.4:1.2}"/><text x="${p.x}" y="${p.y+28}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#9c95b0">${n}</text>`;});
+  Object.values(DISP).forEach(p=>{o+=`<rect x="${p.x-16}" y="${p.y-22}" width="32" height="44" rx="5" fill="#211c33" stroke="${s.disp?'#ff6156':'#4a4370'}" stroke-width="${s.disp?2:1.2}"/>`;});
+  DRONE.forEach((p,i)=>{const on=(s.drone||[]).includes(i);o+=`<circle cx="${p.x}" cy="${p.y}" r="22" fill="none" stroke="#59b8ff" stroke-opacity="${on?.9:.35}" stroke-dasharray="4 3" stroke-width="${on?2.4:1.2}"/><circle cx="${p.x}" cy="${p.y}" r="5" fill="#59b8ff" opacity="${on?1:.5}"/>`;});
+  o+=`<rect x="${TERM.x-14}" y="${TERM.y-11}" width="28" height="22" rx="4" fill="#211c33" stroke="${s.term?'#f6dc8e':'#4a4370'}" stroke-width="${s.term?2.4:1.2}"/>`;
+  o+=`<text x="400" y="434" text-anchor="middle" class="hud-t" style="fill:#5f587a">ENTRANCE · schematic</text>`;return o;}
+ const base=dscBase(keys,POS,{glow:[],full:[],drone:[],disp:false,term:false,hatch:0});
+ function bg(g){g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';}
+ const tan=(s,stun,hp)=>s.units.push({t:'taniks',x:TAN.x,y:TAN.y,stun,hp});
+ const S=[
+ // 1 layout
+ {d:20,f(k,s){s.aug={SC:['sc'],OP:['op'],SU:['su']};tan(s,false,null);const o1=win(k,0,.25),o2=win(k,.25,.5),o3=win(k,.5,.75),o4=win(k,.75,1.01);
+   if(k<.25)s.spot=Object.values(BOX).map(p=>({...p,r:26,o:o1,w:true}));else if(k<.5)s.spot=Object.values(DISP).map(p=>({...p,r:30,o:o2,w:true}));else if(k<.75)s.spot=DRONE.map(p=>({...p,r:28,o:o3,w:true}));else s.spot=[{...TERM,r:22,o:o4,w:true}];
+   s.fx=k<.25?{k:'fxR1Box',o:o1,c:C.good}:k<.5?{k:'fxR1Disp',o:o2,c:'#ff6156'}:k<.75?{k:'fxR1Drone',o:o3,c:'#59b8ff'}:{k:'fxR1Term',o:o4,c:C.light};}},
+ // 2 cores: Scanner calls 2 boxes, Operator shoots keypad, carriers grab cores, radiation climbs, swap
+ {d:26,f(k,s){s.aug={SC:['sc'],OP:['op'],SU:['su']};tan(s,false,null);s.glow=k>=.06?['EL','BR']:[];
+   if(k<.08)s.labels.push({x:s.p.SC.x,y:s.p.SC.y-38,k:'lBoxes',c:C.light,o:win(k,0,.08,.01)});
+   s.p.OP=mv(POS.OP,{x:660,y:250},seg(k,.06,.18));if(k>=.18&&k<.24){s.shots.push({a:s.p.OP,q:'OP',b:DISP.R,c:C.ally});}s.disp=k>=.24;
+   if(k>=.24){s.p.C1=mv(POS.C1,{x:DISP.R.x-26,y:DISP.R.y+10},seg(k,.24,.38));s.p.C2=mv(POS.C2,{x:DISP.R.x-26,y:DISP.R.y-14},seg(k,.24,.36));}
+   if(k>=.38){s.core.C1=1;s.core.C2=1;s.rad.C1=Math.min(9,1+Math.floor((k-.38)*16));s.rad.C2=Math.min(9,1+Math.floor((k-.38)*14));
+     s.p.C1=mv({x:DISP.R.x-26,y:DISP.R.y+10},{x:560,y:300},seg(k,.38,.6));s.p.C2=mv({x:DISP.R.x-26,y:DISP.R.y-14},{x:580,y:150},seg(k,.38,.6));}
+   if(k>=.7){s.p.RT=mv(POS.RT,{x:540,y:310},seg(k,.62,.72));if(k>=.76){s.core.C1=0;s.rad.C1=null;s.core.RT=1;s.rad.RT=1+Math.floor((k-.76)*10);}}
+   s.fx=k<.2?{k:'fxR2Call',o:win(k,0,.2,.02),c:C.light}:k<.4?{k:'fxR2Pad',o:win(k,.2,.4,.02),c:'#ff6156'}:k<.7?{k:'fxR2Carry',o:win(k,.4,.7,.02),c:C.good}:{k:'fxR2Swap',o:win(k,.7,1,.02),c:C.good};}},
+ // 3 suppress, deposit, augment goes dark → swap at terminal
+ {d:28,f(k,s){s.aug={SC:['sc'],OP:['op'],SU:['su']};s.glow=['EL','BR'];
+   const st=k>=.48;tan(s,st,null);
+   const d=[[.04,.16],[.18,.3],[.32,.44]];s.drone=[];d.forEach(([a,b],i)=>{if(k>=a){s.drone.push(i);}if(k>=a&&k<b){s.p.SU=mv(s.p.SU,DRONE[i],.4);dscFire(s,k,'SU',TAN,i);}});
+   if(k>=.44)s.p.SU=DRONE[2];
+   s.core.C2=k<.56;s.core.RT=k<.56;s.rad.C2=k<.56?8:null;s.rad.RT=k<.56?4:null;s.p.C2={x:600,y:130};s.p.RT={x:200,y:330};
+   if(k>=.48){s.p.C2=mv({x:600,y:130},{x:BOX.BR.x,y:BOX.BR.y+20},seg(k,.48,.56));s.p.RT=mv({x:200,y:330},{x:BOX.EL.x,y:BOX.EL.y-20},seg(k,.48,.56));}
+   s.full=k>=.56?['EL','BR']:[];if(k>=.56&&k<.62)['EL','BR'].forEach(n=>s.bursts.push({...BOX[n],r:10+20*seg(k,.56,.62),c:C.good,o:1-seg(k,.56,.62)}));
+   if(k<.48)s.labels.push({x:TAN.x,y:TAN.y-48,k:'lWait',c:C.light,o:win(k,.1,.48,.02)});
+   if(k>=.64){s.aug.OP=[];s.term=k>=.74;s.p.OP=mv(POS.OP,{x:TERM.x+20,y:TERM.y},seg(k,.64,.74));if(k>=.8){s.aug.C1=['op'];s.p.C1=mv(POS.C1,{x:TERM.x-20,y:TERM.y},seg(k,.74,.8));}s.labels.push({x:TERM.x,y:TERM.y-30,k:'lDark',c:'#ff6156',o:win(k,.64,.9,.02)});}
+   s.cam=camK(k,[[0,400,220,1],[.04,400,220,1.15],[.6,400,220,1.15],[.66,400,300,1.35],[.96,400,300,1.35],[1,400,220,1]]);
+   s.fx=k<.46?{k:'fxR3Sup',o:win(k,0,.46,.02),c:'#59b8ff'}:k<.62?{k:'fxR3Dunk',o:win(k,.46,.62,.02),c:C.good}:{k:'fxR3Swap',o:win(k,.62,1,.02),c:'#ff6156'};}},
+ // 4 escape: hatch opens, drop and run, Taniks chases
+ {d:16,f(k,s){tan(s,false,null);s.hatch=seg(k,0,.15);const H={x:TAN.x,y:TAN.y+40};
+   keys.forEach((q,i)=>{const p0=POS[q];s.p[q]=k<.45?mv(p0,H,seg(k,.15,.4+i*.01)):{...H};if(k>=.38)s.fade[q]=1-seg(k,.38+i*.01,.46+i*.01);});
+   if(k>=.5)s.labels.push({x:400,y:120,k:'lRun',c:C.danger,o:win(k,.5,1,.02)});
+   s.fx=k<.4?{k:'fxR4Hatch',o:win(k,0,.4,.02),c:C.good}:{k:'fxR4Run',o:win(k,.4,1,.02),c:C.danger};}}
+ ];
+ return{bg,S,base,finish:dscFinish(keys,floor)};
+})();
+
+/* =================== DEEP STONE CRYPT: TANIKS, THE ABOMINATION =================== */
+// SCHEMATIC: round arena, six core buckets (two per side), three teams of two. Shoot Taniks' wings → a core drops,
+// carriers swap before radiation 10. Purple detainment bubbles: the Operator shoots them. Suppressor under three drones
+// stuns Taniks → deposit. Four cores → Taniks to the middle → jump inside the debris ring, damage, pushed out once,
+// jump back in. Last notch: Taniks teleports and fires the beam, pure damage check.
+const DST=(function(){
+ const keys=['OP','SC','SU','C1','C2','C3'];
+ const MID={x:400,y:220};
+ const BKT={L1:{x:120,y:150},L2:{x:120,y:300},R1:{x:680,y:150},R2:{x:680,y:300},B1:{x:300,y:395},B2:{x:500,y:395}};
+ const DRONE=[{x:250,y:110},{x:550,y:110},{x:400,y:330}];
+ const POS={OP:{x:360,y:360},SC:{x:440,y:360},SU:{x:400,y:300},C1:{x:220,y:240},C2:{x:580,y:240},C3:{x:400,y:380}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/><circle cx="${MID.x}" cy="${MID.y}" r="210" fill="#17142a" stroke="#2f2a4a"/>`;
+  if(s.ring){o+=`<circle cx="${MID.x}" cy="${MID.y}" r="110" fill="none" stroke="#9c95b0" stroke-width="5" stroke-dasharray="3 6" opacity="${s.ring}"/><circle cx="${MID.x}" cy="${MID.y}" r="55" fill="none" stroke="#ff6156" stroke-width="3" stroke-dasharray="2 5" opacity="${s.ring}"/>`;}
+  Object.entries(BKT).forEach(([n,p])=>{const on=(s.glow||[]).includes(n),full=(s.full||[]).includes(n);o+=`<rect x="${p.x-16}" y="${p.y-13}" width="32" height="26" rx="5" fill="${full?'#1e3a26':on?'rgba(143,240,164,.25)':'#1d1a2c'}" stroke="${full||on?'#8ff0a4':'#3a3356'}" stroke-width="${on?2.4:1.2}"/>`;});
+  DRONE.forEach((p,i)=>{const on=(s.drone||[]).includes(i);o+=`<circle cx="${p.x}" cy="${p.y}" r="20" fill="none" stroke="#59b8ff" stroke-opacity="${on?.9:.35}" stroke-dasharray="4 3" stroke-width="${on?2.4:1.2}"/>`;});
+  o+=`<text x="400" y="440" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN · schematic</text>`;return o;}
+ const base=dscBase(keys,POS,{glow:[],full:[],drone:[],ring:0});
+ function bg(g){g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';}
+ const tan=(s,p,o)=>s.units.push(Object.assign({t:'taniks',x:p.x,y:p.y,big:1},o||{}));
+ const S=[
+ // 1 layout
+ {d:18,f(k,s){s.aug={OP:['op'],SC:['sc'],SU:['su']};tan(s,{x:400,y:150});const o1=win(k,0,.35),o2=win(k,.35,.7),o3=win(k,.7,1.01);
+   if(k<.35)s.spot=Object.values(BKT).map(p=>({...p,r:24,o:o1,w:true}));else if(k<.7)s.spot=DRONE.map(p=>({...p,r:26,o:o2,w:true}));else s.spot=[{x:400,y:150,r:50,o:o3,w:true}];
+   s.fx=k<.35?{k:'fxT1Bkt',o:o1,c:C.good}:k<.7?{k:'fxT1Drone',o:o2,c:'#59b8ff'}:{k:'fxT1Boss',o:o3,c:C.enemy};}},
+ // 2 wings → core, carry + swap, detainment bubble shot by the Operator
+ {d:26,f(k,s){s.aug={OP:['op'],SC:['sc'],SU:['su']};const T=mv({x:400,y:150},{x:260,y:170},seg(k,0,.2));tan(s,T,{wing:k<.3?1:0});s.glow=['L1','R2'];
+   if(k<.3)keys.forEach((q,i)=>dscFire(s,k,q,{x:T.x+(i%2?24:-24),y:T.y},i));
+   const drop={x:T.x,y:T.y+40};if(k>=.3&&k<.38)s.adds.push(dscCore(drop));
+   if(k>=.3&&k<.38){s.p.C1=mv(POS.C1,drop,seg(k,.3,.38));}
+   if(k>=.38){s.core.C1=k<.62;s.rad.C1=k<.62?Math.min(9,Math.floor((k-.38)*30)+1):null;s.p.C1=mv(drop,{x:150,y:180},seg(k,.38,.6));}
+   if(k>=.56){s.p.C2=mv(POS.C2,{x:170,y:190},seg(k,.5,.6));if(k>=.62){s.core.C2=1;s.rad.C2=1;}}
+   if(k>=.66&&k<.92){const b={x:170,y:190};s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${b.x}" cy="${b.y}" r="${22+2*Math.sin(now*6)}" fill="rgba(169,130,245,.25)" stroke="#a982f5" stroke-width="2.4"/>`});
+     s.labels.push({x:b.x,y:b.y-38,k:'lDet',c:'#a982f5',o:1});if(k>=.74){s.p.OP=mv(POS.OP,{x:260,y:300},seg(k,.66,.74));s.shots.push({a:s.p.OP,q:'OP',b,c:C.ally});}}
+   if(k>=.92)s.p.C2=mv({x:170,y:190},{x:BKT.L1.x+10,y:BKT.L1.y+20},seg(k,.92,1));
+   s.fx=k<.3?{k:'fxT2Wing',o:win(k,0,.3,.02),c:C.ally}:k<.62?{k:'fxT2Carry',o:win(k,.3,.62,.02),c:C.good}:k<.92?{k:'fxT2Det',o:win(k,.62,.92,.02),c:'#a982f5'}:{k:'fxT2Go',o:win(k,.92,1,.02),c:C.good};}},
+ // 3 suppress and deposit, four cores
+ {d:22,f(k,s){s.aug={OP:['op'],SC:['sc'],SU:['su']};const T={x:300,y:180};tan(s,T,{stun:k>=.4});s.glow=['L1','R2'];
+   const d=[[.04,.14],[.16,.26],[.28,.38]];s.drone=[];d.forEach(([a,b],i)=>{if(k>=a)s.drone.push(i);if(k>=a&&k<b){s.p.SU=mv(s.p.SU,DRONE[i],.4);dscFire(s,k,'SU',T,i);}});
+   s.p.C2={x:BKT.L1.x+10,y:BKT.L1.y+20};s.core.C2=k<.46;s.rad.C2=k<.46?6:null;
+   s.full=k>=.46?['L1']:[];s.pips={lk:'lCoreLbl',n:4,done:k<.46?1:2};
+   if(k>=.5)s.labels.push({x:400,y:80,k:'lFour',c:C.good,o:win(k,.5,1,.02)});
+   s.fx=k<.4?{k:'fxT3Sup',o:win(k,0,.4,.02),c:'#59b8ff'}:k<.5?{k:'fxT3Dunk',o:win(k,.4,.5,.02),c:C.good}:{k:'fxT3Repeat',o:win(k,.5,1,.02),c:'#ece8f4'};}},
+ // 4 damage: Taniks in the middle, jump inside the ring, pushed out once, back in
+ {d:24,f(k,s){s.pips={lk:'lCoreLbl',n:4,done:4};s.ring=seg(k,0,.1);const hp=1-seg(k,.18,.48)*.25-seg(k,.6,.92)*.25;tan(s,MID,{hp});
+   const ring=keys.map((q,i)=>({q,p:{x:MID.x+Math.cos(i/6*6.28)*80,y:MID.y+Math.sin(i/6*6.28)*80},o:{x:MID.x+Math.cos(i/6*6.28)*170,y:MID.y+Math.sin(i/6*6.28)*170}}));
+   ring.forEach(({q,p,o},i)=>{s.p[q]=k<.16?mv(POS[q],p,seg(k,0,.16)):k<.5?p:k<.56?mv(p,o,seg(k,.5,.54)):k<.6?mv(o,p,seg(k,.56,.6)):p;if((k>=.18&&k<.5)||(k>=.6&&k<.92))dscFire(s,k,q,MID,i);});
+   if(k>=.5&&k<.56){s.bursts.push({...MID,r:20+170*seg(k,.5,.56),c:'#ece8f4',o:1-seg(k,.5,.56)});s.shake=1-seg(k,.5,.56);}
+   s.fx=k<.18?{k:'fxT4In',o:win(k,0,.18,.02),c:C.light}:k<.5?{k:'fxT4Dmg',o:win(k,.18,.5,.02),c:C.ally}:k<.6?{k:'fxT4Push',o:win(k,.5,.6,.02),c:'#ece8f4'}:{k:'fxT4Again',o:win(k,.6,1,.02),c:C.ally};}},
+ // 5 last notch: teleports, beam, pure damage check
+ {d:18,f(k,s){const spots=[{x:250,y:120},{x:560,y:140},{x:420,y:310}];const i=Math.min(2,Math.floor(k*3));const T=spots[i];tan(s,T,{hp:.25*(1-seg(k,0,.95)*.97)});
+   keys.forEach((q,j)=>{s.p[q]={x:300+j*40,y:240+((j%2)?30:-10)};dscFire(s,k,q,T,j);});
+   const ph=(k*3)%1;if(ph>.6){const a=T,b=s.p.C2;s.adds.push({t:'raw',x:0,y:0,svg:`<line x1="${a.x}" y1="${a.y}" x2="${b.x+40}" y2="${b.y+60}" stroke="#a982f5" stroke-width="${6*(ph-.6)/.4+2}" opacity=".8"/>`});s.labels.push({x:b.x,y:b.y-30,k:'lDodge',c:'#a982f5',o:1});}
+   if(k>=.95)s.bursts.push({...T,r:20+200*seg(k,.95,1),c:C.good,o:1-seg(k,.95,1)});
+   s.fx=k<.95?{k:'fxT5Final',o:win(k,0,.95,.02),c:C.danger}:{k:'fxT5Done',o:win(k,.95,1,.02),c:C.good};}}
+ ];
+ return{bg,S,base,finish:dscFinish(keys,floor)};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -7222,6 +7492,199 @@ const ENC_VGL={num:5,name:'Gorgon’s Labyrinth',eng:VGL,diags:[SV_VGL],order:['
    fxXJump:'Double jump …',fxXSeen:'→ seen',fxXWipe:'→ wipe'}}};
 const RG_VGL=[{id:'all',slots:['P1','P2','P3','P4','P5','P6'],focus:[1,2,3],de:{name:'Alle',steps:['Hinter dem Vordermann bleiben.','Ducken, einfach springen.','Bei „Stopp“ stehen bleiben.'],watch:['Kein Schuss, kein Doppelsprung.']},en:{name:'Everyone',steps:['Stay behind the front player.','Crouch, single jump.','Stand still on “stop”.'],watch:['No shots, no double jumps.']}}];
 
+const SV_DSE=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="30" y="16" width="360" height="74" rx="8" fill="#17142a" stroke="#2f2a4a"/><line x1="210" y1="18" x2="210" y2="88" stroke="#2f2a4a" stroke-dasharray="4 4"/><rect x="30" y="112" width="360" height="84" rx="8" fill="#120f1c" stroke="#2f2a4a"/>${[0,1,2,3,4].map(i=>`<rect x="${48+i*30}" y="176" width="20" height="12" rx="2" fill="${i===1||i===3?'rgba(255,97,86,.35)':'#1d1a2c'}" stroke="${i===1||i===3?'#ff6156':'#3a3356'}"/><rect x="${232+i*30}" y="176" width="20" height="12" rx="2" fill="${i===0||i===4?'rgba(255,97,86,.35)':'#1d1a2c'}" stroke="${i===0||i===4?'#ff6156':'#3a3356'}"/>`).join('')}${[0,1,2,3,4,5].map(i=>`<rect x="${60+i*55}" y="96" width="18" height="10" rx="2" fill="${i===2?'rgba(246,220,142,.5)':'#26213a'}" stroke="${i===2?'#f6dc8e':'#4a4370'}"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="120" y="34" fill="#ece8f4">{0}</text><text x="300" y="34" fill="#a982f5">{1}</text><text x="210" y="134" fill="#9c95b0">{2}</text><text x="210" y="110" fill="#f6dc8e" font-size="8">{3}</text></g></svg>`;
+const SV_DSA=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="40" y="14" width="340" height="80" rx="8" fill="#151a2a" stroke="#2f3a5a"/><rect x="40" y="116" width="340" height="80" rx="8" fill="#17142a" stroke="#2f2a4a"/>${[[52,40],[346,40],[52,142],[346,142]].map(([x,y])=>`<rect x="${x}" y="${y}" width="22" height="30" rx="4" fill="#100d19" stroke="#ff6156"/>`).join('')}<rect x="200" y="98" width="20" height="14" rx="3" fill="#211c33" stroke="#f6dc8e"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="58" fill="#59b8ff">{0}</text><text x="210" y="160" fill="#9c95b0">{1}</text><text x="63" y="88" fill="#ff6156">{2}</text><text x="210" y="124" fill="#f6dc8e" font-size="8">{3}</text></g></svg>`;
+const SV_DSR=`<svg viewBox="0 0 420 210" aria-hidden="true"><circle cx="210" cy="105" r="92" fill="#17142a" stroke="#2f2a4a"/>${[[120,165],[300,165],[120,45],[300,45]].map(([x,y],i)=>`<rect x="${x-14}" y="${y-10}" width="28" height="20" rx="4" fill="${i===0||i===3?'rgba(143,240,164,.25)':'#1d1a2c'}" stroke="${i===0||i===3?'#8ff0a4':'#3a3356'}"/>`).join('')}${[[165,150],[255,150],[210,55]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="13" fill="none" stroke="#59b8ff" stroke-dasharray="3 3"/>`).join('')}<circle cx="210" cy="105" r="12" fill="#2c1e14" stroke="#ff9a3c" stroke-width="2"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="120" y="190" fill="#8ff0a4">{0}</text><text x="210" y="32" fill="#59b8ff">{1}</text><text x="210" y="128" fill="#ff9a3c">{2}</text></g></svg>`;
+const SV_DST=`<svg viewBox="0 0 420 210" aria-hidden="true"><circle cx="210" cy="105" r="95" fill="#17142a" stroke="#2f2a4a"/><circle cx="210" cy="105" r="50" fill="none" stroke="#9c95b0" stroke-width="3" stroke-dasharray="2 5"/><circle cx="210" cy="105" r="24" fill="none" stroke="#ff6156" stroke-width="2" stroke-dasharray="2 4"/>${[[128,72],[128,138],[292,72],[292,138],[175,192],[245,192]].map(([x,y])=>`<rect x="${x-11}" y="${y-8}" width="22" height="16" rx="3" fill="#1d1a2c" stroke="#8ff0a4"/>`).join('')}<circle cx="210" cy="105" r="10" fill="#2c1e14" stroke="#ff9a3c" stroke-width="2"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="330" y="105" fill="#8ff0a4">{0}</text><text x="210" y="62" fill="#9c95b0">{1}</text><text x="210" y="90" fill="#ff6156" font-size="8">{2}</text></g></svg>`;
+const ENC_DSE={num:1,name:'Crypt Security',eng:DSE,diags:[SV_DSE],order:['OP','SC','L2','L3','D2','D3'],
+ slots:[['OP','Operator (Keller)','Operator (basement)'],['SC','Scanner','Scanner'],['L2','Licht-Seite','Light side'],['L3','Licht-Seite','Light side'],['D2','Dunkel-Seite','Dark side'],['D3','Dunkel-Seite','Dark side']],
+ de:{kicker:'Deep Stone Crypt · Encounter 1 · Crypt Security',
+  gear:{crit:['Ein Spieler mit gutem Primary für die Schalttafeln im Keller.'],top:['Waffen gegen Overload-Captains (die Guides nennen sie als Gegner).','Etwas mit Reichweite für die Sicherungen von oben.'],budget:['Wenig Ausrüstung? Spiel eine Seite oben, da reicht ein Primary.']},
+  lede:'Vorher geht es per Sparrow durch die Schneefelder: von Blase zu Blase, außerhalb baut sich Frostbite auf, bei 10 Stapeln stirbt man. Danach Crypt Security: zwei Teams zu dritt, Licht-Seite links, Dunkel-Seite rechts. Einer geht als Operator in den Keller und schießt die richtigen Schalttafeln, der Scanner sagt sie von oben durch den Glasboden an. Danach die Sicherungen: eine leuchtet, die passende Seite schießt sie. Sechs Sicherungen, dann ist das Sicherheitssystem aus. Positionen schematisch nach den Text-Guides.',
+  sc:[['Aufbau','Oben zwei Seiten (Licht und Dunkel) mit Glasboden, darunter der Keller mit fünf Schalttafeln pro Seite. Über dem Keller hängen sechs Sicherungen, drei pro Seite. Terminals oben und im Keller tauschen die Buffs (Operator rot, Scanner gelb).'],
+   ['Schalttafeln','Den Operator-Buff holt man am Terminal, den Scanner-Buff lässt ein Vandal fallen. Der Operator geht über die Rückwand in den Keller. Der Scanner schaut oben durch das Glas und sagt pro Seite die zwei leuchtenden Tafeln an, der Operator schießt alle vier.'],
+   ['Sicherungen','Der Keller-Spieler gibt den Operator-Buff am Terminal ab und bekommt den Scanner. Jetzt sieht er, welche Sicherung leuchtet, und sagt sie an. Nur die Seite mit dieser Sicherung schießt, und nur diese eine. Sechs Mal. Im Keller läuft die Zeit: reicht es nicht, Rotation und von vorn.'],
+   ['Aufpassen','Ein Servitor sperrt das Terminal, bis er tot ist. Bleibt man zu lange im Keller, wird er mit Feuer gereinigt und man stirbt.']],
+  tip:{1:'Tafeln nummerieren: 1 bis 5 pro Seite.',2:'Erst Dunkel ansagen, dann Licht.',3:'Nur die angesagte Sicherung schießen.',4:'Servitor zuerst.'},
+  m:{},
+  roles:[['Operator','Geht in den Keller, schießt die angesagten Tafeln, später Scanner im Keller.','runner'],['Scanner','Liest oben durch das Glas, sagt Tafeln an.','runner'],['Seiten-Teams','Gegner, Servitoren, Sicherungen der eigenen Seite.','']],
+  rules:['Zwei richtige Tafeln pro Seite.','Eine Sicherung leuchtet, nur die schießen.','Keller hat einen Timer.'],
+  wipes:['Zu lange im Keller (Feuer).','Falsche Sicherung/Tafel kostet Zeit.'],
+  tips:['<b>Ansagen:</b> „Dunkel 1 und 5, Licht 2 und 4.“','<b>Servitor</b> immer zuerst, sonst kein Buff-Tausch.'],
+  diags:[['Die Halle','Oben zwei Seiten, unten der Keller mit Tafeln, dazwischen die sechs Sicherungen. Schematisch.',['LICHT','DUNKEL','KELLER','Sicherung']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Dunkel 1, 5','Dark 1, 5','Tafeln'],['Sicherung links','Fuse light','Sicherung'],['Servitor','Servitor','Terminal blockiert']],
+  L:{lBaseT:'KELLER',fxS1Sides:'Zwei Seiten: Licht und Dunkel',fxS1Base:'Keller: 5 Tafeln pro Seite',fxS1Fuse:'Sechs Sicherungen über dem Keller',fxS1Term:'Terminals tauschen die Buffs',
+   fxS2Down:'Operator in den Keller',fxS2Read:'Scanner liest durch das Glas',fxS2Shoot:'Operator schießt die 4 Tafeln',fxS2Done:'Tafeln erledigt',lPanel1:'Tafel 1',lPanel2:'Tafel 2',lPanel3:'Tafel 3',lPanel4:'Tafel 4',lPanel5:'Tafel 5',lRead:'liest …',
+   fxS3Swap:'Keller: Operator gegen Scanner tauschen',fxS3Fuse:'Leuchtende Sicherung ansagen, Seite schießt',fxS3Done:'Sicherheit aus',lFuseL:'„Licht!“',lFuseD:'„Dunkel!“',
+   fxS4Serv:'Servitor sperrt das Terminal',fxS4Purge:'Zu lange im Keller → Feuer',lServ:'Servitor'}},
+ en:{kicker:'Deep Stone Crypt · Encounter 1 · Crypt Security',
+  gear:{crit:['One player with a good primary for the panels in the basement.'],top:['Weapons against Overload Captains (the guides list them as enemies).','Something with range for the fuses from above.'],budget:['Short on gear? Play a side upstairs, a primary is enough.']},
+  lede:'First there is a sparrow ride through the snowfields: bubble to bubble, outside you build Frostbite and die at 10 stacks. Then Crypt Security: two teams of three, Light side left, Dark side right. One player goes into the basement as Operator and shoots the right panels, the Scanner calls them from above through the glass floor. Then the fuses: one glows, the matching side shoots it. Six fuses and security is down. Positions schematic after the written guides.',
+  sc:[['Layout','Upstairs two sides (Light and Dark) with a glass floor, below the basement with five panels per side. Six fuses hang above the basement, three per side. Terminals upstairs and in the basement swap the buffs (Operator red, Scanner yellow).'],
+   ['Panels','The Operator buff comes from the terminal, a Vandal drops the Scanner buff. The Operator enters the basement through the back wall. The Scanner looks through the glass and calls the two glowing panels per side, the Operator shoots all four.'],
+   ['Fuses','The basement player drops the Operator buff at the terminal and receives the Scanner. Now they see which fuse glows and call it. Only the side with that fuse shoots, and only that one. Six times. The basement is on a timer: if it runs out, rotate and repeat.'],
+   ['Watch out','A Servitor locks the terminal until it dies. Stay too long in the basement and it gets purged with fire.']],
+  tip:{1:'Number the panels 1 to 5 per side.',2:'Call Dark first, then Light.',3:'Shoot only the called fuse.',4:'Servitor first.'},
+  m:{},
+  roles:[['Operator','Goes into the basement, shoots the called panels, later Scanner down there.','runner'],['Scanner','Reads through the glass, calls panels.','runner'],['Side teams','Adds, Servitors, fuses on their side.','']],
+  rules:['Two correct panels per side.','One fuse glows, shoot only that one.','The basement has a timer.'],
+  wipes:['Too long in the basement (fire).','Wrong fuse/panel costs time.'],
+  tips:['<b>Calls:</b> “Dark 1 and 5, Light 2 and 4.”','<b>Servitor</b> always first, otherwise no buff swap.'],
+  diags:[['The hall','Two sides upstairs, the basement with panels below, the six fuses in between. Schematic.',['LIGHT','DARK','BASEMENT','fuse']]],
+  master:['Master variant not shown here.'],
+  calls:[['Dunkel 1, 5','Dark 1, 5','panels'],['Sicherung links','Fuse light','fuse'],['Servitor','Servitor','terminal locked']],
+  L:{lBaseT:'BASEMENT',fxS1Sides:'Two sides: Light and Dark',fxS1Base:'Basement: 5 panels per side',fxS1Fuse:'Six fuses above the basement',fxS1Term:'Terminals swap the buffs',
+   fxS2Down:'Operator into the basement',fxS2Read:'Scanner reads through the glass',fxS2Shoot:'Operator shoots the 4 panels',fxS2Done:'Panels done',lPanel1:'Panel 1',lPanel2:'Panel 2',lPanel3:'Panel 3',lPanel4:'Panel 4',lPanel5:'Panel 5',lRead:'reading …',
+   fxS3Swap:'Basement: swap Operator for Scanner',fxS3Fuse:'Call the glowing fuse, that side shoots',fxS3Done:'Security down',lFuseL:'“Light!”',lFuseD:'“Dark!”',
+   fxS4Serv:'A Servitor locks the terminal',fxS4Purge:'Too long downstairs → fire',lServ:'Servitor'}}};
+const ENC_DSA={num:2,name:'Atraks-1, Fallen Exo',eng:DSA,diags:[SV_DSA],order:['SC','OP','C3','S1','S2','S3'],
+ slots:[['SC','Scanner (Crypt)','Scanner (Crypt)'],['OP','Operator (Crypt)','Operator (Crypt)'],['C3','Crypt','Crypt'],['S1','Station','Station'],['S2','Station','Station'],['S3','Station','Station']],
+ de:{kicker:'Deep Stone Crypt · Encounter 2 · Atraks-1',
+  gear:{crit:['Viel Schaden auf einen Punkt: die echte Atraks verschwindet nach Treffern schnell (letzte Phase).'],top:['The Lament wird in einem Guide für die letzte Phase empfohlen.'],budget:['Wenig Ausrüstung? Spiel einen Nicht-Buff-Platz, du trägst nur den Debuff.']},
+  lede:'Zwei Bereiche: unten die Crypt, oben die Raumstation, je drei Spieler. In jedem Bereich stehen vier Atraks-Kopien, nur der Scanner sieht die echte (gelbes Gitter). Stirbt sie, bekommt ein Spieler ohne Buff „Replication“ mit 40 Sekunden Timer. Der Operator öffnet die leuchtende Luftschleuse, der Träger stellt sich hinein, der Operator schießt den Debuff ab: Kopie ins All. Den Scanner reicht man per Terminal zum anderen Team. Nach vier Auswürfen wechselt es, nach acht kommt die letzte Phase, alle in der Station. Schematisch.',
+  sc:[['Aufbau','Unten die Crypt (Spawn), oben die Station, je zwei Luftschleusen, ein Terminal zum Weiterreichen des Scanners. Vier Kopien pro Bereich.'],
+   ['Echte finden','Der Scanner sieht die echte Atraks (gelbes Gitter) und sagt sie an, alle drei schießen sie. Ein Spieler ohne Buff nimmt den Replication-Debuff: 40 Sekunden.'],
+   ['Auswerfen','Der Operator schießt die leuchtende Schleusen-Taste, der Träger stellt sich hinein, der Operator schießt den Debuff vom Kopf, die Tür schließt langsam. Dann den Scanner per Terminal nach oben geben. Abschießen setzt den Timer laut Guide auch zurück.'],
+   ['Timer abgelaufen','Läuft der Debuff ab, entsteht eine neue Kopie. Eine Quelle nennt das einen Wipe.'],
+   ['Letzte Phase','Alle in die Station. Acht Kopien. Der Scanner sagt jeweils die hervorgehobene an, alle schießen sie sofort, sie verschwindet nach Treffern schnell. So lange, bis Atraks fällt.']],
+  tip:{1:'Wer ist Träger? Vorher festlegen.',2:'Scanner sagt Position an: „links außen“.',3:'Operator: Taste, Träger rein, Kopf schießen.',4:'Timer im Blick.',5:'Alles auf die eine.'},
+  m:{},
+  roles:[['Scanner','Sieht die echte Atraks, sagt an, reicht den Buff weiter.','runner'],['Operator','Öffnet Schleusen, schießt den Debuff ab.','runner'],['Rest','Schaden, trägt Replication.','']],
+  rules:['Nur die echte (gelbes Gitter) zählt.','Replication 40 Sekunden.','Nach 8 Auswürfen letzte Phase.'],
+  wipes:['Replication läuft ab → neue Kopie (laut einer Quelle Wipe).'],
+  tips:['<b>Challenge beachten:</b> Für „Copies of Copies“ darf kein Debuff in Schleuse oder All, siehe Challenge-Karte.'],
+  diags:[['Zwei Bereiche','Station oben, Crypt unten, Schleusen an den Seiten, Terminal in der Mitte. Schematisch.',['STATION','CRYPT','Schleuse','Terminal']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Echte links außen','Real far left','Scanner'],['Schleuse rechts','Airlock right','Operator'],['Abschießen!','Shoot it off!','Operator']],
+  L:{lEjLbl:'AUSGEWORFEN',lKillLbl:'KOPIEN',fxA1Areas:'Crypt unten, Station oben',fxA1Real:'Nur der Scanner sieht die echte',fxA1Locks:'Luftschleusen',fxA1Term:'Terminal: Scanner weiterreichen',lReal:'die echte',
+   fxA2Find:'Scanner sagt die echte an',fxA2Kill:'Alle drei schießen sie',fxA2Repl:'Replication: 40 s Timer',
+   fxA3Pad:'Operator schießt die Schleusen-Taste',fxA3In:'Träger in die Schleuse',fxA3Shoot:'Debuff abschießen',fxA3Pass:'Scanner per Terminal nach oben',fxA3Loop:'Oben dasselbe, bis 8 draußen sind',lEject:'raus damit',
+   fxA4Time:'Timer läuft ab …',fxA4Copy:'→ neue Kopie',fxA5Up:'Alle in die Station',fxA5Burst:'Hervorgehobene sofort umlegen',fxA5Done:'Atraks fällt'}},
+ en:{kicker:'Deep Stone Crypt · Encounter 2 · Atraks-1',
+  gear:{crit:['Burst damage on one target: the real Atraks vanishes quickly after being hit (last phase).'],top:['One guide recommends The Lament for the last phase.'],budget:['Short on gear? Take a non-buff spot, you only carry the debuff.']},
+  lede:'Two areas: the Crypt below and the space station above, three players each. Each area has four Atraks copies, only the Scanner sees the real one (yellow lattice). When it dies, a player without a buff gets “Replication” with a 40-second timer. The Operator opens the glowing airlock, the carrier steps in, the Operator shoots the debuff off: the copy goes into space. The Scanner is passed to the other team via terminal. After four ejections the teams switch, after eight the last phase starts, everyone in the station. Schematic.',
+  sc:[['Layout','The Crypt below (spawn), the station above, two airlocks each, one terminal to pass the Scanner. Four copies per area.'],
+   ['Find the real one','The Scanner sees the real Atraks (yellow lattice) and calls it, all three shoot it. A player without a buff takes the Replication debuff: 40 seconds.'],
+   ['Eject','The Operator shoots the glowing airlock key, the carrier steps in, the Operator shoots the debuff off their head, the door closes slowly. Then send the Scanner upstairs via terminal. Per the guide, shooting it also resets the timer.'],
+   ['Timer ran out','If the debuff runs out, a new copy appears. One source calls it a wipe.'],
+   ['Last phase','Everyone into the station. Eight copies. The Scanner calls the highlighted one, everyone shoots it at once, it vanishes quickly after being hit. Repeat until Atraks falls.']],
+  tip:{1:'Who carries? Decide beforehand.',2:'Scanner calls a position: “far left”.',3:'Operator: key, carrier in, shoot the head.',4:'Watch the timer.',5:'Everything on the one.'},
+  m:{},
+  roles:[['Scanner','Sees the real Atraks, calls it, passes the buff on.','runner'],['Operator','Opens airlocks, shoots the debuff off.','runner'],['Rest','Damage, carries Replication.','']],
+  rules:['Only the real one (yellow lattice) counts.','Replication lasts 40 seconds.','After 8 ejections the last phase.'],
+  wipes:['Replication runs out → new copy (one source: wipe).'],
+  tips:['<b>Mind the challenge:</b> for “Copies of Copies” no debuff may go into an airlock or space, see the challenge card.'],
+  diags:[['Two areas','Station above, Crypt below, airlocks on the sides, terminal in the middle. Schematic.',['STATION','CRYPT','airlock','terminal']]],
+  master:['Master variant not shown here.'],
+  calls:[['Echte links außen','Real far left','Scanner'],['Schleuse rechts','Airlock right','Operator'],['Abschießen!','Shoot it off!','Operator']],
+  L:{lEjLbl:'EJECTED',lKillLbl:'COPIES',fxA1Areas:'Crypt below, station above',fxA1Real:'Only the Scanner sees the real one',fxA1Locks:'Airlocks',fxA1Term:'Terminal: pass the Scanner',lReal:'the real one',
+   fxA2Find:'Scanner calls the real one',fxA2Kill:'All three shoot it',fxA2Repl:'Replication: 40 s timer',
+   fxA3Pad:'Operator shoots the airlock key',fxA3In:'Carrier into the airlock',fxA3Shoot:'Shoot the debuff off',fxA3Pass:'Scanner upstairs via terminal',fxA3Loop:'Same upstairs, until 8 are out',lEject:'out it goes',
+   fxA4Time:'Timer running out …',fxA4Copy:'→ new copy',fxA5Up:'Everyone into the station',fxA5Burst:'Burst the highlighted one',fxA5Done:'Atraks falls'}}};
+const ENC_DSR={num:3,name:'Taniks, Reborn (Rapture)',eng:DSR,diags:[SV_DSR],order:['SC','OP','SU','C1','C2','RT'],
+ slots:[['SC','Scanner','Scanner'],['OP','Operator','Operator'],['SU','Suppressor','Suppressor'],['C1','Kern-Träger','Core carrier'],['C2','Kern-Träger','Core carrier'],['RT','Ersatz (Rotation)','Spare (rotation)']],
+ de:{kicker:'Deep Stone Crypt · Encounter 3 · Taniks, Reborn',
+  gear:{crit:['Nichts Besonderes: Taniks wird hier nur betäubt, nicht getötet.'],top:['Etwas Mobilität für die Flucht am Ende.'],budget:['Wenig Ausrüstung? Spiel Kern-Träger.']},
+  lede:'Vorher der Abstieg: ein Sprungpuzzle außen an der Station, links auf einer Plattform steht eine Truhe. Dann Taniks in der Mitte. Der Scanner sagt die zwei leuchtenden Kästen an, der Operator schießt eine Taste an den Kern-Spendern, zwei Träger holen die Kerne. Kerne geben Strahlung, bei 10 Stapeln stirbt man, also rechtzeitig tauschen. Ablegen erst, wenn der Suppressor Taniks betäubt hat: unter allen drei Drohnen stehen und ihn treffen. Danach fällt ein zufälliger Buff aus und wird am Terminal getauscht. Genug Kerne → die Luke öffnet sich, alle springen runter und rennen. Schematisch.',
+  sc:[['Aufbau','Taniks in der Mitte, vier Kästen (Eingang links/rechts, Boss links/rechts), zwei Kern-Spender mit Tasten, drei Drohnen, ein Terminal.'],
+   ['Kerne holen','Scanner sagt die zwei leuchtenden Kästen an. Operator schießt die Taste am Spender, zwei Träger nehmen die Kerne. Strahlung steigt; vor 10 an jemand anderen abgeben.'],
+   ['Betäuben und ablegen','Der Suppressor stellt sich unter jede der drei Drohnen und trifft Taniks. Er leuchtet blau = betäubt, jetzt beide Kerne ablegen. Dann fällt ein zufälliger Buff aus: der Träger tauscht ihn am Terminal, ein anderer übernimmt (laut Guide 45 Sekunden Sperre).'],
+   ['Flucht','Nach genug Ablagen öffnet sich die Luke in der Mitte. Alle springen runter und rennen bis ans Ende, Taniks jagt hinterher und tötet, wen er erwischt.']],
+  tip:{1:'Kästen benennen: Eingang links/rechts, Boss links/rechts.',2:'Strahlung ansagen, ab 8 tauschen.',3:'Nicht ablegen, bevor er blau ist.',4:'Nicht stehen bleiben.'},
+  m:{},
+  roles:[['Scanner','Sagt die Kästen an.','runner'],['Operator','Schießt die Spender-Taste.','runner'],['Suppressor','Drei Drohnen, Taniks treffen.','runner'],['Träger + Ersatz','Kerne tragen, tauschen, Buffs übernehmen.','']],
+  rules:['Strahlung 10 = tot.','Ablegen nur bei betäubtem Taniks.','Ausgefallener Buff wird am Terminal getauscht.'],
+  wipes:['Zu viel Strahlung.','Zu langsam bei der Flucht.'],
+  tips:['<b>Anzahl Ablagen:</b> Die Guides geben sie unterschiedlich an, eine Quelle spricht von sechs Runden. Die Luke zeigt, wann es reicht.','<b>Challenge:</b> „Of All Trades“: jeder macht jede Rolle einmal.'],
+  diags:[['Die Arena','Vier Kästen, drei Drohnen, Taniks in der Mitte. Schematisch.',['Kasten','Drohnen','Taniks']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Eingang links, Boss rechts','Entrance left, boss right','Scanner'],['Blau!','Blue!','betäubt'],['Strahlung 8','Rad 8','tauschen']],
+  L:{fxR1Box:'Vier Kästen für Kerne',fxR1Disp:'Kern-Spender mit Taste',fxR1Drone:'Drei Drohnen für den Suppressor',fxR1Term:'Terminal: ausgefallenen Buff tauschen',lBoxes:'„Eingang links, Boss rechts“',
+   fxR2Call:'Scanner sagt die Kästen an',fxR2Pad:'Operator schießt die Taste',fxR2Carry:'Kerne tragen, Strahlung steigt',fxR2Swap:'Vor 10 tauschen',
+   fxR3Sup:'Suppressor: drei Drohnen, Taniks treffen',fxR3Dunk:'Blau → Kerne ablegen',fxR3Swap:'Ein Buff fällt aus → am Terminal tauschen',lWait:'noch nicht ablegen',lDark:'Buff aus',
+   fxR4Hatch:'Luke offen: alle runter',fxR4Run:'Rennen, Taniks jagt',lRun:'RENNEN'}},
+ en:{kicker:'Deep Stone Crypt · Encounter 3 · Taniks, Reborn',
+  gear:{crit:['Nothing special: Taniks is only stunned here, not killed.'],top:['Some mobility for the escape at the end.'],budget:['Short on gear? Be a core carrier.']},
+  lede:'First the descent: a jumping puzzle outside the station, a chest sits on a platform on the left. Then Taniks in the middle. The Scanner calls the two glowing boxes, the Operator shoots a key at the core dispensers, two carriers take the cores. Cores give radiation, at 10 stacks you die, so swap in time. Deposit only once the Suppressor has stunned Taniks: stand under all three drones and hit him. Then a random buff goes dark and gets swapped at the terminal. Enough cores → the hatch opens, everyone drops and runs. Schematic.',
+  sc:[['Layout','Taniks in the middle, four boxes (entrance left/right, boss left/right), two core dispensers with keys, three drones, one terminal.'],
+   ['Get cores','The Scanner calls the two glowing boxes. The Operator shoots the key at the dispenser, two carriers take the cores. Radiation climbs; hand off before 10.'],
+   ['Stun and deposit','The Suppressor stands under each of the three drones and hits Taniks. He glows blue = stunned, now deposit both cores. Then a random buff goes dark: its holder swaps it at the terminal and someone else takes over (per the guide a 45-second lockout).'],
+   ['Escape','After enough deposits the hatch in the middle opens. Everyone drops and runs to the end, Taniks chases and kills anyone he catches.']],
+  tip:{1:'Name the boxes: entrance left/right, boss left/right.',2:'Call your radiation, swap from 8.',3:'Don’t deposit before he’s blue.',4:'Don’t stop.'},
+  m:{},
+  roles:[['Scanner','Calls the boxes.','runner'],['Operator','Shoots the dispenser key.','runner'],['Suppressor','Three drones, hit Taniks.','runner'],['Carriers + spare','Carry cores, swap, take over buffs.','']],
+  rules:['Radiation 10 = dead.','Deposit only while Taniks is stunned.','A buff that goes dark is swapped at the terminal.'],
+  wipes:['Too much radiation.','Too slow on the escape.'],
+  tips:['<b>Number of deposits:</b> guides differ, one source says six rounds. The hatch shows when it’s enough.','<b>Challenge:</b> “Of All Trades”: everyone does every role once.'],
+  diags:[['The arena','Four boxes, three drones, Taniks in the middle. Schematic.',['box','drones','Taniks']]],
+  master:['Master variant not shown here.'],
+  calls:[['Eingang links, Boss rechts','Entrance left, boss right','Scanner'],['Blau!','Blue!','stunned'],['Strahlung 8','Rad 8','swap']],
+  L:{fxR1Box:'Four boxes for cores',fxR1Disp:'Core dispensers with a key',fxR1Drone:'Three drones for the Suppressor',fxR1Term:'Terminal: swap the dark buff',lBoxes:'“Entrance left, boss right”',
+   fxR2Call:'Scanner calls the boxes',fxR2Pad:'Operator shoots the key',fxR2Carry:'Carry cores, radiation climbs',fxR2Swap:'Swap before 10',
+   fxR3Sup:'Suppressor: three drones, hit Taniks',fxR3Dunk:'Blue → deposit cores',fxR3Swap:'A buff goes dark → swap at the terminal',lWait:'don’t deposit yet',lDark:'buff dark',
+   fxR4Hatch:'Hatch open: everyone down',fxR4Run:'Run, Taniks chases',lRun:'RUN'}}};
+const ENC_DST={num:4,name:'Taniks, the Abomination',eng:DST,diags:[SV_DST],order:['OP','SC','SU','C1','C2','C3'],
+ slots:[['OP','Operator','Operator'],['SC','Scanner','Scanner'],['SU','Suppressor','Suppressor'],['C1','Kern-Träger','Core carrier'],['C2','Kern-Träger','Core carrier'],['C3','Kern-Träger','Core carrier']],
+ de:{kicker:'Deep Stone Crypt · Encounter 4 · Taniks, the Abomination',
+  gear:{crit:['Viel Boss-Schaden: am Ende ein reiner Schadenscheck.'],top:['Ein Guide nennt Ward of Dawn außerhalb der Ringe, Well of Radiance innen, Divinity oder Tractor Cannon.'],budget:['Wenig Ausrüstung? Spiel Kern-Träger, Schaden machen dann die anderen.']},
+  lede:'Runde Arena, sechs Kern-Eimer (zwei pro Seite), drei Zweier-Teams. Taniks’ Flügel abschießen → ein Kern fällt. Zwei tragen ihn abwechselnd zum leuchtenden Eimer (Strahlung!). Lila Fesselblasen: der Operator schießt sie auf. Der Suppressor betäubt Taniks über drei Drohnen, dann ablegen. Nach vier Kernen geht Taniks in die Mitte: über den äußeren Trümmerring springen, nicht über den inneren, Schaden. Einmal schubst er alle raus, wieder rein. Letzte Kerbe: er teleportiert und schießt den Strahl, reiner Schadenscheck. Schematisch.',
+  sc:[['Aufbau','Sechs Eimer, drei Drohnen, Taniks fliegt umher. Teams zu zweit an den Ecken.'],
+   ['Kerne','Flügel abschießen, ein Kern fällt. Zwei Spieler tragen ihn und tauschen vor Strahlung 10. Der Scanner sagt die zwei aktiven Eimer an. Wird ein Träger in einer lila Blase festgehalten, schießt der Operator sie auf (laut Guide etwa 20 Sekunden Zeit).'],
+   ['Betäuben, ablegen','Der Suppressor trifft Taniks von allen drei Drohnen, dann ablegen. So weiter, bis vier Kerne drin sind.'],
+   ['Schaden','Taniks in der Mitte: über den äußeren Ring springen, nicht über den inneren, Schaden. Nach der Hälfte schubst er alle raus, sofort wieder rein. Reicht es nicht bis zur Kerbe, neue Kern-Runde.'],
+   ['Letzte Kerbe','Taniks teleportiert durch die Arena und schießt den lila Strahl. Ausweichen und Schaden machen, das ist ein reiner Schadenscheck.']],
+  tip:{1:'Teams festlegen.',2:'Strahlung ansagen.',3:'Erst blau, dann ablegen.',4:'Zwischen die Ringe.',5:'Strahl ausweichen, alles raushauen.'},
+  m:{},
+  roles:[['Operator','Schießt Fesselblasen auf.','runner'],['Scanner','Sagt die Eimer an.','runner'],['Suppressor','Drei Drohnen, betäuben.','runner'],['Träger','Kerne tragen und tauschen.','']],
+  rules:['Strahlung 10 = tot.','Vier Kerne vor dem Schaden.','Nur zwischen die Ringe springen.'],
+  wipes:['Lila Strahl nicht ausgewichen.','Schadenscheck am Ende nicht geschafft.'],
+  tips:['<b>Challenge:</b> „The Core Four“: vor jeder Schadensphase alle vier Kerne ablegen.','<b>Suppressor-Timing:</b> Ein Guide rät, bis zur zweiten Fesselblase zu warten, damit nicht der Operator-Buff ausfällt.'],
+  diags:[['Die Arena','Sechs Eimer, zwei Trümmerringe in der Mitte. Schematisch.',['Eimer','außen','innen']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Flügel!','Wings!','Kern holen'],['Blase links','Bubble left','Operator'],['Rein!','In!','Schaden']],
+  L:{lCoreLbl:'KERNE',fxT1Bkt:'Sechs Eimer für Kerne',fxT1Drone:'Drei Drohnen für den Suppressor',fxT1Boss:'Taniks fliegt umher',
+   fxT2Wing:'Flügel abschießen → Kern fällt',fxT2Carry:'Tragen, vor 10 tauschen',fxT2Det:'Fesselblase: Operator schießt sie auf',fxT2Go:'Zum leuchtenden Eimer',lDet:'festgehalten',
+   fxT3Sup:'Suppressor betäubt über drei Drohnen',fxT3Dunk:'Ablegen',fxT3Repeat:'Bis vier Kerne drin sind',lFour:'4 Kerne → Schaden',
+   fxT4In:'Über den äußeren Ring, nicht den inneren',fxT4Dmg:'Schaden',fxT4Push:'Rausgeschubst …',fxT4Again:'… sofort wieder rein',lDodge:'ausweichen',
+   fxT5Final:'Letzte Kerbe: Teleports, Strahl, alles raushauen',fxT5Done:'Taniks fällt'}},
+ en:{kicker:'Deep Stone Crypt · Encounter 4 · Taniks, the Abomination',
+  gear:{crit:['Lots of boss damage: the end is a pure damage check.'],top:['One guide suggests Ward of Dawn outside the rings, Well of Radiance inside, Divinity or Tractor Cannon.'],budget:['Short on gear? Be a core carrier, the others do the damage.']},
+  lede:'Round arena, six core buckets (two per side), three teams of two. Shoot Taniks’ wings → a core drops. Two players take turns carrying it to the glowing bucket (radiation!). Purple detainment bubbles: the Operator shoots them open. The Suppressor stuns Taniks via three drones, then deposit. After four cores Taniks goes to the middle: jump over the outer debris ring, not over the inner one, and damage. Once he pushes everyone out, jump back in. Last notch: he teleports and fires the beam, a pure damage check. Schematic.',
+  sc:[['Layout','Six buckets, three drones, Taniks flying around. Teams of two in the corners.'],
+   ['Cores','Shoot the wings, a core drops. Two players carry it and swap before radiation 10. The Scanner calls the two active buckets. If a carrier gets held in a purple bubble, the Operator shoots it open (per the guide about 20 seconds).'],
+   ['Stun, deposit','The Suppressor hits Taniks from all three drones, then deposit. Continue until four cores are in.'],
+   ['Damage','Taniks in the middle: jump over the outer ring, not the inner one, damage. Halfway through he pushes everyone out, jump right back in. If you don’t reach the notch, another core round.'],
+   ['Last notch','Taniks teleports around the arena and fires the purple beam. Dodge and do damage, it’s a pure damage check.']],
+  tip:{1:'Set the teams.',2:'Call your radiation.',3:'Blue first, then deposit.',4:'Between the rings.',5:'Dodge the beam, unload everything.'},
+  m:{},
+  roles:[['Operator','Shoots detainment bubbles open.','runner'],['Scanner','Calls the buckets.','runner'],['Suppressor','Three drones, stun.','runner'],['Carriers','Carry and swap cores.','']],
+  rules:['Radiation 10 = dead.','Four cores before damage.','Jump only between the rings.'],
+  wipes:['Didn’t dodge the purple beam.','Failed the final damage check.'],
+  tips:['<b>Challenge:</b> “The Core Four”: deposit all four cores before each damage phase.','<b>Suppressor timing:</b> one guide says to wait until the second detainment so the Operator buff doesn’t go dark.'],
+  diags:[['The arena','Six buckets, two debris rings in the middle. Schematic.',['bucket','outer','inner']]],
+  master:['Master variant not shown here.'],
+  calls:[['Flügel!','Wings!','get a core'],['Blase links','Bubble left','Operator'],['Rein!','In!','damage']],
+  L:{lCoreLbl:'CORES',fxT1Bkt:'Six buckets for cores',fxT1Drone:'Three drones for the Suppressor',fxT1Boss:'Taniks flies around',
+   fxT2Wing:'Shoot the wings → a core drops',fxT2Carry:'Carry, swap before 10',fxT2Det:'Detainment: Operator shoots it open',fxT2Go:'To the glowing bucket',lDet:'held',
+   fxT3Sup:'Suppressor stuns via three drones',fxT3Dunk:'Deposit',fxT3Repeat:'Until four cores are in',lFour:'4 cores → damage',
+   fxT4In:'Over the outer ring, not the inner',fxT4Dmg:'Damage',fxT4Push:'Pushed out …',fxT4Again:'… right back in',lDodge:'dodge',
+   fxT5Final:'Last notch: teleports, beam, unload',fxT5Done:'Taniks falls'}}};
+const RG_DSE=[{id:'op',slots:['OP'],focus:[2,3],de:{name:'Operator',steps:['Buff am Terminal holen.','Über die Rückwand in den Keller.','Angesagte Tafeln schießen.','Später Scanner im Keller: Sicherungen ansagen.'],watch:['Keller-Timer.']},en:{name:'Operator',steps:['Grab the buff at the terminal.','Into the basement through the back wall.','Shoot the called panels.','Later Scanner in the basement: call the fuses.'],watch:['Basement timer.']}},
+ {id:'sc',slots:['SC'],focus:[2],de:{name:'Scanner',steps:['Buff vom Vandal.','Durch das Glas lesen.','Dunkel zuerst ansagen, dann Licht.'],watch:['Servitor am Terminal.']},en:{name:'Scanner',steps:['Buff from the Vandal.','Read through the glass.','Call Dark first, then Light.'],watch:['Servitor at the terminal.']}},
+ {id:'side',slots:['L2','L3','D2','D3'],focus:[3,4],de:{name:'Seiten-Teams',steps:['Gegner auf der eigenen Seite.','Servitoren zuerst.','Nur die angesagte Sicherung schießen.'],watch:['Overload-Captains.']},en:{name:'Side teams',steps:['Adds on your side.','Servitors first.','Shoot only the called fuse.'],watch:['Overload Captains.']}}];
+const RG_DSA=[{id:'sc',slots:['SC'],focus:[2,3,5],de:{name:'Scanner',steps:['Echte ansagen.','Nach dem Auswurf Buff per Terminal weiter.','Letzte Phase: jede Kopie ansagen.'],watch:['Positionsansagen klar halten.']},en:{name:'Scanner',steps:['Call the real one.','After the ejection pass the buff via terminal.','Last phase: call each copy.'],watch:['Keep position calls clear.']}},
+ {id:'op',slots:['OP'],focus:[3],de:{name:'Operator',steps:['Leuchtende Schleusen-Taste schießen.','Debuff vom Kopf schießen.'],watch:['Timer des Trägers.']},en:{name:'Operator',steps:['Shoot the glowing airlock key.','Shoot the debuff off the head.'],watch:['The carrier’s timer.']}},
+ {id:'rest',slots:['C3','S1','S2','S3'],focus:[2,3,5],de:{name:'Träger & Schaden',steps:['Echte schießen.','Replication nehmen, in die Schleuse.'],watch:['40 Sekunden.']},en:{name:'Carriers & damage',steps:['Shoot the real one.','Take Replication, step into the airlock.'],watch:['40 seconds.']}}];
+const RG_DSR=[{id:'sc',slots:['SC'],focus:[2],de:{name:'Scanner',steps:['Leuchtende Kästen ansagen.'],watch:['Buff kann ausfallen.']},en:{name:'Scanner',steps:['Call the glowing boxes.'],watch:['The buff can go dark.']}},
+ {id:'op',slots:['OP'],focus:[2],de:{name:'Operator',steps:['Taste am Spender schießen.'],watch:['Buff kann ausfallen.']},en:{name:'Operator',steps:['Shoot the key at the dispenser.'],watch:['The buff can go dark.']}},
+ {id:'su',slots:['SU'],focus:[3],de:{name:'Suppressor',steps:['Unter jede Drohne.','Taniks treffen.','„Blau!“ ansagen.'],watch:['Erst alle drei.']},en:{name:'Suppressor',steps:['Under each drone.','Hit Taniks.','Call “Blue!”.'],watch:['All three first.']}},
+ {id:'car',slots:['C1','C2','RT'],focus:[2,3,4],de:{name:'Träger & Ersatz',steps:['Kerne tragen.','Ab 8 Strahlung tauschen.','Ausgefallenen Buff übernehmen.'],watch:['Strahlung 10.']},en:{name:'Carriers & spare',steps:['Carry cores.','Swap from 8 radiation.','Take over a dark buff.'],watch:['Radiation 10.']}}];
+const RG_DST=[{id:'op',slots:['OP'],focus:[2],de:{name:'Operator',steps:['Fesselblasen aufschießen.'],watch:['Etwa 20 Sekunden.']},en:{name:'Operator',steps:['Shoot detainment bubbles open.'],watch:['About 20 seconds.']}},
+ {id:'sc',slots:['SC'],focus:[2],de:{name:'Scanner',steps:['Aktive Eimer ansagen.'],watch:['Buff kann ausfallen.']},en:{name:'Scanner',steps:['Call the active buckets.'],watch:['The buff can go dark.']}},
+ {id:'su',slots:['SU'],focus:[3],de:{name:'Suppressor',steps:['Drei Drohnen, Taniks treffen.'],watch:['Timing mit den Fesselblasen.']},en:{name:'Suppressor',steps:['Three drones, hit Taniks.'],watch:['Timing with the detainments.']}},
+ {id:'car',slots:['C1','C2','C3'],focus:[2,4,5],de:{name:'Träger',steps:['Flügel schießen, Kern tragen.','Tauschen vor 10.','Schaden zwischen den Ringen.'],watch:['Lila Strahl.']},en:{name:'Carriers',steps:['Shoot wings, carry the core.','Swap before 10.','Damage between the rings.'],watch:['Purple beam.']}}];
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -7509,7 +7972,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -7568,6 +8031,7 @@ const ACT={
  kf:{name:'King’s Fall',encs:['kfopen','kftotems','warpriest','golgoroth','daughters','oryx'],src:[['Windows Central – King’s Fall raid guide','https://www.windowscentral.com/gaming/destiny-2-kings-fall-raid-guide'],['Shacknews – King’s Fall raid guide','https://www.shacknews.com/article/131935/kings-fall-raid-guide-destiny-2'],['Gfinity – King’s Fall Opening & Totems guide','https://www.gfinityesports.com/guides/destiny-2-kings-fall-opening-totems-guide'],['Shacknews – Master King’s Fall changes','https://shacknews.com/article/132394/master-kings-fall-changes-destiny-2'],['GameRant – Golgoroth guide','https://gamerant.com/destiny-2-kings-fall-golgoroth-guide-walkthrough-raid/'],['Circlical – King’s Fall raid guide','https://circlical.com/kings-fall-raid'],['Gfinity – Daughters of Oryx guide','https://www.gfinityesports.com/guides/destiny-2-kings-fall-daughters-of-oryx-guide'],['Gfinity – Oryx guide','https://www.gfinityesports.com/guides/destiny-2-kings-fall-oryx-guide'],['TheGamer – King’s Fall guide','https://www.thegamer.com/destiny-2-kings-fall-raid-encounters-hidden-chests/'],['PCGamesN – King’s Fall guide','https://www.pcgamesn.com/destiny-2/kings-fall-raid-guide'],['Grindout – King’s Fall guide','https://grindout.com/destiny-2/guides/kings-fall-raid']]},
  lw:{name:'Last Wish',encs:['kalli','shurochi','morgeth','vault','riven','queenswalk'],src:[['Vaexil – Last Wish raid guide','https://destiny2.vaexil.tv/guides/raids/last-wish'],['Shacknews – Last Wish raid guide','https://shacknews.com/article/107313/destiny-2-last-wish-raid-guide'],['Mein-MMO – Raid-Guide Letzter Wunsch','https://mein-mmo.de/en/destiny-2-raid-guide-letzter-wunsch,269971'],['Destinypedia – Last Wish','https://www.destinypedia.com/Last_Wish'],['Assist City – Kalli','https://assistcity.gitbook.io/destiny/raid-guides/last-wish/encounters/kalli-the-corrupted'],['D2 Raid Guide – Last Wish','https://d2raidguide.com/Raid%20Guides/LW'],['GameSpot – Last Wish won’t get a hard mode','https://www.gamespot.com/articles/destiny-2-forsakens-last-wish-raid-wont-get-a-hard/1100-6462326/']]},
  vog:{name:'Vault of Glass',encs:['vgopen','vgconf','vgoracle','vgtemplar','vgmaze','vggate','vgatheon'],src:[['Kyber’s Corner – Vault of Glass','https://kyberscorner.com/destiny2/vaultofglass/'],['Blueberries – Vex Mythoclast + Catalyst','https://www.blueberries.gg/weapons/vex-mythoclast-exotic-catalyst/'],['Shacknews – Vault of Glass raid guide','https://www.shacknews.com/article/124508/vault-of-glass-raid-guide-destiny-2'],['Windows Central – Vault of Glass raid guide','https://www.windowscentral.com/destiny-2-vault-glass-raid-guide'],['PCGamesN – Vault of Glass guide','https://www.pcgamesn.com/destiny-2/vault-of-glass-guide'],['Prima Games – Conflux and Oracle guide','https://primagames.com/gaming/destiny-2-vault-of-glass-conflux-oracle-guide'],['DestinyTracker – Vault of Glass guide','https://destinytracker.com/destiny-2/guides/vault-of-glass-complete-raid-guide-by-suttledge-e61ebd34'],['Templar’s Well map (Reddit, via TheGamer)','https://www.reddit.com/r/raidsecrets/']]},
+ dsc:{name:'Deep Stone Crypt',encs:['dscsec','dscatr','dscrap','dsctan'],src:[['Shacknews – Deep Stone Crypt raid guide','https://shacknews.com/article/121651/deep-stone-crypt-raid-guide-destiny-2'],['Yardbarker – Deep Stone Crypt 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_deep_stone_crypt_2026_raid_guide/s1_17456_43911788'],['Kyber’s Corner – Deep Stone Crypt','https://kyberscorner.com/destiny2/deep-stone-crypt/'],['Destinypedia – Deep Stone Crypt (raid)','https://destinypedia.com/Deep_Stone_Crypt_(Raid)'],['Dot Esports – Of All Trades challenge','https://dotesports.com/destiny/news/how-to-complete-the-of-all-trades-rapture-challenge-in-destiny-2s-deep-stone-crypt-raid']]},
  se:{name:'Salvation’s Edge',encs:['substratum','dissipation','repository','verity','zenith'],src:[['Shacknews – Salvation’s Edge raid guide','https://www.shacknews.com/article/140025/salvations-edge-raid-guide-destiny-2'],['PCGamesN – Salvation’s Edge guide','https://www.pcgamesn.com/destiny-2/salvations-edge-guide'],['Professionalism.gg – Salvation’s Edge','https://professionalism.gg/raid-guides/salvations-edge'],['Backdash – Salvation’s Edge raid guide','https://www.thebackdash.com/destiny/destiny-2-salvations-edge-raid-guide'],['Sportskeeda – Substratum guide','https://sportskeeda.com/mmo/destiny-2-salvation-s-edge-raid-first-encounter-guide-substratum'],['Paracausality – Salvation’s Edge guide','https://www.paracausality.com/se_guide'],['Destiny 2 Wiki – Salvation’s Edge','https://d2.destinygamewiki.com/wiki/Salvation%27s_Edge'],['Destructoid – Substratum map','https://www.destructoid.com/destiny-2-salvations-edge-first-encounter-raid-guide/'],['Destinypedia – Salvation’s Edge','https://www.destinypedia.com/Salvation%27s_Edge'],['Destructoid – Verity map','https://www.destructoid.com/destiny-2-salvations-edge-fourth-encounter-raid-guide-verity/'],['Destructoid – Zenith','https://www.destructoid.com/destiny-2-salvations-edge-5th-encounter-raid-guide-zenith/']]}
 ,
  eq:{name:'Equilibrium',kind:'dungeon',encs:['eqharv','eqharrow','eqsere'],src:[['Destinypedia – Equilibrium','https://www.destinypedia.com/Equilibrium'],['Shacknews – Equilibrium dungeon guide','https://www.shacknews.com/article/147168/how-to-complete-the-equilibrium-dungeon-in-destiny-2'],['Vaexil – Equilibrium field guide (PDF)','https://destiny2.vaexil.tv/downloads/guides/dungeons/equilibrium/equilibrium-complete-guide.pdf'],['Grindout – Equilibrium guide','https://grindout.com/destiny-2/guides/equilibrium-guide'],['The Game Post – Equilibrium dungeon guide','https://thegamepost.com/destiny-2-equilibrium-dungeon-guide/'],['ProGameTalk – Equilibrium walkthrough','https://progametalk.com/destiny-2/equilibrium-dungeon-walkthrough/'],['Kyber’s Corner – Equilibrium','https://kyberscorner.com/destiny-2-equilibrium-dungeon/'],['Total Apex Gaming – Harrow guide','https://totalapexgaming.com/action/equilibrium-harrow-guide/']]}};
@@ -7671,7 +8135,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
@@ -7779,6 +8243,10 @@ function render(){const E=eng(),sc=E.S[cur],k=cl(el_t/sc.d);const st=E.base();sc
 /* =================== CHALLENGES & EXTRAS =================== */
 // one challenge per encounter (shown at that encounter only) and a small extras card per raid
 const CHAL={
+ dscsec:{n:'Red Rover',de:'Jeder Spieler muss einmal Operator sein und unten die zwei Tafeln schießen, über drei Phasen. Also nach jeder Phase einen anderen in den Keller schicken.',en:'Every player must be Operator once and shoot the two panels downstairs, across three phases. So send someone new into the basement after each phase.'},
+ dscatr:{n:'Copies of Copies',de:'Kein Replication-Debuff darf in eine Schleuse oder ins All geschickt werden. Wie man das im Detail löst, beschreibt unsere Quelle nicht, vor dem Versuch einen aktuellen Guide ansehen.',en:'No Replication debuff may be sent into an airlock or into space. Our source doesn’t explain how to solve it in detail, check a current guide before trying.'},
+ dscrap:{n:'Of All Trades',de:'Jeder Spieler muss jede Rolle (Operator, Scanner, Suppressor) mindestens einmal übernehmen. Vorher eine Reihenfolge festlegen und die Buffs am Terminal durchrotieren.',en:'Every player must take every role (Operator, Scanner, Suppressor) at least once. Set an order beforehand and rotate the buffs through the terminal.'},
+ dsctan:{n:'The Core Four',de:'Vor jeder Schadensphase müssen alle vier Kerne abgelegt sein. Also keine Phase mit weniger Kernen starten.',en:'All four cores must be deposited before each damage phase. So never start a phase with fewer cores.'},
  vgconf:{n:'Wait for It…',de:'Jede Wyvern mit gelber Lebensleiste darf erst getötet werden, während sie sich an einem Conflux opfert.',en:'Each yellow-bar Wyvern may only be killed while it is sacrificing itself at a conflux.'},
  vgatheon:{n:'Ensemble’s Refrain',de:'Jeder Teleportierte zerstört pro Satz nur ein Orakel. Drinnen also feste Plätze: links, Mitte, rechts.',en:'Each teleported player destroys only one oracle per set. So inside: fixed spots, left, middle, right.'},
  vggate:{n:'Strangers in Time',de:'Praetorian und Wyvern müssen gleichzeitig sterben. Vorher absprechen und auf ein Kommando schießen.',en:'The Praetorian and the Wyvern must die at the same time. Agree beforehand and shoot on a countdown.'},
@@ -7807,6 +8275,16 @@ const CHAL={
  verity:{n:'Varied Geometry',de:'Derselbe 3D-Schlüssel darf nicht wiederholt werden. Die Guides beschreiben es unterschiedlich: nicht zweimal hintereinander, oder erst wieder, wenn alle sechs Formen dran waren.',en:'The same 3D key may not be repeated. Guides describe it differently: not twice in a row, or only again once all six shapes have been used.'},
  zenith:{n:'Coordinated Efforts',de:'Alle sechs Knöpfe innerhalb weniger Sekunden nach dem ersten zerstören. Dafür sammeln alle sechs vorher Glyphbreaker und schießen dann gleichzeitig.',en:'Break all six buttons within a few seconds of the first. So all six collect Glyphbreaker first, then shoot together.'}};
 const XTRA={
+ dsc:{de:[['Titel','„Descendant“: u. a. alle Challenges und weitere Raid-Triumphe.'],
+   ['Exotic','Eyes of Tomorrow (Solar-Raketenwerfer), seltener Drop vom Endboss, nur farmbar wenn DSC der wöchentliche Raid ist. Triumphe erhöhen die Chance: Survival of the Fittest +3, Control Group +2, Freezing Point +1, je +1 für jede Challenge und Complication.'],
+   ['Versteckte Truhen','Zwei: eine im Abstieg (Sprungpuzzle) auf einer Plattform links, die zweite laut Quelle ebenfalls im Raid; sie geben schon erhaltene Items und Spoils of Conquest.'],
+   ['2026','Seit dem Update vom 9. Juni 2026 hat jeder Raid gestufte Beute und ein eigenes Rüstungsset mit Set-Boni. Details für DSC haben wir noch nicht geprüft.'],
+   ['Sonstiges','Sparrow „Retrocausality“, Ghost „No Love Lost“, Emblem „Crypt Reawakened“, Shader „Cryptic Insignia“.']],
+  en:[['Title','“Descendant”: among others all challenges and more raid triumphs.'],
+   ['Exotic','Eyes of Tomorrow (Solar rocket launcher), rare drop from the final boss, only farmable when DSC is the weekly featured raid. Triumphs raise the chance: Survival of the Fittest +3, Control Group +2, Freezing Point +1, +1 for each challenge and complication.'],
+   ['Hidden chests','Two: one in the descent (jumping puzzle) on a platform to the left, the second also in the raid per the source; they give already obtained items and Spoils of Conquest.'],
+   ['2026','Since the June 9, 2026 update every raid has tiered loot and its own armor set with set bonuses. We haven’t checked the DSC details yet.'],
+   ['Other','Sparrow “Retrocausality”, Ghost “No Love Lost”, emblem “Crypt Reawakened”, shader “Cryptic Insignia”.']]},
  vog:{de:[['Titel','„Fatebreaker“: u. a. alle Challenges, makelloser Run, alle Sammelobjekte und Master („Master Glasser“).'],
    ['Exotic','Vex Mythoclast (Fusion Rifle), Zufallsdrop bei Atheon. Basis etwa 5 % (Community-Schätzung). Triumphe erhöhen die Chance: makellos, Master Glasser, fünf Challenges, fünf Complications.'],
    ['Katalysator','Im Raid: ein Rätsel mit fünf Platten über den ganzen Raid, in einem Run. Auf jeder Platte mit Vex Mythoclast stehen, die erscheinenden Orakel in der richtigen Reihenfolge abschießen, danach zum zerbrochenen Portal. Freischalten mit 700 Kills.'],
