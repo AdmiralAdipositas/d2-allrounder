@@ -13,12 +13,12 @@ const pfade = manifest.jsonWorldComponentContentPaths.en;
 const alt = fs.existsSync('data/defs.json') ? JSON.parse(fs.readFileSync('data/defs.json', 'utf8')) : null;
 if (alt?.version === manifest.version && alt?.schema === 7) { console.log('Game data unchanged.'); process.exit(0); }
 
-const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, typen, modifier, ziele, loNamen, loIcons, loFarben, knoten, records] = await Promise.all([
+const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, typen, modifier, ziele, loNamen, loIcons, loFarben, knoten, records, ziele2] = await Promise.all([
   'DestinyInventoryItemDefinition', 'DestinySandboxPerkDefinition', 'DestinyCollectibleDefinition', 'DestinyStatDefinition',
   'DestinyEquipableItemSetDefinition', 'DestinyBreakerTypeDefinition', 'DestinyDamageTypeDefinition',
   'DestinyActivityDefinition', 'DestinyActivityTypeDefinition', 'DestinyActivityModifierDefinition', 'DestinyObjectiveDefinition',
   'DestinyLoadoutNameDefinition', 'DestinyLoadoutIconDefinition', 'DestinyLoadoutColorDefinition',
-  'DestinyPresentationNodeDefinition', 'DestinyRecordDefinition',
+  'DestinyPresentationNodeDefinition', 'DestinyRecordDefinition', 'DestinyDestinationDefinition',
 ].map((n) => (pfade[n] ? holen(pfade[n]) : {})));
 
 const text = (item) => item.displayProperties?.description || (item.perks || []).map((p) => sandbox[p.perkHash]?.displayProperties?.description).find(Boolean) || '';
@@ -54,11 +54,11 @@ for (const [h, s] of Object.entries(sets)) aus.sets[h] = { n: s.displayPropertie
 for (const b of Object.values(breaker)) aus.breaker[b.enumValue] = { n: b.displayProperties?.name || '', i: b.displayProperties?.icon || '' };
 for (const d of Object.values(schaden)) aus.schaden[d.enumValue] = { n: d.displayProperties?.name || '', i: d.displayProperties?.icon || '', f: d.color ? `rgb(${d.color.red},${d.color.green},${d.color.blue})` : '' };
 // Aktivitäten für "This week": Raids, Dungeons und Portal mit Challenges und Modifiern.
-const GRUPPE = { Raid: 'Raids', Dungeon: 'Dungeons', Nightfall: 'Portal', 'Solo Ops': 'Portal', 'Vanguard Op': 'Portal', 'Fireteam Ops': 'Portal', 'Pinnacle Ops': 'Portal' };
+const GRUPPE = { Raid: 'Raids', Dungeon: 'Dungeons', Nightfall: 'Portal', 'Solo Ops': 'Portal', 'Vanguard Op': 'Portal', 'Fireteam Ops': 'Portal', 'Pinnacle Ops': 'Portal', 'Lost Sector': 'Lost Sectors' };
 for (const [h, a] of Object.entries(aktivitaeten)) {
   const g = GRUPPE[typen[a.activityTypeHash]?.displayProperties?.name] || ({ 4: 'Raids', 82: 'Dungeons' })[a.directActivityModeType];
   if (!g || !a.displayProperties?.name) continue;
-  aus.akt[h] = { n: a.displayProperties.name, i: a.displayProperties.icon || a.pgcrImage || '', d: a.displayProperties.description || '', g };
+  aus.akt[h] = { n: a.displayProperties.name, i: a.displayProperties.icon || a.pgcrImage || '', d: a.displayProperties.description || '', g, o: ziele2[a.destinationHash]?.displayProperties?.name || '' };
   for (const c of a.challenges || []) {
     const z = ziele[c.objectiveHash];
     if (z) aus.ziel[c.objectiveHash] = { n: z.displayProperties?.name || z.progressDescription || '', d: z.displayProperties?.description || '' };
