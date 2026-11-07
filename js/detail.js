@@ -71,7 +71,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
       <div><h2>${esc(it.d.n)}</h2><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${it.m.frame ? ` · ${esc(it.m.frame)}` : ''}${it.m.champ ? ` · Stuns ${esc(it.m.champ)}` : ''}${it.m.set ? ` · ${esc(it.m.set)}` : ''}</small>
       ${it.m?.roll ? `<small class="rollinfo ${/PvP/.test(it.m.roll) ? 'pvp' : ''}">${it.m.roll}</small>` : ''}<small class="wo">${ortText()}${it.genutzt ? ' · in a loadout' : ''}${it.locked ? ' · locked' : ''}${it.junk ? ' · <span class="rot">dismantle suggestion</span>' : ''}${it.fuel ? ' · <span class="gold">infusion fuel</span>' : ''}</small></div><button class="zu" data-a="schliessen" aria-label="Close">✕</button></div>
       <div class="aktionen">${knoepfe()}</div>
-      ${laed ? '<p class="leer">Loading perks…</p>' : `<div class="dkoerper"><div class="pgrid">${raster() || '<p class="leer">No changeable perks.</p>'}</div><div class="dseite">${infoBox()}<div class="dstats">${stats}</div></div></div>`}`;
+      ${laed ? '<p class="leer">Loading perks…</p>' : `<div class="dkoerper"><div class="pgrid">${raster() || '<p class="leer">No changeable perks.</p>'}</div><div class="dseite">${infoBox()}<div class="dstats">${stats}</div>${it.d.e && defs.sets?.[it.d.e] ? `<div class="tset"><b>${esc(defs.sets[it.d.e].n)}</b>${defs.sets[it.d.e].p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}${it.d.xd ? `<p class="tt"><b class="tgold">${esc(it.d.xp || 'Exotic perk')}</b> ${esc(it.d.xd)}</p>` : ''}</div></div>`}`;
     if (d.open) d.append(m);
     d.querySelectorAll('button').forEach((x) => { x.disabled = beschaeftigt && x.dataset.a !== 'schliessen'; });
   };

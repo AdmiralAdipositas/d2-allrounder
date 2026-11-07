@@ -169,7 +169,7 @@ export function zeigeOptimizer(haupt, zustand) {
       ${(() => { const z = zuteilung(b); return `<div class="kitems">${b.items.map((i) => { const m = z.get(i.id); return `<div class="kteil"><i class="ic ${i.exo ? 'exotic' : ''}" data-oid="${k}:${i.id}" style="background-image:url(${BILD}${i.d.i})"><i class="ort ${i.ort === 'tresor' ? 'tresor' : 'char'}"></i>${m ? `<i class="kmod" style="background-image:url(${BILD}${m.icon})"></i>` : ''}</i><small>${esc(i.set?.n || (i.exo ? 'Exotic' : '–'))}</small></div>`; }).join('')}</div>`; })()}
       <div class="kwerte">${ARMOR_STATS.map((n, j) => `<span><small>${n}</small><b>${b.werte[j]}</b></span>`).join('')}</div>
       ${b.modsJeStat.some(Boolean) ? `<div class="kmods">${ARMOR_STATS.map((n, j) => (b.modsJeStat[j] ? `<span><i style="background-image:url(${BILD}${mods[n]?.icon || ''})"></i>${b.modsJeStat[j]}× ${esc(mods[n]?.name || n)} <b>+${mods[n]?.wert || ''}</b></span>` : '')).join('')}</div>` : ''}
-      ${setBoni(b.items).map((p) => `<small class="kset">${esc(p.set)} (${p.c}): ${esc(p.n)}</small>`).join('')}
+      ${setBoni(b.items).map((p) => `<div class="kset"><b>${esc(p.set)} ${p.c}-piece · ${esc(p.n)}</b><span>${esc(p.d)}</span></div>`).join('')}
       <button class="haupt-knopf" data-equip="${k}">${bd ? 'Equip full build' : 'Equip on'} ${KLASSE[zustandO.klasse]}</button></article>`).join('') || '<p class="leer">No combination reaches these minimums. Lower one of them.</p>'}</section></div>`;
   };
   zeichne();
@@ -207,7 +207,7 @@ export function zeigeOptimizer(haupt, zustand) {
     tipp.innerHTML = `<b>${esc(i.d.n)}</b><small>${esc(i.d.k)}${i.set ? ` · ${esc(i.set.n)}` : ''}${i.exo ? ' · Exotic' : ''} · ${i.ort === 'tresor' ? 'Vault' : 'Character'}</small>
       <table class="tstat">${ARMOR_STATS.map((n) => `<tr><td>${n}</td><td>${i.st[n]}</td></tr>`).join('')}<tr class="summe"><td>Total</td><td>${i.st.Total}</td></tr></table>
       ${m ? `<div class="tmod"><i style="background-image:url(${BILD}${m.icon})"></i>Add ${esc(m.name)} (+${m.wert})</div>` : i.modSockel < 0 ? '<small>No free stat mod slot.</small>' : ''}
-      ${i.set ? i.set.p.map((p) => `<small>${p.c}-piece ${esc(p.n)}</small>`).join('') : ''}`;
+      ${i.set ? `<div class="tset"><b>${esc(i.set.n)}</b>${i.set.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}${i.d.xd ? `<p class="tt"><b class="tgold">${esc(i.d.xp || 'Exotic perk')}</b> ${esc(i.d.xd)}</p>` : ''}<small class="thint">Hold Shift to pin</small>`;
     tipp.hidden = false;
     const r = el.getBoundingClientRect(), t = tipp.getBoundingClientRect();
     tipp.style.left = `${Math.max(8, Math.min(r.right + 8, innerWidth - t.width - 8))}px`;

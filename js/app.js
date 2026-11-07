@@ -32,6 +32,21 @@ export function meldung(text, fehler = false) {
   meldung.t = setTimeout(() => { m.style.display = 'none'; }, fehler ? 7000 : 3500);
 }
 
+// Shift heftet den gerade sichtbaren Tooltip an: er bleibt stehen, lässt sich lesen und scrollen. Esc, ✕ oder Klick daneben schließt ihn.
+document.addEventListener('keydown', (e) => {
+  const t = $('#tipp');
+  if (e.key === 'Escape') $('#tippFest')?.remove();
+  if (e.key !== 'Shift' || t.hidden || !t.innerHTML) return;
+  $('#tippFest')?.remove();
+  const f = document.createElement('div');
+  f.id = 'tippFest';
+  f.innerHTML = `<button class="tf-zu" aria-label="Close">✕</button>${t.innerHTML}`;
+  f.style.left = t.style.left; f.style.top = t.style.top;
+  document.body.append(f);
+  t.hidden = true;
+});
+document.addEventListener('pointerdown', (e) => { const f = $('#tippFest'); if (f && (!f.contains(e.target) || e.target.closest('.tf-zu'))) f.remove(); });
+
 // Auf Touch-Geräten klappt Antippen die Leiste aus, ein Tipp daneben schließt sie.
 rail.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' && !rail.classList.contains('offen')) rail.classList.add('offen'); });
 document.addEventListener('pointerdown', (e) => { if (!rail.contains(e.target)) rail.classList.remove('offen'); });
@@ -49,8 +64,9 @@ const ANSICHTEN = {
   finder: ['Build Finder', (el) => zeigeFinder(el, zustand, (w) => { setzeOptimizer(w); wechsle('optimizer'); })],
   stats: ['Stats', (el) => zeigeStats(el, zustand)],
   wiki: ['Wiki', (el) => zeigeWiki(el, zustand)],
+  guide: ['Raid Guide', (el) => { el.innerHTML = '<iframe class="guide" src="guide/index.html" title="Raid briefing"></iframe><p class="leer klein">Your raid and dungeon briefing with animations, roles, challenges and callouts (DE/EN). <a href="guide/index.html" target="_blank" rel="noopener">Open full screen ↗</a></p>'; }],
 };
-const TABS = Object.fromEntries(['vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
+const TABS = Object.fromEntries(['vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
 
 function wechsle(tab) {

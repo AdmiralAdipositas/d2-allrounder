@@ -214,8 +214,14 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
     const champ = it.champ ? ` · ${esc(it.m.champ)}` : '';
     const frame = it.m.frame ? ` · ${esc(it.m.frame)}` : '';
     const set = it.m.set ? ` · ${esc(it.m.set)}` : '';
-    tipp.innerHTML = `<b>${esc(it.d.n)}</b><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${frame}${champ}${set} · ${wo}</small>
-      <div class="perks">${perks.slice(0, 10).map((p) => `<i title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})"></i>`).join('')}</div>`;
+    const satz = (t) => esc(String(t || '').split(/(?<=\.)\s/)[0]);
+    const setDef = it.d.e ? defs.sets?.[it.d.e] : null;
+    tipp.innerHTML = `<b>${esc(it.d.n)}</b><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${frame}${champ}${set} · ${wo}${it.m.roll ? ` · ${esc(it.m.roll)}` : ''}</small>
+      ${it.st ? `<div class="tstats">${ARMOR_STATS.map((n) => `<span>${n.slice(0, 3)} <b>${it.st[n]}</b></span>`).join('')}<span>Total <b>${it.st.Total}</b></span></div>` : ''}
+      ${it.d.xd ? `<p class="tt"><b class="tgold">${esc(it.d.xp || 'Exotic perk')}</b> ${esc(it.d.xd)}</p>` : ''}
+      <div class="tperks">${perks.slice(0, 10).map((p) => `<div><i style="background-image:url(${BILD}${p.i})"></i><span><b>${esc(p.n)}</b>${p.d ? ` – ${satz(p.d)}` : ''}</span></div>`).join('')}</div>
+      ${setDef ? `<div class="tset"><b>${esc(setDef.n)}</b>${setDef.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}
+      <small class="thint">Hold Shift to pin</small>`;
     tipp.hidden = false;
     const r = tipp.getBoundingClientRect();
     tipp.style.left = `${Math.min(x + 14, innerWidth - r.width - 8)}px`;
