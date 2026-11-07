@@ -3357,7 +3357,8 @@
    "aktivitaet": [],
    "subclass": "Arcstrider",
    "exotics": [
-    "The Bombardiers"
+    "The Bombardiers",
+    "Cull's Shadow"
    ],
    "waffen": [],
    "aspekte": [
@@ -3385,7 +3386,7 @@
    "link": "https://mobalytics.gg/destiny-2/builds/hunter/arc/plunder-culling-arc-hunter",
    "warum": "The Bombardiers: every dodge leaves an explosive that blinds with an Arc Super. Gambler's Dodge refunds melee, so dodge → bomb → Tempest Strike → repeat. Per source aim for 150 Melee, 100 Super, 100 Class.",
    "datum": "Jun 2026",
-   "hinweis": "Source uses Exodus Down (Nessus) and the exotic weapon Cull Shadow."
+   "hinweis": "Source uses Exodus Down (Nessus). Cull’s Shadow comes from the secret mission “Oblation: Bloodline”."
   },
   {
    "id": "mob-rest-trick-bolts",
