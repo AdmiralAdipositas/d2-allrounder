@@ -1,386 +1,853 @@
 {
-  "stand": "2026-11-03",
-  "builds": [
+ "stand": "2026-11-07",
+ "builds": [
+  {
+   "id": "well-swap-eunoia",
+   "name": "Well Swap Eunoia",
+   "aktivitaet": [
+    "Raid & dungeon DPS"
+   ],
+   "subclass": "Dawnblade",
+   "exotics": [
+    "Eunoia",
+    "Boots of the Assembler"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Hellion",
+    "Touch of Flame"
+   ],
+   "fragmente": [
+    "Ember of Ashes",
+    "Ember of Char",
+    "Ember of Eruption",
+    "Ember of Singeing"
+   ],
+   "stats": [
+    "Grenade",
+    "Weapons",
+    "Super",
+    "Class"
+   ],
+   "ziele": {
+    "Super": 100
+   },
+   "hinweis": "Weapons are up to your team.",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/warlock-solar-builds/",
+   "warum": "Eunoia with Hellion clears adds. Swap to Boots of the Assembler before DPS to place Well of Radiance for the team.",
+   "faehigkeiten": [
+    "Well of Radiance",
+    "Healing Grenade",
+    "Incinerator Snap",
+    "Phoenix Dive"
+   ],
+   "artefaktPerks": [],
+   "mods": [
+    "Siphon",
+    "Grenade Font",
+    "Focusing Strike",
+    "Better Already",
+    "Absolution",
+    "Surge",
+    "Bomber",
+    "Powerful Attraction",
+    "Reaper"
+   ],
+   "plan": [
     {
-      "id": "well-swap-eunoia",
-      "name": "Well Swap Eunoia",
-      "aktivitaet": [
-        "Raid & dungeon DPS"
-      ],
-      "subclass": "Dawnblade",
-      "exotics": [
-        "Eunoia",
-        "Boots of the Assembler"
-      ],
-      "waffen": [],
-      "artefakt": null,
-      "aspekte": [
-        "Hellion",
-        "Touch of Flame"
-      ],
-      "fragmente": [
-        "Ember of Ashes",
-        "Ember of Char",
-        "Ember of Eruption",
-        "Ember of Singeing"
-      ],
-      "stats": [
-        "Grenade",
-        "Weapons",
-        "Super",
-        "Class"
-      ],
-      "ziele": {
-        "Super": 100
-      },
-      "hinweis": "Weapons are up to your team.",
-      "quelle": "Blueberries",
-      "link": "https://www.blueberries.gg/armor/warlock-solar-builds/",
-      "warum": "Eunoia with Hellion clears adds. Swap to Boots of the Assembler before DPS to place Well of Radiance for the team.",
-      "faehigkeiten": [
-        "Well of Radiance",
-        "Healing Grenade",
-        "Incinerator Snap",
-        "Phoenix Dive"
-      ],
-      "artefaktPerks": [],
-      "mods": [
-        "Siphon",
-        "Grenade Font",
-        "Focusing Strike",
-        "Better Already",
-        "Absolution",
-        "Surge",
-        "Bomber",
-        "Powerful Attraction",
-        "Reaper"
-      ],
-      "plan": [
-        {
-          "set": "Great Hunt",
-          "rolle": "Strongest",
-          "stuecke": 4,
-          "grund": "Grenade kills reduce damage taken and build Heavy ammo."
-        },
-        {
-          "set": "Lustrous",
-          "rolle": "Alternative",
-          "stuecke": 4,
-          "grund": "Heals on rapid Solar kills and boosts Solar weapons."
-        }
-      ]
+     "set": "Great Hunt",
+     "rolle": "Strongest",
+     "stuecke": 4,
+     "grund": "Grenade kills reduce damage taken and build Heavy ammo."
     },
     {
-      "id": "prismatic-artist",
-      "name": "Prismatic Artist",
-      "aktivitaet": [
-        "Roaming"
-      ],
-      "subclass": "Prismatic Warlock",
-      "exotics": [
-        "Getaway Artist"
-      ],
-      "waffen": [],
-      "artefakt": null,
-      "aspekte": [
-        "Feed the Void",
-        "Hellion"
-      ],
-      "fragmente": [
-        "Facet of Courage",
-        "Facet of Dominance",
-        "Facet of Protection",
-        "Facet of Purpose"
-      ],
-      "stats": [
-        "Grenade",
-        "Weapons",
-        "Super"
-      ],
-      "ziele": {},
-      "hinweis": "",
-      "quelle": "Blueberries",
-      "link": "https://www.blueberries.gg/armor/destiny-2-warlock-builds/",
-      "warum": "Getaway Artist turns your Arc grenade into an Arc Soul turret. Hellion and Devour give survivability and add clear.",
-      "faehigkeiten": [
-        "Needlestorm",
-        "Storm Grenade",
-        "Arcane Needle",
-        "Healing Rift"
-      ],
-      "artefaktPerks": [],
-      "mods": [
-        "Ashes to Assets",
-        "Siphon",
-        "Firepower",
-        "Grenade Font",
-        "Impact Induction",
-        "Better Already",
-        "Absolution",
-        "Surge",
-        "Distribution",
-        "Reaper"
-      ],
-      "plan": [
-        {
-          "set": "First Ascent",
-          "rolle": "Strongest",
-          "stuecke": 4,
-          "grund": "Elemental kills stack Transcendence energy, and grenades during Transcendence spend it for bonus energy."
-        },
-        {
-          "set": "CODA",
-          "rolle": "Alternative",
-          "stuecke": 4,
-          "grund": "Mixed Light and Dark kills raise Grenade or Melee stat."
-        },
-        {
-          "set": "Great Hunt",
-          "rolle": "Alternative",
-          "stuecke": 4,
-          "grund": "Grenade kills reduce damage taken and build Heavy ammo."
-        }
-      ]
-    },
-    {
-      "id": "infinite-chaos",
-      "name": "Infinite Chaos",
-      "aktivitaet": [
-        "Roaming"
-      ],
-      "subclass": "Stormcaller",
-      "exotics": [
-        "Geomag Stabilizers"
-      ],
-      "waffen": [
-        "Delicate Tomb"
-      ],
-      "artefakt": "Tablet of Ruin",
-      "aspekte": [
-        "Ionic Sentry",
-        "Electrostatic Mind"
-      ],
-      "fragmente": [
-        "Spark of Resistance",
-        "Spark of Instinct",
-        "Spark of Ions",
-        "Spark of Brilliance",
-        "Spark of Discharge"
-      ],
-      "stats": [
-        "Super",
-        "Melee",
-        "Weapons"
-      ],
-      "ziele": {},
-      "hinweis": "Primary and Heavy are free picks.",
-      "quelle": "Blueberries",
-      "link": "https://www.blueberries.gg/armor/destiny-2-warlock-builds/",
-      "warum": "Geomag Stabilizers extends Chaos Reach and refuels it with Ionic Traces. Delicate Tomb creates Traces fast, so the Super returns within seconds.",
-      "faehigkeiten": [
-        "Chaos Reach",
-        "Storm Grenade",
-        "Chain Lightning",
-        "Healing Rift"
-      ],
-      "artefaktPerks": [
-        "Elemental Siphon",
-        "Elemental Supercharger"
-      ],
-      "mods": [
-        "Hands-On",
-        "Siphon",
-        "Heavy Handed",
-        "Better Already",
-        "Absolution",
-        "Distribution",
-        "Reaper"
-      ],
-      "plan": [
-        {
-          "set": "Luminopotent",
-          "rolle": "Strongest",
-          "stuecke": 4,
-          "grund": "Named by the source. Jolt kills create Ionic Traces."
-        },
-        {
-          "set": "Iron Battalion",
-          "rolle": "Alternative",
-          "stuecke": 4,
-          "grund": "Final blows during Super refund Super energy."
-        },
-        {
-          "set": "Taken King",
-          "rolle": "Alternative",
-          "stuecke": 4,
-          "grund": "Boosts Super stat, and ability kills spawn Arc moths."
-        }
-      ]
-    },
-    {
-      "id": "feed-the-swarm",
-      "name": "Feed the Swarm",
-      "aktivitaet": [
-        "Roaming"
-      ],
-      "subclass": "Broodweaver",
-      "exotics": [
-        "Swarmers"
-      ],
-      "waffen": [
-        "Service of Luzaku"
-      ],
-      "artefakt": "Tablet of Ruin",
-      "aspekte": [
-        "Mindspun Invocation",
-        "Weaver's Call"
-      ],
-      "fragmente": [
-        "Thread of Continuity",
-        "Thread of Evolution",
-        "Thread of Isolation",
-        "Thread of Transmutation",
-        "Thread of Warding"
-      ],
-      "stats": [
-        "Grenade",
-        "Weapons",
-        "Melee"
-      ],
-      "ziele": {},
-      "hinweis": "Primary weapons with Hatchling are recommended.",
-      "quelle": "Blueberries",
-      "link": "https://www.blueberries.gg/armor/destiny-2-warlock-builds/",
-      "warum": "Swarmers create Threadlings when Tangles are destroyed, and they unravel what they hit. Service of Luzaku adds healing and Mindspun Invocation builds Threadling nests.",
-      "faehigkeiten": [
-        "Threadling Grenade",
-        "Arcane Needle",
-        "Healing Rift"
-      ],
-      "artefaktPerks": [
-        "Horde Shuttle",
-        "To Shreds"
-      ],
-      "mods": [
-        "Ashes to Assets",
-        "Siphon",
-        "Firepower",
-        "Bolstering Detonation",
-        "Focusing Strike",
-        "Better Already",
-        "Absolution",
-        "Bomber",
-        "Distribution"
-      ],
-      "plan": [
-        {
-          "set": "Flain",
-          "rolle": "Strongest",
-          "stuecke": 4,
-          "grund": "Spawns Threadlings and heals from their hits."
-        },
-        {
-          "set": "Thunderhead",
-          "rolle": "Alternative",
-          "stuecke": 4,
-          "grund": "Unraveled kills return grenade energy or Special ammo."
-        },
-        {
-          "set": "Collective Psyche",
-          "rolle": "Alternative",
-          "stuecke": 4,
-          "grund": "Extends unravel, suspend and other Strand and Solar effects."
-        }
-      ]
-    },
-    {
-      "id": "hellfire",
-      "name": "Hellfire",
-      "aktivitaet": [
-        "Burst DPS"
-      ],
-      "subclass": "Dawnblade",
-      "exotics": [
-        "Winter's Guile"
-      ],
-      "waffen": [
-        "Threat Level"
-      ],
-      "artefakt": "Hunter's Journal",
-      "aspekte": [
-        "Touch of Flame",
-        "Icarus Dash"
-      ],
-      "fragmente": [
-        "Ember of Benevolence",
-        "Ember of Empyrean",
-        "Ember of Solace"
-      ],
-      "stats": [
-        "Super",
-        "Weapons",
-        "Melee"
-      ],
-      "ziele": {},
-      "hinweis": "Use a Glaive in the Energy slot. Threat Level with One-Two Punch and Trench Barrel. The source also lists Ember of Dawn, which does not exist in the game, so pick your own fourth fragment.",
-      "quelle": "Blueberries",
-      "link": "https://www.blueberries.gg/armor/warlock-solar-builds/",
-      "warum": "A Glaive charges Warlord's Fury through Winter's Guile. Song of Flame's melee unleashes it again and again, with Threat Level between melees. The buff fades fast, so it only suits certain encounters.",
-      "faehigkeiten": [
-        "Song of Flame",
-        "Healing Grenade",
-        "Celestial Fire",
-        "Phoenix Dive"
-      ],
-      "artefaktPerks": [
-        "Shieldcrush"
-      ],
-      "mods": [
-        "Super Font",
-        "Siphon",
-        "Focusing Strike",
-        "Bolstering Detonation",
-        "Kinetic Weapon Surge",
-        "Time Dilation"
-      ],
-      "plan": [
-        {
-          "set": "Lustrous",
-          "rolle": "Strongest",
-          "stuecke": 4,
-          "grund": "Heals on rapid Solar kills and boosts Solar weapons."
-        },
-        {
-          "set": "Apostate's Blade",
-          "rolle": "Alternative",
-          "stuecke": 4,
-          "grund": "Melee hits under Radiant, Restoration or Cure scorch targets."
-        },
-        {
-          "set": "Swordmaster",
-          "rolle": "Alternative",
-          "stuecke": 2,
-          "grund": "Glaive and melee hits weaken enemy damage."
-        }
-      ]
+     "set": "Lustrous",
+     "rolle": "Alternative",
+     "stuecke": 4,
+     "grund": "Heals on rapid Solar kills and boosts Solar weapons."
     }
-  ],
-  "neutral": [
+   ]
+  },
+  {
+   "id": "prismatic-artist",
+   "name": "Prismatic Artist",
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Getaway Artist"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Feed the Void",
+    "Hellion"
+   ],
+   "fragmente": [
+    "Facet of Courage",
+    "Facet of Dominance",
+    "Facet of Protection",
+    "Facet of Purpose"
+   ],
+   "stats": [
+    "Grenade",
+    "Weapons",
+    "Super"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/destiny-2-warlock-builds/",
+   "warum": "Getaway Artist turns your Arc grenade into an Arc Soul turret. Hellion and Devour give survivability and add clear.",
+   "faehigkeiten": [
+    "Needlestorm",
+    "Storm Grenade",
+    "Arcane Needle",
+    "Healing Rift"
+   ],
+   "artefaktPerks": [],
+   "mods": [
+    "Ashes to Assets",
+    "Siphon",
+    "Firepower",
+    "Grenade Font",
+    "Impact Induction",
+    "Better Already",
+    "Absolution",
+    "Surge",
+    "Distribution",
+    "Reaper"
+   ],
+   "plan": [
     {
-      "set": "Crystocrene",
-      "grund": "After time out of combat, your next kill gives ammo and an Orb."
+     "set": "First Ascent",
+     "rolle": "Strongest",
+     "stuecke": 4,
+     "grund": "Elemental kills stack Transcendence energy, and grenades during Transcendence spend it for bonus energy."
     },
     {
-      "set": "Exodus Down",
-      "grund": "Shield breaks pull in nearby Orbs and ammo."
+     "set": "CODA",
+     "rolle": "Alternative",
+     "stuecke": 4,
+     "grund": "Mixed Light and Dark kills raise Grenade or Melee stat."
     },
     {
-      "set": "Smoke Jumper",
-      "grund": "Orb pickups give brief damage reduction."
-    },
-    {
-      "set": "Ferropotent",
-      "grund": "Shield regen gives flinch and damage resistance."
+     "set": "Great Hunt",
+     "rolle": "Alternative",
+     "stuecke": 4,
+     "grund": "Grenade kills reduce damage taken and build Heavy ammo."
     }
-  ]
+   ]
+  },
+  {
+   "id": "infinite-chaos",
+   "name": "Infinite Chaos",
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Stormcaller",
+   "exotics": [
+    "Geomag Stabilizers"
+   ],
+   "waffen": [
+    "Delicate Tomb"
+   ],
+   "artefakt": "Tablet of Ruin",
+   "aspekte": [
+    "Ionic Sentry",
+    "Electrostatic Mind"
+   ],
+   "fragmente": [
+    "Spark of Resistance",
+    "Spark of Instinct",
+    "Spark of Ions",
+    "Spark of Brilliance",
+    "Spark of Discharge"
+   ],
+   "stats": [
+    "Super",
+    "Melee",
+    "Weapons"
+   ],
+   "ziele": {},
+   "hinweis": "Primary and Heavy are free picks.",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/destiny-2-warlock-builds/",
+   "warum": "Geomag Stabilizers extends Chaos Reach and refuels it with Ionic Traces. Delicate Tomb creates Traces fast, so the Super returns within seconds.",
+   "faehigkeiten": [
+    "Chaos Reach",
+    "Storm Grenade",
+    "Chain Lightning",
+    "Healing Rift"
+   ],
+   "artefaktPerks": [
+    "Elemental Siphon",
+    "Elemental Supercharger"
+   ],
+   "mods": [
+    "Hands-On",
+    "Siphon",
+    "Heavy Handed",
+    "Better Already",
+    "Absolution",
+    "Distribution",
+    "Reaper"
+   ],
+   "plan": [
+    {
+     "set": "Luminopotent",
+     "rolle": "Strongest",
+     "stuecke": 4,
+     "grund": "Named by the source. Jolt kills create Ionic Traces."
+    },
+    {
+     "set": "Iron Battalion",
+     "rolle": "Alternative",
+     "stuecke": 4,
+     "grund": "Final blows during Super refund Super energy."
+    },
+    {
+     "set": "Taken King",
+     "rolle": "Alternative",
+     "stuecke": 4,
+     "grund": "Boosts Super stat, and ability kills spawn Arc moths."
+    }
+   ]
+  },
+  {
+   "id": "feed-the-swarm",
+   "name": "Feed the Swarm",
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Broodweaver",
+   "exotics": [
+    "Swarmers"
+   ],
+   "waffen": [
+    "Service of Luzaku"
+   ],
+   "artefakt": "Tablet of Ruin",
+   "aspekte": [
+    "Mindspun Invocation",
+    "Weaver's Call"
+   ],
+   "fragmente": [
+    "Thread of Continuity",
+    "Thread of Evolution",
+    "Thread of Isolation",
+    "Thread of Transmutation",
+    "Thread of Warding"
+   ],
+   "stats": [
+    "Grenade",
+    "Weapons",
+    "Melee"
+   ],
+   "ziele": {},
+   "hinweis": "Primary weapons with Hatchling are recommended.",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/destiny-2-warlock-builds/",
+   "warum": "Swarmers create Threadlings when Tangles are destroyed, and they unravel what they hit. Service of Luzaku adds healing and Mindspun Invocation builds Threadling nests.",
+   "faehigkeiten": [
+    "Threadling Grenade",
+    "Arcane Needle",
+    "Healing Rift"
+   ],
+   "artefaktPerks": [
+    "Horde Shuttle",
+    "To Shreds"
+   ],
+   "mods": [
+    "Ashes to Assets",
+    "Siphon",
+    "Firepower",
+    "Bolstering Detonation",
+    "Focusing Strike",
+    "Better Already",
+    "Absolution",
+    "Bomber",
+    "Distribution"
+   ],
+   "plan": [
+    {
+     "set": "Flain",
+     "rolle": "Strongest",
+     "stuecke": 4,
+     "grund": "Spawns Threadlings and heals from their hits."
+    },
+    {
+     "set": "Thunderhead",
+     "rolle": "Alternative",
+     "stuecke": 4,
+     "grund": "Unraveled kills return grenade energy or Special ammo."
+    },
+    {
+     "set": "Collective Psyche",
+     "rolle": "Alternative",
+     "stuecke": 4,
+     "grund": "Extends unravel, suspend and other Strand and Solar effects."
+    }
+   ]
+  },
+  {
+   "id": "hellfire",
+   "name": "Hellfire",
+   "aktivitaet": [
+    "Burst DPS"
+   ],
+   "subclass": "Dawnblade",
+   "exotics": [
+    "Winter's Guile"
+   ],
+   "waffen": [
+    "Threat Level"
+   ],
+   "artefakt": "Hunter's Journal",
+   "aspekte": [
+    "Touch of Flame",
+    "Icarus Dash"
+   ],
+   "fragmente": [
+    "Ember of Benevolence",
+    "Ember of Empyrean",
+    "Ember of Solace"
+   ],
+   "stats": [
+    "Super",
+    "Weapons",
+    "Melee"
+   ],
+   "ziele": {},
+   "hinweis": "Use a Glaive in the Energy slot. Threat Level with One-Two Punch and Trench Barrel. The source also lists Ember of Dawn, which does not exist in the game, so pick your own fourth fragment.",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/warlock-solar-builds/",
+   "warum": "A Glaive charges Warlord's Fury through Winter's Guile. Song of Flame's melee unleashes it again and again, with Threat Level between melees. The buff fades fast, so it only suits certain encounters.",
+   "faehigkeiten": [
+    "Song of Flame",
+    "Healing Grenade",
+    "Celestial Fire",
+    "Phoenix Dive"
+   ],
+   "artefaktPerks": [
+    "Shieldcrush"
+   ],
+   "mods": [
+    "Super Font",
+    "Siphon",
+    "Focusing Strike",
+    "Bolstering Detonation",
+    "Kinetic Weapon Surge",
+    "Time Dilation"
+   ],
+   "plan": [
+    {
+     "set": "Lustrous",
+     "rolle": "Strongest",
+     "stuecke": 4,
+     "grund": "Heals on rapid Solar kills and boosts Solar weapons."
+    },
+    {
+     "set": "Apostate's Blade",
+     "rolle": "Alternative",
+     "stuecke": 4,
+     "grund": "Melee hits under Radiant, Restoration or Cure scorch targets."
+    },
+    {
+     "set": "Swordmaster",
+     "rolle": "Alternative",
+     "stuecke": 2,
+     "grund": "Glaive and melee hits weaken enemy damage."
+    }
+   ]
+  },
+  {
+   "id": "gift-of-the-tempest",
+   "klasse": 1,
+   "name": "Gift of the Tempest",
+   "subclass": "Arcstrider",
+   "aktivitaet": [
+    "Endgame"
+   ],
+   "exotics": [
+    "Gifted Conviction"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Tempest Strike",
+    "Ascension"
+   ],
+   "fragmente": [
+    "Spark of Resistance",
+    "Spark of Shock",
+    "Spark of Amplitude",
+    "Spark of Frequency",
+    "Spark of Ions"
+   ],
+   "stats": [
+    "Melee",
+    "Class",
+    "Health"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
+   "warum": "Tempest Strike stacks Combination Blow fast, and Gifted Conviction's jolt resistance keeps you alive up close.",
+   "faehigkeiten": [
+    "Arc Staff",
+    "Combination Blow",
+    "Pulse Grenade",
+    "Gambler's Dodge"
+   ],
+   "artefaktPerks": [],
+   "mods": [],
+   "plan": []
+  },
+  {
+   "id": "transcendent-tank",
+   "klasse": 1,
+   "name": "The Transcendent Tank",
+   "subclass": "Prismatic Hunter",
+   "aktivitaet": [
+    "Endgame"
+   ],
+   "exotics": [
+    "Relativism"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Stylish Executioner",
+    "Ascension"
+   ],
+   "fragmente": [
+    "Facet of Purpose",
+    "Facet of Hope",
+    "Facet of Courage",
+    "Facet of Protection"
+   ],
+   "stats": [
+    "Grenade",
+    "Melee",
+    "Class"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
+   "warum": "Chaining abilities keeps damage resistance and empowered abilities up with almost any weapon.",
+   "faehigkeiten": [
+    "Golden Gun",
+    "Grapple",
+    "Threaded Spike",
+    "Gambler's Dodge"
+   ],
+   "artefaktPerks": [],
+   "mods": [],
+   "plan": []
+  },
+  {
+   "id": "one-two-grapple",
+   "klasse": 1,
+   "name": "One-Two Grapple",
+   "subclass": "Prismatic Hunter",
+   "aktivitaet": [
+    "Endgame"
+   ],
+   "exotics": [
+    "Liar's Handshake",
+    "The Navigator"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Stylish Executioner",
+    "Winter's Shroud"
+   ],
+   "fragmente": [
+    "Facet of Purpose",
+    "Facet of Protection",
+    "Facet of Hope",
+    "Facet of Courage"
+   ],
+   "stats": [
+    "Grenade",
+    "Melee",
+    "Super"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
+   "warum": "Combination Blow x3 powers up the Grapple melee for huge damage, even on bosses.",
+   "faehigkeiten": [
+    "Golden Gun",
+    "Grapple",
+    "Combination Blow",
+    "Gambler's Dodge"
+   ],
+   "artefaktPerks": [],
+   "mods": [],
+   "plan": []
+  },
+  {
+   "id": "stealthed-gyrfalcon",
+   "klasse": 1,
+   "name": "Stealthed Gyrfalcon",
+   "subclass": "Nightstalker",
+   "aktivitaet": [
+    "Endgame"
+   ],
+   "exotics": [
+    "Gyrfalcon's Hauberk"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Stylish Executioner",
+    "Vanishing Step"
+   ],
+   "fragmente": [
+    "Echo of Starvation",
+    "Echo of Persistence",
+    "Echo of Remnants",
+    "Echo of Obscurity"
+   ],
+   "stats": [
+    "Weapons",
+    "Grenade",
+    "Class"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
+   "warum": "Kills cycle you in and out of invisibility for strong sustain and a steady overshield.",
+   "faehigkeiten": [
+    "Moebius Quiver",
+    "Vortex Grenade",
+    "Gambler's Dodge"
+   ],
+   "artefaktPerks": [],
+   "mods": [],
+   "plan": []
+  },
+  {
+   "id": "jolting-resolve",
+   "klasse": 1,
+   "name": "Jolting Resolve",
+   "subclass": "Prismatic Hunter",
+   "aktivitaet": [
+    "Grandmaster"
+   ],
+   "exotics": [
+    "Gifted Conviction"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Ascension",
+    "Stylish Executioner"
+   ],
+   "fragmente": [
+    "Facet of Hope",
+    "Facet of Purpose",
+    "Facet of Protection",
+    "Facet of Solitude"
+   ],
+   "stats": [
+    "Weapons",
+    "Class",
+    "Grenade",
+    "Melee"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
+   "warum": "Jolting enemies builds damage resistance, and weapon kills feed Transcendence.",
+   "faehigkeiten": [
+    "Silkstrike",
+    "Grapple",
+    "Threaded Spike",
+    "Gambler's Dodge"
+   ],
+   "artefaktPerks": [],
+   "mods": [],
+   "plan": []
+  },
+  {
+   "id": "come-on-and-slam",
+   "klasse": 0,
+   "name": "Come on and Slam",
+   "subclass": "Prismatic Titan",
+   "aktivitaet": [
+    "All content"
+   ],
+   "exotics": [
+    "Stoicism",
+    "Khvostov 7G-0X"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Consecration",
+    "Knockout"
+   ],
+   "fragmente": [
+    "Facet of Balance",
+    "Facet of Protection",
+    "Facet of Ruin",
+    "Facet of Purpose"
+   ],
+   "stats": [
+    "Melee",
+    "Grenade",
+    "Class"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://blueberries.gg/armor/destiny-2-titan-builds/",
+   "warum": "Stoicism stacks several Titan exotic perks into one explosive melee build.",
+   "faehigkeiten": [
+    "Twilight Arsenal",
+    "Glacier Grenade",
+    "Frenzied Blade",
+    "Thruster"
+   ],
+   "artefaktPerks": [],
+   "mods": [],
+   "plan": [
+    {
+     "set": "CODA",
+     "rolle": "Strongest",
+     "stuecke": 4,
+     "grund": "Recommended 4-piece set (Prophecy dungeon)."
+    }
+   ]
+  },
+  {
+   "id": "wormgods-roar",
+   "klasse": 0,
+   "name": "Wormgod's Roar",
+   "subclass": "Sunbreaker",
+   "aktivitaet": [
+    "Raids, dungeons, Expert"
+   ],
+   "exotics": [
+    "Wormgod Caress",
+    "Tractor Cannon"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Roaring Flames",
+    "Sol Invictus"
+   ],
+   "fragmente": [
+    "Ember of Torches",
+    "Ember of Solace",
+    "Ember of Empyrean",
+    "Ember of Singeing"
+   ],
+   "stats": [
+    "Melee",
+    "Class",
+    "Grenade"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://blueberries.gg/armor/destiny-2-titan-builds/",
+   "warum": "Wormgod Caress's melee buff reaches 400% and stacks cleanly with Roaring Flames.",
+   "faehigkeiten": [
+    "Firebolt Grenade",
+    "Throwing Hammer",
+    "Towering Barricade"
+   ],
+   "artefaktPerks": [],
+   "mods": [],
+   "plan": [
+    {
+     "set": "Ferropotent",
+     "rolle": "Alternative",
+     "stuecke": 2,
+     "grund": "Recommended 2-piece bonus."
+    }
+   ]
+  },
+  {
+   "id": "arc-overload",
+   "klasse": 0,
+   "name": "Arc Overload",
+   "subclass": "Striker",
+   "aktivitaet": [
+    "Raids & dungeons"
+   ],
+   "exotics": [
+    "Cuirass of the Falling Star",
+    "Anarchy"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Storm's Keep",
+    "Knockout"
+   ],
+   "fragmente": [
+    "Spark of Resistance",
+    "Spark of Discharge",
+    "Spark of Frequency",
+    "Spark of Magnitude"
+   ],
+   "stats": [
+    "Weapons",
+    "Super",
+    "Class"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://blueberries.gg/armor/destiny-2-titan-builds/",
+   "warum": "Trickle-charge weapons with Storm's Keep give heavy sustained boss damage.",
+   "faehigkeiten": [
+    "Thundercrash",
+    "Pulse Grenade",
+    "Seismic Strike",
+    "Rally Barricade"
+   ],
+   "artefaktPerks": [],
+   "mods": [],
+   "plan": []
+  },
+  {
+   "id": "super-supreme",
+   "klasse": 0,
+   "name": "Super Supreme",
+   "subclass": "Prismatic Titan",
+   "aktivitaet": [
+    "Raids, dungeons, Expert"
+   ],
+   "exotics": [
+    "Stoicism"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Knockout",
+    "Consecration"
+   ],
+   "fragmente": [
+    "Facet of Courage",
+    "Facet of Dawn",
+    "Facet of Balance",
+    "Facet of Protection"
+   ],
+   "stats": [
+    "Super",
+    "Weapons",
+    "Melee"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://blueberries.gg/armor/destiny-2-titan-builds/",
+   "warum": "High Super and Weapons plus Eternal Warrior push burst boss damage hard.",
+   "faehigkeiten": [
+    "Thundercrash",
+    "Shackle Grenade",
+    "Frenzied Blade",
+    "Thruster"
+   ],
+   "artefaktPerks": [],
+   "mods": [],
+   "plan": [
+    {
+     "set": "Wayward Psyche",
+     "rolle": "Strongest",
+     "stuecke": 4,
+     "grund": "Recommended 4-piece set."
+    }
+   ]
+  },
+  {
+   "id": "choir-of-none",
+   "klasse": 0,
+   "name": "Choir of None",
+   "subclass": "Sentinel",
+   "aktivitaet": [
+    "Endgame"
+   ],
+   "exotics": [
+    "Actium War Rig",
+    "Choir of One"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Controlled Demolition",
+    "Offensive Bulwark"
+   ],
+   "fragmente": [
+    "Echo of Persistence",
+    "Echo of Starvation",
+    "Echo of Cessation",
+    "Echo of Exchange"
+   ],
+   "stats": [
+    "Weapons",
+    "Melee",
+    "Grenade"
+   ],
+   "ziele": {},
+   "hinweis": "",
+   "quelle": "Blueberries",
+   "link": "https://blueberries.gg/armor/destiny-2-titan-builds/",
+   "warum": "War Rig's auto rifle buff stacks from Choir of One kills for damage and ammo.",
+   "faehigkeiten": [
+    "Vortex Grenade",
+    "Shield Throw"
+   ],
+   "artefaktPerks": [],
+   "mods": [],
+   "plan": [
+    {
+     "set": "Last Discipline",
+     "rolle": "Strongest",
+     "stuecke": 4,
+     "grund": "Recommended 4-piece set."
+    },
+    {
+     "set": "Ferropotent",
+     "rolle": "Alternative",
+     "stuecke": 2,
+     "grund": "2-piece alternative."
+    }
+   ]
+  }
+ ],
+ "neutral": [
+  {
+   "set": "Crystocrene",
+   "grund": "After time out of combat, your next kill gives ammo and an Orb."
+  },
+  {
+   "set": "Exodus Down",
+   "grund": "Shield breaks pull in nearby Orbs and ammo."
+  },
+  {
+   "set": "Smoke Jumper",
+   "grund": "Orb pickups give brief damage reduction."
+  },
+  {
+   "set": "Ferropotent",
+   "grund": "Shield regen gives flinch and damage resistance."
+  }
+ ]
 }
