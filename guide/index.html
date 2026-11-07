@@ -229,7 +229,7 @@ body:not(.is-master) .master-only{display:none!important}
 .sq-btn:disabled{opacity:.5;cursor:default}
 .sq-btn[hidden]{display:none}
 .hbtn{border:1px solid var(--line);background:var(--panel-2);color:var(--fg);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}.hbtn:hover{border-color:var(--champ)}.hbtn[hidden]{display:none}
-.sprung{position:sticky;top:var(--kopfh,0px);z-index:19;display:flex;gap:6px;overflow-x:auto;padding:8px 0;margin:4px 0 6px;background:linear-gradient(180deg,var(--bg,#0d0b14) 75%,transparent);scrollbar-width:none}
+.sprung{position:relative;z-index:1;display:flex;gap:6px;overflow-x:auto;padding:8px 0;margin:4px 0 6px;background:linear-gradient(180deg,var(--bg,#0d0b14) 75%,transparent);scrollbar-width:none}
 .sprung a{flex:none;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;text-decoration:none;color:var(--fg);background:linear-gradient(135deg,#2a2140,#1b1827);border:1px solid var(--line)}
 .sprung a:hover{border-color:var(--champ);color:#fff}.sprung a.hot{background:linear-gradient(135deg,#6b4bd6,#3a2a7a);border-color:#9b7bff;color:#fff;box-shadow:0 0 12px #9b7bff55}
 .symb{margin-top:10px;border:1px solid #3a2a7a;background:#120e22;border-radius:10px;max-width:900px;scroll-margin-top:60px}
@@ -4784,6 +4784,96 @@ const VGC=(function(){
  return{bg,S,base,finish};
 })();
 
+
+/* =================== VAULT OF GLASS: ORACLES =================== */
+// Oracles in the Templar's Well (same room as the Confluxes). Positions are SCHEMATIC: the guides name seven spots
+// (L1–L3, Mid, R1–R3) but give no exact map in text. Per round, oracle previews chime twice in a fixed order,
+// then all appear and must be destroyed in that order. Rounds: 3, 4, 5, 6, 7 oracles. Wrong order or too slow
+// → everyone is Marked for Negation → all cleanse together in the pool of light in the middle before the Ritual.
+// Team: two on add clear, four watch two oracles each (one of them watches one + backs up).
+const VGR=(function(){
+ const keys=['A1','A2','OL','OC','OR','OX'];
+ const O={L1:{x:110,y:110},L2:{x:150,y:250},L3:{x:250,y:330},Mid:{x:400,y:56},R3:{x:550,y:330},R2:{x:650,y:250},R1:{x:690,y:110}};
+ const ON=['L1','L2','L3','Mid','R3','R2','R1'];
+ const POOL={x:400,y:150};
+ const SPAWN={x:400,y:420};
+ const POS={A1:{x:300,y:360},A2:{x:500,y:360},OL:{x:200,y:230},OC:{x:340,y:300},OR:{x:600,y:230},OX:{x:460,y:300}};
+ const WHO={L1:'OL',L2:'OL',L3:'OC',Mid:'OC',R3:'OX',R2:'OR',R1:'OR'};
+ const HOB=[{x:100,y:30},{x:700,y:30}];
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/>`;
+  o+=`<rect x="40" y="320" width="720" height="100" rx="6" fill="#18152a" stroke="#2f2a4a"/>`;
+  o+=`<rect x="60" y="70" width="80" height="260" rx="6" fill="#18152a" stroke="#2f2a4a"/><rect x="520" y="50" width="220" height="140" rx="6" fill="#18152a" stroke="#2f2a4a"/>`;
+  o+=`<rect x="290" y="80" width="220" height="210" rx="8" fill="#100d19" stroke="#2f2a4a"/><rect x="330" y="96" width="140" height="120" rx="6" fill="#16132a" stroke="#3a3356"/>`;
+  o+=`<rect x="170" y="200" width="120" height="120" rx="6" fill="#18152a" stroke="#2f2a4a"/><rect x="510" y="200" width="120" height="120" rx="6" fill="#18152a" stroke="#2f2a4a"/>`;
+  const pa=s.pool==null?1:s.pool;o+=`<circle cx="${POOL.x}" cy="${POOL.y}" r="22" fill="rgba(246,220,142,${.08+.22*pa})" stroke="#f6dc8e" stroke-width="${1+1.4*pa}" opacity="${.35+.65*pa}"/>`;
+  if(s.names)ON.forEach(n=>{const p=O[n];o+=`<circle cx="${p.x}" cy="${p.y}" r="13" fill="none" stroke="#5f587a" stroke-dasharray="3 3" opacity="${s.names}"/><text x="${p.x}" y="${p.y+28}" text-anchor="middle" class="hud-t" style="fill:#9c95b0;opacity:${s.names}">${n}</text>`;});
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN</text>`;
+  return o;}
+ function orb(n,a,num,pre){const p=O[n];return{t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${a}"><circle r="${pre?10:14+1.5*Math.sin(now*5)}" fill="rgba(246,220,142,${pre?.15:.35})" stroke="#f6dc8e" stroke-width="${pre?1.2:2.4}" ${pre?'stroke-dasharray="3 3"':''}/><circle r="${pre?3:6}" fill="#fffbe9"/>${num?`<text y="-20" text-anchor="middle" class="hud-t" style="fill:#f6dc8e">${num}</text>`:''}</g>`};}
+ function bg(g){g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';}
+ function base(){const s={p:{},mark:{},pool:1,names:0,orbs:[],units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{}};
+  keys.forEach(k=>s.p[k]={...POS[k]});return s;}
+ const fire=(s,k,key,b,i)=>{if(s.busy[key]||s.dead[key])return;s.busy[key]=1;if(Math.floor(k*70+(i||0))%2)s.shots.push({a:s.p[key],q:key,b,c:C.ally});};
+ // one round: order = list of oracle names; t0..t1 the time window inside the scene
+ function runde(s,k,order,t0,t1,chime){
+  const n=order.length,span=t1-t0,pv=span*.42,kill=span*.46;
+  // previews: each chimes twice (two passes), numbered
+  order.forEach((o,i)=>{[0,1].forEach(pass=>{const a=t0+pass*pv/2+i*(pv/2/n),b=a+pv/2/n*.9;if(k>=a&&k<b){s.orbs.push(orb(o,win(k,a,b,.01),chime?String(i+1):'',true));if(chime)s.labels.push({x:O[o].x,y:O[o].y-34,k:'lChime',c:C.light,o:win(k,a,b,.01)});}});});
+  // all appear, then destroyed in order by their watcher
+  const ka=t0+pv;order.forEach((o,i)=>{const d=ka+kill*(i+1)/n;if(k>=ka&&k<d){s.orbs.push(orb(o,seg(k,ka,ka+.02),String(i+1),false));if(k>=d-kill/n*.8)fire(s,k,WHO[o],O[o],i);}
+   else if(k>=d&&k<d+.03)s.bursts.push({...O[o],r:6+20*seg(k,d,d+.03),c:C.light,o:1-seg(k,d,d+.03)});});
+ }
+ function adds(s,k,a,b){[[0,'A1'],[1,'A2']].forEach(([h,q],i)=>{if(k>=a&&k<b){const p=HOB[h];s.units.push({t:'vhob',x:p.x,y:p.y});fire(s,k,q,p,i);}});
+  [[{x:200,y:420},'A1'],[{x:600,y:420},'A2']].forEach(([sp,q],i)=>{const t0=a+.1+i*.05,t1=t0+.14;if(k>=t0&&k<t1){const p=mv(sp,POS[q==='A1'?'OC':'OX'],seg(k,t0,t1+.1));s.units.push({t:'vgob',x:p.x,y:p.y});fire(s,k,q,p,i+2);}});}
+ const S=[
+ // 1 layout: seven oracle spots, pool, team split
+ {d:20,f(k,s){keys.forEach(q=>s.p[q]=mv(SPAWN,POS[q],seg(k,0,.12)));s.names=seg(k,.06,.14);
+   const o1=win(k,.12,.4),o2=win(k,.4,.62),o3=win(k,.62,.82),o4=win(k,.82,1.01);
+   if(k>=.12&&k<.4)s.spot=ON.map(n=>({...O[n],r:22,o:o1,w:true}));
+   else if(k>=.4&&k<.62)s.spot=[{...POOL,r:32,o:o2,w:true}];
+   else if(k>=.62&&k<.82)s.spot=[{...POS.A1,r:26,o:o3,w:true},{...POS.A2,r:26,o:o3,w:true}];
+   else if(k>=.82)s.spot=['OL','OC','OR','OX'].map(q=>({...POS[q],r:26,o:o4,w:true}));
+   s.fx=k<.12?null:k<.4?{k:'fxOSpots',o:o1,c:C.light}:k<.62?{k:'fxOPool',o:o2,c:C.light}:k<.82?{k:'fxOAdds',o:o3,c:C.ally}:{k:'fxOWatch',o:o4,c:C.ally};}},
+ // 2 round 1: three previews chime twice in order, then destroy 1 → 2 → 3
+ {d:24,f(k,s){s.names=1;runde(s,k,['R2','L1','Mid'],.04,.92,true);adds(s,k,.1,.9);
+   s.cam=camK(k,[[0,400,220,1],[.06,400,200,1.1],[.9,400,200,1.1],[.98,400,220,1]]);
+   s.fx=k<.4?{k:'fxO1Watch',o:win(k,0,.4,.02),c:C.light}:k<.5?{k:'fxO1Call',o:win(k,.4,.5,.02),c:C.light}:k<.92?{k:'fxO1Kill',o:win(k,.5,.92,.02),c:C.ally}:{k:'fxO1Done',o:win(k,.92,1,.02),c:C.good};}},
+ // 3 time lapse: rounds with 4, 5, 6 and 7 oracles
+ {d:26,f(k,s){s.names=1;const R=[['L2','R1','Mid','L3'],['R3','L1','R2','Mid','L2'],['L3','R1','L1','R3','Mid','R2'],['Mid','L2','R3','L1','R2','L3','R1']];
+   R.forEach((o,i)=>{const a=i*.24+.02,b=a+.22;if(k>=a&&k<b)runde(s,k,o,a,b,false);});adds(s,k,.02,.98);
+   const r=Math.min(3,Math.floor(k/.24));
+   s.labels.push({x:400,y:400,k:'lRound'+(r+2),c:C.light,o:win(k,r*.24,r*.24+.24,.02)});
+   s.fx=k<.96?{k:'fxOLapse',o:win(k,0,.96,.02),c:C.ally}:{k:'fxODone',o:seg(k,.96,1),c:C.good};}},
+ // 4 marked: wrong order → everyone Marked for Negation → all into the pool together before the Ritual
+ {d:22,f(k,s){s.names=1;
+   if(k<.2){s.orbs.push(orb('L1',1,'1',false));s.orbs.push(orb('R1',1,'2',false));if(k>=.1)fire(s,k,'OR',O.R1,0);}
+   if(k>=.2&&k<.24)s.bursts.push({...O.R1,r:6+20*seg(k,.2,.24),c:C.danger,o:1-seg(k,.2,.24)});
+   if(k>=.24){keys.forEach(q=>{if(k<.8)s.mark[q]=1;});s.flash=k<.28?.08:0;}
+   if(k>=.3&&k<.82)s.hud={t:'Ritual of Negation',v:Math.max(0,10*(1-seg(k,.3,.82)))};
+   keys.forEach((q,i)=>{const t={x:POOL.x+(i-2.5)*9,y:POOL.y+6+(i%2)*6};s.p[q]=k<.4?{...POS[q]}:k<.74?mv(POS[q],t,seg(k,.4,.72)):k<.84?t:mv(t,POS[q],seg(k,.84,1));});
+   if(k>=.74&&k<.8)s.bursts.push({...POOL,r:10+40*seg(k,.74,.8),c:C.light,o:1-seg(k,.74,.8)});
+   if(k>=.74)s.pool=Math.max(.3,1-seg(k,.74,.8)*.7);
+   s.cam=camK(k,[[0,400,220,1],[.4,400,190,1.2],[.86,400,190,1.2],[.96,400,220,1]]);
+   s.fx=k<.24?{k:'fxMWrong',o:win(k,0,.24,.02),c:C.danger}:k<.4?{k:'fxMAll',o:win(k,.24,.4,.02),c:'#ffffff'}:k<.74?{k:'fxMTogether',o:win(k,.4,.74,.02),c:C.light}:{k:'fxMClean',o:win(k,.74,1,.02),c:C.good};}},
+ // 5 don't: too slow (marked), one player alone in the pool while others are still out, nobody watching the snipers
+ {d:22,f(k,s){s.names=1;
+   if(k<.4){const q=seg(k,0,.4);['L3','R3','Mid'].forEach((o,i)=>s.orbs.push(orb(o,1,String(i+1),false)));s.hud={t:'Oracles',v:Math.max(0,10*(1-seg(q,0,.8)))};
+     if(q>=.8){keys.forEach(x=>s.mark[x]=1);s.hud=null;}
+     s.fx=q<.8?{k:'fxXSlow',o:win(q,0,.8,.04),c:C.danger}:{k:'fxXSlow2',o:seg(q,.8,.86),c:C.danger};return;}
+   const q=seg(k,.4,1);keys.forEach(x=>s.mark[x]=1);s.hud={t:'Ritual of Negation',v:Math.max(0,8*(1-seg(q,0,.75)))};
+   s.p.OL=mv(POS.OL,{x:POOL.x,y:POOL.y+4},seg(q,0,.3));if(q>=.3){s.mark.OL=0;s.pool=Math.max(.15,1-seg(q,.3,.4)*.85);}
+   ['OR','OX'].forEach(x=>s.p[x]=mv(POS[x],{x:POOL.x+30,y:POOL.y+40},seg(q,.2,.8)));
+   if(q>=.75){['A1','A2','OC','OR','OX'].forEach(x=>s.dead[x]=1);s.hud=null;if(q<.85)s.bursts.push({x:400,y:250,r:20+300*seg(q,.75,.85),c:'#ffffff',o:1-seg(q,.75,.85)});}
+   s.fx=q<.75?{k:'fxXAlone',o:win(q,0,.75,.04),c:C.danger}:{k:'fxXAlone2',o:win(q,.75,1,.04),c:C.danger};}}
+ ];
+ function finish(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)}];s.orbs.forEach(u=>units.push(u));s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));
+  keys.forEach(q=>{if(s.dead[q]||!s.mark[q])return;const p=s.p[q];units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})"><circle r="${13+1.5*Math.sin(now*6)}" fill="rgba(255,255,255,.12)" stroke="#ffffff" stroke-width="1.6" stroke-dasharray="3 3"/><path d="M-4 -20 h8 M0 -24 v8" stroke="#ffffff" stroke-width="2"/></g>`});});
+  const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q]}));
+  const hud=s.hud?{t:s.hud.t,v:fmt(s.hud.v),hi:false,paused:false,low:s.hud.v<4}:null;
+  return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud,plus:'',pips:null};}
+ return{bg,S,base,finish};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -6532,6 +6622,63 @@ const RG_VGC=[
   de:{name:'Laufweg',steps:['Deine Laufrichtung abdecken.','Wyvern sofort beschießen.','Nicht in Pfützen treten.','Markiert? Gemeinsam zur Platte.','Phase 3: an deinem Conflux bleiben.'],watch:['Opfer am Conflux zählen.']},
   en:{name:'Lane',steps:['Cover your lane.','Shoot the Wyvern right away.','Don’t step into pools.','Marked? Go to the plate together.','Phase 3: stay at your conflux.'],watch:['Count sacrifices at the conflux.']}}];
 
+const SV_VGR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="20" y="148" width="380" height="44" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="152" y="38" width="116" height="98" rx="6" fill="#100d19" stroke="#2f2a4a"/><circle cx="210" cy="70" r="11" fill="rgba(246,220,142,.25)" stroke="#f6dc8e"/>${[[58,52],[78,118],[130,150],[210,28],[290,150],[342,118],[362,52]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="8" fill="rgba(246,220,142,.2)" stroke="#f6dc8e"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="96" fill="#f6dc8e">{0}</text><text x="78" y="140" fill="#ece8f4">{1}</text><text x="210" y="176" fill="#9c95b0">{2}</text></g></svg>`;
+const ENC_VGR={num:3,name:'Oracles',eng:VGR,diags:[SV_VGR],order:['A1','A2','OL','OC','OR','OX'],
+ slots:[['A1','Adds links','Adds left'],['A2','Adds rechts','Adds right'],['OL','Orakel L1 + L2','Oracles L1 + L2'],['OC','Orakel L3 + Mid','Oracles L3 + Mid'],['OR','Orakel R1 + R2','Oracles R1 + R2'],['OX','Orakel R3 + Ersatz','Oracle R3 + backup']],
+ de:{kicker:'Vault of Glass · Encounter 3 · Oracles · Templar’s Well',
+  gear:{crit:['Eine präzise Primärwaffe für die Orakel, sie halten nicht viel aus.','Etwas gegen die Hobgoblin-Scharfschützen auf den Vorsprüngen.'],top:['Ad-Clear für die zwei Add-Spieler.','Aktuelle Meta-Waffen haben wir nicht geprüft.'],budget:['Wenig Ausrüstung? Ein Orakel-Posten braucht vor allem gute Ohren und eine ruhige Hand.']},
+  lede:'Gleicher Raum wie die Confluxes. An sieben Stellen erscheinen Orakel: goldene Lichtkugeln, jede mit eigenem Ton. Pro Runde zeigen sie sich erst als Vorschau, zweimal hintereinander in einer festen Reihenfolge. Danach erscheinen alle, und ihr zerstört sie genau in dieser Reihenfolge. Fünf Runden: 3, 4, 5, 6 und zuletzt 7 Orakel. Falsche Reihenfolge oder zu langsam, und alle werden „Marked for Negation“. Dann springt ihr gemeinsam in den Lichtpool in der Mitte, bevor das „Ritual of Negation“ kommt.',
+  sc:[['Aufbau','Von oben, schematisch: Die Guides nennen sieben Orakel-Plätze, L1 bis L3 links, Mid oben in der Mitte, R1 bis R3 rechts, aber keine genaue Karte im Text. Ihr könnt sie auch anders benennen, Hauptsache alle nutzen dieselben Namen. In der Mitte vor dem Block der Lichtpool zum Reinigen.'],
+   ['Runde 1: drei Orakel','Die Vorschau läuft zweimal durch. Wer „sein“ Orakel sieht, ruft Platz und Nummer, z. B. „R2 eins“. Erscheinen alle drei richtig, schießt jeder seins in der angesagten Reihenfolge ab und ruft dabei die Nummer. Die zwei Add-Spieler halten Goblins und Minotauren weg.'],
+   ['Zeitraffer','Jede Runde kommt ein Orakel dazu: 4, 5, 6, 7. Weil es sieben Orakel und nur vier Beobachter gibt, hat fast jeder zwei Plätze. Ab und zu schießen Hobgoblins von weit entfernten Vorsprüngen, die Add-Spieler nehmen sie raus. Nach der Runde mit sieben Orakeln ist der Encounter geschafft, danach folgt der Templar.'],
+   ['Markiert','Falsche Reihenfolge oder zu langsam: Alle bekommen „Marked for Negation“. Vor dem „Ritual of Negation“ springen alle gleichzeitig in den Lichtpool in der Mitte. Laut einem Guide leert sich der Pool, wenn er zu oft benutzt wird, und füllt sich erst nach dem nächsten Ritual wieder. Deshalb gemeinsam rein.'],
+   ['Nicht machen','Erstens: Die Reihenfolge erraten statt ansagen. Zweitens: Zu lange warten, auch zu langsam führt zur Markierung. Drittens: Einzeln zum Pool laufen, während die anderen noch draußen sind.']],
+  tip:{1:'Plätze vorher fest verteilen.',2:'Platz + Nummer ansagen, beim Schießen nochmal.',3:'Add-Spieler halten den Beobachtern den Rücken frei.',4:'Markiert? Alle gleichzeitig in den Pool.'},
+  m:{},
+  roles:[['Adds links / rechts','Goblins, Minotauren, Hobgoblin-Scharfschützen. Nicht auf Orakel schießen.',''],['Orakel-Beobachter','Je zwei Plätze, Ton und Reihenfolge merken, ansagen, abschießen.','runner']],
+  rules:['Vorschau zweimal, dann alle sichtbar.','Zerstören in der Reihenfolge der Vorschau.','Runden: 3 → 4 → 5 → 6 → 7.','Falsch oder zu langsam → alle markiert, gemeinsam in den Pool.'],
+  wipes:['Markiert, wenn das Ritual kommt.','Pool leer, weil einzeln gereinigt wurde.'],
+  tips:['<b>Callouts:</b> Platz + Nummer, z. B. „L1 zwei“.','<b>Doppelt belegt:</b> Wer zwei Plätze hat, sagt beide an.'],
+  diags:[['Sieben Orakel-Plätze','L1 bis L3 links, Mid oben, R1 bis R3 rechts, der Lichtpool in der Mitte. Schematisch nach den Guides.',['Lichtpool','L1–L3','Eingang']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['L1 eins','L1 one','Platz + Nummer'],['Falsch','Wrong','Alle in den Pool'],['Hobgoblin','Hobgoblin','Add-Spieler']],
+  L:{lChime:'♪',lRound2:'Runde 2: 4 Orakel',lRound3:'Runde 3: 5 Orakel',lRound4:'Runde 4: 6 Orakel',lRound5:'Runde 5: 7 Orakel',
+   fxOSpots:'Sieben Orakel-Plätze (schematisch)',fxOPool:'In der Mitte der Lichtpool',fxOAdds:'Zwei Spieler nur für Adds',fxOWatch:'Vier Beobachter, je zwei Plätze',
+   fxO1Watch:'Vorschau: zweimal hintereinander, Reihenfolge merken',fxO1Call:'Platz + Nummer ansagen',fxO1Kill:'Alle da → in genau der Reihenfolge abschießen',fxO1Done:'Runde 1 geschafft',
+   fxOLapse:'Jede Runde ein Orakel mehr: 4, 5, 6, 7',fxODone:'Oracles geschafft → weiter zum Templar',
+   fxMWrong:'Falsche Reihenfolge …',fxMAll:'→ alle Marked for Negation',fxMTogether:'Alle gleichzeitig in den Lichtpool',fxMClean:'Gereinigt, weiter geht’s',
+   fxXSlow:'Orakel stehen zu lange …',fxXSlow2:'→ alle markiert',fxXAlone:'Einer reinigt allein, der Pool leert sich …',fxXAlone2:'→ die anderen sterben beim Ritual'}},
+ en:{kicker:'Vault of Glass · Encounter 3 · Oracles · Templar’s Well',
+  gear:{crit:['A precise primary for the oracles, they don’t take much.','Something for the Hobgoblin snipers on the ledges.'],top:['Add clear for the two add players.','We haven’t checked the current meta weapons.'],budget:['Short on gear? An oracle spot mostly needs good ears and a steady hand.']},
+  lede:'Same room as the Confluxes. Oracles appear at seven spots: golden balls of light, each with its own tone. Each round they first show as a preview, twice in a row in a fixed order. Then all appear, and you destroy them in exactly that order. Five rounds: 3, 4, 5, 6 and finally 7 oracles. Wrong order or too slow, and everyone is “Marked for Negation”. Then you all jump into the pool of light in the middle together before the “Ritual of Negation” comes.',
+  sc:[['Layout','From above, schematic: the guides name seven oracle spots, L1 to L3 on the left, Mid at the top middle, R1 to R3 on the right, but give no exact map in text. You can name them differently, as long as everyone uses the same names. In the middle in front of the block is the pool of light for cleansing.'],
+   ['Round 1: three oracles','The preview plays twice. Whoever sees “their” oracle calls spot and number, e.g. “R2 one”. When all three are up, everyone shoots theirs in the called order and calls the number again. The two add players keep Goblins and Minotaurs away.'],
+   ['Time lapse','Every round adds one oracle: 4, 5, 6, 7. With seven oracles and only four watchers, almost everyone has two spots. Hobgoblins snipe from distant ledges now and then, the add players take them out. After the round with seven oracles the encounter is done, the Templar comes next.'],
+   ['Marked','Wrong order or too slow: everyone gets “Marked for Negation”. Before the “Ritual of Negation” everyone jumps into the pool of light in the middle at the same time. According to one guide the pool empties if used too often and only refills after the next Ritual. That’s why you go in together.'],
+   ['Don’t do this','First: guessing the order instead of calling it. Second: waiting too long, being slow also marks you. Third: running to the pool one by one while the others are still outside.']],
+  tip:{1:'Assign spots before you start.',2:'Call spot + number, again when you shoot.',3:'Add players keep the watchers safe.',4:'Marked? Everyone into the pool at once.'},
+  m:{},
+  roles:[['Adds left / right','Goblins, Minotaurs, Hobgoblin snipers. Don’t shoot oracles.',''],['Oracle watchers','Two spots each, remember tone and order, call, shoot.','runner']],
+  rules:['Preview twice, then all visible.','Destroy in preview order.','Rounds: 3 → 4 → 5 → 6 → 7.','Wrong or too slow → everyone marked, pool together.'],
+  wipes:['Marked when the Ritual comes.','Pool empty because players cleansed one by one.'],
+  tips:['<b>Callouts:</b> spot + number, e.g. “L1 two”.','<b>Two spots:</b> whoever has two calls both.'],
+  diags:[['Seven oracle spots','L1 to L3 left, Mid at the top, R1 to R3 right, the pool of light in the middle. Schematic after the guides.',['Pool of light','L1–L3','Entrance']]],
+  master:['Master variant not shown here.'],
+  calls:[['L1 eins','L1 one','Spot + number'],['Falsch','Wrong','Everyone into the pool'],['Hobgoblin','Hobgoblin','Add players']],
+  L:{lChime:'♪',lRound2:'Round 2: 4 oracles',lRound3:'Round 3: 5 oracles',lRound4:'Round 4: 6 oracles',lRound5:'Round 5: 7 oracles',
+   fxOSpots:'Seven oracle spots (schematic)',fxOPool:'The pool of light in the middle',fxOAdds:'Two players only for adds',fxOWatch:'Four watchers, two spots each',
+   fxO1Watch:'Preview: twice in a row, remember the order',fxO1Call:'Call spot + number',fxO1Kill:'All up → shoot in exactly that order',fxO1Done:'Round 1 done',
+   fxOLapse:'Every round one more oracle: 4, 5, 6, 7',fxODone:'Oracles done → on to the Templar',
+   fxMWrong:'Wrong order …',fxMAll:'→ everyone Marked for Negation',fxMTogether:'Everyone into the pool at the same time',fxMClean:'Cleansed, carry on',
+   fxXSlow:'Oracles stay up too long …',fxXSlow2:'→ everyone marked',fxXAlone:'One cleanses alone, the pool empties …',fxXAlone2:'→ the others die to the Ritual'}}};
+const RG_VGR=[
+ {id:'adds',slots:['A1','A2'],focus:[1,2,3],
+  de:{name:'Adds',steps:['Deine Seite von Goblins und Minotauren freihalten.','Hobgoblins auf den Vorsprüngen sofort raus.','Nicht auf Orakel schießen.','Markiert? Mit allen in den Pool.'],watch:['Beobachter nie allein lassen.']},
+  en:{name:'Adds',steps:['Keep your side clear of Goblins and Minotaurs.','Take Hobgoblins on the ledges out right away.','Don’t shoot oracles.','Marked? Into the pool with everyone.'],watch:['Never leave the watchers alone.']}},
+ {id:'watch',slots:['OL','OC','OR','OX'],focus:[1,2,3,4],
+  de:{name:'Orakel-Beobachter',steps:['Deine zwei Plätze im Blick behalten.','Vorschau: Platz + Nummer ansagen.','Alle da: in Reihenfolge schießen, Nummer rufen.','Markiert? Gemeinsam in den Pool.'],watch:['Erst schießen, wenn du dran bist.']},
+  en:{name:'Oracle watcher',steps:['Keep your two spots in view.','Preview: call spot + number.','All up: shoot in order, call the number.','Marked? Into the pool together.'],watch:['Only shoot when it’s your turn.']}}];
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -6819,7 +6966,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:{num:3,name:'Oracles',soon:true},vgtemplar:{num:4,name:'Templar',soon:true},vgmaze:{num:5,name:'Gorgon’s Labyrinth',soon:true},vggate:{num:6,name:'Gatekeeper',soon:true},vgatheon:{num:7,name:'Atheon',soon:true},substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:{num:4,name:'Templar',soon:true},vgmaze:{num:5,name:'Gorgon’s Labyrinth',soon:true},vggate:{num:6,name:'Gatekeeper',soon:true},vgatheon:{num:7,name:'Atheon',soon:true},substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -6981,7 +7128,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
@@ -7089,6 +7236,8 @@ function render(){const E=eng(),sc=E.S[cur],k=cl(el_t/sc.d);const st=E.base();sc
 /* =================== CHALLENGES & EXTRAS =================== */
 // one challenge per encounter (shown at that encounter only) and a small extras card per raid
 const CHAL={
+ vgconf:{n:'Wait for It…',de:'Jede Wyvern mit gelber Lebensleiste darf erst getötet werden, während sie sich an einem Conflux opfert.',en:'Each yellow-bar Wyvern may only be killed while it is sacrificing itself at a conflux.'},
+ vgoracle:{n:'The Only Oracle for You',de:'Niemand darf dasselbe Orakel mehr als einmal zerstören. Plant die Plätze so, dass jeder Spieler wechselt.',en:'Nobody may destroy the same oracle more than once. Plan spots so that every player rotates.'},
  eqharv:{n:'Feat „Encounter Challenges“',de:'Apprentices dürfen nach dem Schildbruch nur mit dem Blaster einer Pike getötet werden, auf der man sitzt. Behemoths dürfen normal sterben.',en:'After their shield breaks, Apprentices may only be killed with the blaster of a Pike you are riding. Behemoths may die normally.'},
  eqharrow:{n:'Feat „Encounter Challenges“',de:'Jede Ladung von „Spite of the Named“ (Harrow’s Decree) muss unterbrochen werden.',en:'Every charge of “Spite of the Named” (Harrow’s Decree) must be interrupted.'},
  eqsere:{n:'Feat „Encounter Challenges“',de:'Nach jedem Weltenwechsel muss innerhalb von etwa 10 Sekunden mindestens ein Taken-Orb in der neuen Welt zerstört werden. So beschreibt es nur eine Quelle.',en:'After every realm change at least one Taken orb in the new realm must be destroyed within about 10 seconds. Only one source describes it this way.'},
