@@ -340,3 +340,4 @@ button:disabled{opacity:.45;cursor:progress}
   #rail .unten button{width:48px;height:48px;border-radius:50%;background:var(--flaeche);border:1px solid var(--linie)!important;color:var(--text)}
   #rail .unten svg{width:24px;height:24px}
 }
+.fk-kopf{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start}.fk-kopf h2{overflow-wrap:anywhere}.fk-tags{justify-content:flex-end;flex-wrap:nowrap}@media(max-width:560px){.fk-tags{flex-wrap:wrap;max-width:110px}}
