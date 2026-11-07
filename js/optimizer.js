@@ -137,6 +137,24 @@ function durchlaufe(g, fertig) {
   gehe(0, false, 0);
 }
 
+// Warum gibt es kein Ergebnis? Erst fehlende Teile (Set, Exotic, Slot), dann erst die Mindestwerte.
+const SLOTNAME = ['Helmet', 'Gauntlets', 'Chest', 'Legs', 'Class item'];
+function grundLeer(liste, wunsch) {
+  const ex = wunsch.exotic ? liste.find((i) => i.hash === wunsch.exotic) : null;
+  const frei = SLOTS.filter((b) => b !== ex?.d.b);
+  const teile = [];
+  for (const st of setListe(wunsch)) {
+    const da = frei.filter((b) => liste.some((i) => i.d.b === b && !i.exo && i.set?.n === st.n));
+    if (da.length < st.stk) {
+      const fehlt = frei.filter((b) => !da.includes(b)).map((b) => SLOTNAME[SLOTS.indexOf(b)]);
+      teile.push(`You need ${st.stk} ${esc(st.n)} pieces in different slots${ex ? ` (not the ${SLOTNAME[SLOTS.indexOf(ex.d.b)].toLowerCase()}, that's your exotic)` : ''}, but you only have ${da.length}: ${da.map((b) => SLOTNAME[SLOTS.indexOf(b)]).join(', ') || 'none'}. Missing: ${fehlt.join(', ')}. Pick 2 pieces or another set.`);
+    }
+  }
+  const leer = SLOTS.filter((b) => !liste.some((i) => i.d.b === b));
+  if (leer.length) teile.push(`No armor for ${leer.map((b) => SLOTNAME[SLOTS.indexOf(b)]).join(', ')} on this class.`);
+  if (teile.length) return teile.join(' ');
+  return ARMOR_STATS.some((n) => wunsch.ziele[n]) ? 'No combination reaches these minimums. Lower one of them.' : 'No combination found with these settings. Try “Any (no set needed)” or another exotic.';
+}
 function rechne(liste, wunsch) {
   const mods = statMods();
   const modWert = ARMOR_STATS.map((n) => (wunsch.mods ? mods[n]?.wert || 0 : 0));
@@ -283,7 +301,7 @@ export function zeigeOptimizer(haupt, zustand) {
       ${b.modsJeStat.some(Boolean) ? `<div class="kmods">${ARMOR_STATS.map((n, j) => { const k5 = b.klein?.[j] || 0, k10 = (b.modsJeStat[j] || 0) - k5; const m5 = statMods(5)[n]; return `${k10 ? `<span><i style="background-image:url(${BILD}${mods[n]?.icon || ''})"></i>${k10}× ${esc(mods[n]?.name || n)} <b>+${mods[n]?.wert || ''}</b></span>` : ''}${k5 ? `<span><i style="background-image:url(${BILD}${m5?.icon || ''})"></i>${k5}× ${esc(m5?.name || n)} <b>+5</b></span>` : ''}`; }).join('')}</div>` : ''}
       ${(() => { const z = new Map(); b.items.forEach((i) => i.set && z.set(i.set.n, (z.get(i.set.n) || 0) + 1)); const aktiv = [...z].filter(([, n]) => n >= 2); return aktiv.length ? '' : '<small class="kmods">No set bonus active (no 2 pieces of the same set). Pick a set above to force one.</small>'; })()}
       ${setBoni(b.items).map((p) => `<div class="kset"><b>${esc(p.set)} ${p.c}-piece · ${esc(p.n)}</b><span>${esc(p.d)}</span></div>`).join('')}
-      <button class="haupt-knopf" data-equip="${k}">${bd ? 'Equip full build' : 'Equip on'} ${KLASSE[zustandO.klasse]}</button></article>`).join('') || '<p class="leer">No combination reaches these minimums. Lower one of them.</p>'}</section></div>`;
+      <button class="haupt-knopf" data-equip="${k}">${bd ? 'Equip full build' : 'Equip on'} ${KLASSE[zustandO.klasse]}</button></article>`).join('') || `<p class="leer">${grundLeer(liste, zustandO)}</p>`}</section></div>`;
   };
   zeichne();
 

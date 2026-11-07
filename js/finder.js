@@ -2,7 +2,6 @@
 // endlos scrollbar, Karten auf- und zuklappbar, Filter für Klasse, Element, Besitz und Nischen-Suche.
 import { defs } from './defs.js';
 import { sammle } from './vault.js';
-import { baueIdee, elementeAus } from './generator.js';
 import { quelle } from './quellen.js';
 import { empfehle, setVorschlag } from './waffenwahl.js';
 import * as modplan from './mods.js';
@@ -47,19 +46,6 @@ const elementVon = (text) => {
   return els.length ? els : [];
 };
 
-// Eine komplette Build-Idee je Exotic-Rüstung, die nicht schon in einem Community-Build steckt.
-function ideen(kuratiert) {
-  const schon = new Set(kuratiert.flatMap((b) => b.exotics));
-  const gesehen = new Set();
-  const liste = [];
-  for (const [h, d] of Object.entries(defs.items)) {
-    if (d.t !== 2 || d.q !== 6 || d.c > 2 || !d.xd || gesehen.has(d.n) || schon.has(d.n)) continue;
-    gesehen.add(d.n);
-    liste.push(baueIdee(h, d));
-  }
-  return liste.sort((a, b) => a.name.localeCompare(b.name));
-}
-
 // Viele Quellen zum selben Exotic, damit man Auswahl hat.
 const quellen = (name) => [
   ['light.gg', `https://www.light.gg/db/search/?q=${encodeURIComponent(name)}`],
@@ -76,12 +62,9 @@ const quelleText = (d) => { if (!d) return 'Not in the game data.'; const q = qu
 const elementVonBuild = (b) => (b.elemente || [SUBCLASS_EL[b.subclass] || (/Prismatic/.test(b.subclass) ? 'Prismatic' : '')])[0] || '';
 function anreichern(b, besitz) {
   if (!b.element) b.element = elementVonBuild(b);
-  if (!(b.plan || []).length && !b.planGeprueft) { b.plan = setVorschlag(b, b.klasse); b.planGeprueft = true; }
-  if (!b.empf) b.empf = empfehle(b, besitz, b.element);
-  if (!b.modNamen) {
-    const roh = b.mods?.length ? b.mods : modplan.vorschlag(b.element, b.stats || [], [b.warum, ...(b.faehigkeiten || [])].join(' '));
-    b.modNamen = [...new Set(roh.map((m) => modplan.finde(m, b.element)?.n).filter(Boolean))];
-  }
+  // Nur was die Quelle nennt: kein erfundenes Set, keine erfundenen Mods, keine geratene Exotic-Waffe.
+  if (!b.empf) { b.empf = empfehle(b, besitz, b.element); if (b.empf.exotic && !b.exotics.includes(b.empf.exotic.n)) b.empf.exotic = null; }
+  if (!b.modNamen) b.modNamen = [...new Set((b.mods || []).map((m) => modplan.finde(m, b.element)?.n || m))];
   return b;
 }
 const waffeHtml = (x, besitz) => `<span class="wf ${besitz.has(x.n) ? 'hat' : ''}"><i ${x.hash ? `data-ih="${x.hash}"` : ''} style="background-image:url(${BILD}${x.i})"></i>${esc(x.n)}${besitz.has(x.n) ? ' ✓' : ''}${x.d0 && x.d0 !== 1 ? `<em class="gr el${x.d0}">●</em>` : ''}</span>`;
@@ -97,8 +80,8 @@ function karte(b, besitz, besitzSets, sets) {
     <div class="fk-bild" style="background-image:url(${BILD}${haupt?.i || ''})"></div>
     <div class="fk-text">
       <div class="fk-kopf"><div><h2>${esc(b.name)}</h2><small>${KLASSE[b.klasse]}${b.subclass ? ` · ${esc(b.subclass)}` : ''}${b.aktivitaet?.length && !b.idee ? ` · ${esc(b.aktivitaet.join(', '))}` : ''}</small></div>
-        <div class="fk-tags">${els.map((e) => `<span class="eltag el-${e.toLowerCase()}">${e}</span>`).join('')}${b.idee ? '<span class="tag" title="Auto-built from Bungie game data, not tested by players">Idea · auto-built</span>' : '<span class="tag gold" title="Tested build from a community guide">Community · tested</span>'}<span class="tag ${fehlt.length ? '' : 'gut'}">${fehlt.length ? `${fehlt.length} missing` : 'Ready'}</span></div></div>
-      <p class="fk-warum">${esc(kurz)}</p>
+        <div class="fk-tags">${els.map((e) => `<span class="eltag el-${e.toLowerCase()}">${e}</span>`).join('')}<span class="tag gold" title="${esc(b.quelle)}">${esc((b.quelle || '').split(' (')[0].replace(/ on Mobalytics/, ''))}</span><span class="tag ${fehlt.length ? '' : 'gut'}">${fehlt.length ? `${fehlt.length} missing` : 'Ready'}</span></div></div>
+      <p class="fk-warum"><b>Why it works:</b> ${esc(kurz)}</p>
       <div class="fk-vorschau">${(b.plan || [])[0] ? `<span>🛡 ${esc(b.plan[0].set)} <em>${besitzSets(b.plan[0].set)} owned</em></span>` : ''}${b.empf?.exotic ? `<span><i data-ih="${b.empf.exotic.hash}" style="background-image:url(${BILD}${b.empf.exotic.i})"></i>${esc(b.empf.exotic.n)}${besitz.has(b.empf.exotic.n) ? ' ✓' : ''}</span>` : ''}</div>
       <button class="fk-klapp" data-klapp="${esc(b.id)}" aria-expanded="${auf}">${auf ? 'Less ▴' : 'Details ▾'}</button>
       ${auf ? `<div class="fk-mehr">
@@ -107,12 +90,14 @@ function karte(b, besitz, besitzSets, sets) {
         ${b.subclass ? `<h3>Subclass</h3><p class="fliste">${esc(b.subclass)}</p>` : ''}
         ${b.faehigkeiten?.length ? `<h3>Super & abilities</h3><p class="fliste">${esc(b.faehigkeiten.join(' · '))}</p>` : ''}
         ${b.aspekte?.length ? `<h3>Aspects</h3><p class="fliste">${esc(b.aspekte.join(' · '))}</p><h3>Fragments</h3><p class="fliste">${esc(b.fragmente.join(' · '))}</p>` : ''}
-        ${b.erklaerung?.length ? `<h3>Why this works</h3>${b.erklaerung.map((x) => `<p class="fliste klein2">${esc(x)}</p>`).join('')}` : ''}
         <h3>Weapons</h3>
         ${b.empf?.exotic ? `<div class="fz ${besitz.has(b.empf.exotic.n) ? 'hat' : 'fehlt'}"><i data-ih="${b.empf.exotic.hash}" style="background-image:url(${BILD}${b.empf.exotic.i})"></i><span><b>${esc(b.empf.exotic.n)}</b> (exotic)</span><em>${besitz.has(b.empf.exotic.n) ? 'owned' : 'missing'}</em>${besitz.has(b.empf.exotic.n) ? '' : blip(b.empf.exotic.n, quelleText(b.empf.exotic))}${b.empf.exotic.xd ? `<small>${esc(b.empf.exotic.xp || '')}: ${esc(b.empf.exotic.xd)}</small>` : ''}</div>` : ''}
+        ${b.waffen?.length ? `<p class="fliste">${esc(b.waffen.join(' · '))}</p>` : ''}
+        <p class="fliste klein2">Suggestions for the other slots, from community god rolls (not part of the source):</p>
         ${Object.entries(b.empf?.legendaries || {}).map(([slot, l]) => l.length ? `<div class="wslot"><small>${slot[0].toUpperCase() + slot.slice(1)}</small>${l.map((x) => waffeHtml(x, besitz)).join('')}</div>` : '').join('')}
-        ${b.waffen?.length ? `<p class="fliste klein2">Build note: ${esc(b.waffen.join(' · '))}</p>` : ''}
-        <h3>Armor mods</h3><p class="fliste">${esc(b.modNamen.join(' · '))}</p>
+        ${b.modNamen.length ? `<h3>Armor mods</h3><p class="fliste">${esc(b.modNamen.join(' · '))}</p>` : ''}
+        ${b.artefaktPerks?.length ? `<h3>Artifact perks</h3><p class="fliste">${esc(b.artefaktPerks.join(' · '))}</p><p class="fliste klein2">From the season the source was made in. Artifacts change, so check which of these you still have.</p>` : ''}
+        ${b.hinweis ? `<p class="fliste klein2">Note: ${esc(b.hinweis)}</p>` : ''}
         <h3>Stat focus</h3><p class="fliste">${esc(b.stats.join(' › '))}</p>
         <p class="fquelle">Source: ${b.link ? `<a href="${esc(b.link)}" target="_blank" rel="noopener">${esc(b.quelle || 'Source')} ↗</a>` : esc(b.quelle || '')}</p>
         <h3>More builds with ${esc(b.exotics[0])}</h3><div class="fquellen">${quellen(b.exotics[0]).map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n} ↗</a>`).join('')}</div>
@@ -125,7 +110,7 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
   const d = await lade();
   const chars = Object.values(zustand.profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
   if (wahl.klasse === null) wahl.klasse = chars[0].classType;
-  const alle = [...d.builds, ...ideen(d.builds)];
+  const alle = [...d.builds];
   const merke = () => { try { localStorage.setItem('d2a.finder', JSON.stringify(wahl)); } catch {} };
   let liste = [];
   let gezeigt = 0;
@@ -155,7 +140,7 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
   const kopf = () => `<div class="kopf"><h1>Build Finder</h1><input id="fsuche" type="search" placeholder="Search a niche: turret, freeze, healing, Bubble…" value="${esc(wahl.suche)}"><span class="platz"></span>
       <div class="chips">${chars.map((c) => `<button class="chip" data-kl="${c.classType}" aria-pressed="${c.classType === wahl.klasse}">${KLASSE[c.classType]}</button>`).join('')}</div></div>
     <div class="feed-filter chips">${ELEMENTE.map((e) => `<button class="chip el-chip el-${e.toLowerCase()}" data-el="${e}" aria-pressed="${wahl.el.includes(e)}">${e}</button>`).join('')}
-      <button class="chip" data-schalter="besitz" aria-pressed="${wahl.besitz}">Ready to play</button><button class="chip" data-schalter="nurKuratiert" aria-pressed="${wahl.nurKuratiert}">Community only</button>
+      <button class="chip" data-schalter="besitz" aria-pressed="${wahl.besitz}">Ready to play</button>
       <span class="feed-zahl" id="fZahl"></span></div><div id="feed"></div><div id="feedEnde" class="feed-ende"></div>`;
 
   const mehr = () => {

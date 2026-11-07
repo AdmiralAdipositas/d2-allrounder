@@ -442,7 +442,7 @@
    "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
    "warum": "Chaining abilities keeps damage resistance and empowered abilities up with almost any weapon.",
    "faehigkeiten": [
-    "Golden Gun",
+    "Golden Gun: Marksman",
     "Grapple",
     "Threaded Spike",
     "Gambler's Dodge"
@@ -486,7 +486,7 @@
    "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
    "warum": "Combination Blow x3 powers up the Grapple melee for huge damage, even on bosses.",
    "faehigkeiten": [
-    "Golden Gun",
+    "Golden Gun: Marksman",
     "Grapple",
     "Combination Blow",
     "Gambler's Dodge"
@@ -529,7 +529,7 @@
    "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
    "warum": "Kills cycle you in and out of invisibility for strong sustain and a steady overshield.",
    "faehigkeiten": [
-    "Moebius Quiver",
+    "Shadowshot: Moebius Quiver",
     "Vortex Grenade",
     "Gambler's Dodge"
    ],
@@ -949,6 +949,647 @@
     "Bomber"
    ],
    "plan": []
+  },
+  {
+   "id": "gunpowder-guru",
+   "name": "Gunpowder Guru",
+   "klasse": 1,
+   "aktivitaet": [
+    "Endgame"
+   ],
+   "subclass": "Prismatic Hunter",
+   "exotics": [
+    "Relativism"
+   ],
+   "waffen": [
+    "A weapon matching your grenade element"
+   ],
+   "aspekte": [
+    "Gunpowder Gamble",
+    "Threaded Specter"
+   ],
+   "fragmente": [
+    "Facet of Ruin",
+    "Facet of Purpose",
+    "Facet of Protection",
+    "Facet of Balance",
+    "Facet of Courage"
+   ],
+   "faehigkeiten": [
+    "Silence and Squall",
+    "Swarm Grenade",
+    "Threaded Spike",
+    "Gambler's Dodge"
+   ],
+   "stats": [
+    "Grenade",
+    "Weapons",
+    "Health"
+   ],
+   "mods": [
+    "Super Font",
+    "Heavy Ammo Finder",
+    "Grenade Font",
+    "Heavy Handed",
+    "Invigoration",
+    "Time Dilation",
+    "Powerful Attraction",
+    "Distribution"
+   ],
+   "hinweis": "Relativism with Spirit of Verity.",
+   "quelle": "Blueberries (Jan 2026, Renegades)",
+   "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
+   "warum": "Spirit of Verity: weapon kills stack Death Throes up to x5, which doubles the damage of the Gunpowder Gamble grenade.",
+   "plan": [],
+   "artefaktPerks": [],
+   "ziele": {}
+  },
+  {
+   "id": "grasps-of-duskfield",
+   "name": "Grasps of Duskfield",
+   "klasse": 1,
+   "aktivitaet": [
+    "Grandmaster"
+   ],
+   "subclass": "Revenant",
+   "exotics": [
+    "Renewal Grasps"
+   ],
+   "waffen": [
+    "Buried Bloodline (recommended)",
+    "Weapons with Headstone"
+   ],
+   "aspekte": [
+    "Touch of Winter",
+    "Grim Harvest"
+   ],
+   "fragmente": [
+    "Whisper of Torment",
+    "Whisper of Conduction",
+    "Whisper of Rime",
+    "Whisper of Chains",
+    "Whisper of Shards"
+   ],
+   "faehigkeiten": [
+    "Duskfield Grenade",
+    "Gambler's Dodge"
+   ],
+   "stats": [
+    "Weapons",
+    "Grenade",
+    "Health"
+   ],
+   "mods": [
+    "Harmonic Siphon",
+    "Heavy Ammo Finder",
+    "Special Ammo Finder",
+    "Impact Induction",
+    "Grenade Font",
+    "Harmonic Loader",
+    "Innervation",
+    "Recuperation",
+    "Bomber",
+    "Reaper",
+    "Powerful Attraction"
+   ],
+   "quelle": "Blueberries (Jan 2026, Renegades)",
+   "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
+   "warum": "Renewal Grasps makes Duskfields much bigger: allies inside get Frost Armor, enemies inside deal less damage. Whisper of Shards gives grenade energy when Stasis crystals shatter (Headstone makes crystals), so Duskfields keep coming; Whisper of Chains adds damage resistance near crystals.",
+   "plan": [],
+   "artefaktPerks": [],
+   "ziele": {}
+  },
+  {
+   "id": "threaded-maelstrom",
+   "name": "The Threaded Maelstrom",
+   "klasse": 1,
+   "aktivitaet": [
+    "Endgame"
+   ],
+   "subclass": "Threadrunner",
+   "exotics": [
+    "Cyrtarachne's Facade"
+   ],
+   "waffen": [
+    "Strand weapons, e.g. Quicksilver Storm"
+   ],
+   "aspekte": [
+    "Widow's Silk",
+    "Whirling Maelstrom"
+   ],
+   "fragmente": [
+    "Thread of Ascent",
+    "Thread of Generation",
+    "Thread of Transmutation",
+    "Thread of Isolation"
+   ],
+   "faehigkeiten": [
+    "Grapple",
+    "Gambler's Dodge"
+   ],
+   "stats": [
+    "Weapons",
+    "Grenade",
+    "Melee"
+   ],
+   "mods": [
+    "Harmonic Siphon",
+    "Hands-On",
+    "Heavy Ammo Finder",
+    "Impact Induction",
+    "Focusing Strike",
+    "Harmonic Loader",
+    "Recuperation",
+    "Powerful Attraction",
+    "Bomber"
+   ],
+   "hinweis": "Shackle Grenade is stronger in hard content, Grapple is more fun (per the source).",
+   "quelle": "Blueberries (Jan 2026, Renegades)",
+   "link": "https://www.blueberries.gg/armor/destiny-2-hunter-builds/",
+   "warum": "Cyrtarachne's Facade gives Woven Mail after every grapple, so you stay tanky. Thread of Transmutation makes Tangles from Strand weapon kills, and Whirling Maelstrom turns those Tangles into Threaded Maelstroms.",
+   "plan": [],
+   "artefaktPerks": [],
+   "ziele": {}
+  },
+  {
+   "id": "op-stormdancer",
+   "name": "The OP Stormdancer",
+   "klasse": 2,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Stormcaller",
+   "exotics": [
+    "Stormdancer's Brace",
+    "Praxic Blade"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Arc Soul",
+    "Ionic Sentry"
+   ],
+   "fragmente": [
+    "Spark of Shock",
+    "Spark of Resistance",
+    "Spark of Frequency",
+    "Spark of Magnitude"
+   ],
+   "faehigkeiten": [
+    "Stormtrance",
+    "Pulse Grenade",
+    "Ball Lightning",
+    "Healing Rift"
+   ],
+   "stats": [
+    "Super",
+    "Grenade",
+    "Class"
+   ],
+   "artefaktPerks": [
+    "Dielectric",
+    "Elemental Siphon",
+    "Gravitic-Voltaic Charge",
+    "Combination Argent Blade"
+   ],
+   "plan": [
+    {
+     "set": "Force Absorption",
+     "rolle": "Per source",
+     "stuecke": 4,
+     "grund": "Set bonus named in the source build."
+    }
+   ],
+   "quelle": "LlamaD2 on Mobalytics (Dec 2025, Renegades)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/arc/llama-op-stormdancer",
+   "warum": "Arc Soul and Ionic Sentry jolt everything, and through Spark of Shock that keeps a field of jolt running, which charges Stormtrance very fast. Rift → Ionic Sentry → repeat until Super; Praxic Blade handles tough targets and Barrier Champions.",
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "greatest-solar-titan",
+   "name": "The Greatest Solar Titan",
+   "klasse": 0,
+   "aktivitaet": [
+    "Endgame"
+   ],
+   "subclass": "Sunbreaker",
+   "exotics": [
+    "Wormgod Caress",
+    "Praxic Blade"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Roaring Flames",
+    "Sol Invictus"
+   ],
+   "fragmente": [
+    "Ember of Torches",
+    "Ember of Searing",
+    "Ember of Solace",
+    "Ember of Eruption"
+   ],
+   "faehigkeiten": [
+    "Hammer of Sol",
+    "Healing Grenade"
+   ],
+   "stats": [
+    "Melee",
+    "Health"
+   ],
+   "mods": [
+    "Heavy Handed"
+   ],
+   "artefaktPerks": [
+    "Elemental Siphon",
+    "Combination Argent Blade",
+    "Sword Storm Combo",
+    "Kinetic Synthesis",
+    "Armorsmith",
+    "Counter Energy"
+   ],
+   "plan": [
+    {
+     "set": "Ferropotent",
+     "rolle": "Per source",
+     "stuecke": 4,
+     "grund": "10% damage resistance at all times thanks to constant Cure and Restoration (per source)."
+    }
+   ],
+   "quelle": "LlamaD2 on Mobalytics (Dec 2025, Renegades)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/solar/llama-greatest-solar-titan",
+   "warum": "Melee loop: Roaring Flames and Wormgod Caress both raise melee damage, and triple Heavy Handed makes Orbs constantly. Constant Cure and Restoration keep you alive.",
+   "ziele": {}
+  },
+  {
+   "id": "crazy-praxic-void-titan",
+   "name": "Praxic Blade Void Titan Nuke",
+   "klasse": 0,
+   "aktivitaet": [
+    "Roaming",
+    "Endgame"
+   ],
+   "subclass": "Sentinel",
+   "exotics": [
+    "Second Chance",
+    "Praxic Blade"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Controlled Demolition",
+    "Offensive Bulwark"
+   ],
+   "fragmente": [
+    "Echo of Cessation",
+    "Echo of Harvest",
+    "Echo of Provision",
+    "Echo of Vigilance"
+   ],
+   "faehigkeiten": [
+    "Sentinel Shield",
+    "Vortex Grenade",
+    "Shield Throw",
+    "Rally Barricade"
+   ],
+   "stats": [
+    "Melee",
+    "Super"
+   ],
+   "artefaktPerks": [
+    "Gravitic-Voltaic Charge",
+    "Elemental Siphon",
+    "Kinetic Synthesis",
+    "Power from Pain",
+    "Singularity Blade",
+    "Void Infestation",
+    "Combination Argent Blade",
+    "Sword Storm Combo"
+   ],
+   "quelle": "LlamaD2 on Mobalytics (Dec 2025, Renegades)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/void/llama-crazy-praxic-blade",
+   "warum": "Spam Shield Throw, pick up Void Breaches, clean up with Sentinel Shield, and swing Praxic Blade when nothing else is up. Second Chance weakens targets, which restarts the Void loop of the artifact perks (Weaken → Breaches → Devour).",
+   "plan": [],
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "radiant-devourer",
+   "name": "Radiant Devourer",
+   "klasse": 1,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Gunslinger",
+   "exotics": [
+    "Assassin's Cowl",
+    "Praxic Blade"
+   ],
+   "waffen": [
+    "Yeartide Apex",
+    "Falling Guillotine"
+   ],
+   "aspekte": [
+    "Knock 'em Down",
+    "On Your Mark"
+   ],
+   "fragmente": [
+    "Ember of Torches",
+    "Ember of Char",
+    "Ember of Singeing",
+    "Ember of Ashes",
+    "Ember of Eruption"
+   ],
+   "faehigkeiten": [
+    "Golden Gun: Marksman",
+    "Healing Grenade",
+    "Knife Trick",
+    "Gambler's Dodge"
+   ],
+   "stats": [
+    "Melee",
+    "Super",
+    "Weapons"
+   ],
+   "artefaktPerks": [
+    "Power from Pain",
+    "Singularity Blade"
+   ],
+   "quelle": "LlamaD2 on Mobalytics (Dec 2025, Renegades)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/solar/llama-radiant-devourer",
+   "warum": "Assassin's Cowl's invisibility counts as a Void buff for Singularity Blade, so Knife Trick kills apply Weaken and give Devour through Power from Pain. Loop: 10 stacks of On Your Mark, melee kills for Devour, then Praxic Blade for constant Ignitions.",
+   "plan": [],
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "unkillable-stasis-wraith",
+   "name": "Unkillable Stasis Wraith",
+   "klasse": 1,
+   "aktivitaet": [
+    "Endgame"
+   ],
+   "subclass": "Revenant",
+   "exotics": [
+    "Mask of Bakris",
+    "Praxic Blade"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Shatterdive",
+    "Winter's Shroud"
+   ],
+   "fragmente": [
+    "Whisper of Hedrons",
+    "Whisper of Shards",
+    "Whisper of Torment",
+    "Whisper of Rime"
+   ],
+   "faehigkeiten": [
+    "Silence and Squall",
+    "Glacier Grenade",
+    "Withering Blade",
+    "Marksman's Dodge"
+   ],
+   "stats": [
+    "Weapons",
+    "Class",
+    "Grenade"
+   ],
+   "artefaktPerks": [
+    "Armorsmith",
+    "Combination Argent Blade",
+    "Counter Energy",
+    "Kinetic Synthesis",
+    "Sword Storm Combo"
+   ],
+   "plan": [
+    {
+     "set": "Sage Protector",
+     "rolle": "Per source",
+     "stuecke": 4,
+     "grund": "Dungeon set, strongly raises ability regen; blocking with the sword triggers the bonus (per source)."
+    }
+   ],
+   "quelle": "LlamaD2 on Mobalytics (Dec 2025, Renegades)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/stasis/llama-unkillable-stasis",
+   "warum": "Shatterdive plus Glacier Grenade gives maximum Frost Armor when you shatter. Sage Protector speeds up all abilities, and the source pairs Mask of Bakris with Praxic Blade for extra damage.",
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "revolutionary-strand-hunter",
+   "name": "Revolutionary Strand Hunter",
+   "klasse": 1,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Threadrunner",
+   "exotics": [
+    "Praxic Blade"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Ensnaring Slam",
+    "Whirling Maelstrom"
+   ],
+   "fragmente": [
+    "Thread of Mind",
+    "Thread of Generation",
+    "Thread of Continuity",
+    "Thread of Warding"
+   ],
+   "faehigkeiten": [
+    "Silkstrike",
+    "Threaded Spike",
+    "Marksman's Dodge"
+   ],
+   "stats": [
+    "Grenade",
+    "Weapons",
+    "Class"
+   ],
+   "artefaktPerks": [
+    "Dielectric",
+    "Kinetic Synthesis",
+    "Combination Argent Blade",
+    "Sword Storm Combo",
+    "Power from Pain",
+    "Singularity Blade",
+    "Void Infestation"
+   ],
+   "plan": [
+    {
+     "set": "Sage Protector",
+     "rolle": "Per source",
+     "stuecke": 4,
+     "grund": "Builds grenade and class ability energy together with Praxic Blade (per source)."
+    }
+   ],
+   "hinweis": "Uses the Moth grenade from the Renegades artifact (per source). No exotic armor named in the source.",
+   "quelle": "LlamaD2 on Mobalytics (Jan 2026, Renegades)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/strand/llama-revolutionary-strand-hunter",
+   "warum": "Ensnaring Slam gives Woven Mail and suspends; the moths give a Void overshield and blind. Sage Protector and Praxic Blade keep grenade and class ability coming.",
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "lucky-raspberry-spam",
+   "name": "Lucky Raspberry Infinite Spam",
+   "klasse": 1,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Arcstrider",
+   "exotics": [
+    "Lucky Raspberry",
+    "Anarchy"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Ascension",
+    "Tempest Strike"
+   ],
+   "fragmente": [
+    "Spark of Beacons",
+    "Spark of Resistance",
+    "Spark of Ions",
+    "Spark of Focus",
+    "Spark of Frequency"
+   ],
+   "faehigkeiten": [
+    "Gathering Storm",
+    "Arcbolt Grenade",
+    "Combination Blow",
+    "Gambler's Dodge"
+   ],
+   "stats": [
+    "Grenade",
+    "Class",
+    "Melee"
+   ],
+   "artefaktPerks": [
+    "Dielectric",
+    "Elemental Orbs: Arc",
+    "Elemental Siphon",
+    "Gravitic-Voltaic Charge"
+   ],
+   "quelle": "Blur on Mobalytics (Dec 2025, Renegades)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/arc/blur-best-hunter-build",
+   "warum": "Lucky Raspberry gives grenade energy every time you jolt something, so Arcbolt Grenade, Tempest Strike and Ascension chain into each other. With Dielectric, killing jolted targets heals you.",
+   "plan": [],
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "shadow-hunter",
+   "name": "Shadow Hunter",
+   "klasse": 1,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Nightstalker",
+   "exotics": [
+    "Praxic Blade"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "On the Prowl",
+    "Stylish Executioner"
+   ],
+   "fragmente": [
+    "Echo of Harvest",
+    "Echo of Starvation",
+    "Echo of Vigilance",
+    "Echo of Remnants",
+    "Echo of Reprisal"
+   ],
+   "faehigkeiten": [
+    "Shadowshot: Moebius Quiver",
+    "Vortex Grenade",
+    "Snare Bomb",
+    "Gambler's Dodge"
+   ],
+   "stats": [
+    "Grenade",
+    "Super",
+    "Weapons",
+    "Class"
+   ],
+   "hinweis": "The source does not name the exotic armor, only its effect (longer invisibility, faster ability regen while invisible).",
+   "quelle": "Plunder on Mobalytics (Dec 2025, Renegades)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/void/plunder-shadow-hunter",
+   "warum": "Invisibility loop: Stylish Executioner and On the Prowl keep you invisible, and invisibility speeds up grenade, melee and class ability. Praxic Blade is thrown at several targets and comes back when you attack.",
+   "plan": [],
+   "artefaktPerks": [],
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "ashen-wake-perfected",
+   "name": "Ashen Wake Perfected",
+   "klasse": 0,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Sunbreaker",
+   "exotics": [
+    "Ashen Wake",
+    "Dragon's Breath"
+   ],
+   "waffen": [
+    "Sunshot",
+    "Polaris Lance",
+    "Tommy's Matchbook",
+    "Hard Light"
+   ],
+   "aspekte": [
+    "Roaring Flames",
+    "Sol Invictus"
+   ],
+   "fragmente": [
+    "Ember of Ashes",
+    "Ember of Blistering",
+    "Ember of Char",
+    "Ember of Resolve"
+   ],
+   "faehigkeiten": [
+    "Hammer of Sol",
+    "Fusion Grenade",
+    "Hammer Strike",
+    "Rally Barricade"
+   ],
+   "stats": [
+    "Grenade",
+    "Weapons",
+    "Super"
+   ],
+   "artefaktPerks": [
+    "Fever and Chill",
+    "Shieldcrush",
+    "Cauterizing Darkness",
+    "Elemental Daze",
+    "Elemental Overdrive",
+    "Elemental Coalescence"
+   ],
+   "plan": [
+    {
+     "set": "Bushido",
+     "rolle": "Per source",
+     "stuecke": 2,
+     "grund": "Named in the source build."
+    },
+    {
+     "set": "Collective Psyche",
+     "rolle": "Per source",
+     "stuecke": 2,
+     "grund": "Raid set named in the source build."
+    }
+   ],
+   "hinweis": "From the Edge of Fate season (Jul 2025); its artifact perks may no longer be available.",
+   "quelle": "Profane on Mobalytics (Jul 2025, Edge of Fate)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/solar/profane-ashen-wake",
+   "warum": "Ashen Wake makes Fusion Grenades explode on impact and refunds grenade energy on kills. Grenade kills build Roaring Flames, then grenades go on big targets; Melas Panoplia is a weaker alternative (per source).",
+   "mods": [],
+   "ziele": {}
   }
  ],
  "neutral": [

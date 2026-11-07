@@ -31,6 +31,8 @@ jobs:
         run: node tools/perks.mjs || echo 'Perk data not reachable, keeping the old one.'
       - name: Translations for the language switcher
         run: node tools/sprachen.mjs || echo 'Translations not reachable, keeping the old ones.'
+      - name: Check every build against the game data
+        run: node tools/pruefe-builds.mjs
       - name: Keep game data in the repository
         run: |
           git config user.name "github-actions"
