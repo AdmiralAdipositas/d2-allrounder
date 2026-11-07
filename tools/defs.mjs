@@ -11,16 +11,17 @@ const holen = async (pfad) => { const r = await fetch(BASIS + pfad, { headers: {
 const manifest = (await holen('/Platform/Destiny2/Manifest/')).Response;
 const pfade = manifest.jsonWorldComponentContentPaths.en;
 const alt = fs.existsSync('data/defs.json') ? JSON.parse(fs.readFileSync('data/defs.json', 'utf8')) : null;
-if (alt?.version === manifest.version && alt?.schema === 3) { console.log('Game data unchanged.'); process.exit(0); }
+if (alt?.version === manifest.version && alt?.schema === 4) { console.log('Game data unchanged.'); process.exit(0); }
 
-const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, typen, modifier, ziele] = await Promise.all([
+const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, typen, modifier, ziele, loNamen, loIcons, loFarben] = await Promise.all([
   'DestinyInventoryItemDefinition', 'DestinySandboxPerkDefinition', 'DestinyCollectibleDefinition', 'DestinyStatDefinition',
   'DestinyEquipableItemSetDefinition', 'DestinyBreakerTypeDefinition', 'DestinyDamageTypeDefinition',
   'DestinyActivityDefinition', 'DestinyActivityTypeDefinition', 'DestinyActivityModifierDefinition', 'DestinyObjectiveDefinition',
+  'DestinyLoadoutNameDefinition', 'DestinyLoadoutIconDefinition', 'DestinyLoadoutColorDefinition',
 ].map((n) => (pfade[n] ? holen(pfade[n]) : {})));
 
 const text = (item) => item.displayProperties?.description || (item.perks || []).map((p) => sandbox[p.perkHash]?.displayProperties?.description).find(Boolean) || '';
-const aus = { schema: 3, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
+const aus = { schema: 4, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
 for (const [hash, it] of Object.entries(items)) {
   const n = it.displayProperties?.name;
   // Nur, was die App braucht: Waffen, Rüstung, Subclasses, Plugs, Artefakte.
@@ -55,5 +56,8 @@ for (const [h, a] of Object.entries(aktivitaeten)) {
   }
 }
 for (const [h, m] of Object.entries(modifier)) if (m.displayProperties?.name && m.displayProperties.icon) aus.mod[h] = { n: m.displayProperties.name, i: m.displayProperties.icon, d: m.displayProperties.description || '' };
+for (const [h, x] of Object.entries(loNamen)) aus.lo.n[h] = x.name || '';
+for (const [h, x] of Object.entries(loIcons)) aus.lo.i[h] = x.iconImagePath || '';
+for (const [h, x] of Object.entries(loFarben)) aus.lo.f[h] = x.colorImagePath || '';
 fs.writeFileSync('data/defs.json', JSON.stringify(aus));
 console.log(`Wrote data/defs.json with ${Object.keys(aus.items).length} items.`);
