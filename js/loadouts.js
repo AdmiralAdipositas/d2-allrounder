@@ -50,6 +50,7 @@ export function zeigeLoadouts(haupt, zustand) {
           <div class="lo-items">${items.map((x) => { const d = defs.items[hashes.get(x.itemInstanceId)]; return d ? `<i title="${esc(d.n)}" class="${d.q === 6 ? 'exo' : ''}" style="background-image:url(${BILD}${d.i})"></i>` : '<i class="fehlt" title="Item no longer exists"></i>'; }).join('')}</div>
           <div class="lo-knoepfe">${leer ? '' : `<button class="haupt-knopf" data-equip="${i}" ${laeuft ? 'disabled' : ''}>Equip</button>`}
             <button data-snap="${i}" ${laeuft ? 'disabled' : ''}>${bestaetigen === i ? 'Click again to overwrite' : 'Save current gear here'}</button>
+ ${leer ? '' : `<button data-teilen="${i}" ${laeuft ? 'disabled' : ''}>Share</button>`}
             ${leer ? '' : `<button class="loeschen" data-clear="${i}" ${laeuft ? 'disabled' : ''}>${loeschen === i ? 'Click again to delete' : 'Delete'}</button>`}</div>
         </article>`;
       }).join('') || '<p class="leer">No in-game loadouts on this character.</p>'}</div>`;
@@ -59,6 +60,29 @@ export function zeigeLoadouts(haupt, zustand) {
   haupt.onclick = async (e) => {
     const c = e.target.closest('[data-char]');
     if (c) { charWahl = c.dataset.char; bestaetigen = loeschen = null; return zeichne(); }
+    const te = e.target.closest('[data-teilen]');
+    if (te) {
+      // DIM-Link ohne Instanz-IDs: der Empfänger setzt seine eigenen Items ein. Subclass mit Aspekten/Fragmenten, Rüstungs-Mods als Parameter.
+      const lo = profil.characterLoadouts.data[charWahl].loadouts[Number(te.dataset.teilen)];
+      const equipped = [];
+      const mods = [];
+      for (const x of lo.items || []) {
+        const h = hashes.get(x.itemInstanceId);
+        const d = defs.items[h];
+        if (!d) continue;
+        const plugs = (x.plugItemHashes || []).filter((p) => p && defs.items[p] && !/^(Empty|Default)/.test(defs.items[p].n));
+        if (d.t === 16) equipped.push({ hash: h, socketOverrides: Object.fromEntries((x.plugItemHashes || []).map((p, n) => [n, p]).filter(([, p]) => p && defs.items[p] && !/^Empty/.test(defs.items[p].n))) });
+        else equipped.push({ hash: h });
+        if (d.t === 2) mods.push(...plugs.filter((p) => /^enhancements\./.test(defs.items[p].pc || '')));
+      }
+      const name = defs.lo?.n?.[lo.nameHash] || 'Loadout';
+      const cls = chars.find((c) => c.characterId === charWahl)?.classType ?? 3;
+      const json = { id: Math.random().toString(16).slice(2, 12), name, notes: 'Shared from D2 Allrounder', classType: cls, clearSpace: false, equipped, unequipped: [], parameters: { mods } };
+      const link = `https://app.destinyitemmanager.com/loadouts?loadout=${encodeURIComponent(JSON.stringify(json))}`;
+      (navigator.clipboard?.writeText(link) || Promise.reject()).then(() => meldung(`DIM link for "${name}" copied. Paste it in Discord.${link.length > 2000 ? ' It is long – Discord may cut it, use a link shortener.' : ''}`))
+        .catch(() => { window.prompt?.('Copy this DIM link:', link); });
+      return;
+    }
     const cl = e.target.closest('[data-clear]');
     if (cl && !laeuft) {
       const i = Number(cl.dataset.clear);
