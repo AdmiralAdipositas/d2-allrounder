@@ -1590,6 +1590,452 @@
    "warum": "Ashen Wake makes Fusion Grenades explode on impact and refunds grenade energy on kills. Grenade kills build Roaring Flames, then grenades go on big targets; Melas Panoplia is a weaker alternative (per source).",
    "mods": [],
    "ziele": {}
+  },
+  {
+   "id": "winters-surge",
+   "name": "Winter's Surge",
+   "klasse": 2,
+   "aktivitaet": [
+    "Solo",
+    "Roaming"
+   ],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Winter's Guile"
+   ],
+   "waffen": [
+    "Mint Retrograde"
+   ],
+   "aspekte": [
+    "Feed the Void",
+    "Lightning Surge"
+   ],
+   "fragmente": [
+    "Facet of Protection",
+    "Facet of Purpose",
+    "Facet of Courage",
+    "Facet of Dominance",
+    "Facet of Bravery"
+   ],
+   "faehigkeiten": [
+    "Song of Flame",
+    "Coldsnap Grenade",
+    "Arcane Needle",
+    "Phoenix Dive"
+   ],
+   "stats": [
+    "Melee",
+    "Super",
+    "Grenade"
+   ],
+   "mods": [
+    "Heavy Handed"
+   ],
+   "quelle": "RestAssured on Mobalytics (Dec 2025, Renegades)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/prismatic/rest-winter-surge",
+   "warum": "Winter's Guile: melee and finisher kills stack melee damage, and at max stacks your melee recharges much faster. That turns Lightning Surge into the main weapon; Feed the Void's Devour heals you on kills.",
+   "plan": [],
+   "artefaktPerks": [],
+   "ziele": {}
+  },
+  {
+   "id": "ultimate-chromatic-fire",
+   "name": "Ultimate Chromatic Fire",
+   "klasse": 2,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Chromatic Fire",
+    "Wish-Ender"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Feed the Void",
+    "Weaver's Call"
+   ],
+   "fragmente": [
+    "Facet of Dawn",
+    "Facet of Purpose",
+    "Facet of Solitude",
+    "Facet of Hope",
+    "Facet of Grace"
+   ],
+   "faehigkeiten": [
+    "Nova Bomb: Cataclysm",
+    "Threadling Grenade"
+   ],
+   "stats": [
+    "Weapons",
+    "Melee",
+    "Class"
+   ],
+   "artefaktPerks": [
+    "Elemental Daze",
+    "Elemental Coalescence",
+    "Reciprocal Draw",
+    "Shieldcrush"
+   ],
+   "plan": [
+    {
+     "set": "TechSec",
+     "rolle": "Per source",
+     "stuecke": 4,
+     "grund": "Set named in the source build."
+    }
+   ],
+   "hinweis": "Chromatic Fire takes the element of your Super, so any Super works: Void weakens, Solar scorches, Arc blinds, Stasis slows, Strand severs. The source runs Nova Bomb (Void).",
+   "quelle": "Profane on Mobalytics (Oct 2025)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/prismatic/profane-ultimate-chromatic-fire",
+   "warum": "Kills with Kinetic weapons (Wish-Ender) set off Chromatic Fire explosions in your Super's element, and chained kills make them bigger. Feed the Void and the Threadlings from Weaver's Call add healing and extra damage.",
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "og-prismatic-spam",
+   "name": "The OG Prismatic Spam",
+   "klasse": 2,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Mataiodoxía",
+    "Khvostov 7G-0X"
+   ],
+   "waffen": [
+    "Psi Aeterna IV",
+    "The Other Half"
+   ],
+   "aspekte": [
+    "Feed the Void",
+    "Weaver's Call"
+   ],
+   "fragmente": [
+    "Facet of Devotion",
+    "Facet of Grace",
+    "Facet of Dominance",
+    "Facet of Hope",
+    "Facet of Purpose"
+   ],
+   "faehigkeiten": [
+    "Needlestorm",
+    "Vortex Grenade",
+    "Arcane Needle",
+    "Phoenix Dive"
+   ],
+   "stats": [
+    "Melee",
+    "Weapons",
+    "Class"
+   ],
+   "quelle": "LlamaD2 on Mobalytics (Dec 2025, Renegades)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/prismatic/llama-og-prismatic-spam",
+   "warum": "Mataiodoxía: enemies hit by Arcane Needle explode and suspend when they die, and killing suspended enemies gives melee energy back, so the needles keep coming and fill Transcendence; Khvostov ricochets fill the rest. Needlestorm is saved for tough targets.",
+   "plan": [],
+   "artefaktPerks": [],
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "void-surge",
+   "name": "Void Surge",
+   "klasse": 2,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Felwinter's Helm",
+    "Outbreak Perfected"
+   ],
+   "waffen": [
+    "Lotus-Eater",
+    "Watchful Eye"
+   ],
+   "aspekte": [
+    "Feed the Void",
+    "Lightning Surge"
+   ],
+   "fragmente": [
+    "Facet of Courage",
+    "Facet of Defiance",
+    "Facet of Hope",
+    "Facet of Protection",
+    "Facet of Purpose"
+   ],
+   "faehigkeiten": [
+    "Nova Bomb: Cataclysm",
+    "Coldsnap Grenade",
+    "Arcane Needle",
+    "Phoenix Dive"
+   ],
+   "stats": [
+    "Melee",
+    "Super",
+    "Weapons"
+   ],
+   "hinweis": "From July 2025 (Edge of Fate launch).",
+   "quelle": "Plunder on Mobalytics (Jul 2025)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/prismatic/plunder-void-surge",
+   "warum": "Felwinter's Helm: powered melee hits weaken, and melee kills release a burst that weakens everything nearby. Lightning Surge hits a whole line of enemies, so one melee weakens a group for your weapons.",
+   "plan": [],
+   "artefaktPerks": [],
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "rime-control",
+   "name": "Rime-Control",
+   "klasse": 2,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Rime-coat Raiment",
+    "Ice Breaker"
+   ],
+   "waffen": [
+    "Rime Stealer"
+   ],
+   "aspekte": [
+    "Bleak Watcher",
+    "Feed the Void"
+   ],
+   "fragmente": [
+    "Facet of Command",
+    "Facet of Dominance",
+    "Facet of Ruin",
+    "Facet of Dawn"
+   ],
+   "faehigkeiten": [
+    "Song of Flame",
+    "Vortex Grenade",
+    "Arcane Needle",
+    "Healing Rift"
+   ],
+   "stats": [
+    "Grenade",
+    "Weapons",
+    "Super"
+   ],
+   "artefaktPerks": [
+    "Cauterized Darkness",
+    "Elemental Benevolence",
+    "Fever and Chill",
+    "Flame, Fiber, and Freeze",
+    "Frigid Glare",
+    "One with Frost",
+    "Shieldcrush"
+   ],
+   "hinweis": "From August 2025; artifact perks are from that season.",
+   "quelle": "LuckyMec on Mobalytics (Aug 2025)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/prismatic/luckymec-rime-control",
+   "warum": "Rime-coat Raiment gives your Bleak Watcher turrets more range, crystals and a storm; standing in the storm gives you icicles that slow whatever you shoot. Play defensive (turret at your feet) or offensive (turret into the enemy group, crystals spawn there).",
+   "plan": [],
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "god-mode-titan",
+   "name": "Plunder's God Mode Titan",
+   "klasse": 0,
+   "aktivitaet": [
+    "Endgame"
+   ],
+   "subclass": "Sentinel",
+   "exotics": [
+    "No Backup Plans",
+    "Slayer's Fang"
+   ],
+   "waffen": [
+    "Nightshade",
+    "Commemoration"
+   ],
+   "aspekte": [
+    "Controlled Demolition",
+    "Offensive Bulwark"
+   ],
+   "fragmente": [
+    "Echo of Dilation",
+    "Echo of Harvest",
+    "Echo of Reprisal",
+    "Echo of Starvation"
+   ],
+   "faehigkeiten": [
+    "Ward of Dawn",
+    "Vortex Grenade",
+    "Shield Throw",
+    "Rally Barricade"
+   ],
+   "stats": [
+    "Weapons",
+    "Super",
+    "Grenade"
+   ],
+   "artefaktPerks": [
+    "Elemental Siphon",
+    "Volatile Marksman",
+    "Unraveling Orbs",
+    "Horde Shuttle",
+    "Flashover",
+    "Defibrillating Blast",
+    "Elemental Supercharger"
+   ],
+   "plan": [
+    {
+     "set": "Exodus Down",
+     "rolle": "Per source",
+     "stuecke": 4,
+     "grund": "Set named in the source build."
+    }
+   ],
+   "quelle": "Plunder on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/void/plunder-god-mode-titan",
+   "warum": "No Backup Plans: shotgun and melee kills start health regen, and while you have a Void overshield your shotgun hits harder and kills extend the overshield. Slayer's Fang (shotgun) adds Truesight, faster reloads and weakening submunitions on kills.",
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "tommys-splendor",
+   "name": "Tommy's Splendor",
+   "klasse": 0,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Sunbreaker",
+   "exotics": [
+    "Loreley Splendor Helm",
+    "Tommy's Matchbook"
+   ],
+   "waffen": [
+    "Mint Retrograde",
+    "Apex Predator"
+   ],
+   "aspekte": [
+    "Consecration",
+    "Sol Invictus"
+   ],
+   "fragmente": [
+    "Ember of Char",
+    "Ember of Empyrean",
+    "Ember of Searing",
+    "Ember of Singeing",
+    "Ember of Solace"
+   ],
+   "faehigkeiten": [
+    "Hammer of Sol",
+    "Thermite Grenade",
+    "Throwing Hammer",
+    "Rally Barricade"
+   ],
+   "stats": [
+    "Class",
+    "Weapons",
+    "Grenade"
+   ],
+   "hinweis": "From July 2025 (Edge of Fate launch). The source uses the Force Converter set bonus.",
+   "quelle": "Plunder on Mobalytics (Jul 2025)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/solar/plunder-tommys-splendor",
+   "warum": "Loreley Splendor Helm: with a Solar Super, casting your Barricade (or getting low with a full class ability) drops a Sunspot. Sol Invictus Sunspots heal you and speed up your abilities, and Solar kills keep the loop going.",
+   "plan": [],
+   "artefaktPerks": [],
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "war-rigs-perfected",
+   "name": "Actium War Rigs Perfected",
+   "klasse": 0,
+   "aktivitaet": [
+    "Roaming"
+   ],
+   "subclass": "Striker",
+   "exotics": [
+    "Actium War Rig",
+    "Thunderlord"
+   ],
+   "waffen": [
+    "Any Auto Rifle or Machine Gun"
+   ],
+   "aspekte": [
+    "Knockout",
+    "Storm's Keep"
+   ],
+   "fragmente": [
+    "Spark of Amplitude",
+    "Spark of Shock",
+    "Spark of Ions",
+    "Spark of Resistance"
+   ],
+   "faehigkeiten": [
+    "Thundercrash",
+    "Flashbang Grenade"
+   ],
+   "stats": [
+    "Weapons",
+    "Super",
+    "Class"
+   ],
+   "artefaktPerks": [
+    "Fever and Chill",
+    "Shoulder to Shoulder",
+    "Elemental Overdrive",
+    "Elemental Coalescence",
+    "Elemental Benevolence",
+    "Cauterized Darkness"
+   ],
+   "hinweis": "From July 2025 (Edge of Fate launch); artifact perks are from that season.",
+   "quelle": "Profane on Mobalytics (Jul 2025)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/arc/profane-war-rigs-perfected",
+   "warum": "Actium War Rig reloads Auto Rifles and Machine Guns while you shoot, and kills with them raise their damage. Thunderlord kills call lightning that gives Bolt Charge. Loop: Barricade down, then just keep shooting.",
+   "plan": [],
+   "mods": [],
+   "ziele": {}
+  },
+  {
+   "id": "strand-melee-dps",
+   "name": "Strand Melee DPS",
+   "klasse": 0,
+   "aktivitaet": [
+    "Boss DPS"
+   ],
+   "subclass": "Berserker",
+   "exotics": [
+    "Praxic Blade"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Banner of War",
+    "Flechette Storm"
+   ],
+   "fragmente": [
+    "Thread of Generation",
+    "Thread of Fury",
+    "Thread of Warding",
+    "Thread of Transmutation"
+   ],
+   "faehigkeiten": [
+    "Bladefury",
+    "Frenzied Blade",
+    "Grapple",
+    "Rally Barricade"
+   ],
+   "stats": [
+    "Melee",
+    "Super",
+    "Weapons"
+   ],
+   "hinweis": "No exotic armor named in the source.",
+   "quelle": "Divide on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/strand/divide-strand-melee-dps",
+   "warum": "A melee or sword kill starts Banner of War, and more kills stack it. Block with the sword to get Amplified, pick up Orbs for Woven Mail, and use Tangles for ability energy.",
+   "plan": [],
+   "artefaktPerks": [],
+   "mods": [],
+   "ziele": {}
   }
  ],
  "neutral": [
