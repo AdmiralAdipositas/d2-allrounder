@@ -6,6 +6,7 @@ import { sammle, ARMOR_STATS, merkeAenderung, zumCharakter } from './vault.js';
 import * as bungie from './bungie.js';
 import { meldung } from './app.js';
 import { oeffneDetail } from './detail.js';
+import { zeigeItemTipp } from './itemtipp.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -141,8 +142,12 @@ export function zeigeCharakter(haupt, zustand) {
   addEventListener('touchmove', h.tm, { passive: false }); addEventListener('touchend', h.tu); addEventListener('touchcancel', h.tu);
   haupt.oncontextmenu = (e) => { if (e.target.closest('.ck[data-cid]') && (zug?.finger || e.pointerType === 'touch')) e.preventDefault(); };
 
+  // In-Game-Hover für Waffen und Rüstung.
+  haupt.onpointerover = (e) => { if (e.pointerType !== 'mouse' || zug?.aktiv) return; const t = e.target.closest('.ck[data-cid]'); if (t) zeigeItemTipp(proId.get(t.dataset.cid), p, e.clientX, e.clientY); };
+  haupt.onpointerout = (e) => { if (e.target.closest('.ck[data-cid]') && !e.relatedTarget?.closest?.('.ck[data-cid]') && !document.querySelector('#tippFest:checked')) { const tp = document.querySelector('#tipp'); if (tp) tp.hidden = true; } };
   haupt.onclick = (e) => {
     if (haupt.dataset.keinKlick) return;
+    { const tp = document.querySelector('#tipp'); if (tp) tp.hidden = true; }
     const w = e.target.closest('[data-wahl]');
     if (w) { wahl = w.dataset.wahl; try { localStorage.setItem('d2a.charWahl', wahl); } catch {} return zeichne(); }
     if (e.target.closest('[data-postpanel]')) return zustand.oeffnePanel?.('post');
