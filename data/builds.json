@@ -1511,8 +1511,7 @@
    "stats": [
     "Grenade",
     "Super",
-    "Weapons",
-    "Class"
+    "Weapons"
    ],
    "hinweis": "The source does not name the exotic armor, only its effect (longer invisibility, faster ability regen while invisible).",
    "quelle": "Plunder on Mobalytics (Dec 2025, Renegades)",
@@ -2025,7 +2024,11 @@
     "Chain Lightning",
     "Flashbang Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Grenade",
+    "Class",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2063,7 +2066,11 @@
     "Chain Lightning",
     "Storm Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Grenade",
+    "Class"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2103,7 +2110,11 @@
     "Ball Lightning",
     "Pulse Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Grenade",
+    "Class"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2140,7 +2151,11 @@
     "Ball Lightning",
     "Pulse Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Weapons",
+    "Grenade"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2179,7 +2194,11 @@
     "Incinerator Snap",
     "Healing Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Weapons",
+    "Class"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2219,7 +2238,11 @@
     "Celestial Fire",
     "Solar Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Grenade",
+    "Super",
+    "Melee"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2257,7 +2280,11 @@
     "Incinerator Snap",
     "Healing Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Melee",
+    "Class"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2300,7 +2327,11 @@
     "Pocket Singularity",
     "Vortex Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Weapons",
+    "Grenade"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2337,7 +2368,11 @@
     "Pocket Singularity",
     "Axion Bolt"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Grenade",
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2378,7 +2413,11 @@
     "Pocket Singularity",
     "Vortex Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons",
+    "Grenade",
+    "Class"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2419,7 +2458,11 @@
     "Pocket Singularity",
     "Vortex Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Grenade",
+    "Super",
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2460,7 +2503,11 @@
     "Arcane Needle",
     "Shackle Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Grenade",
+    "Melee"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2498,7 +2545,11 @@
     "Arcane Needle",
     "Threadling Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Grenade",
+    "Class",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2540,7 +2591,11 @@
     "Arcane Needle",
     "Storm Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Grenade",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2577,7 +2632,11 @@
     "Arcane Needle",
     "Storm Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Grenade",
+    "Class",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2617,7 +2676,11 @@
     "Arcane Needle",
     "Storm Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Grenade",
+    "Melee"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2655,7 +2718,11 @@
     "Arcane Needle",
     "Healing Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons",
+    "Grenade",
+    "Melee"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2693,7 +2760,11 @@
     "Arcane Needle",
     "Storm Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Grenade",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2734,7 +2805,11 @@
     "Thunderclap",
     "Pulse Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons",
+    "Class",
+    "Grenade"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2774,7 +2849,11 @@
     "Ballistic Slam",
     "Pulse Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Melee",
+    "Class"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2812,7 +2891,11 @@
     "Throwing Hammer",
     "Healing Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Class",
+    "Weapons",
+    "Melee"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2849,7 +2932,11 @@
     "Throwing Hammer",
     "Healing Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Melee",
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2886,7 +2973,11 @@
     "Throwing Hammer",
     "Healing Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Super",
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2924,7 +3015,11 @@
     "Shield Throw",
     "Vortex Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Grenade",
+    "Class",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -2962,7 +3057,11 @@
     "Shield Bash",
     "Scatter Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons",
+    "Super",
+    "Grenade"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3000,7 +3099,11 @@
     "Shield Throw",
     "Scatter Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons",
+    "Grenade",
+    "Class"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3037,7 +3140,11 @@
     "Shiver Strike",
     "Glacier Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons",
+    "Melee",
+    "Grenade"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3075,7 +3182,11 @@
     "Shiver Strike",
     "Shatter Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons",
+    "Melee",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3112,7 +3223,11 @@
     "Frenzied Blade",
     "Grapple"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Super",
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3149,7 +3264,11 @@
     "Frenzied Blade",
     "Shackle Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons",
+    "Grenade",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3188,7 +3307,11 @@
     "Thunderclap",
     "Shackle Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Weapons",
+    "Class"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3225,7 +3348,11 @@
     "Frenzied Blade",
     "Glacier Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Super",
+    "Grenade"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3265,7 +3392,11 @@
     "Shield Throw",
     "Suppressor Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Grenade",
+    "Super",
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3303,7 +3434,10 @@
     "Frenzied Blade",
     "Shackle Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3340,7 +3474,11 @@
     "Combination Blow",
     "Flashbang Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Class",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3377,7 +3515,11 @@
     "Combination Blow",
     "Flashbang Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Class",
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3415,7 +3557,11 @@
     "Disorienting Blow",
     "Skip Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Grenade",
+    "Class",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3452,7 +3598,11 @@
     "Combination Blow",
     "Pulse Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Class",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3490,7 +3640,11 @@
     "Knife Trick",
     "Tripmine Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Grenade",
+    "Class",
+    "Melee"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3528,7 +3682,11 @@
     "Knife Trick",
     "Healing Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Class",
+    "Super",
+    "Melee"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3566,7 +3724,11 @@
     "Knife Trick",
     "Healing Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Class",
+    "Weapons",
+    "Grenade"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3603,7 +3765,11 @@
     "Knife Trick",
     "Healing Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Class",
+    "Grenade",
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3640,7 +3806,11 @@
     "Knife Trick",
     "Healing Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Super",
+    "Class"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3678,7 +3848,11 @@
     "Snare Bomb",
     "Vortex Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons",
+    "Super",
+    "Grenade"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3716,7 +3890,11 @@
     "Phantom Surge",
     "Vortex Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Class",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3754,7 +3932,11 @@
     "Phantom Surge",
     "Magnetic Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Weapons",
+    "Class"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3791,7 +3973,11 @@
     "Phantom Surge",
     "Magnetic Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Grenade",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3829,7 +4015,9 @@
     "Snare Bomb",
     "Vortex Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3867,7 +4055,11 @@
     "Threaded Spike",
     "Grapple"
    ],
-   "stats": [],
+   "stats": [
+    "Grenade",
+    "Weapons",
+    "Super"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3905,7 +4097,11 @@
     "Withering Blade",
     "Duskfield Grenade"
    ],
-   "stats": [],
+   "stats": [
+    "Weapons",
+    "Class",
+    "Grenade"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3942,7 +4138,11 @@
     "Combination Blow",
     "Grapple"
    ],
-   "stats": [],
+   "stats": [
+    "Super",
+    "Weapons",
+    "Melee"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
@@ -3979,7 +4179,11 @@
     "Combination Blow",
     "Grapple"
    ],
-   "stats": [],
+   "stats": [
+    "Melee",
+    "Class",
+    "Weapons"
+   ],
    "mods": [],
    "artefaktPerks": [],
    "plan": [],
