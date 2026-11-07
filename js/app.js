@@ -3,6 +3,7 @@ import * as bungie from './bungie.js';
 import { ladeDefs } from './defs.js';
 import { zeigeVault } from './vault.js';
 import { zeigeWoche } from './woche.js';
+import { zeigeLoadouts } from './loadouts.js';
 import { zeigeXur, xurDa } from './xur.js';
 
 const $ = (s) => document.querySelector(s);
@@ -31,7 +32,7 @@ const TABS = {
   vault: () => zeigeVault(haupt, zustand, 'waffen'),
   armor: () => zeigeVault(haupt, zustand, 'ruestung'),
   xur: () => zeigeXur(haupt, zustand),
-  loadouts: () => platzhalter('Loadouts', 'Saved loadouts and one-click equip come in the next patch.'),
+  loadouts: () => zeigeLoadouts(haupt, zustand),
   optimizer: () => platzhalter('Optimizer', 'The armor optimizer with live stat bars comes in the next patch.'),
   finder: () => platzhalter('Build Finder', 'Finds builds from what you own. Comes in the next patch.'),
   stats: () => platzhalter('Stats', 'Your activity and weapon statistics. Comes in the next patch.'),

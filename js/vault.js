@@ -18,9 +18,19 @@ const POST = 215593132;
 export const aenderungen = new Map();
 export function merkeAenderung(id, werte) { aenderungen.set(id, { ...werte, zeit: Date.now() }); }
 
+export const ARMOR_STATS = ['Health', 'Melee', 'Grenade', 'Super', 'Class', 'Weapons'];
+function armorStats(roh) {
+  const st = Object.fromEntries(ARMOR_STATS.map((n) => [n, 0]));
+  for (const s of Object.values(roh?.stats || {})) { const n = defs.stats?.[s.statHash]?.n; if (n in st) st[n] = s.value; }
+  st.Total = ARMOR_STATS.reduce((a, n) => a + st[n], 0);
+  return st;
+}
+let statMin = (() => { try { return JSON.parse(localStorage.getItem('d2a.statmin') || '{}'); } catch { return {}; } })();
+
 // Alles aus dem Profil zu einer flachen Liste machen.
 export function sammle(profil) {
   const inst = profil.itemComponents?.instances?.data || {};
+  const statDaten = profil.itemComponents?.stats?.data || {};
   const sockel = profil.itemComponents?.sockets?.data || {};
   const liste = [];
   const nimm = (it, ort0, angelegt0 = false) => {
@@ -36,6 +46,7 @@ export function sammle(profil) {
       id: it.itemInstanceId, hash: it.itemHash, d, ort, angelegt, plugs,
       power: i.primaryStat?.value || 0, element: i.damageType || d.d0 || 0,
       champ: d.t === 3 ? champion(it.itemHash, plugs, i.breakerType) : null,
+      st: d.t === 2 ? armorStats(statDaten[it.itemInstanceId]) : null,
     });
   };
   for (const it of profil.profileInventory?.data?.items || []) nimm(it, 'tresor');
@@ -48,7 +59,7 @@ function kachel(x) {
   const champ = x.champ ? `<i class="ch" style="background-image:url(${BILD}${x.champ.i})" aria-label="${esc(CHAMP_NAME[x.champ.n] || x.champ.n)}"></i>` : '';
   const ort = x.ort === 'tresor' ? 'tresor' : x.ort.startsWith('post:') ? 'post' : 'char';
   return `<div class="ic ${x.d.q === 6 ? 'exotic' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:url(${BILD}${x.d.i})">
-    ${champ}<i class="ort ${ort}"></i>${x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
+    ${champ}<i class="ort ${ort}"></i>${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
 }
 
 // Filtergruppen: innerhalb einer Gruppe ODER, zwischen Gruppen UND.
@@ -74,6 +85,7 @@ let suche = '';
 const merke = () => { try { localStorage.setItem('d2a.filter', JSON.stringify(filter)); } catch {} };
 
 function passt(x) {
+  if (x.st) for (const [n, v] of Object.entries(statMin)) if (v && x.st[n] < v) return false;
   for (const [g, werte] of Object.entries(filter)) if (werte.length && !werte.includes(x.m[g])) return false;
   if (!suche) return true;
   const plugNamen = x.plugs.map((p) => defs.items[p]?.n || '').join(' ');
@@ -97,7 +109,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   haupt.innerHTML = `<div class="kopf"><h1>${istWaffe ? 'Weapons' : 'Armor'}</h1><input id="suche" type="search" placeholder="Search name, perk, frame…" aria-label="Search" value="${esc(suche)}">
     <button id="neu" class="chip" title="Reload from Bungie">↻ Refresh</button><span class="platz"></span><div class="chips" role="group" aria-label="Class" ${istWaffe ? 'hidden' : ''}>
     ${chars.map((c) => `<button class="chip" data-klasse="${c.classType}" aria-pressed="${c.classType === klasse}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}
-    </div></div><div id="filter" class="filter"></div><div id="reihen"></div>`;
+    </div></div><div id="filter" class="filter"></div>${istWaffe ? '' : `<div class="statmin" aria-label="Minimum stats">${[...ARMOR_STATS, 'Total'].map((n) => `<label>${n}<select data-stat="${n}">${(n === 'Total' ? [0, 60, 65, 70, 75, 80, 85, 90] : [0, 5, 10, 15, 20, 25, 30, 35]).map((v) => `<option value="${v}" ${Number(statMin[n] || 0) === v ? 'selected' : ''}>${v ? `${v}+` : 'any'}</option>`).join('')}</select></label>`).join('')}</div>`}<div id="reihen"></div>`;
   const fBox = haupt.querySelector('#filter');
   const rBox = haupt.querySelector('#reihen');
   const offen = new Set(JSON.parse((() => { try { return localStorage.getItem('d2a.offen'); } catch { return null; } })() || '[]'));
@@ -119,7 +131,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
     zeichneFilter(klassenItems);
     const sichtbar = klassenItems.filter(passt);
     const reihen = SLOTS.map(([b, name]) => {
-      const st = sichtbar.filter((x) => x.d.b === b).sort((p, q) => (q.d.q === 6) - (p.d.q === 6) || q.power - p.power || p.d.n.localeCompare(q.d.n));
+      const st = sichtbar.filter((x) => x.d.b === b).sort((p, q) => (q.d.q === 6) - (p.d.q === 6) || (q.st?.Total || q.power) - (p.st?.Total || p.power) || p.d.n.localeCompare(q.d.n));
       if (!st.length) return '';
       const offenR = !zu.has(name);
       return `<section class="reihe ${offenR ? '' : 'zu'}"><h3><button class="klapp" data-reihe="${name}" aria-expanded="${offenR}">${offenR ? '▾' : '▸'} ${name} <small>${st.length}</small></button></h3>${offenR ? `<div class="raster">${st.map(kachel).join('')}</div>` : ''}</section>`;
@@ -129,6 +141,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   };
   zeichne();
 
+  haupt.querySelectorAll('[data-stat]').forEach((sel) => { sel.onchange = () => { statMin[sel.dataset.stat] = Number(sel.value); try { localStorage.setItem('d2a.statmin', JSON.stringify(statMin)); } catch {} zeichne(); }; });
   haupt.querySelector('#suche').oninput = (e) => { suche = e.target.value.trim().toLowerCase(); zeichne(); };
   fBox.addEventListener('toggle', (e) => {
     const g = e.target.dataset?.gruppe;
