@@ -6075,6 +6075,166 @@ const CEC=(function(){
  return{bg:ceBg,S,base,finish:ceFinish(keys,floor)};
 })();
 
+
+/* =================== THE DESERT PERPETUAL (shared) =================== */
+// Based on early written guides (mostly the Epic version) — everything schematic and marked as such.
+const DP_COL={red:'#ff6156',white:'#ece8f4',blue:'#59b8ff'};
+const dpChr=(p,c,o)=>({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><circle r="7" fill="${DP_COL[c]}" stroke="#fff" stroke-width="1.2"/></g>`});
+function dpFinish(keys,floor){return function(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)}];
+  s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));
+  keys.forEach(q=>{if(s.dead[q])return;const p=s.p[q];
+   if(s.buff[q])units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y-22})"><rect x="-9" y="-7" width="18" height="13" rx="3" fill="#14101e" stroke="#f6dc8e"/><text y="3.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" font-weight="700" fill="#f6dc8e">${s.buff[q]}</text></g>`});
+   if(s.chr[q])units.push(dpChr({x:p.x+14,y:p.y+12},s.chr[q]));});
+  const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q],o:s.fade[q]==null?1:s.fade[q]}));
+  const hud=s.hud?{t:L(s.hud.t),v:fmt(s.hud.v),hi:false,paused:false,low:s.hud.v<15}:null;
+  return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud,plus:'',pips:s.pips?{at:[624,8],label:L(s.pips.lk)+' '+s.pips.done+'/'+s.pips.n,n:s.pips.n,done:s.pips.done}:null};};}
+function dpBase(keys,POS,extra){return function(){const s=Object.assign({p:{},buff:{},chr:{},units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{},fade:{}},extra||{});
+  keys.forEach(k=>s.p[k]={...POS[k]});return s;};}
+const dpFire=(s,k,key,b,i)=>{if(s.busy[key]||s.dead[key])return;s.busy[key]=1;if(Math.floor(k*70+(i||0))%2)s.shots.push({a:s.p[key],q:key,b,c:C.ally});};
+const dpBg=g=>{g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';};
+const dpFloor=(extra)=>s=>`<rect x="-40" y="-40" width="880" height="520" fill="#0e0c08"/><rect x="90" y="30" width="620" height="390" rx="14" fill="#1a160e" stroke="#4a3d22"/>`+extra(s)+`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN · schematic</text>`;
+
+/* =================== DESERT PERPETUAL: IATROS =================== */
+// Runners: Minotaur in a section shows its Chronon colour; read the ring colour in the Vex pool, both dunk; 6 Chronons
+// (three pairs) start Diastole. Shooters get Constant (left pillar) / Absolute (middle) / Cyclical (right) and hit the
+// capsule heights the jumper calls (red = bottom, white = middle, blue = top) together → the jumper climbs a tier.
+const DPI=(function(){
+ const keys=['JU','S1','S2','S3','R1','R2'];
+ const PIL={L:{x:200,y:160},M:{x:400,y:120},R:{x:600,y:160}};const RING={x:400,y:300};const POOL={x:300,y:330};
+ const POS={JU:{x:400,y:220},S1:{x:220,y:300},S2:{x:400,y:380},S3:{x:580,y:300},R1:{x:260,y:390},R2:{x:540,y:390}};
+ const floor=dpFloor(s=>Object.entries(PIL).map(([n,p])=>`<rect x="${p.x-16}" y="${p.y-60}" width="32" height="110" rx="6" fill="#120f0a" stroke="#6b5a3a"/>${['blue','white','red'].map((c,i)=>`<rect x="${p.x-10}" y="${p.y-52+i*34}" width="20" height="26" rx="4" fill="${(s.hit||[]).includes(n+c)?DP_COL[c]:'#1e1a12'}" stroke="${DP_COL[c]}" stroke-opacity=".6"/>`).join('')}`).join('')+`<circle cx="${RING.x}" cy="${RING.y}" r="26" fill="none" stroke="${DP_COL[s.ring||'white']}" stroke-width="4"/><ellipse cx="${POOL.x}" cy="${POOL.y}" rx="26" ry="12" fill="rgba(127,227,255,.15)" stroke="#7fe3ff"/>`);
+ const base=dpBase(keys,POS,{hit:[],ring:'white'});
+ const boss=(s,o)=>s.units.push(Object.assign({t:'vmind',x:400,y:60,small:1},o||{}));
+ const S=[
+ // 1 chronons
+ {d:26,f(k,s){boss(s);const cols=['red','blue','white'];const i=Math.min(2,Math.floor(k*3));const ph=(k*3)%1;s.ring=cols[i];
+   const M={x:150+i*250,y:250};if(ph<.35){s.units.push({t:'mino',x:M.x,y:M.y,hp:1-seg(ph,.05,.3)*.97});['R1','R2'].forEach((q,j)=>dpFire(s,k,q,M,j));}
+   if(ph>=.3&&ph<.4)s.adds.push(dpChr(M,cols[i]));
+   ['R1','R2'].forEach((q,j)=>{s.chr[q]=ph>=.4&&ph<.85?cols[i]:null;s.p[q]=ph<.4?mv(POS[q],M,seg(ph,.3,.4)):ph<.6?mv(M,j?RING:POOL,seg(ph,.4,.6)):j?{x:RING.x+20,y:RING.y}:{x:RING.x-20,y:RING.y};});
+   if(ph>=.55&&ph<.7)s.labels.push({x:POOL.x,y:POOL.y-26,k:'lRead',c:'#7fe3ff',o:1});if(ph>=.85&&ph<.95)s.bursts.push({...RING,r:10+30*seg(ph,.85,.95),c:DP_COL[cols[i]],o:1-seg(ph,.85,.95)});
+   s.pips={lk:'lChrLbl',n:6,done:Math.min(6,i*2+(ph>=.9?2:0))};
+   s.fx=ph<.4?{k:'fxI1Mino',o:1,c:C.ally}:ph<.7?{k:'fxI1Read',o:1,c:'#7fe3ff'}:{k:'fxI1Dunk',o:1,c:C.good};}},
+ // 2 diastole: shooters at pillars hit the called heights together, jumper climbs
+ {d:26,f(k,s){boss(s);s.buff={S1:'CO',S2:'AB',S3:'CY'};
+   const calls=[['L','red','M','blue','R','white'],['L','white','M','red','R','blue']];const r=k<.5?0:1;const c=calls[r];
+   if((k%.5)<.15)s.labels.push({x:s.p.JU.x,y:s.p.JU.y-34,k:r?'lCall2':'lCall1',c:C.light,o:1});
+   s.hit=[];if((k%.5)>=.2&&(k%.5)<.32){[['S1',0],['S2',2],['S3',4]].forEach(([q,j])=>{const p=PIL[c[j]];const y={blue:p.y-52+13,white:p.y-18+13,red:p.y+16+13}[c[j+1]];s.shots.push({a:s.p[q],q,b:{x:p.x,y},c:C.ally});s.hit.push(c[j]+c[j+1]);});}
+   if((k%.5)>=.32)s.p.JU=mv(r?{x:400,y:180}:POS.JU,r?{x:400,y:140}:{x:400,y:180},seg(k%.5,.32,.45));
+   if(k>=.5&&k<.6)s.labels.push({x:400,y:330,k:'lSwap',c:'#ff6156',o:1});
+   s.fx=k<.5?{k:'fxI2Shoot',o:win(k,0,.5,.02),c:C.light}:{k:'fxI2Swap',o:win(k,.5,1,.02),c:'#ff6156'};}},
+ // 3 last cube → damage
+ {d:16,f(k,s){boss(s,{hp:k>=.2?1-seg(k,.2,.95)*.3:null});s.p.JU=k<.2?mv({x:400,y:140},{x:400,y:100},seg(k,0,.15)):{x:400,y:100};if(k<.2)s.adds.push({t:'raw',x:0,y:0,svg:`<rect x="392" y="88" width="16" height="16" fill="#f6dc8e"/>`});
+   if(k>=.2)keys.forEach((q,i)=>dpFire(s,k,q,{x:400,y:60},i));s.fx=k<.2?{k:'fxI3Cube',o:win(k,0,.2,.02),c:'#f6dc8e'}:{k:'fxI3Dmg',o:win(k,.2,1,.02),c:C.ally};}}
+ ];
+ return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
+})();
+
+/* =================== DESERT PERPETUAL: AGRAIOS =================== */
+// Readers on plates map the accelerators to colours (two blue, two red, one white). Runners farm Minotaurs for the
+// needed colour and dunk into the matching hoop. A centre dunk resets the drop rule (next Minotaur drops the colour of
+// its spawn spot). Flex handles adds and reflects the boss laser. Final stand: pairs kill the clone matching their buff.
+const DPA=(function(){
+ const keys=['RD1','RD2','RU1','RU2','FX1','FX2'];
+ const HOOP=[{x:180,y:120,c:'blue'},{x:300,y:80,c:'red'},{x:400,y:70,c:'white'},{x:500,y:80,c:'blue'},{x:620,y:120,c:'red'}];
+ const PL=[{x:250,y:330},{x:550,y:330}];
+ const POS={RD1:{x:250,y:330},RD2:{x:550,y:330},RU1:{x:330,y:380},RU2:{x:470,y:380},FX1:{x:200,y:400},FX2:{x:600,y:400}};
+ const floor=dpFloor(s=>HOOP.map((h,i)=>`<circle cx="${h.x}" cy="${h.y}" r="18" fill="none" stroke="${s.map?DP_COL[h.c]:'#6b5a3a'}" stroke-width="3"/>`).join('')+PL.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="20" fill="none" stroke="#f6dc8e" stroke-dasharray="4 3"/>`).join('')+`<circle cx="400" cy="220" r="22" fill="none" stroke="#c9b6ff" stroke-width="2"/>`);
+ const base=dpBase(keys,POS,{map:false});
+ const boss=(s,o)=>s.units.push(Object.assign({t:'vmind',x:400,y:200,small:1},o||{}));
+ const S=[
+ // 1 readers map the hoops
+ {d:18,f(k,s){boss(s);s.map=k>=.3;if(k>=.3)s.labels.push({x:400,y:30,k:'lMap',c:C.light,o:win(k,.3,1,.02)});
+   if(k<.3)s.spot=PL.map(p=>({...p,r:30,o:win(k,0,.3),w:true}));else s.spot=HOOP.map(h=>({...h,r:24,o:win(k,.3,1.01),w:true}));
+   s.fx=k<.3?{k:'fxA1Plates',o:win(k,0,.3,.02),c:'#f6dc8e'}:{k:'fxA1Map',o:win(k,.3,1,.02),c:C.light};}},
+ // 2 runners farm Minotaur colour, dunk matching hoop; centre dunk = reset; flex reflects laser
+ {d:26,f(k,s){boss(s,{beam:k>=.62&&k<.8});s.map=true;const M={x:200,y:250};
+   if(k<.25){s.units.push({t:'mino',x:M.x,y:M.y,hp:1-seg(k,.04,.22)*.97});['RU1','FX1'].forEach((q,i)=>dpFire(s,k,q,M,i));}
+   if(k>=.22&&k<.28)s.adds.push(dpChr(M,'red'));s.chr.RU1=k>=.28&&k<.5?'red':null;
+   s.p.RU1=k<.28?mv(POS.RU1,M,seg(k,.2,.28)):k<.5?mv(M,{x:HOOP[1].x,y:HOOP[1].y+24},seg(k,.3,.48)):{x:HOOP[1].x,y:HOOP[1].y+24};
+   if(k>=.48&&k<.56)s.bursts.push({...HOOP[1],r:10+20*seg(k,.48,.56),c:DP_COL.red,o:1-seg(k,.48,.56)});
+   if(k>=.62&&k<.8){s.p.FX2=mv(POS.FX2,{x:640,y:300},seg(k,.6,.66));s.labels.push({x:640,y:270,k:'lReflect',c:'#c9b6ff',o:1});s.shots.push({a:s.p.FX2,q:'FX2',b:{x:400,y:200},c:'#c9b6ff'});}
+   if(k>=.82)s.labels.push({x:400,y:260,k:'lReset',c:'#ff6156',o:win(k,.82,1,.02)});
+   s.fx=k<.3?{k:'fxA2Mino',o:win(k,0,.3,.02),c:C.ally}:k<.6?{k:'fxA2Dunk',o:win(k,.3,.6,.02),c:DP_COL.red}:k<.82?{k:'fxA2Laser',o:win(k,.6,.82,.02),c:'#c9b6ff'}:{k:'fxA2Reset',o:win(k,.82,1,.02),c:'#ff6156'};}},
+ // 3 final stand: pairs, clones matching buff
+ {d:20,f(k,s){const cl=[{x:200,y:150,c:'red'},{x:600,y:150,c:'blue'},{x:400,y:340,c:'white'}];boss(s,{hp:k>=.7?1-seg(k,.7,.98)*.5:null,sh:k<.7});
+   const pairs=[['RD1','RU1'],['RD2','RU2'],['FX1','FX2']];
+   pairs.forEach((pr,i)=>{const C0=cl[i];pr.forEach((q,j)=>{s.buff[q]=C0.c.slice(0,2).toUpperCase();s.p[q]=mv(POS[q],{x:C0.x-20+j*40,y:C0.y+(C0.y<200?60:-50)},seg(k,0,.15));if(k>=.15&&k<.65)dpFire(s,k,q,C0,i+j);if(k>=.7)dpFire(s,k,q,{x:400,y:200},i+j);});
+    if(k<.65)s.units.push({t:'vmind',x:C0.x,y:C0.y,small:1,hp:k>=.15?1-seg(k,.15,.62)*.97:null});});
+   s.fx=k<.65?{k:'fxA3Clones',o:win(k,0,.65,.02),c:C.ally}:{k:'fxA3Burn',o:win(k,.65,1,.02),c:C.ally};}}
+ ];
+ return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
+})();
+
+/* =================== DESERT PERPETUAL: EPOPTES =================== */
+// Inside readers stand in the light and look at the eyes: two glow → called and broken by the inside team; one of
+// them glows again → the outside shooters on the opposite side break it from the main room. Both sides → boss open.
+// Damage between four big shields; two random players are pulled into a side room to break an extra shield.
+const DPE=(function(){
+ const keys=['IL','IR','OL1','OL2','OR1','OR2'];
+ const ROOM={L:{x:200,y:150},R:{x:600,y:150}};const BOSS={x:400,y:250};
+ const EYES={L:[{x:170,y:120},{x:200,y:105},{x:230,y:120}],R:[{x:570,y:120},{x:600,y:105},{x:630,y:120}]};
+ const POS={IL:{x:200,y:180},IR:{x:600,y:180},OL1:{x:280,y:350},OL2:{x:330,y:370},OR1:{x:520,y:350},OR2:{x:470,y:370}};
+ const floor=dpFloor(s=>['L','R'].map(sd=>{const r=ROOM[sd];return `<rect x="${r.x-70}" y="${r.y-80}" width="140" height="120" rx="8" fill="#120f0a" stroke="#6b5a3a"/><ellipse cx="${r.x}" cy="${r.y+30}" rx="30" ry="10" fill="rgba(246,220,142,.18)"/>`+EYES[sd].map((e,i)=>{const g=(s.glow||[]).includes(sd+i),b=(s.broke||[]).includes(sd+i);return `<circle cx="${e.x}" cy="${e.y}" r="7" fill="${b?'#2a2414':g?'#ff6156':'#5a4a2a'}" stroke="${g?'#fff':'#6b5a3a'}"/>`;}).join('');}).join('')+(s.shields?[[260,250],[540,250],[400,150],[400,360]].map(([x,y])=>`<rect x="${x-26}" y="${y-8}" width="52" height="16" rx="4" fill="rgba(127,227,255,.25)" stroke="#7fe3ff"/>`).join(''):''));
+ const base=dpBase(keys,POS,{glow:[],broke:[],shields:false});
+ const boss=(s,o)=>s.units.push(Object.assign({t:'hydra',x:BOSS.x,y:BOSS.y},o||{}));
+ const S=[
+ // 1 inside: two eyes glow, inside breaks both
+ {d:22,f(k,s){boss(s);s.glow=k<.5?['L0','L2']:[];s.broke=k>=.5?['L0','L2']:[];
+   if(k<.2)s.labels.push({x:ROOM.L.x,y:ROOM.L.y-90,k:'lTwo',c:C.light,o:win(k,.04,.2,.02)});
+   if(k>=.2&&k<.5){dpFire(s,k,'IL',EYES.L[0],0);s.p.OL1=mv(POS.OL1,{x:240,y:200},seg(k,.15,.25));dpFire(s,k,'OL1',EYES.L[2],1);}
+   s.cam=camK(k,[[0,400,220,1],[.06,220,180,1.6],[.9,220,180,1.6],[1,400,220,1]]);
+   s.fx=k<.2?{k:'fxE1Call',o:win(k,0,.2,.02),c:C.light}:{k:'fxE1Break',o:win(k,.2,1,.02),c:C.ally};}},
+ // 2 one glows again → opposite outside shooters break it
+ {d:20,f(k,s){boss(s);s.broke=['L2'];s.glow=k<.55?['L0']:[];if(k>=.55)s.broke=['L0','L2'];
+   if(k<.2)s.labels.push({x:ROOM.L.x,y:ROOM.L.y-90,k:'lAgain',c:'#ff6156',o:win(k,.04,.2,.02)});
+   if(k>=.2&&k<.55)['OR1','OR2'].forEach((q,i)=>dpFire(s,k,q,EYES.L[0],i));
+   s.fx=k<.2?{k:'fxE2Again',o:win(k,0,.2,.02),c:'#ff6156'}:k<.6?{k:'fxE2Opp',o:win(k,.2,.6,.02),c:C.ally}:{k:'fxE2Other',o:win(k,.6,1,.02),c:'#ece8f4'};}},
+ // 3 damage between shields, two pulled into a side room
+ {d:20,f(k,s){s.shields=true;boss(s,{hp:1-seg(k,.1,.95)*.3});keys.forEach((q,i)=>{if(q==='IL'||q==='IR'){if(k<.12)s.fade[q]=1-seg(k,.05,.12);else if(k<.4){s.p[q]=q==='IL'?{x:200,y:120}:{x:600,y:120};s.fade[q]=1;}else s.p[q]=mv(s.p[q],{x:380+(q==='IL'?0:40),y:300},seg(k,.4,.5));}else{s.p[q]=mv(POS[q],{x:330+i*20,y:300},seg(k,0,.1));dpFire(s,k,q,BOSS,i);}});
+   if(k>=.12&&k<.4)s.labels.push({x:200,y:60,k:'lPulled',c:'#7fe3ff',o:1});
+   s.fx=k<.4?{k:'fxE3Pull',o:win(k,0,.4,.02),c:'#7fe3ff'}:{k:'fxE3Dmg',o:win(k,.4,1,.02),c:C.ally};}}
+ ];
+ return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
+})();
+
+/* =================== DESERT PERPETUAL: KOREGOS =================== */
+// Very condensed: two players are banished (Excluded From Reality) and kill a Cyclops; the outside team finds the
+// Chronon colour (test it, or wait for Worldline Stability late in the timer) and dunks four. Minigame (Hydra/Wyvern/
+// Hobgoblin) → crystals: buffed players break the matching outer crystal, unbuffed the inner ones (1, 2, 3) → damage.
+// Last stand: platforming with six cubes (one each), crystals, kill; afterwards jump off and hide.
+const DPK=(function(){
+ const keys=['B1','B2','O1','O2','O3','O4'];
+ const PORT={x:150,y:110};const BOSS={x:400,y:200};
+ const OUT=[{x:260,y:120},{x:540,y:120},{x:400,y:340}];const INN=[{x:350,y:220},{x:450,y:220},{x:400,y:270}];
+ const POS={B1:{x:330,y:390},B2:{x:360,y:400},O1:{x:420,y:390},O2:{x:450,y:400},O3:{x:480,y:390},O4:{x:510,y:400}};
+ const floor=dpFloor(s=>`<path d="M${PORT.x} ${PORT.y-30} L${PORT.x+30} ${PORT.y+24} L${PORT.x-30} ${PORT.y+24} Z" fill="rgba(169,130,245,.15)" stroke="#a982f5" stroke-width="2"/>`+(s.cry?OUT.map((p,i)=>`<path d="M${p.x} ${p.y-16} L${p.x+10} ${p.y} L${p.x} ${p.y+16} L${p.x-10} ${p.y} Z" fill="${(s.broke||[]).includes('o'+i)?'#1e1a12':'rgba(127,227,255,.4)'}" stroke="#7fe3ff"/>`).join('')+INN.map((p,i)=>`<path d="M${p.x} ${p.y-12} L${p.x+8} ${p.y} L${p.x} ${p.y+12} L${p.x-8} ${p.y} Z" fill="${(s.broke||[]).includes('i'+i)?'#1e1a12':'rgba(255,255,255,.4)'}" stroke="#fff"/>`).join(''):''));
+ const base=dpBase(keys,POS,{cry:false,broke:[]});
+ const boss=(s,o)=>s.units.push(Object.assign({t:'vmind',x:BOSS.x,y:BOSS.y-90,small:1},o||{}));
+ const S=[
+ // 1 banished pair + chronon colour + 4 dunks
+ {d:26,f(k,s){boss(s);['B1','B2'].forEach((q,i)=>{s.p[q]=k<.12?mv(POS[q],PORT,seg(k,0,.12)):{x:PORT.x-12+i*24,y:PORT.y+40};s.buff[q]=k>=.12?'EX':null;});
+   if(k>=.12&&k<.5){const c={x:PORT.x,y:PORT.y-4};s.units.push({t:'vcyc',x:c.x+70,y:c.y-40});['B1','B2'].forEach((q,i)=>dpFire(s,k,q,{x:c.x+70,y:c.y-40},i));}
+   const col='blue';['O1','O2','O3','O4'].forEach((q,i)=>{const z={x:600+(i%2)*60,y:260+Math.floor(i/2)*60};if(k>=.3&&k<.7){s.p[q]=mv(POS[q],z,seg(k,.3,.4));if(k>=.45)s.chr[q]=col;}if(k>=.7){s.p[q]=mv(z,{x:BOSS.x-30+i*20,y:BOSS.y+30},seg(k,.7,.85));s.chr[q]=k<.86?col:null;}});
+   if(k>=.3&&k<.5)s.labels.push({x:630,y:230,k:'lColor',c:DP_COL.blue,o:1});
+   if(k>=.86&&k<.92)s.bursts.push({...BOSS,r:10+40*seg(k,.86,.92),c:DP_COL.blue,o:1-seg(k,.86,.92)});
+   s.pips={lk:'lChrLbl',n:4,done:k<.86?0:4};
+   s.fx=k<.3?{k:'fxK1Ban',o:win(k,0,.3,.02),c:'#a982f5'}:k<.7?{k:'fxK1Color',o:win(k,.3,.7,.02),c:DP_COL.blue}:{k:'fxK1Dunk',o:win(k,.7,1,.02),c:C.good};}},
+ // 2 crystals: buffed outer (matching), unbuffed inner → damage
+ {d:22,f(k,s){s.cry=true;boss(s,{hp:k>=.5?1-seg(k,.5,.95)*.25:null});s.buff={O1:'CO',O2:'AB'};s.broke=[];
+   if(k>=.1&&k<.3){dpFire(s,k,'O1',OUT[0],0);dpFire(s,k,'O2',OUT[1],1);}if(k>=.3)s.broke.push('o0','o1');
+   if(k>=.3&&k<.45)['O3','O4'].forEach((q,i)=>dpFire(s,k,q,INN[0],i));if(k>=.45)s.broke.push('i0');
+   if(k>=.5)keys.forEach((q,i)=>dpFire(s,k,q,{x:BOSS.x,y:BOSS.y-90},i));
+   s.fx=k<.3?{k:'fxK2Outer',o:win(k,0,.3,.02),c:'#7fe3ff'}:k<.5?{k:'fxK2Inner',o:win(k,.3,.5,.02),c:'#ece8f4'}:{k:'fxK2Dmg',o:win(k,.5,1,.02),c:C.ally};}},
+ // 3 last stand: six cubes, one each, then jump off and hide after the kill
+ {d:20,f(k,s){boss(s,{hp:k<.7?.2-seg(k,.3,.7)*.19:null,o:k<.75?1:0});const cubes=[0,1,2,3,4,5].map(i=>({x:220+i*70,y:180-i*20}));
+   cubes.forEach((c,i)=>{if(k<.06+i*.04)s.adds.push({t:'raw',x:0,y:0,svg:`<rect x="${c.x-7}" y="${c.y-7}" width="14" height="14" fill="#f6dc8e"/>`});});
+   keys.forEach((q,i)=>{s.p[q]=k<.06+i*.04?mv(POS[q],cubes[i],seg(k,0,.06+i*.04)):k<.75?cubes[i]:mv(cubes[i],{x:100+i*20,y:410},seg(k,.75,.9));if(k>=.3&&k<.7)dpFire(s,k,q,{x:BOSS.x,y:BOSS.y-90},i);});
+   if(k>=.75)s.labels.push({x:400,y:300,k:'lHide',c:C.danger,o:win(k,.75,1,.02)});
+   s.fx=k<.3?{k:'fxK3Cubes',o:win(k,0,.3,.02),c:'#f6dc8e'}:k<.75?{k:'fxK3Kill',o:win(k,.3,.75,.02),c:C.ally}:{k:'fxK3Hide',o:win(k,.75,1,.02),c:C.danger};}}
+ ];
+ return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -8728,6 +8888,75 @@ const RG_CEB=[{id:'pl',slots:['P1'],focus:[1],de:{name:'Platte',steps:['Mit Enli
 const RG_CEI=[{id:'en',slots:['E1','E2','E3'],focus:[2,3],de:{name:'Enlightened',steps:['An der Tür warten.','Durch die Barriere, Wizard töten.'],watch:['Drained of Light.']},en:{name:'Enlightened',steps:['Wait at the door.','Through the barrier, kill the wizard.'],watch:['Drained of Light.']}},{id:'sc',slots:['SC','DP','P6'],focus:[2],de:{name:'Scout, Ablage, Ad-Clear',steps:['Wizard-Platz ansagen.','Kelch ablegen.'],watch:['Lied-Timer.']},en:{name:'Scout, depositor, ad clear',steps:['Call the wizard spot.','Deposit the Chalice.'],watch:['Song timer.']}}];
 const RG_CEC=[{id:'sw',slots:['S1','S2'],focus:[2],de:{name:'Schwerter',steps:['Schwert aufheben.','Schild gleichzeitig treffen.'],watch:['Enlightened nötig.']},en:{name:'Swords',steps:['Pick up a sword.','Hit the shield together.'],watch:['Needs Enlightened.']}},{id:'ov',slots:['OV'],focus:[3],de:{name:'Oversoul',steps:['Enlightened behalten.','Oversoul spät zerstören.'],watch:['30 Sekunden.']},en:{name:'Oversoul',steps:['Keep Enlightened.','Destroy the Oversoul late.'],watch:['30 seconds.']}},{id:'rest',slots:['DP','P5','P6'],focus:[1,2],de:{name:'Ablage & Ad-Clear',steps:['Kelch im Licht weitergeben.','Turm-Knights töten.'],watch:['Strahl wandert.']},en:{name:'Depositor & ad clear',steps:['Pass the Chalice in the light.','Kill tower Knights.'],watch:['The beam moves.']}}];
 
+const SV_DP=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="40" y="10" width="340" height="190" rx="10" fill="#1a160e" stroke="#4a3d22"/><g font-family="Chakra Petch, sans-serif" font-size="11" text-anchor="middle"><text x="210" y="105" fill="#9c95b0">{0}</text></g></svg>`;
+const DP_NOTE_DE='Grundlage sind frühe Text-Guides (größtenteils für die Epic-Version); Abläufe und Namen können im Normalmodus abweichen. Alles schematisch.';
+const DP_NOTE_EN='Based on early written guides (mostly for the Epic version); steps and names may differ in normal mode. Everything schematic.';
+const dpEnc=(num,name,eng,order,slots,de,en)=>({num,name,eng,diags:[SV_DP],order,slots,de:Object.assign({master:['Epic/Master hier nur teilweise abgebildet.'],m:{},diags:[['Schematisch','Keine Karte in den Quellen.',['schematisch']]]},de),en:Object.assign({master:['Epic/Master only partly shown here.'],m:{},diags:[['Schematic','No map in the sources.',['schematic']]]},en)});
+const ENC_DPI=dpEnc(1,'Iatros, Inward-Turned',DPI,['JU','S1','S2','S3','R1','R2'],[['JU','Springer','Jumper'],['S1','Schütze links (Constant)','Shooter left (Constant)'],['S2','Schütze Mitte (Absolute)','Shooter middle (Absolute)'],['S3','Schütze rechts (Cyclical)','Shooter right (Cyclical)'],['R1','Chronon-Läufer','Chronon runner'],['R2','Chronon-Läufer','Chronon runner']],
+ {kicker:'The Desert Perpetual · Iatros (Riesen-Wyvern)',gear:{crit:['Präzise Waffen für die Kapseln.'],top:['Ad-Clear für die Minotauren.'],budget:['Wenig Ausrüstung? Chronon-Läufer.']},
+  lede:'Die ersten drei Bosse wählt ihr selbst (oben am Lift), Koregos ist immer der letzte. Iatros: Läufer töten in jedem Abschnitt einen Minotaurus, der zeigt die Chronon-Farbe. Im Vex-Pool liest einer die Farbe des Rings, beide dunken. Der Ring wechselt etwa 3 Sekunden nach jedem Dunk die Farbe. 6 Chronons (drei Paare) starten Diastole. Dann bekommen die Schützen Constant (linke Säule), Absolute (Mitte) oder Cyclical (rechts) und treffen zusammen die Höhen, die der Springer ansagt (rot = unten, weiß = Mitte, blau = oben). Der Springer klettert, der letzte Würfel startet den Schaden. '+DP_NOTE_DE,
+  sc:[['Chronons','Minotaurus → Farbe. Im Pool die Ringfarbe lesen, zu zweit dunken. 6 Chronons.'],['Diastole','Schützen an den Säulen treffen die angesagten Höhen gleichzeitig, der Springer klettert. Nach der ersten richtigen Salve können zwei Schützen-Buffs tauschen, Säule neu prüfen.'],['Schaden','Letzter Würfel = Schaden. Die Läufer machen derweil weiter mit Chronons.']],
+  tip:{1:'Ringfarbe vor jedem Dunk neu lesen.',2:'Gleichzeitig schießen.',3:'Läufer weiter dunken.'},roles:[['Springer','Kapseln lesen, klettern.','runner'],['Schützen','Säulen-Höhen treffen.',''],['Läufer','Chronons.','runner']],
+  rules:['Rot unten, weiß Mitte, blau oben.','6 Chronons starten Diastole.'],wipes:['Dunk-Muster während des Schadens nicht weitergeführt (laut Guide Wipe-Gefahr).'],tips:['<b>Challenge (Feat):</b> drei verschiedene Spieler nehmen je einen Buff von den Plattformen, also drei Kletterer.'],
+  calls:[['Links rot, Mitte blau, rechts weiß','Left red, middle blue, right white','Springer'],['Ring blau','Ring blue','Leser']],
+  L:{lChrLbl:'CHRONONS',lRead:'Ring lesen',lCall1:'„L rot, M blau, R weiß“',lCall2:'„L weiß, M rot, R blau“',lSwap:'Buffs können tauschen!',fxI1Mino:'Minotaurus → Chronon-Farbe',fxI1Read:'Ringfarbe im Vex-Pool lesen',fxI1Dunk:'Zu zweit dunken',fxI2Shoot:'Schützen treffen die angesagten Höhen',fxI2Swap:'Buff-Tausch: Säule neu prüfen',fxI3Cube:'Letzter Würfel',fxI3Dmg:'Schaden'}},
+ {kicker:'The Desert Perpetual · Iatros (giant Wyvern)',gear:{crit:['Precise weapons for the capsules.'],top:['Ad clear for the Minotaurs.'],budget:['Short on gear? Chronon runner.']},
+  lede:'You pick the first three bosses yourselves (at the top of the lift), Koregos is always last. Iatros: runners kill a Minotaur in each section, it shows the Chronon colour. In the Vex pool one reads the ring colour, both dunk. The ring changes colour about 3 seconds after each dunk. 6 Chronons (three pairs) start Diastole. Then shooters get Constant (left pillar), Absolute (middle) or Cyclical (right) and together hit the heights the jumper calls (red = bottom, white = middle, blue = top). The jumper climbs, the last cube starts damage. '+DP_NOTE_EN,
+  sc:[['Chronons','Minotaur → colour. Read the ring colour in the pool, dunk in pairs. 6 Chronons.'],['Diastole','Shooters at the pillars hit the called heights together, the jumper climbs. After the first correct volley two shooter buffs may swap, re-check the pillar.'],['Damage','Last cube = damage. Runners keep dunking Chronons meanwhile.']],
+  tip:{1:'Re-read the ring before every dunk.',2:'Shoot together.',3:'Runners keep dunking.'},roles:[['Jumper','Read capsules, climb.','runner'],['Shooters','Hit pillar heights.',''],['Runners','Chronons.','runner']],
+  rules:['Red bottom, white middle, blue top.','6 Chronons start Diastole.'],wipes:['Not continuing the dunk pattern during damage (wipe risk per the guide).'],tips:['<b>Challenge (feat):</b> three different players each take one buff from the platforms, so three climbers.'],
+  calls:[['Links rot, Mitte blau, rechts weiß','Left red, middle blue, right white','jumper'],['Ring blau','Ring blue','reader']],
+  L:{lChrLbl:'CHRONONS',lRead:'read the ring',lCall1:'“L red, M blue, R white”',lCall2:'“L white, M red, R blue”',lSwap:'Buffs may swap!',fxI1Mino:'Minotaur → Chronon colour',fxI1Read:'Read the ring colour in the Vex pool',fxI1Dunk:'Dunk in pairs',fxI2Shoot:'Shooters hit the called heights',fxI2Swap:'Buff swap: re-check the pillar',fxI3Cube:'Last cube',fxI3Dmg:'Damage'}});
+const ENC_DPA=dpEnc(2,'Agraios, Inherent',DPA,['RD1','RD2','RU1','RU2','FX1','FX2'],[['RD1','Leser','Reader'],['RD2','Leser','Reader'],['RU1','Läufer','Runner'],['RU2','Läufer','Runner'],['FX1','Flex','Flex'],['FX2','Flex (Laser)','Flex (laser)']],
+ {kicker:'The Desert Perpetual · Agraios (Riesen-Hobgoblin)',gear:{crit:['Reichweite für Flex und Laser.'],top:['Ad-Clear für Minotauren.'],budget:['Wenig Ausrüstung? Leser.']},
+  lede:'Leser stehen auf Platten und ordnen die Beschleuniger Farben zu (zwei blau, zwei rot, einer weiß). Läufer farmen Minotauren für die gebrauchte Farbe und dunken in den passenden Ring. Ein Dunk in der Mitte setzt die Drop-Regel zurück: der nächste Minotaurus lässt die Farbe seines Spawn-Platzes fallen, also „Reset“ ansagen. Flex räumt Adds und reflektiert den Boss-Laser. Final Stand: drei Paare, jedes tötet den Klon in seiner Buff-Farbe, dann der Boss in der Mitte. '+DP_NOTE_DE,
+  sc:[['Karte','Leser auf den Platten: welcher Ring welche Farbe hat.'],['Farmen und dunken','Minotaurus der richtigen Farbe, Chronon zum passenden Ring. Flex reflektiert den Laser. Mitte-Dunk = Reset.'],['Final Stand','Paare töten den Klon in ihrer Farbe, dann Boss in der Mitte.']],
+  tip:{1:'Karte laut ansagen.',2:'Reset ansagen.',3:'Paare festlegen.'},roles:[['Leser','Platten, Karte.',''],['Läufer','Minotauren, Dunks.','runner'],['Flex','Adds, Laser.','']],
+  rules:['Zwei blau, zwei rot, einer weiß.','Mitte-Dunk = Reset.'],wipes:['In den Quellen nicht klar beschrieben.'],tips:['<b>Challenge (Feat):</b> niemand nimmt einen zweiten Chronon, bevor jeder einen hatte, in jeder Phase.'],
+  calls:[['Reset','Reset','Mitte'],['Laser','Laser','Flex']],
+  L:{lMap:'Ringe zugeordnet',lReflect:'Laser reflektieren',lReset:'Mitte-Dunk = Reset',fxA1Plates:'Leser auf die Platten',fxA1Map:'Farben der Ringe',fxA2Mino:'Minotaurus der richtigen Farbe',fxA2Dunk:'Chronon in den passenden Ring',fxA2Laser:'Flex reflektiert den Laser',fxA2Reset:'„Reset!“',fxA3Clones:'Paare: Klon in eigener Farbe',fxA3Burn:'Boss in der Mitte'}},
+ {kicker:'The Desert Perpetual · Agraios (giant Hobgoblin)',gear:{crit:['Range for flex and laser.'],top:['Ad clear for Minotaurs.'],budget:['Short on gear? Reader.']},
+  lede:'Readers stand on plates and map the accelerators to colours (two blue, two red, one white). Runners farm Minotaurs for the needed colour and dunk into the matching hoop. A centre dunk resets the drop rule: the next Minotaur drops the colour of its spawn spot, so call “reset”. Flex clears adds and reflects the boss laser. Final stand: three pairs, each kills the clone in its buff colour, then the boss in the middle. '+DP_NOTE_EN,
+  sc:[['Map','Readers on the plates: which hoop has which colour.'],['Farm and dunk','Minotaur of the right colour, Chronon to the matching hoop. Flex reflects the laser. Centre dunk = reset.'],['Final stand','Pairs kill the clone in their colour, then the boss in the middle.']],
+  tip:{1:'Call the map out loud.',2:'Call resets.',3:'Set the pairs.'},roles:[['Readers','Plates, map.',''],['Runners','Minotaurs, dunks.','runner'],['Flex','Adds, laser.','']],
+  rules:['Two blue, two red, one white.','Centre dunk = reset.'],wipes:['Not clearly described in the sources.'],tips:['<b>Challenge (feat):</b> nobody takes a second Chronon before everyone had one, in every phase.'],
+  calls:[['Reset','Reset','centre'],['Laser','Laser','flex']],
+  L:{lMap:'hoops mapped',lReflect:'reflect the laser',lReset:'centre dunk = reset',fxA1Plates:'Readers onto the plates',fxA1Map:'Hoop colours',fxA2Mino:'Minotaur of the right colour',fxA2Dunk:'Chronon into the matching hoop',fxA2Laser:'Flex reflects the laser',fxA2Reset:'“Reset!”',fxA3Clones:'Pairs: clone in their colour',fxA3Burn:'Boss in the middle'}});
+const ENC_DPE=dpEnc(3,'Epoptes, Lord of Quanta',DPE,['IL','IR','OL1','OL2','OR1','OR2'],[['IL','Innen links','Inside left'],['IR','Innen rechts','Inside right'],['OL1','Außen links','Outside left'],['OL2','Außen links','Outside left'],['OR1','Außen rechts','Outside right'],['OR2','Außen rechts','Outside right']],
+ {kicker:'The Desert Perpetual · Epoptes (Riesen-Hydra)',gear:{crit:['Präzision für die Augen.'],top:['Boss-Schaden.'],budget:['Wenig Ausrüstung? Außen-Schütze.']},
+  lede:'Innen stehen Leser im Licht und schauen auf die Augen. Zwei leuchten: ansagen, das Innen-Team bricht sie. Eins davon leuchtet nochmal: ansagen, die Außen-Schützen der gegenüberliegenden Seite brechen es vom Hauptraum aus. Dasselbe auf der anderen Seite, dann ist der Boss offen. Schaden zwischen vier großen Schilden; zu Beginn werden zwei zufällige Spieler in einen Seitenraum geholt und brechen dort einen Extra-Schild. '+DP_NOTE_DE,
+  sc:[['Zwei Augen','Leser sagt die zwei leuchtenden Augen an, innen brechen.'],['Nochmal eins','Eins leuchtet erneut: die Außen-Schützen der Gegenseite brechen es.'],['Schaden','Zwischen den vier Schilden stehen; zwei im Seitenraum brechen einen Extra-Schild und kommen zurück.']],
+  tip:{1:'Augen nummerieren (L1–L3, R1–R3).',2:'Gegenseite schießt.',3:'Zwischen den Schilden.'},roles:[['Innen','Lesen, Augen brechen.','runner'],['Außen','Gegenseite schießen.','']],
+  rules:['Zuerst zwei, dann eins nochmal.','Gegenseite bricht das zweite.'],wipes:['In den Quellen nicht klar beschrieben.'],tips:['<b>Challenge (Feat):</b> die zwei Spieler in jedem Raum schießen die Augen abwechselnd.'],
+  calls:[['L1 und L3','L1 and L3','Augen'],['Nochmal L1','L1 again','Gegenseite']],
+  L:{lTwo:'zwei Augen leuchten',lAgain:'eins leuchtet nochmal',lPulled:'in den Seitenraum geholt',fxE1Call:'Zwei Augen ansagen',fxE1Break:'Innen bricht sie',fxE2Again:'Eins leuchtet erneut',fxE2Opp:'Außen-Schützen der Gegenseite brechen es',fxE2Other:'Dann die andere Seite',fxE3Pull:'Zwei im Seitenraum: Extra-Schild',fxE3Dmg:'Schaden zwischen den Schilden'}},
+ {kicker:'The Desert Perpetual · Epoptes (giant Hydra)',gear:{crit:['Precision for the eyes.'],top:['Boss damage.'],budget:['Short on gear? Outside shooter.']},
+  lede:'Inside, readers stand in the light and look at the eyes. Two glow: call them, the inside team breaks them. One of them glows again: call it, the outside shooters on the opposite side break it from the main room. Same on the other side, then the boss is open. Damage between four large shields; at the start two random players are pulled into a side room and break an extra shield there. '+DP_NOTE_EN,
+  sc:[['Two eyes','The reader calls the two glowing eyes, inside breaks them.'],['One again','One glows again: the outside shooters on the opposite side break it.'],['Damage','Stand between the four shields; two in the side room break an extra shield and come back.']],
+  tip:{1:'Number the eyes (L1–L3, R1–R3).',2:'Opposite side shoots.',3:'Between the shields.'},roles:[['Inside','Read, break eyes.','runner'],['Outside','Shoot for the other side.','']],
+  rules:['First two, then one again.','The opposite side breaks the second.'],wipes:['Not clearly described in the sources.'],tips:['<b>Challenge (feat):</b> the two players in each room alternate shooting the eyes.'],
+  calls:[['L1 und L3','L1 and L3','eyes'],['Nochmal L1','L1 again','opposite side']],
+  L:{lTwo:'two eyes glow',lAgain:'one glows again',lPulled:'pulled into the side room',fxE1Call:'Call the two eyes',fxE1Break:'Inside breaks them',fxE2Again:'One glows again',fxE2Opp:'Opposite outside shooters break it',fxE2Other:'Then the other side',fxE3Pull:'Two in the side room: extra shield',fxE3Dmg:'Damage between the shields'}});
+const ENC_DPK=dpEnc(4,'Koregos, the Worldline',DPK,['B1','B2','O1','O2','O3','O4'],[['B1','Verbannt','Banished'],['B2','Verbannt','Banished'],['O1','Außen','Outside'],['O2','Außen','Outside'],['O3','Außen','Outside'],['O4','Außen','Outside']],
+ {kicker:'The Desert Perpetual · Koregos (Riesen-Harpyie)',gear:{crit:['Boss-Schaden, viele Phasen.'],top:['Ad-Clear für die Minispiele.'],budget:['Wenig Ausrüstung? Außen-Team.']},
+  lede:'Stark verkürzt, der Kampf hat laut Guide sechs Phasen. Zwei Spieler werden verbannt („Excluded From Reality“) und töten im Portal-Raum einen Cyclops. Das Außen-Team findet die Chronon-Farbe (testen, falscher Dunk tötet den Dunker, oder warten, bis „Worldline Stability“ sie im letzten Drittel des Timers zeigt) und dunkt vier. Minispiel (Hydra, Wyvern oder Hobgoblin), danach Kristalle: Spieler mit Buff brechen den passenden äußeren, Spieler ohne Buff die inneren (1, dann 2, dann 3), dann Schaden. Zum Schluss Plattformen mit sechs Würfeln (jeder genau einen), Kristalle, Kill. Danach runterspringen und verstecken, sonst tötet euch die Wipe-Mechanik nach dem Sieg. '+DP_NOTE_DE,
+  sc:[['Verbannt + Chronons','Zwei im Portal-Raum gegen den Cyclops; draußen Farbe finden und vier dunken.'],['Kristalle','Buff-Träger brechen die passenden äußeren Kristalle, die anderen die inneren. Dann Schaden.'],['Final Stand','Sechs Würfel, jeder nimmt genau einen (zwei nehmen tötet jemand anderen). Kill, dann runterspringen und verstecken.']],
+  tip:{1:'Farbe testen oder warten.',2:'Innen: 1, 2, 3.',3:'Würfel-Reihenfolge vorher.'},roles:[['Verbannt','Portal-Raum, Cyclops.','runner'],['Außen','Chronons, Kristalle, Schaden.','']],
+  rules:['Falscher Dunk tötet den Dunker.','Jeder genau einen Würfel.','Nach dem Kill verstecken.'],wipes:['Nach dem Sieg nicht versteckt.','Zwei Würfel genommen (jemand anderes stirbt).'],tips:['<b>Challenge (Feat):</b> alle sechs müssen einen Chronon ins Stundenglas legen.'],
+  calls:[['Farbe blau','Colour blue','Chronons'],['Innen eins','Inner one','Kristall'],['Runter!','Jump off!','nach dem Kill']],
+  L:{lChrLbl:'CHRONONS',lColor:'Farbe finden',lHide:'runterspringen + verstecken',fxK1Ban:'Zwei verbannt: Cyclops im Portal-Raum',fxK1Color:'Chronon-Farbe finden',fxK1Dunk:'Vier dunken',fxK2Outer:'Buff-Träger: äußere Kristalle',fxK2Inner:'Ohne Buff: innere Kristalle',fxK2Dmg:'Schaden',fxK3Cubes:'Sechs Würfel, jeder einen',fxK3Kill:'Kill',fxK3Hide:'Danach verstecken!'}},
+ {kicker:'The Desert Perpetual · Koregos (giant Harpy)',gear:{crit:['Boss damage, many phases.'],top:['Ad clear for the minigames.'],budget:['Short on gear? Outside team.']},
+  lede:'Heavily condensed, the fight has six phases per the guide. Two players get banished (“Excluded From Reality”) and kill a Cyclops in the portal room. The outside team finds the Chronon colour (test it, a wrong dunk kills the dunker, or wait until “Worldline Stability” shows it in the last third of the timer) and dunks four. Minigame (Hydra, Wyvern or Hobgoblin), then crystals: buffed players break the matching outer crystal, unbuffed players the inner ones (1, then 2, then 3), then damage. Finally platforming with six cubes (everyone exactly one), crystals, kill. Then jump off and hide, or the wipe mechanic kills you after the win. '+DP_NOTE_EN,
+  sc:[['Banished + Chronons','Two in the portal room against the Cyclops; outside find the colour and dunk four.'],['Crystals','Buffed players break the matching outer crystals, the others the inner ones. Then damage.'],['Final stand','Six cubes, everyone takes exactly one (taking two kills someone else). Kill, then jump off and hide.']],
+  tip:{1:'Test the colour or wait.',2:'Inner: 1, 2, 3.',3:'Cube order beforehand.'},roles:[['Banished','Portal room, Cyclops.','runner'],['Outside','Chronons, crystals, damage.','']],
+  rules:['A wrong dunk kills the dunker.','Everyone exactly one cube.','Hide after the kill.'],wipes:['Not hidden after the win.','Two cubes taken (someone else dies).'],tips:['<b>Challenge (feat):</b> all six must deposit a Chronon into the hourglass.'],
+  calls:[['Farbe blau','Colour blue','Chronons'],['Innen eins','Inner one','crystal'],['Runter!','Jump off!','after the kill']],
+  L:{lChrLbl:'CHRONONS',lColor:'find the colour',lHide:'jump off + hide',fxK1Ban:'Two banished: Cyclops in the portal room',fxK1Color:'Find the Chronon colour',fxK1Dunk:'Dunk four',fxK2Outer:'Buffed: outer crystals',fxK2Inner:'Unbuffed: inner crystals',fxK2Dmg:'Damage',fxK3Cubes:'Six cubes, one each',fxK3Kill:'Kill',fxK3Hide:'Hide afterwards!'}});
+const RG_DPI=[{id:'ju',slots:['JU'],focus:[2,3],de:{name:'Springer',steps:['Kapseln lesen, Höhen ansagen.','Klettern.'],watch:['Am Boden bei Diastole-Tick: festgehalten (Epic).']},en:{name:'Jumper',steps:['Read capsules, call heights.','Climb.'],watch:['Grounded on the Diastole tick: suspended (Epic).']}},{id:'sh',slots:['S1','S2','S3'],focus:[2],de:{name:'Schützen',steps:['Säule nach Buff.','Höhe zusammen treffen.'],watch:['Buff-Tausch.']},en:{name:'Shooters',steps:['Pillar by buff.','Hit the height together.'],watch:['Buff swap.']}},{id:'ru',slots:['R1','R2'],focus:[1,3],de:{name:'Läufer',steps:['Minotaurus, Ring lesen, dunken.'],watch:['Ring wechselt nach ~3 s.']},en:{name:'Runners',steps:['Minotaur, read the ring, dunk.'],watch:['Ring changes after ~3 s.']}}];
+const RG_DPA=[{id:'rd',slots:['RD1','RD2'],focus:[1],de:{name:'Leser',steps:['Platten, Ringfarben ansagen.'],watch:['Reset neu kartieren.']},en:{name:'Readers',steps:['Plates, call hoop colours.'],watch:['Re-map after a reset.']}},{id:'ru',slots:['RU1','RU2'],focus:[2],de:{name:'Läufer',steps:['Richtige Farbe farmen, dunken.'],watch:['Nicht in die Mitte.']},en:{name:'Runners',steps:['Farm the right colour, dunk.'],watch:['Not into the centre.']}},{id:'fx',slots:['FX1','FX2'],focus:[2,3],de:{name:'Flex',steps:['Adds.','Laser reflektieren.'],watch:['Abstand halten.']},en:{name:'Flex',steps:['Adds.','Reflect the laser.'],watch:['Keep range.']}}];
+const RG_DPE=[{id:'in',slots:['IL','IR'],focus:[1],de:{name:'Innen',steps:['Im Licht stehen, Augen ansagen und brechen.'],watch:['Welches leuchtet nochmal?']},en:{name:'Inside',steps:['Stand in the light, call and break eyes.'],watch:['Which one glows again?']}},{id:'out',slots:['OL1','OL2','OR1','OR2'],focus:[2,3],de:{name:'Außen',steps:['Auge der Gegenseite brechen.','Schaden zwischen den Schilden.'],watch:['Seitenraum-Teleport.']},en:{name:'Outside',steps:['Break the opposite side’s eye.','Damage between the shields.'],watch:['Side room teleport.']}}];
+const RG_DPK=[{id:'ban',slots:['B1','B2'],focus:[1],de:{name:'Verbannt',steps:['Cyclops im Portal-Raum töten.'],watch:['Wer verbannt wird, ist zufällig.']},en:{name:'Banished',steps:['Kill the Cyclops in the portal room.'],watch:['Who gets banished is random.']}},{id:'out',slots:['O1','O2','O3','O4'],focus:[1,2,3],de:{name:'Außen',steps:['Farbe finden, vier dunken.','Kristalle, Schaden.','Ein Würfel.'],watch:['Nach dem Kill verstecken.']},en:{name:'Outside',steps:['Find the colour, dunk four.','Crystals, damage.','One cube.'],watch:['Hide after the kill.']}}];
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -9015,7 +9244,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,ceabyss:ENC_CEA,cebridge:ENC_CEB,ceiryut:ENC_CEI,cecrota:ENC_CEC,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,ceabyss:ENC_CEA,cebridge:ENC_CEB,ceiryut:ENC_CEI,cecrota:ENC_CEC,dpiat:ENC_DPI,dpagr:ENC_DPA,dpepo:ENC_DPE,dpkor:ENC_DPK,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -9078,6 +9307,7 @@ const ACT={
  gos:{name:'Garden of Salvation',encs:['gsevade','gssummon','gscons','gssanct'],src:[['Shacknews – Garden of Salvation raid guide','https://shacknews.com/article/114369/garden-of-salvation-raid-guide-destiny-2'],['Yardbarker – Garden of Salvation 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_garden_of_salvation_2026_raid_guide/s1_17456_43890120'],['Kyber’s Corner – Garden of Salvation','https://kyberscorner.com/destiny2/gardenofsalvation/'],['TheGamer – Enlightened title','https://www.thegamer.com/destiny-2-enlightened-title-triumphs-guide/'],['Destinypedia – Garden of Salvation','https://www.destinypedia.com/Garden_of_Salvation']]},
  vow:{name:'Vow of the Disciple',encs:['vwacq','vwcare','vwexh','vwrhulk'],src:[['Shacknews – Vow of the Disciple raid guide','https://shacknews.com/article/129163/vow-of-the-disciple-raid-guide-destiny-2'],['Yardbarker – Vow of the Disciple 2026 raid guide','https://www.yardbarker.com/entertainment/articles/destiny_2_vow_of_the_disciple_2026_raid_guide/s1_17456_43915072'],['DestinyTracker – Vow complete raid guide (Suttledge)','https://destinytracker.com/destiny-2/guides/vow-of-the-disciple-complete-raid-guide-by-suttledge-095cf690'],['Dot Esports – Vow glyphs and callouts','https://dotesports.com/destiny/guides/all-vow-of-the-disciple-glyphs-symbols-and-callouts-in-destiny-2'],['TheGamer – Vow weekly challenges','https://www.thegamer.com/destiny-2-vow-of-the-disciple-weekly-challenges-guide/'],['TheGamer – Disciple-Slayer title','https://www.thegamer.com/destiny-2-disciple-slayer-title-guide/'],['Shacknews – Rhulk extra chest symbols','https://shacknews.com/article/129266/vow-of-the-disciple-rhulk-extra-chest-symbol-locations-destiny-2']]},
  ce:{name:'Crota’s End',encs:['ceabyss','cebridge','ceiryut','cecrota'],src:[['Shacknews – Crota’s End raid guide','https://shacknews.com/article/136793/crotas-end-raid-guide-destiny-2'],['Yardbarker – Crota’s End 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_crotas_end_2026_raid_guide/s1_17456_43929386'],['Destinypedia – Crota’s End','https://www.destinypedia.com/Crota%27s_End'],['The Game Post – Swordbearer title','https://thegamepost.com/destiny-2-swordbearer-title-guide/']]},
+ dp:{name:'The Desert Perpetual',encs:['dpiat','dpagr','dpepo','dpkor'],src:[['The Game Post – Desert Perpetual Epic raid guide (Nov 2025)','https://thegamepost.com/destiny-2-desert-perpetual-epic-raid-guide/'],['Kyber’s Corner – The Desert Perpetual','https://kyberscorner.com/destiny-2-the-desert-perpetual-raid/'],['Sportskeeda – Feat: Encounter challenges','https://widgets.sportskeeda.com/mmo/all-feat-encounter-challenges-destiny-2-the-desert-perpetual-raid'],['Destinypedia – The Desert Perpetual','https://www.destinypedia.com/The_Desert_Perpetual']]},
  se:{name:'Salvation’s Edge',encs:['substratum','dissipation','repository','verity','zenith'],src:[['Shacknews – Salvation’s Edge raid guide','https://www.shacknews.com/article/140025/salvations-edge-raid-guide-destiny-2'],['PCGamesN – Salvation’s Edge guide','https://www.pcgamesn.com/destiny-2/salvations-edge-guide'],['Professionalism.gg – Salvation’s Edge','https://professionalism.gg/raid-guides/salvations-edge'],['Backdash – Salvation’s Edge raid guide','https://www.thebackdash.com/destiny/destiny-2-salvations-edge-raid-guide'],['Sportskeeda – Substratum guide','https://sportskeeda.com/mmo/destiny-2-salvation-s-edge-raid-first-encounter-guide-substratum'],['Paracausality – Salvation’s Edge guide','https://www.paracausality.com/se_guide'],['Destiny 2 Wiki – Salvation’s Edge','https://d2.destinygamewiki.com/wiki/Salvation%27s_Edge'],['Destructoid – Substratum map','https://www.destructoid.com/destiny-2-salvations-edge-first-encounter-raid-guide/'],['Destinypedia – Salvation’s Edge','https://www.destinypedia.com/Salvation%27s_Edge'],['Destructoid – Verity map','https://www.destructoid.com/destiny-2-salvations-edge-fourth-encounter-raid-guide-verity/'],['Destructoid – Zenith','https://www.destructoid.com/destiny-2-salvations-edge-5th-encounter-raid-guide-zenith/']]}
 ,
  eq:{name:'Equilibrium',kind:'dungeon',encs:['eqharv','eqharrow','eqsere'],src:[['Destinypedia – Equilibrium','https://www.destinypedia.com/Equilibrium'],['Shacknews – Equilibrium dungeon guide','https://www.shacknews.com/article/147168/how-to-complete-the-equilibrium-dungeon-in-destiny-2'],['Vaexil – Equilibrium field guide (PDF)','https://destiny2.vaexil.tv/downloads/guides/dungeons/equilibrium/equilibrium-complete-guide.pdf'],['Grindout – Equilibrium guide','https://grindout.com/destiny-2/guides/equilibrium-guide'],['The Game Post – Equilibrium dungeon guide','https://thegamepost.com/destiny-2-equilibrium-dungeon-guide/'],['ProGameTalk – Equilibrium walkthrough','https://progametalk.com/destiny-2/equilibrium-dungeon-walkthrough/'],['Kyber’s Corner – Equilibrium','https://kyberscorner.com/destiny-2-equilibrium-dungeon/'],['Total Apex Gaming – Harrow guide','https://totalapexgaming.com/action/equilibrium-harrow-guide/']]}};
@@ -9181,7 +9411,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.ceabyss=RG_CEA;RG.cebridge=RG_CEB;RG.ceiryut=RG_CEI;RG.cecrota=RG_CEC;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.ceabyss=RG_CEA;RG.cebridge=RG_CEB;RG.ceiryut=RG_CEI;RG.cecrota=RG_CEC;RG.dpiat=RG_DPI;RG.dpagr=RG_DPA;RG.dpepo=RG_DPE;RG.dpkor=RG_DPK;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
@@ -9333,6 +9563,16 @@ const CHAL={
  verity:{n:'Varied Geometry',de:'Derselbe 3D-Schlüssel darf nicht wiederholt werden. Die Guides beschreiben es unterschiedlich: nicht zweimal hintereinander, oder erst wieder, wenn alle sechs Formen dran waren.',en:'The same 3D key may not be repeated. Guides describe it differently: not twice in a row, or only again once all six shapes have been used.'},
  zenith:{n:'Coordinated Efforts',de:'Alle sechs Knöpfe innerhalb weniger Sekunden nach dem ersten zerstören. Dafür sammeln alle sechs vorher Glyphbreaker und schießen dann gleichzeitig.',en:'Break all six buttons within a few seconds of the first. So all six collect Glyphbreaker first, then shoot together.'}};
 const XTRA={
+ dp:{de:[['Reihenfolge','Die ersten drei Bosse frei wählbar (oben am Lift), Koregos zuletzt. Nach Koregos kann man direkt zu jedem Encounter springen.'],
+   ['Titel','„Atemporal“: alle Raid-Triumphe; sechs davon erhöhen die Exotic-Chance.'],
+   ['Exotic','Whirling Ovation (Raketenwerfer), Zufallsdrop bei Koregos, einmal pro Woche.'],
+   ['Feats','Fünf Encounter-Challenges als Feat; benannt sind u. a. Phase Race, Cutthroat Combat, Battalions, Token Limit. Drei aktive Feats garantieren Tier-2-Beute, kleine Chance auf Tier 3. Die Encounter-Challenges stehen in den Tipps jedes Bosses.'],
+   ['Hinweis','Die Abläufe stammen aus frühen Guides, größtenteils zur Epic-Version.']],
+  en:[['Order','Pick the first three bosses freely (at the top of the lift), Koregos last. After Koregos you can jump straight to any encounter.'],
+   ['Title','“Atemporal”: all raid triumphs; six of them raise the exotic chance.'],
+   ['Exotic','Whirling Ovation (rocket launcher), random drop from Koregos, once per week.'],
+   ['Feats','Five encounter challenges as a feat; named ones include Phase Race, Cutthroat Combat, Battalions, Token Limit. Three active feats guarantee tier-2 loot, small chance of tier 3. The encounter challenges are in each boss’s tips.'],
+   ['Note','The steps come from early guides, mostly for the Epic version.']]},
  ce:{de:[['Titel','„Swordbearer“ (Raid-Triumphe inkl. Challenges).'],
    ['Exotic','Necrochasm (Kinetic-Auto-Rifle), Zufallsdrop vom Endboss; mit Triumphen steigt die Chance (Details nicht geprüft).'],
    ['Versteckte Truhe','Vor Ir Yût: zwei Enlightened töten die Shrieker hinter den Barrieren, der dritte Kelch-Träger legt am Podest ab, das öffnet den Zugang zur Truhe.'],
