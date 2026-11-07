@@ -1,122 +1,252 @@
 {
-  "stand": "2026-11-03",
-  "quelle": "https://timesaver.gg/blog/destiny-2-tier-5-armor-farm",
-  "sets": {
-    "Wildwood": {
-      "ort": "EDZ",
-      "farm": "Master Lost Sector in EDZ",
-      "schnell": true
-    },
-    "Seventh Seraph": {
-      "ort": "Cosmodrome",
-      "farm": "Master Lost Sector in Cosmodrome",
-      "schnell": true
-    },
-    "Exodus Down": {
-      "ort": "Nessus",
-      "farm": "Master Lost Sector in Nessus",
-      "schnell": true
-    },
-    "Reverie Dawn": {
-      "ort": "Dreaming City",
-      "farm": "Master Lost Sector in Dreaming City",
-      "schnell": true
-    },
-    "Dreambane": {
-      "ort": "Moon",
-      "farm": "Master Lost Sector in Moon",
-      "schnell": true
-    },
-    "Crystocrene": {
-      "ort": "Europa",
-      "farm": "Master Lost Sector in Europa",
-      "schnell": true
-    },
-    "Veritas": {
-      "ort": "Savathûn's Throne World",
-      "farm": "Master Lost Sector in Savathûn's Throne World",
-      "schnell": true
-    },
-    "Thunderhead": {
-      "ort": "Neomuna",
-      "farm": "Master Lost Sector in Neomuna",
-      "schnell": true
-    },
-    "First Ascent": {
-      "ort": "Pale Heart",
-      "farm": "Master Lost Sector in Pale Heart",
-      "schnell": true,
-      "hinweis": "Pieces must first be unlocked through Micah-10's quest."
-    },
-    "Flain": {
-      "ort": "Sundered Doctrine dungeon",
-      "farm": "Sundered Doctrine dungeon",
-      "schnell": false
-    },
-    "CODA": {
-      "ort": "Prophecy dungeon",
-      "farm": "Prophecy dungeon",
-      "schnell": false
-    },
-    "Great Hunt": {
-      "ort": "Last Wish raid",
-      "farm": "Last Wish raid",
-      "schnell": false
-    },
-    "Collective Psyche": {
-      "ort": "The Desert Perpetual raid",
-      "farm": "The Desert Perpetual raid",
-      "schnell": false
-    },
-    "Iron Battalion": {
-      "ort": "Iron Banner",
-      "farm": "Iron Banner",
-      "schnell": false
-    },
-    "Taken King": {
-      "ort": "Ghosts of the Deep dungeon",
-      "farm": "Ghosts of the Deep dungeon",
-      "schnell": false
-    },
-    "Apostate's Blade": {
-      "ort": "Pit of Heresy dungeon",
-      "farm": "Pit of Heresy dungeon",
-      "schnell": false
-    },
-    "Lustrous": {
-      "ort": "Solstice armor at the Tenet of Bravery sculpture",
-      "farm": "Solstice armor at the Tenet of Bravery sculpture",
-      "schnell": false
-    },
-    "Swordmaster": {
-      "ort": "Xûr in the Tower Bazaar",
-      "farm": "Xûr in the Tower Bazaar",
-      "schnell": false
-    },
-    "Smoke Jumper": {
-      "ort": "Fireteam and Solo Ops",
-      "farm": "Fireteam and Solo Ops",
-      "schnell": false
-    },
-    "Ferropotent": {
-      "ort": "Fireteam and Solo Ops",
-      "farm": "Fireteam and Solo Ops",
-      "schnell": false
-    },
-    "Luminopotent": {
-      "ort": "Fireteam and Solo Ops",
-      "farm": "Fireteam and Solo Ops",
-      "schnell": false
-    },
-    "Sage Protector": {
-      "ort": "Equilibrium dungeon",
-      "farm": "Equilibrium dungeon",
-      "schnell": false
-    },
-    "Pantheos Resplendent": {
-      "ort": "Pantheon Raid Gauntlet",
-      "farm": "Pantheon Raid Gauntlet",
-      "schnell": false
-    }
+ "stand": "2026-11-03",
+ "quelle": "https://timesaver.gg/blog/destiny-2-tier-5-armor-farm · senseos.gg/guides/destiny-2/armor-set-bonuses · destiny2.gamesref.com/armor-sets",
+ "sets": {
+  "Wildwood": {
+   "ort": "EDZ",
+   "farm": "Master Lost Sector in EDZ",
+   "schnell": true
+  },
+  "Seventh Seraph": {
+   "ort": "Cosmodrome",
+   "farm": "Master Lost Sector in Cosmodrome",
+   "schnell": true
+  },
+  "Exodus Down": {
+   "ort": "Nessus",
+   "farm": "Master Lost Sector in Nessus",
+   "schnell": true
+  },
+  "Reverie Dawn": {
+   "ort": "Dreaming City",
+   "farm": "Master Lost Sector in Dreaming City",
+   "schnell": true
+  },
+  "Dreambane": {
+   "ort": "Moon",
+   "farm": "Master Lost Sector in Moon",
+   "schnell": true
+  },
+  "Crystocrene": {
+   "ort": "Europa",
+   "farm": "Master Lost Sector in Europa",
+   "schnell": true
+  },
+  "Veritas": {
+   "ort": "Savathûn's Throne World",
+   "farm": "Master Lost Sector in Savathûn's Throne World",
+   "schnell": true
+  },
+  "Thunderhead": {
+   "ort": "Neomuna",
+   "farm": "Master Lost Sector in Neomuna",
+   "schnell": true
+  },
+  "First Ascent": {
+   "ort": "Pale Heart",
+   "farm": "Master Lost Sector in Pale Heart",
+   "schnell": true,
+   "hinweis": "Pieces must first be unlocked through Micah-10's quest."
+  },
+  "Flain": {
+   "ort": "Sundered Doctrine dungeon",
+   "farm": "Sundered Doctrine dungeon",
+   "schnell": false
+  },
+  "CODA": {
+   "ort": "Prophecy dungeon",
+   "farm": "Prophecy dungeon",
+   "schnell": false
+  },
+  "Great Hunt": {
+   "ort": "Last Wish raid",
+   "farm": "Last Wish raid",
+   "schnell": false
+  },
+  "Collective Psyche": {
+   "ort": "The Desert Perpetual raid",
+   "farm": "The Desert Perpetual raid",
+   "schnell": false
+  },
+  "Iron Battalion": {
+   "ort": "Iron Banner",
+   "farm": "Iron Banner",
+   "schnell": false
+  },
+  "Taken King": {
+   "ort": "Ghosts of the Deep dungeon",
+   "farm": "Ghosts of the Deep dungeon",
+   "schnell": false
+  },
+  "Apostate's Blade": {
+   "ort": "Pit of Heresy dungeon",
+   "farm": "Pit of Heresy dungeon",
+   "schnell": false
+  },
+  "Lustrous": {
+   "ort": "Solstice armor at the Tenet of Bravery sculpture",
+   "farm": "Solstice armor at the Tenet of Bravery sculpture",
+   "schnell": false
+  },
+  "Swordmaster": {
+   "ort": "Xûr in the Tower Bazaar",
+   "farm": "Xûr in the Tower Bazaar",
+   "schnell": false
+  },
+  "Smoke Jumper": {
+   "ort": "Fireteam and Solo Ops",
+   "farm": "Fireteam and Solo Ops",
+   "schnell": false
+  },
+  "Ferropotent": {
+   "ort": "Fireteam and Solo Ops",
+   "farm": "Fireteam and Solo Ops",
+   "schnell": false
+  },
+  "Luminopotent": {
+   "ort": "Fireteam and Solo Ops",
+   "farm": "Fireteam and Solo Ops",
+   "schnell": false
+  },
+  "Sage Protector": {
+   "ort": "Equilibrium dungeon",
+   "farm": "Equilibrium dungeon",
+   "schnell": false
+  },
+  "Pantheos Resplendent": {
+   "ort": "Pantheon Raid Gauntlet",
+   "farm": "Pantheon Raid Gauntlet",
+   "schnell": false
+  },
+  "AION Adapter": {
+   "ort": "Kepler",
+   "farm": "Exploring Kepler",
+   "schnell": false
+  },
+  "AION Renewal": {
+   "ort": "Kepler",
+   "farm": "Exploring Kepler",
+   "schnell": false
+  },
+  "Circuit": {
+   "ort": "Sparrow Racing League",
+   "farm": "Sparrow Racing League",
+   "schnell": false
+  },
+  "Cruel Electrum": {
+   "ort": "Trials of Osiris",
+   "farm": "Trials of Osiris challenges",
+   "schnell": false
+  },
+  "New Demotic": {
+   "ort": "Trials of Osiris",
+   "farm": "Trials of Osiris challenges",
+   "schnell": false
+  },
+  "Twofold Crown": {
+   "ort": "Trials of Osiris",
+   "farm": "Trials of Osiris challenges",
+   "schnell": false
+  },
+  "Cyberserpent Null": {
+   "ort": "Gambit",
+   "farm": "Gambit matches and Drifter rank-up packages",
+   "schnell": false
+  },
+  "Iron Panoply": {
+   "ort": "Iron Banner",
+   "farm": "Iron Banner",
+   "schnell": false
+  },
+  "Kentarch 3": {
+   "ort": "Garden of Salvation",
+   "farm": "Garden of Salvation raid",
+   "schnell": false
+  },
+  "Per Audacia": {
+   "ort": "Crucible",
+   "farm": "Crucible Glory (competitive) matches",
+   "schnell": false
+  },
+  "Shrewd Survivor": {
+   "ort": "Renegades",
+   "farm": "Renegades activities",
+   "schnell": false
+  },
+  "Thriving Survivor": {
+   "ort": "Renegades",
+   "farm": "Renegades activities",
+   "schnell": false
+  },
+  "Wayward Psyche": {
+   "ort": "The Desert Perpetual",
+   "farm": "The Desert Perpetual raid (Epic)",
+   "schnell": false
+  },
+  "Yearning Echo": {
+   "ort": "Grasp of Avarice",
+   "farm": "Grasp of Avarice dungeon",
+   "schnell": false
+  },
+  "Atheon's Memory": {
+   "ort": "Vault of Glass",
+   "farm": "Vault of Glass raid",
+   "schnell": false
+  },
+  "Crota's Memory": {
+   "ort": "Crota's End",
+   "farm": "Crota's End raid",
+   "schnell": false
+  },
+  "Dark Age": {
+   "ort": "Warlord's Ruin",
+   "farm": "Warlord's Ruin dungeon",
+   "schnell": false
+  },
+  "Deep Explorer": {
+   "ort": "Duality",
+   "farm": "Duality dungeon",
+   "schnell": false
+  },
+  "Legacy's Oath": {
+   "ort": "Deep Stone Crypt",
+   "farm": "Deep Stone Crypt raid",
+   "schnell": false
+  },
+  "Nezarec's Nightmare": {
+   "ort": "Root of Nightmares",
+   "farm": "Root of Nightmares raid",
+   "schnell": false
+  },
+  "Oryx's Memory": {
+   "ort": "King's Fall",
+   "farm": "King's Fall raid",
+   "schnell": false
+  },
+  "Promised": {
+   "ort": "Salvation's Edge",
+   "farm": "Salvation's Edge raid",
+   "schnell": false
+  },
+  "Resonant Fury": {
+   "ort": "Vow of the Disciple",
+   "farm": "Vow of the Disciple raid",
+   "schnell": false
+  },
+  "Spacewalk": {
+   "ort": "Vesper's Host",
+   "farm": "Vesper's Host dungeon",
+   "schnell": false
+  },
+  "Techeun's Regalia": {
+   "ort": "The Shattered Throne",
+   "farm": "The Shattered Throne dungeon",
+   "schnell": false
+  },
+  "TM Custom": {
+   "ort": "Spire of the Watcher",
+   "farm": "Spire of the Watcher dungeon",
+   "schnell": false
   }
+ }
 }
