@@ -1,3 +1,4 @@
+import { EXO_CHAMP } from './exochamp.js';
 // Kompakte Spieldaten (von der GitHub Action gebaut) und Regeln, die Bungie nicht mitliefert.
 export let defs = null;
 export async function ladeDefs() {
@@ -20,6 +21,9 @@ export function champion(hash, plugs, breakerInstanz) {
   if (!d || d.t !== 3) return null;
   const art = breakerInstanz || d.br;
   if (art && defs.breaker[art]) return { ...defs.breaker[art], quelle: 'Bungie' };
+  // Exotics: fest zugewiesen (Ergo Sum folgt seinem Schwert-Frame, siehe unten).
+  const exo = d.q === 6 && d.n !== 'Ergo Sum' ? EXO_CHAMP[d.n.toUpperCase()] : null;
+  if (exo) return { ...nach({ B: 'Shield Piercing', O: 'Disruption', U: 'Stagger' }[exo]), quelle: 'Exotic' };
   for (const p of plugs) {
     const m = (defs.items[p]?.d || '').match(/\[(Shield-Piercing|Disruption|Stagger)\]/);
     if (m) return { ...nach(m[1] === 'Shield-Piercing' ? 'Shield Piercing' : m[1]), quelle: defs.items[p].n };
