@@ -5,6 +5,7 @@ import { zeigeVault } from './vault.js';
 import { zeigeWoche } from './woche.js';
 import { zeigeLoadouts } from './loadouts.js';
 import { zeigeOptimizer } from './optimizer.js';
+import { zeigeStats } from './stats.js';
 import { zeigeXur, xurDa } from './xur.js';
 
 const $ = (s) => document.querySelector(s);
@@ -36,7 +37,7 @@ const TABS = {
   loadouts: () => zeigeLoadouts(haupt, zustand),
   optimizer: () => zeigeOptimizer(haupt, zustand),
   finder: () => platzhalter('Build Finder', 'Finds builds from what you own. Comes in the next patch.'),
-  stats: () => platzhalter('Stats', 'Your activity and weapon statistics. Comes in the next patch.'),
+  stats: () => zeigeStats(haupt, zustand),
 };
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
 
