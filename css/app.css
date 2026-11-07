@@ -231,3 +231,4 @@ button:disabled{opacity:.45;cursor:progress}
 .pl{position:relative}.dot{position:absolute;width:9px;height:9px;border-radius:50%;border:1px solid #000}.pl .dot.pve{right:-2px;top:-2px;background:var(--gut)}.pl .dot.pvp{right:-2px;bottom:-2px;background:var(--arc)}
 .legende{display:inline-flex;align-items:center;gap:4px;margin-left:4px}.legende .dot{position:static;display:inline-block}
 .rollinfo{color:var(--gut)!important;font-weight:600}.rollinfo.pvp{color:var(--arc)!important}
+.legende .dot.pve{background:var(--gut)}.legende .dot.pvp{background:var(--arc)}.legende{display:flex;flex-wrap:wrap;margin:6px 0 0}
