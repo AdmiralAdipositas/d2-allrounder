@@ -6356,6 +6356,126 @@ const PHZ=(function(){
  return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
 })();
 
+
+/* =================== DUNGEONS batch 2: Prophecy, Grasp of Avarice, Duality =================== */
+const dgMote=(p,c,o)=>({t:'raw',x:0,y:0,svg:`<circle cx="${p.x}" cy="${p.y}" r="7" fill="${c==='L'?'#fff4c2':'#2a1a3a'}" stroke="${c==='L'?'#fff':'#a982f5'}" stroke-width="2" opacity="${o==null?1:o}"/>`});
+const dgPed=(p,c,done)=>`<rect x="${p.x-14}" y="${p.y-10}" width="28" height="20" rx="4" fill="${done?'#1e3a26':'#120f1a'}" stroke="${c==='L'?'#fff4c2':'#a982f5'}" stroke-width="2"/>`;
+// Prophecy: Phalanx Echo — Taken Knights drop motes matching your side (light/dark border); 5 motes = big mote; deposit on the
+// matching pedestal. Four pedestals (phase 1: two light, two dark) → damage; kill Hobgoblins or the boss turns immune.
+const PRP=(function(){
+ const PED=[{x:200,y:120,c:'L'},{x:600,y:120,c:'D'},{x:200,y:320,c:'D'},{x:600,y:320,c:'L'}];const B={x:400,y:200};
+ const floor=dgRoom('#121018','#3a3356',s=>`<rect x="110" y="30" width="290" height="390" fill="rgba(255,244,194,.04)"/><rect x="400" y="30" width="290" height="390" fill="rgba(169,130,245,.06)"/>`+PED.map((p,i)=>dgPed(p,p.c,(s.done||[]).includes(i))).join(''));
+ const base=dgBase(DG3,DGPOS,{done:[]});
+ const S=[
+ {d:24,f(k,s){s.units.push({t:'champ',x:B.x,y:B.y});const kn={x:250,y:250};if(k<.3){s.units.push({t:'tknight',x:kn.x,y:kn.y,hp:1-seg(k,.05,.28)*.97});DG3.forEach((q,j)=>dgFire(s,k,q,kn,j));}
+   if(k>=.3)s.stk.P1=Math.min(5,1+Math.floor((k-.3)*14));s.stkC='#fff4c2';if(k>=.6){s.stk.P1=null;s.orb.P1=k<.8?'#fff4c2':null;s.p.P1=mv(DGPOS.P1,{x:PED[0].x+10,y:PED[0].y+26},seg(k,.6,.78));}
+   s.done=k>=.8?[0]:[];if(k>=.8&&k<.86)s.bursts.push({...PED[0],r:10+30*seg(k,.8,.86),c:'#fff4c2',o:1-seg(k,.8,.86)});
+   s.fx=k<.3?{k:'fxP1Knight',o:win(k,0,.3,.02),c:C.ally}:k<.6?{k:'fxP1Five',o:win(k,.3,.6,.02),c:'#fff4c2'}:{k:'fxP1Dep',o:win(k,.6,1,.02),c:C.good};}},
+ {d:18,f(k,s){s.done=[0,1,2,3];s.units.push({t:'champ',x:B.x,y:B.y,hp:1-seg(k,.05,.9)*.3});DG3.forEach((q,j)=>{s.p[q]=mv(DGPOS[q],{x:340+j*60,y:300},seg(k,0,.1));dgFire(s,k,q,k>=.4&&k<.6&&j===2?{x:520,y:260}:B,j);});
+   if(k>=.4&&k<.6){s.units.push({t:'vhob',x:520,y:260});s.labels.push({x:520,y:230,k:'lHob',c:C.danger,o:1});}
+   s.fx=k<.4?{k:'fxP2Dmg',o:win(k,0,.4,.02),c:C.ally}:{k:'fxP2Hob',o:win(k,.4,1,.02),c:C.danger};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+// Prophecy: Hexahedron — deposit motes at the pedestal under Toland to rotate the cube (over the middle: any pedestal, but
+// it adds a rotation). Enough shifts → room with two Centurion Echoes.
+const PRH=(function(){
+ const PED=[{x:200,y:340,c:'L'},{x:400,y:360,c:'D'},{x:600,y:340,c:'L'}];
+ const floor=dgRoom('#121018','#3a3356',s=>`<rect x="250" y="70" width="300" height="200" fill="none" stroke="#6b5a9a" stroke-width="2" transform="rotate(${(s.rot||0)*90} 400 170)"/>`+PED.map((p,i)=>dgPed(p,p.c,false)).join(''));
+ const base=dgBase(DG3,DGPOS,{rot:0});
+ const S=[
+ {d:22,f(k,s){const T={x:200,y:260};s.adds.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${T.x} ${T.y})"><circle r="10" fill="#7fe3ff" opacity=".6"/><text y="-16" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#7fe3ff">TOLAND</text></g>`});
+   s.orb.P1=k<.5?'#fff4c2':null;s.p.P1=mv(DGPOS.P1,{x:PED[0].x+20,y:PED[0].y-20},seg(k,.1,.45));s.rot=k>=.5?seg(k,.5,.7):0;
+   s.fx=k<.5?{k:'fxH1Toland',o:win(k,0,.5,.02),c:'#7fe3ff'}:{k:'fxH1Rot',o:win(k,.5,1,.02),c:'#a982f5'};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+// Prophecy: Kell Echo — three pedestals cleansed with motes, each removes a Kell Echo; Taken Ogres. DPS: stay close (Dark Entropy,
+// 10 stacks = dead); her wave knocks you back; she teleports, take the portal and repeat.
+const PRK=(function(){
+ const PED=[{x:200,y:300,c:'D'},{x:400,y:360,c:'L'},{x:600,y:300,c:'D'}];const B={x:400,y:150};
+ const floor=dgRoom('#121018','#3a3356',s=>PED.map((p,i)=>dgPed(p,p.c,(s.done||[]).includes(i))).join(''));
+ const base=dgBase(DG3,DGPOS,{done:[]});
+ const S=[
+ {d:20,f(k,s){s.units.push({t:'boss',x:B.x,y:B.y});s.done=[0,1,2].filter(i=>k>=.2+i*.25);DG3.forEach((q,j)=>{s.orb[q]=k<.2+j*.25?(PED[j].c==='L'?'#fff4c2':'#a982f5'):null;s.p[q]=mv(DGPOS[q],{x:PED[j].x,y:PED[j].y-26},seg(k,0,.2+j*.25));});
+   s.fx={k:'fxK1Peds',o:win(k,0,1,.02),c:'#a982f5'};}},
+ {d:20,f(k,s){s.done=[0,1,2];s.units.push({t:'boss',x:B.x,y:B.y,hp:1-seg(k,.05,.9)*.3});DG3.forEach((q,j)=>{const near=j<2;s.p[q]=mv(DGPOS[q],near?{x:360+j*80,y:210}:{x:400,y:380},seg(k,0,.1));s.stk[q]=near?1:Math.min(9,2+Math.floor(k*10));s.stkWarn={P3:k>.5};dgFire(s,k,q,B,j);});
+   if(k>=.4)s.labels.push({x:400,y:330,k:'lEntropy',c:C.danger,o:win(k,.4,1,.02)});
+   s.fx=k<.4?{k:'fxK2Close',o:win(k,0,.4,.02),c:C.ally}:{k:'fxK2Far',o:win(k,.4,1,.02),c:C.danger};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+// Grasp of Avarice: engrams + Burdened by Riches (30 s, each pickup resets); Scorch Cannon opens doors / cylinders.
+const GAP=(function(){
+ const CR={x:400,y:110};const DR=[{x:150,y:220},{x:650,y:220}];
+ const floor=dgRoom('#14120e','#4a3d22',s=>`<path d="M${CR.x} ${CR.y-20} L${CR.x+14} ${CR.y} L${CR.x} ${CR.y+20} L${CR.x-14} ${CR.y} Z" fill="rgba(127,227,255,.4)" stroke="#7fe3ff"/>`+DR.map((d,i)=>`<rect x="${d.x-10}" y="${d.y-40}" width="20" height="80" fill="${(s.open||[]).includes(i)?'#1e3a26':'#2a2414'}" stroke="#f6dc8e"/>`).join(''));
+ const base=dgBase(DG3,DGPOS,{open:[]});
+ const S=[
+ {d:22,f(k,s){const V={x:400,y:330};if(k<.25){s.units.push({t:'champ',x:V.x,y:V.y,hp:1-seg(k,.04,.22)*.97});DG3.forEach((q,j)=>dgFire(s,k,q,V,j));}
+   s.tag.P2=k>=.28?'CANNON':null;if(k>=.4&&k<.5){s.shots.push({a:s.p.P2,q:'P2',b:DR[0],c:'#ff9a3c'});}s.open=k>=.5?[0]:[];
+   DG3.forEach((q,j)=>{if(j!==1){s.stk[q]=k>=.5?Math.min(25,Math.floor((k-.5)*60)):null;}});s.stkC='#f6dc8e';s.hud={t:'lBurdT',v:30-((k*4)%1)*8};
+   s.fx=k<.28?{k:'fxG1Van',o:win(k,0,.28,.02),c:C.ally}:k<.5?{k:'fxG1Door',o:win(k,.28,.5,.02),c:'#ff9a3c'}:{k:'fxG1Eng',o:win(k,.5,1,.02),c:'#f6dc8e'};}},
+ {d:16,f(k,s){DG3.forEach((q,j)=>{s.stk[q]=k<.3?12:null;s.p[q]=mv(DGPOS[q],{x:CR.x-30+j*30,y:CR.y+40},seg(k,0,.25));});if(k>=.3&&k<.36)s.bursts.push({...CR,r:10+40*seg(k,.3,.36),c:'#7fe3ff',o:1-seg(k,.3,.36)});
+   s.units.push({t:'boss',x:400,y:240,hp:k>=.4?1-seg(k,.4,.95)*.3:null});if(k>=.4)DG3.forEach((q,j)=>dgFire(s,k,q,{x:400,y:240},j));
+   s.fx=k<.4?{k:'fxG2Dep',o:win(k,0,.4,.02),c:'#7fe3ff'}:{k:'fxG2Dmg',o:win(k,.4,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+const GAS=(function(){
+ const SV=[{x:200,y:150},{x:600,y:150}];const CN={x:400,y:330};
+ const floor=dgRoom('#14120e','#4a3d22',s=>`<circle cx="${CN.x}" cy="${CN.y}" r="22" fill="#2a2414" stroke="#ff9a3c" stroke-width="2"/><text x="${CN.x}" y="${CN.y+38}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#ff9a3c">CANNON</text><circle cx="400" cy="100" r="40" fill="none" stroke="#f6dc8e" stroke-dasharray="4 4"/>`);
+ const base=dgBase(DG3,DGPOS,{});
+ const S=[
+ {d:24,f(k,s){const v=SV[0];s.units.push({t:'fserv',x:v.x,y:v.y,hp:k>=.3?1-seg(k,.3,.55)*.97:null});if(k<.3)s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${v.x}" cy="${v.y}" r="22" fill="none" stroke="#7fe3ff" stroke-width="2"/>`});
+   DG3.forEach((q,j)=>{s.p[q]=mv(DGPOS[q],{x:v.x+40+j*20,y:v.y+50},seg(k,0,.2));s.stk[q]=k<.25?25:null;if(k>=.3&&k<.55)dgFire(s,k,q,v,j);});s.stkC='#f6dc8e';
+   const bomb=k<.6?v:k<.8?mv(v,CN,seg(k,.6,.8)):mv(CN,{x:400,y:100},seg(k,.82,.95));if(k>=.55)s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${bomb.x}" cy="${bomb.y}" r="9" fill="#ff6156" stroke="#fff"/>`});
+   s.fx=k<.3?{k:'fxS1Shield',o:win(k,0,.3,.02),c:'#7fe3ff'}:k<.55?{k:'fxS1Kill',o:win(k,.3,.55,.02),c:C.ally}:{k:'fxS1Bomb',o:win(k,.55,1,.02),c:'#ff6156'};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+const GAA=(function(){
+ const B={x:400,y:150};const CR={x:400,y:330};
+ const floor=dgRoom('#14120e','#4a3d22',s=>`<path d="M${CR.x} ${CR.y-20} L${CR.x+14} ${CR.y} L${CR.x} ${CR.y+20} L${CR.x-14} ${CR.y} Z" fill="rgba(127,227,255,.4)" stroke="#7fe3ff"/>`);
+ const base=dgBase(DG3,DGPOS,{});
+ const S=[
+ {d:24,f(k,s){s.units.push({t:'boss',x:B.x,y:B.y,hp:k>=.6?1-seg(k,.6,.95)*.3:null});const sh={x:600,y:120};if(k<.25){s.units.push({t:'champ',x:sh.x,y:sh.y,hp:1-seg(k,.04,.22)*.97});DG3.forEach((q,j)=>dgFire(s,k,q,sh,j));}
+   DG3.forEach((q,j)=>{s.stk[q]=k>=.25&&k<.55?Math.min(22,Math.floor((k-.25)*80)):null;if(k>=.4&&k<.55)s.p[q]=mv(DGPOS[q],{x:CR.x-30+j*30,y:CR.y-30},seg(k,.4,.55));if(k>=.6)dgFire(s,k,q,B,j);});s.stkC='#f6dc8e';
+   s.pips={lk:'lEngLbl',n:13,done:k<.55?Math.min(13,Math.floor(seg(k,.25,.55)*13)):13};
+   s.fx=k<.25?{k:'fxA1Shank',o:win(k,0,.25,.02),c:C.ally}:k<.6?{k:'fxA1Eng',o:win(k,.25,.6,.02),c:'#f6dc8e'}:{k:'fxA1Dmg',o:win(k,.6,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+// Duality: bell swaps normal/nightmare realm (ring around the bell in nightmare, shooting from outside kills you). Standards:
+// Sun, Chalice, Axes, War Beasts. Nightmare Collapsing timer.
+const DUBELL=(p,on)=>`<circle cx="${p.x}" cy="${p.y}" r="44" fill="none" stroke="#ff6156" stroke-dasharray="4 4" opacity="${on?.8:.25}"/><path d="M${p.x-12} ${p.y+10} Q${p.x} ${p.y-26} ${p.x+12} ${p.y+10} Z" fill="#3a2a14" stroke="#f6dc8e" stroke-width="2"/>`;
+const DUG=(function(){
+ const BELL={x:400,y:330};const DEP={Sun:{x:200,y:110},Chalice:{x:600,y:110},Axes:{x:200,y:300},'War Beasts':{x:600,y:300}};
+ const floor=dgRoom('#100c0c','#5a2020',s=>(s.night?`<rect x="110" y="30" width="580" height="390" rx="14" fill="rgba(255,97,86,.05)"/>`:'')+DUBELL(BELL,s.night)+Object.entries(DEP).map(([n,p])=>`<rect x="${p.x-20}" y="${p.y-12}" width="40" height="24" rx="4" fill="#120c0c" stroke="#f6dc8e"/><text x="${p.x}" y="${p.y+28}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#f6dc8e">${n}</text>`).join(''));
+ const base=dgBase(DG3,DGPOS,{night:true});
+ const S=[
+ {d:24,f(k,s){s.night=true;s.hud={t:'lNightT',v:Math.max(0,60-k*40+(k>=.4?20:0))};const ps={x:150,y:200};
+   if(k<.35){s.units.push({t:'psion',x:ps.x,y:ps.y});DG3.forEach((q,j)=>dgFire(s,k,q,ps,j));}
+   if(k>=.35){s.tag.P1='SUN';s.p.P1=mv(DGPOS.P1,{x:DEP.Sun.x,y:DEP.Sun.y+30},seg(k,.4,.7));}if(k>=.72){s.tag.P1=null;if(k<.8)s.bursts.push({...DEP.Sun,r:10+30*seg(k,.72,.8),c:'#f6dc8e',o:1-seg(k,.72,.8)});}
+   s.fx=k<.35?{k:'fxU1Psion',o:win(k,0,.35,.02),c:C.ally}:k<.72?{k:'fxU1Std',o:win(k,.35,.72,.02),c:'#f6dc8e'}:{k:'fxU1Dep',o:win(k,.72,1,.02),c:C.good};}},
+ {d:18,f(k,s){s.night=k<.7;s.units.push({t:'cent',x:400,y:180,hp:1-seg(k,.05,.65)*.4});DG3.forEach((q,j)=>{s.p[q]=k<.7?mv(DGPOS[q],{x:340+j*60,y:280},seg(k,0,.1)):mv({x:340+j*60,y:280},{x:BELL.x-20+j*20,y:BELL.y},seg(k,.7,.8));if(k<.65)dgFire(s,k,q,{x:400,y:180},j);});
+   s.hud={t:'lNightT',v:Math.max(0,20-k*25)};if(k>=.8&&k<.86)s.shots.push({a:s.p.P2,q:'P2',b:BELL,c:'#f6dc8e'});
+   s.fx=k<.65?{k:'fxU2Dmg',o:win(k,0,.65,.02),c:C.ally}:{k:'fxU2Bell',o:win(k,.65,1,.02),c:'#f6dc8e'};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+const DUC=(function(){
+ const BELLS=[{x:180,y:150},{x:620,y:150},{x:400,y:360}];const B0={x:400,y:150};
+ const floor=dgRoom('#100c0c','#5a2020',s=>BELLS.map((b,i)=>DUBELL(b,s.bell===i)).join(''));
+ const base=dgBase(DG3,DGPOS,{bell:null});
+ const S=[
+ {d:24,f(k,s){const tgt=BELLS[0];const C0=k<.5?mv({x:400,y:240},tgt,seg(k,.1,.5)):tgt;s.units.push({t:'cent',x:C0.x+30,y:C0.y+20,hp:k>=.55?1-seg(k,.55,.9)*.3:null,big:1});s.bell=0;
+   DG3.forEach((q,j)=>{s.p[q]=mv(DGPOS[q],{x:tgt.x-30+j*30,y:tgt.y+40},seg(k,.1,.4));if(k>=.55)dgFire(s,k,q,{x:C0.x+30,y:C0.y+20},j);});
+   if(k>=.48&&k<.55){s.shots.push({a:s.p.P2,q:'P2',b:tgt,c:'#f6dc8e'});s.labels.push({x:tgt.x,y:tgt.y-50,k:'lStun',c:'#f6dc8e',o:1});}
+   s.fx=k<.48?{k:'fxC1Walk',o:win(k,0,.48,.02),c:'#ff6156'}:k<.55?{k:'fxC1Stun',o:win(k,.48,.55,.02),c:'#f6dc8e'}:{k:'fxC1Dmg',o:win(k,.55,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -9135,6 +9255,87 @@ const RG_PHN=RG_DG(['Riesen-Knight, Schwert.','Bosse mit dem Schwert.'],['Giant 
 const RG_PHC=RG_DG(['Einer auf der Platte.','Orbs ablegen.'],['One on the plate.','Deposit orbs.']);
 const RG_PHZ=RG_DG(['Bosse, Orbs.','Schaden in der Mitte, beim Schwert raus.'],['Bosses, orbs.','Damage in the middle, out on the sword.']);
 
+const ENC_PRP=dgEnc(1,'Phalanx Echo',PRP,
+ {kicker:'Prophecy · Phalanx Echo',lede:'Licht/Dunkel: Der Bildschirmrand zeigt, ob man im Licht oder Dunkel steht. Ravenous Taken Knights lassen Motes in der Farbe des eigenen Standorts fallen, fünf werden ein großer Mote. Den auf das passende Podest (Rauchwolke) legen. Vier Podeste (Phase 1: zwei Licht, zwei Dunkel, später zufällig), dann Schaden. Taken Hobgoblins im Schaden töten (ohne Well), sonst wird der Boss immun. Schematisch.',
+  sc:[['Motes','Knight töten, fünf Motes sammeln, aufs passende Podest.'],['Schaden','Schaden; Hobgoblins sofort töten.']],tip:{1:'Seite (Licht/Dunkel) beachten.',2:'Hobgoblins zuerst.'},
+  roles:[['Alle','Motes, Podeste, Schaden.','']],rules:['5 Motes = großer Mote.','Mote-Farbe = eigener Standort.'],wipes:['Boss immun, wenn Hobgoblins leben (ohne Well).'],tips:['<b>Vorsicht:</b> Rückstoß auf engem Raum.'],calls:[['Licht links','Light left','Podest']],
+  L:{fxP1Knight:'Taken Knight töten',fxP1Five:'Fünf Motes = großer Mote',fxP1Dep:'Aufs passende Podest',fxP2Dmg:'Schaden',fxP2Hob:'Hobgoblin sofort töten',lHob:'Hobgoblin!'}},
+ {kicker:'Prophecy · Phalanx Echo',lede:'Light/dark: the screen border shows whether you stand in light or dark. Ravenous Taken Knights drop motes matching your position, five become a big mote. Put it on the matching pedestal (smoke puff). Four pedestals (phase 1: two light, two dark, later random), then damage. Kill the Taken Hobgoblins during damage (without a well), or the boss turns immune. Schematic.',
+  sc:[['Motes','Kill a Knight, collect five motes, onto the matching pedestal.'],['Damage','Damage; kill Hobgoblins right away.']],tip:{1:'Mind your side (light/dark).',2:'Hobgoblins first.'},
+  roles:[['Everyone','Motes, pedestals, damage.','']],rules:['5 motes = big mote.','Mote colour = your position.'],wipes:['Boss immune while Hobgoblins live (without a well).'],tips:['<b>Careful:</b> knockback in tight space.'],calls:[['Licht links','Light left','pedestal']],
+  L:{fxP1Knight:'Kill the Taken Knight',fxP1Five:'Five motes = big mote',fxP1Dep:'Onto the matching pedestal',fxP2Dmg:'Damage',fxP2Hob:'Kill the Hobgoblin now',lHob:'Hobgoblin!'}});
+const ENC_PRH=dgEnc(2,'Hexahedron',PRH,
+ {kicker:'Prophecy · Hexahedron',lede:'Vorher die Wasteland (drei Sätze Blights; Toland zeigt die Richtung des nächsten). Im Würfel: Motes am Podest unter Toland ablegen, das dreht den Würfel. Ist Toland über der Mitte, geht jedes Podest, aber das kostet eine Drehung mehr. Ein Taken Hobgoblin ruft einen Taken Knight. Nach genug Drehungen der Raum mit zwei Centurion Echoes. Schematisch.',
+  sc:[['Drehen','Podest unter Toland, ablegen, Würfel dreht sich.']],tip:{1:'Wo ist Toland?'},
+  roles:[['Alle','Motes, Podest unter Toland.','']],rules:['Podest unter Toland.'],wipes:['In der Quelle nicht beschrieben.'],tips:['<b>Danach:</b> Deadsea per Sparrow (schneller, riskanter) oder Plattformen.'],calls:[['Toland links','Toland left','Podest']],
+  L:{fxH1Toland:'Podest unter Toland',fxH1Rot:'Würfel dreht sich'}},
+ {kicker:'Prophecy · Hexahedron',lede:'First the Wasteland (three sets of Blights; Toland points towards the next). In the cube: deposit motes at the pedestal under Toland, which rotates the cube. If Toland is over the middle any pedestal works, but it costs an extra rotation. A Taken Hobgoblin spawns a Taken Knight. After enough rotations, the room with two Centurion Echoes. Schematic.',
+  sc:[['Rotate','Pedestal under Toland, deposit, the cube turns.']],tip:{1:'Where is Toland?'},
+  roles:[['Everyone','Motes, pedestal under Toland.','']],rules:['Pedestal under Toland.'],wipes:['Not described in the source.'],tips:['<b>Afterwards:</b> the Deadsea by sparrow (faster, riskier) or platforms.'],calls:[['Toland links','Toland left','pedestal']],
+  L:{fxH1Toland:'Pedestal under Toland',fxH1Rot:'The cube turns'}});
+const ENC_PRK=dgEnc(3,'Kell Echo',PRK,
+ {kicker:'Prophecy · Kell Echo',lede:'Drei Podeste (Licht oder Dunkel) mit Motes reinigen, jede Ablage entfernt ein Kell Echo; Taken Ogres sofort töten. Im Schaden nah am Boss bleiben, sonst „Dark Entropy“ (10 Stapel = tot). Ihre Taken-Welle schleudert zurück. Sie teleportiert: Portal nehmen, in der zweiten Arena wiederholen. Schematisch.',
+  sc:[['Podeste','Drei Podeste reinigen.'],['Schaden','Nah dran bleiben, beste Fenster am Anfang und Ende.']],tip:{1:'Ogres sofort.',2:'Nah ran.'},
+  roles:[['Alle','Podeste, Schaden.','']],rules:['Dark Entropy 10 = tot.'],wipes:['Dark Entropy 10.'],tips:['<b>Exotic:</b> nicht in der Quelle; siehe Extras.'],calls:[['Rein!','In!','Entropy']],
+  L:{fxK1Peds:'Drei Podeste reinigen',fxK2Close:'Nah am Boss bleiben',fxK2Far:'Zu weit weg: Dark Entropy steigt',lEntropy:'Dark Entropy!'}},
+ {kicker:'Prophecy · Kell Echo',lede:'Cleanse three pedestals (light or dark) with motes, each deposit removes a Kell Echo; kill Taken Ogres right away. During damage stay close to the boss, or “Dark Entropy” builds (10 stacks = dead). Her Taken wave knocks you back. She teleports: take the portal and repeat in the second arena. Schematic.',
+  sc:[['Pedestals','Cleanse three pedestals.'],['Damage','Stay close, best windows at the start and end.']],tip:{1:'Ogres right away.',2:'Get close.'},
+  roles:[['Everyone','Pedestals, damage.','']],rules:['Dark Entropy 10 = dead.'],wipes:['Dark Entropy 10.'],tips:['<b>Exotic:</b> not in the source; see extras.'],calls:[['Rein!','In!','entropy']],
+  L:{fxK1Peds:'Cleanse three pedestals',fxK2Close:'Stay close to the boss',fxK2Far:'Too far: Dark Entropy rises',lEntropy:'Dark Entropy!'}});
+const ENC_GAP=dgEnc(1,'Phry’zhia, the Insatiable',GAP,
+ {kicker:'Grasp of Avarice · Phry’zhia',lede:'Vorher die Loot-Höhle: Engramme sammeln (keine Beute), „Burdened by Riches“ (30 s, jeder Aufheben setzt zurück, bis 100), ca. 55 am Kristall ablegen. Phry’zhia: Ein Vandal mit der Scorch Cannon erscheint hinten; mit der Kanone die Türen auf beiden Seiten öffnen. 25 Engramme ablegen starten den Schaden, der Boss ist kurz verwundbar. Wiederholen. Schematisch.',
+  sc:[['Kanone + Engramme','Vandal töten, Kanone nehmen, Tür öffnen, Engramme sammeln.'],['Schaden','25 am Kristall ablegen, Schaden.']],tip:{1:'Wer trägt die Kanone?',2:'30-s-Timer.'},
+  roles:[['Kanone','Türen öffnen.','runner'],['Rest','Engramme.','']],rules:['Burdened by Riches: 30 s.','25 Engramme = Schaden.'],wipes:['In der Quelle nicht beschrieben.'],tips:['<b>Fallen:</b> Druckplatten und Fallen auf dem Weg.'],calls:[['Kanone','Cannon','Tür']],
+  L:{lBurdT:'BURDENED',fxG1Van:'Vandal mit Scorch Cannon',fxG1Door:'Kanone öffnet die Tür',fxG1Eng:'Engramme sammeln',fxG2Dep:'25 am Kristall',fxG2Dmg:'Schaden'}},
+ {kicker:'Grasp of Avarice · Phry’zhia',lede:'First the loot cave: collect engrams (no loot), “Burdened by Riches” (30 s, every pickup resets, up to 100), deposit about 55 at the crystal. Phry’zhia: a Vandal with the Scorch Cannon spawns at the back; use the cannon to open the doors on both sides. Depositing 25 engrams starts damage, the boss is briefly vulnerable. Repeat. Schematic.',
+  sc:[['Cannon + engrams','Kill the Vandal, take the cannon, open a door, collect engrams.'],['Damage','Deposit 25 at the crystal, damage.']],tip:{1:'Who carries the cannon?',2:'30 s timer.'},
+  roles:[['Cannon','Open doors.','runner'],['Rest','Engrams.','']],rules:['Burdened by Riches: 30 s.','25 engrams = damage.'],wipes:['Not described in the source.'],tips:['<b>Traps:</b> pressure plates and traps on the way.'],calls:[['Kanone','Cannon','door']],
+  L:{lBurdT:'BURDENED',fxG1Van:'Vandal with the Scorch Cannon',fxG1Door:'Cannon opens the door',fxG1Eng:'Collect engrams',fxG2Dep:'25 at the crystal',fxG2Dmg:'Damage'}});
+const ENC_GAS=dgEnc(2,'Fallen Servitor',GAS,
+ {kicker:'Grasp of Avarice · Servitor',lede:'Vorher die Sparrow-Strecke mit Minen (Knöpfe verlängern den Timer). Servitor: Engramme und Kanone wie zuvor. Je 25 Engramme am Kristall neben einem Servitor nehmen dessen Schild. Ein toter Servitor lässt eine Bombe fallen: in die Fallen-Kanone schieben und auf den Ausleger in der Mitte zielen. Viermal. Schematisch.',
+  sc:[['Servitor','25 Engramme → Schild weg → töten → Bombe in die Kanone → zielen.']],tip:{1:'Bombe nicht verlieren.'},
+  roles:[['Alle','Engramme, Servitor, Bombe.','']],rules:['25 Engramme pro Servitor.','4 Bomben.'],wipes:['In der Quelle nicht beschrieben.'],tips:['<b>Kanonen:</b> ein Schuss auf einen Zylinder aktiviert die Fallen-Kanonen zum Fliegen.'],calls:[['Bombe','Bomb','Kanone']],
+  L:{fxS1Shield:'25 Engramme: Schild weg',fxS1Kill:'Servitor töten',fxS1Bomb:'Bombe in die Kanone, auf die Mitte'}},
+ {kicker:'Grasp of Avarice · Servitor',lede:'First the sparrow run with mines (buttons extend the timer). Servitor: engrams and cannon as before. 25 engrams at the crystal next to a Servitor drop its shield. A dead Servitor drops a bomb: push it into the Fallen cannon and aim at the extension in the middle. Four times. Schematic.',
+  sc:[['Servitor','25 engrams → shield down → kill → bomb into the cannon → aim.']],tip:{1:'Don’t lose the bomb.'},
+  roles:[['Everyone','Engrams, Servitor, bomb.','']],rules:['25 engrams per Servitor.','4 bombs.'],wipes:['Not described in the source.'],tips:['<b>Cannons:</b> one shot on a cylinder activates the Fallen cannons for launching.'],calls:[['Bombe','Bomb','cannon']],
+  L:{fxS1Shield:'25 engrams: shield down',fxS1Kill:'Kill the Servitor',fxS1Bomb:'Bomb into the cannon, at the middle'}});
+const ENC_GAA=dgEnc(3,'Captain Avarokk',GAA,
+ {kicker:'Grasp of Avarice · Avarokk',lede:'Hinter dem Boss schnell den Mini-Boss Shank und einen Vandal töten (der Vandal gibt 10 Engramme). Kanone holen, einen Zylinder in der Mitte aktivieren: Engramme fallen überall. Etwa 65 sammeln und ablegen, dann Schaden. Wiederholen. Schematisch.',
+  sc:[['Engramme + Schaden','Shank + Vandal, Zylinder, 65 Engramme, ablegen, Schaden.']],tip:{1:'Shank schnell.'},
+  roles:[['Alle','Engramme, Schaden.','']],rules:['~65 Engramme vor dem Schaden.'],wipes:['In der Quelle nicht beschrieben.'],tips:['<b>Exotic:</b> siehe Extras.'],calls:[['Zylinder','Cylinder','Engramme']],
+  L:{lEngLbl:'ENGRAMME ×5',fxA1Shank:'Shank und Vandal töten',fxA1Eng:'~65 Engramme sammeln, ablegen',fxA1Dmg:'Schaden'}},
+ {kicker:'Grasp of Avarice · Avarokk',lede:'Behind the boss, quickly kill the mini-boss Shank and a Vandal (the Vandal drops 10 engrams). Get the cannon, activate a cylinder in the middle: engrams drop everywhere. Collect about 65 and deposit, then damage. Repeat. Schematic.',
+  sc:[['Engrams + damage','Shank + Vandal, cylinder, 65 engrams, deposit, damage.']],tip:{1:'Shank fast.'},
+  roles:[['Everyone','Engrams, damage.','']],rules:['~65 engrams before damage.'],wipes:['Not described in the source.'],tips:['<b>Exotic:</b> see extras.'],calls:[['Zylinder','Cylinder','engrams']],
+  L:{lEngLbl:'ENGRAMS ×5',fxA1Shank:'Kill Shank and the Vandal',fxA1Eng:'Collect ~65 engrams, deposit',fxA1Dmg:'Damage'}});
+const ENC_DUG=dgEnc(1,'Nightmare of Gahlran',DUG,
+ {kicker:'Duality · Gahlran',lede:'Glocke schießen = Wechsel zwischen normalem und Albtraum-Reich; im Albtraum im Ring um die Glocke stehen, von außen schießen tötet. „Nightmare Collapsing“-Timer: bei null tot. In zwei von vier Seitenräumen (nie auf derselben Seite) Standard-Bearer-Psions: töten verlängert den Timer und gibt ein Banner (Axes, Sun, Chalice, War Beasts). Ablegen: Sun oben links, Chalice oben rechts, Axes unten links, War Beasts unten rechts. Bellkeeper töten, Glocke, Visions töten, dann Schaden, bis die Zeit knapp wird. Schematisch.',
+  sc:[['Banner','Psion töten, Banner tragen, ablegen.'],['Schaden','Schaden im Albtraum; bei wenig Zeit per Glocke zurück und wiederholen.']],tip:{1:'Ablage-Plätze merken.',2:'Im Ring schießen.'},
+  roles:[['Alle','Psions, Banner, Schaden.','']],rules:['Timer bei null = tot.','Glocke nur im Ring schießen.'],wipes:['Nightmare Collapsing bei null.'],tips:['<b>Namen:</b> die Quelle schreibt Galhran/Gahlran uneinheitlich.'],calls:[['Sun oben links','Sun top left','Banner']],
+  L:{lNightT:'NIGHTMARE',fxU1Psion:'Standard-Bearer-Psion töten',fxU1Std:'Banner zur Ablage',fxU1Dep:'Abgelegt',fxU2Dmg:'Schaden',fxU2Bell:'Zeit knapp: Glocke, zurück'}},
+ {kicker:'Duality · Gahlran',lede:'Shooting the bell switches between the normal and nightmare realm; in the nightmare stand inside the ring around the bell, shooting from outside kills you. “Nightmare Collapsing” timer: dead at zero. In two of four side rooms (never on the same side) Standard Bearer Psions: killing them extends the timer and gives a standard (Axes, Sun, Chalice, War Beasts). Deposit: Sun top left, Chalice top right, Axes bottom left, War Beasts bottom right. Kill the bellkeepers, bell, kill the Visions, then damage until time runs low. Schematic.',
+  sc:[['Standards','Kill the Psion, carry the standard, deposit.'],['Damage','Damage in the nightmare; when time is low, bell back and repeat.']],tip:{1:'Remember the deposit spots.',2:'Shoot inside the ring.'},
+  roles:[['Everyone','Psions, standards, damage.','']],rules:['Timer at zero = dead.','Shoot the bell only inside the ring.'],wipes:['Nightmare Collapsing at zero.'],tips:['<b>Names:</b> the source spells Galhran/Gahlran inconsistently.'],calls:[['Sun oben links','Sun top left','standard']],
+  L:{lNightT:'NIGHTMARE',fxU1Psion:'Kill the Standard Bearer Psion',fxU1Std:'Standard to the deposit',fxU1Dep:'Deposited',fxU2Dmg:'Damage',fxU2Bell:'Low time: bell, back'}});
+const ENC_DUC=dgEnc(2,'Nightmare of Caiatl',DUC,
+ {kicker:'Duality · Caiatl',lede:'Vorher Unlock the Vault (Banner-Plätze: nah rechts Chalice, nah links Sun, weit rechts Axes, weit links War Beasts; falscher Bearer kürzt die Zeit) und Traversal. Caiatl: andere Banner-Plätze (nah rechts Chalice, nah links War Beasts, weit rechts Axes, weit links Sun). Banner im Albtraum holen; falscher Bearer = Wipe. Später leuchtet die große Glocke, alle an eine Glocke, große Glocke schießen. Schaden: Caiatl läuft zu einer Glocke, alle dorthin, Glocke schießen, wenn sie ankommt = betäubt, kurz Schaden. Dreimal, dann neu. Nicht zu nah, sonst stampft sie. Schematisch.',
+  sc:[['Betäuben','Alle an die Glocke, auf die sie zuläuft, schießen, wenn sie ankommt, dann Schaden.']],tip:{1:'Welche Glocke?'},
+  roles:[['Alle','Banner, Glocken, Schaden.','']],rules:['Falscher Standard-Bearer = Wipe.','Glocke = Stun.'],wipes:['Falschen Bearer getötet.'],tips:['<b>Namen:</b> die Quelle schreibt Caital/Caiatl uneinheitlich.'],calls:[['Glocke links','Bell left','Caiatl']],
+  L:{lStun:'Glocke!',fxC1Walk:'Caiatl läuft zu einer Glocke',fxC1Stun:'Glocke schießen = betäubt',fxC1Dmg:'Kurz Schaden'}},
+ {kicker:'Duality · Caiatl',lede:'First Unlock the Vault (standard spots: close right Chalice, close left Sun, far right Axes, far left War Beasts; the wrong bearer shortens time) and the traversal. Caiatl: different standard spots (close right Chalice, close left War Beasts, far right Axes, far left Sun). Get standards in the nightmare; wrong bearer = wipe. Later the big bell lights up, everyone at a bell, shoot the big bell. Damage: Caiatl walks to a bell, everyone there, shoot the bell when she arrives = stunned, short damage. Three times, then again. Not too close or she stomps. Schematic.',
+  sc:[['Stun','Everyone at the bell she walks to, shoot it when she arrives, then damage.']],tip:{1:'Which bell?'},
+  roles:[['Everyone','Standards, bells, damage.','']],rules:['Wrong Standard Bearer = wipe.','Bell = stun.'],wipes:['Killing the wrong bearer.'],tips:['<b>Names:</b> the source spells Caital/Caiatl inconsistently.'],calls:[['Glocke links','Bell left','Caiatl']],
+  L:{lStun:'Bell!',fxC1Walk:'Caiatl walks to a bell',fxC1Stun:'Shoot the bell = stunned',fxC1Dmg:'Short damage'}});
+const RG_PRP=RG_DG(['Knight, fünf Motes.','Passendes Podest.','Hobgoblins im Schaden.'],['Knight, five motes.','Matching pedestal.','Hobgoblins during damage.']);
+const RG_PRH=RG_DG(['Toland finden.','Podest darunter.'],['Find Toland.','Pedestal below.']);
+const RG_PRK=RG_DG(['Drei Podeste.','Nah am Boss.'],['Three pedestals.','Close to the boss.']);
+const RG_GAP=RG_DG(['Kanone, Türen.','Engramme, 25 ablegen.'],['Cannon, doors.','Engrams, deposit 25.']);
+const RG_GAS=RG_DG(['25 Engramme pro Servitor.','Bombe in die Kanone.'],['25 engrams per Servitor.','Bomb into the cannon.']);
+const RG_GAA=RG_DG(['Shank + Vandal.','~65 Engramme.','Schaden.'],['Shank + Vandal.','~65 engrams.','Damage.']);
+const RG_DUG=RG_DG(['Psion, Banner.','Ablegen.','Schaden, Timer.'],['Psion, standard.','Deposit.','Damage, timer.']);
+const RG_DUC=RG_DG(['Richtiger Bearer.','Glocke beim Ankommen.','Schaden.'],['Right bearer.','Bell on arrival.','Damage.']);
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -9422,7 +9623,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,ceabyss:ENC_CEA,cebridge:ENC_CEB,ceiryut:ENC_CEI,cecrota:ENC_CEC,dpiat:ENC_DPI,dpagr:ENC_DPA,dpepo:ENC_DPE,dpkor:ENC_DPK,stvorg:ENC_STV,stdul:ENC_STD,phnecro:ENC_PHN,phcham:ENC_PHC,phzul:ENC_PHZ,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,ceabyss:ENC_CEA,cebridge:ENC_CEB,ceiryut:ENC_CEI,cecrota:ENC_CEC,dpiat:ENC_DPI,dpagr:ENC_DPA,dpepo:ENC_DPE,dpkor:ENC_DPK,stvorg:ENC_STV,stdul:ENC_STD,phnecro:ENC_PHN,phcham:ENC_PHC,phzul:ENC_PHZ,prphal:ENC_PRP,prhex:ENC_PRH,prkell:ENC_PRK,gaphry:ENC_GAP,gaserv:ENC_GAS,gaavar:ENC_GAA,dugahl:ENC_DUG,ducaia:ENC_DUC,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -9490,6 +9691,9 @@ const ACT={
 ,
  st:{name:'The Shattered Throne',kind:'dungeon',encs:['stvorg','stdul'],src:[['Yardbarker – Shattered Throne dungeon guide 2026','https://www.yardbarker.com/video_games/articles/destiny_2_shattered_throne_dungeon_guide_2026/s1_17456_43886482'],['Shacknews – Shattered Throne dungeon guide','https://shacknews.com/article/107607/shattered-throne-dungeon-guide-destiny-2']]},
  ph:{name:'Pit of Heresy',kind:'dungeon',encs:['phnecro','phcham','phzul'],src:[['Yardbarker – Pit of Heresy 2026 dungeon guide','https://www.yardbarker.com/video_games/articles/destiny_2_pit_of_heresy_2026_dungeon_guide/s1_17456_43890145'],['Shacknews – Pit of Heresy guide','https://shacknews.com/article/114869/pit-of-heresy-guide-destiny-2']]},
+ pr:{name:'Prophecy',kind:'dungeon',encs:['prphal','prhex','prkell'],src:[['Yardbarker – Prophecy 2026 dungeon guide','https://www.yardbarker.com/video_games/articles/destiny_2_prophecy_2026_dungeon_guide/s1_17456_43893741']]},
+ ga:{name:'Grasp of Avarice',kind:'dungeon',encs:['gaphry','gaserv','gaavar'],src:[['Yardbarker – Grasp of Avarice 2026 dungeon guide','https://www.yardbarker.com/video_games/articles/destiny_2_grasp_of_avarice_2026_dungeon_guide/s1_17456_43915044']]},
+ du:{name:'Duality',kind:'dungeon',encs:['dugahl','ducaia'],src:[['Yardbarker – Duality 2026 dungeon guide','https://www.yardbarker.com/video_games/articles/destiny_2_duality_2026_dungeon_guide/s1_17456_43921043']]},
  eq:{name:'Equilibrium',kind:'dungeon',encs:['eqharv','eqharrow','eqsere'],src:[['Destinypedia – Equilibrium','https://www.destinypedia.com/Equilibrium'],['Shacknews – Equilibrium dungeon guide','https://www.shacknews.com/article/147168/how-to-complete-the-equilibrium-dungeon-in-destiny-2'],['Vaexil – Equilibrium field guide (PDF)','https://destiny2.vaexil.tv/downloads/guides/dungeons/equilibrium/equilibrium-complete-guide.pdf'],['Grindout – Equilibrium guide','https://grindout.com/destiny-2/guides/equilibrium-guide'],['The Game Post – Equilibrium dungeon guide','https://thegamepost.com/destiny-2-equilibrium-dungeon-guide/'],['ProGameTalk – Equilibrium walkthrough','https://progametalk.com/destiny-2/equilibrium-dungeon-walkthrough/'],['Kyber’s Corner – Equilibrium','https://kyberscorner.com/destiny-2-equilibrium-dungeon/'],['Total Apex Gaming – Harrow guide','https://totalapexgaming.com/action/equilibrium-harrow-guide/']]}};
 const actOf=id=>Object.keys(ACT).find(a=>ACT[a].encs.includes(id))||'ron';
 
@@ -9591,7 +9795,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.ceabyss=RG_CEA;RG.cebridge=RG_CEB;RG.ceiryut=RG_CEI;RG.cecrota=RG_CEC;RG.dpiat=RG_DPI;RG.dpagr=RG_DPA;RG.dpepo=RG_DPE;RG.dpkor=RG_DPK;RG.stvorg=RG_STV;RG.stdul=RG_STD;RG.phnecro=RG_PHN;RG.phcham=RG_PHC;RG.phzul=RG_PHZ;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.ceabyss=RG_CEA;RG.cebridge=RG_CEB;RG.ceiryut=RG_CEI;RG.cecrota=RG_CEC;RG.dpiat=RG_DPI;RG.dpagr=RG_DPA;RG.dpepo=RG_DPE;RG.dpkor=RG_DPK;RG.stvorg=RG_STV;RG.stdul=RG_STD;RG.phnecro=RG_PHN;RG.phcham=RG_PHC;RG.phzul=RG_PHZ;RG.prphal=RG_PRP;RG.prhex=RG_PRH;RG.prkell=RG_PRK;RG.gaphry=RG_GAP;RG.gaserv=RG_GAS;RG.gaavar=RG_GAA;RG.dugahl=RG_DUG;RG.ducaia=RG_DUC;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
@@ -9743,6 +9947,9 @@ const CHAL={
  verity:{n:'Varied Geometry',de:'Derselbe 3D-Schlüssel darf nicht wiederholt werden. Die Guides beschreiben es unterschiedlich: nicht zweimal hintereinander, oder erst wieder, wenn alle sechs Formen dran waren.',en:'The same 3D key may not be repeated. Guides describe it differently: not twice in a row, or only again once all six shapes have been used.'},
  zenith:{n:'Coordinated Efforts',de:'Alle sechs Knöpfe innerhalb weniger Sekunden nach dem ersten zerstören. Dafür sammeln alle sechs vorher Glyphbreaker und schießen dann gleichzeitig.',en:'Break all six buttons within a few seconds of the first. So all six collect Glyphbreaker first, then shoot together.'}};
 const XTRA={
+ pr:{de:[['Hinweis','Exotic und Truhen nennt die Quelle nicht.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset (vierter Loot-Refresh für Prophecy).']],en:[['Note','The source doesn’t cover exotics or chests.'],['2026','Since June 9, 2026 tiered loot and its own armor set (fourth loot refresh for Prophecy).']]},
+ ga:{de:[['Hinweis','Exotic und Truhen nennt die Quelle nicht.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],en:[['Note','The source doesn’t cover exotics or chests.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
+ du:{de:[['Hinweis','Exotic und Truhen nennt die Quelle nicht.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],en:[['Note','The source doesn’t cover exotics or chests.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
  st:{de:[['Exotic','Wish-Ender (Bogen); die Statue auf dem zweiten Traversal-Weg gehört zur Quest.'],['Hinweis','Keine Rally-Banner; Thrallways ohne Regeneration. Zu schnelles Laufen im Phalanx-Bereich kann den Encounter blockieren (Soft-Lock).'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],
   en:[['Exotic','Wish-Ender (bow); the statue on the second traversal belongs to the quest.'],['Note','No rally banners; thrallways without regeneration. Rushing the Phalanx area can soft-lock the encounter.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
  ph:{de:[['Harrow-Labyrinth','Symbol oben = Wizard, der die Tür öffnet (laut Guide): Eistüte nah links, Zaun ganz links, Tisch mit drei Strichen Mitte links, Tisch mit zwei Strichen ganz rechts, „Praise“ Mitte, „A“ nah rechts.'],['Exotic','Xenophage (Machine Gun) über eine Quest im Dungeon (Details nicht geprüft).'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],
