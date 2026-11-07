@@ -327,3 +327,16 @@ button:disabled{opacity:.45;cursor:progress}
 .tset{margin-top:8px;padding-top:6px;border-top:1px solid var(--linie);display:flex;flex-direction:column;gap:3px;font-size:.78rem;color:#cfc9ee}.tset>b{color:var(--arc);font-family:var(--kopf)}
 .tset em{font-style:normal;color:var(--gold);font-weight:600}.tgold{color:var(--gold)}.thint{opacity:.6;font-size:.7rem!important;margin-top:6px}
 .kset{display:flex;flex-direction:column;font-size:.8rem}.kset b{color:var(--arc);font-weight:600}.kset span{color:var(--matt)}
+/* Handy: Tabs scrollen bei Bedarf seitlich, Konto bekommt festen, gut tippbaren Platz rechts. */
+@media(max-width:760px){
+  #rail{gap:0;padding:6px 4px}
+  #rail .gruppe[role]{overflow-x:auto;justify-content:flex-start;scrollbar-width:none;gap:2px}
+  #rail .gruppe[role]::-webkit-scrollbar{display:none}
+  #rail .gruppe[role] button{flex:1 1 0;min-width:30px;padding:8px 0}
+  #rail .gruppe button svg{width:21px;height:21px}
+  #rail .gruppe:not([role]) button{padding:8px 6px}
+  #rail .gruppe:not([role]){padding:0 2px;border-left:1px solid var(--linie)}
+  #rail .unten{flex:none;padding-left:6px;margin-left:2px;border-left:1px solid var(--linie)}
+  #rail .unten button{width:48px;height:48px;border-radius:50%;background:var(--flaeche);border:1px solid var(--linie)!important;color:var(--text)}
+  #rail .unten svg{width:24px;height:24px}
+}
