@@ -135,6 +135,7 @@ function abmelden() {
   {
     schliessePanel();
     bungie.abmelden(true);
+    try { caches.delete('d2a-profil'); localStorage.removeItem('d2a.letztes'); } catch {}
     zustand.konto = zustand.profil = null;
     $('#kontoName').textContent = 'Sign in';
     return wechsle(zustand.tab);
@@ -143,7 +144,12 @@ function abmelden() {
 
 export async function ladeProfil() {
   zustand.profil = await bungie.profil(zustand.konto);
+  // Für den nächsten Start zwischenspeichern: dann ist der Tresor sofort da.
+  try { const c = await caches.open('d2a-profil'); await c.put(`profil-${zustand.konto.membershipId}`, new Response(JSON.stringify({ konto: zustand.konto, profil: zustand.profil, zeit: Date.now() }))); localStorage.setItem('d2a.letztes', zustand.konto.membershipId); } catch {}
   return zustand.profil;
+}
+async function gespeichertesProfil() {
+  try { const id = localStorage.getItem('d2a.letztes'); if (!id) return null; const r = await (await caches.open('d2a-profil')).match(`profil-${id}`); return r ? r.json() : null; } catch { return null; }
 }
 
 function anmeldeSeite() {
@@ -172,13 +178,23 @@ async function start() {
   haupt.innerHTML = '<p class="leer">Loading your guardians…</p>';
   try {
     await Promise.all([ladeDefs(), ladeRolls(), ladeQuellen()]);
+    zustand.oeffnePanel = oeffnePanel; zustand.postZahl = postZahl;
+    if (!TABS[zustand.tab]) zustand.tab = 'vault';
+    // Schnellstart: letztes Profil sofort zeigen, frische Daten kommen im Hintergrund.
+    const alt = await gespeichertesProfil();
+    let klicks = 0;
+    if (alt) {
+      zustand.konto = alt.konto; zustand.profil = alt.profil;
+      $('#kontoName').textContent = alt.konto.name;
+      wechsle(zustand.tab);
+      document.addEventListener('pointerdown', () => { klicks += 1; }, { once: true });
+    }
     zustand.konto = await bungie.konto();
     $('#kontoName').textContent = zustand.konto.name;
     $('#konto').title = 'Account';
     await ladeProfil();
-    zustand.oeffnePanel = oeffnePanel; zustand.postZahl = postZahl;
-    if (!TABS[zustand.tab]) zustand.tab = 'vault';
-    wechsle(zustand.tab);
+    // Frisch neu zeichnen, solange du noch nichts angeklickt hast; sonst nur die Daten tauschen.
+    if (!alt || !klicks) wechsle(zustand.tab); else meldung('Data refreshed from Bungie.');
     if (pz.fest && !matchMedia('(max-width: 760px)').matches) zeigePanel();
     // Xûr steckt im This-week-Panel, sobald Bungie sagt, dass er da ist.
     xurDa(zustand).then((bis) => {
