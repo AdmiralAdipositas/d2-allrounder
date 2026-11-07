@@ -46,7 +46,7 @@ export function sammle(profil) {
     const plugs = roh.filter(Boolean);
     liste.push({
       id: it.itemInstanceId, hash: it.itemHash, d, ort, angelegt, plugs, sockel: roh, locked: (it.state & 1) === 1,
-      power: i.primaryStat?.value || 0, element: i.damageType || d.d0 || 0,
+      power: i.primaryStat?.value || 0, element: i.damageType || d.d0 || 0, energie: i.energy?.energyCapacity || 0,
       champ: d.t === 3 ? champion(it.itemHash, plugs, i.breakerType) : null,
       st: d.t === 2 ? armorStats(statDaten[it.itemInstanceId]) : null,
     });

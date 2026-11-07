@@ -4,6 +4,8 @@ import { defs } from './defs.js';
 import { sammle } from './vault.js';
 import { baueIdee, elementeAus } from './generator.js';
 import { quelle } from './quellen.js';
+import { empfehle, setVorschlag } from './waffenwahl.js';
+import * as modplan from './mods.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -71,7 +73,21 @@ const quellen = (name) => [
 const blip = (titel, text) => `<span class="blip" tabindex="0" data-tn="${esc(titel)}" data-td="${esc(text)}">i</span>`;
 const quelleText = (d) => { if (!d) return 'Not in the game data.'; const q = quelle(d.hash, d); return q ? `${q.text} (${q.von})` : d.q === 6 ? 'Exotic engrams, Xûr, or the Monument to Lost Lights in the Tower.' : 'No confirmed source yet – check light.gg.'; };
 
+const elementVonBuild = (b) => (b.elemente || [SUBCLASS_EL[b.subclass] || (/Prismatic/.test(b.subclass) ? 'Prismatic' : '')])[0] || '';
+function anreichern(b, besitz) {
+  if (!b.element) b.element = elementVonBuild(b);
+  if (!(b.plan || []).length && !b.planGeprueft) { b.plan = setVorschlag(b, b.klasse); b.planGeprueft = true; }
+  if (!b.empf) b.empf = empfehle(b, besitz, b.element);
+  if (!b.modNamen) {
+    const roh = b.mods?.length ? b.mods : modplan.vorschlag(b.element, b.stats || [], [b.warum, ...(b.faehigkeiten || [])].join(' '));
+    b.modNamen = [...new Set(roh.map((m) => modplan.finde(m, b.element)?.n).filter(Boolean))];
+  }
+  return b;
+}
+const waffeHtml = (x, besitz) => `<span class="wf ${besitz.has(x.n) ? 'hat' : ''}" title="${esc(x.k)}${x.qu ? ` · ${esc(x.qu)}` : ''}"><i style="background-image:url(${BILD}${x.i})"></i>${esc(x.n)}${besitz.has(x.n) ? ' ✓' : ''}${x.punkte ? '<em class="gr">god roll</em>' : ''}</span>`;
+
 function karte(b, besitz, besitzSets, sets) {
+  anreichern(b, besitz);
   const auf = offen.has(b.id);
   const haupt = finde(b.exotics[0]);
   const fehlt = b.exotics.filter((e) => !besitz.has(e));
@@ -83,6 +99,7 @@ function karte(b, besitz, besitzSets, sets) {
       <div class="fk-kopf"><div><h2>${esc(b.name)}</h2><small>${KLASSE[b.klasse]}${b.subclass ? ` · ${esc(b.subclass)}` : ''}${b.aktivitaet?.length && !b.idee ? ` · ${esc(b.aktivitaet.join(', '))}` : ''}</small></div>
         <div class="fk-tags">${els.map((e) => `<span class="eltag el-${e.toLowerCase()}">${e}</span>`).join('')}${b.idee ? '<span class="tag">Idea</span>' : '<span class="tag gold">Community</span>'}<span class="tag ${fehlt.length ? '' : 'gut'}">${fehlt.length ? `${fehlt.length} missing` : 'Ready'}</span></div></div>
       <p class="fk-warum">${esc(kurz)}</p>
+      <div class="fk-vorschau">${(b.plan || [])[0] ? `<span>🛡 ${esc(b.plan[0].set)} <em>${besitzSets(b.plan[0].set)} owned</em></span>` : ''}${b.empf?.exotic ? `<span><i style="background-image:url(${BILD}${b.empf.exotic.i})"></i>${esc(b.empf.exotic.n)}${besitz.has(b.empf.exotic.n) ? ' ✓' : ''}</span>` : ''}</div>
       <button class="fk-klapp" data-klapp="${esc(b.id)}" aria-expanded="${auf}">${auf ? 'Less ▴' : 'Details ▾'}</button>
       ${auf ? `<div class="fk-mehr">
         <h3>Exotics</h3>${b.exotics.map((e) => { const d = finde(e); const hat = besitz.has(e); return `<div class="fz ${hat ? 'hat' : 'fehlt'}">${d?.i ? `<i style="background-image:url(${BILD}${d.i})"></i>` : ''}<span>${esc(e)}</span><em>${hat ? 'owned' : 'missing'}</em>${hat ? '' : blip(e, quelleText(d))}${d?.xd && !b.idee ? `<small>${esc(d.xp || '')}: ${esc(d.xd)}</small>` : ''}</div>`; }).join('')}
@@ -91,8 +108,11 @@ function karte(b, besitz, besitzSets, sets) {
         ${b.faehigkeiten?.length ? `<h3>Super & abilities</h3><p class="fliste">${esc(b.faehigkeiten.join(' · '))}</p>` : ''}
         ${b.aspekte?.length ? `<h3>Aspects</h3><p class="fliste">${esc(b.aspekte.join(' · '))}</p><h3>Fragments</h3><p class="fliste">${esc(b.fragmente.join(' · '))}</p>` : ''}
         ${b.erklaerung?.length ? `<h3>Why these pieces</h3>${b.erklaerung.map((x) => `<p class="fliste klein2">${esc(x)}</p>`).join('')}` : ''}
-        ${b.waffen?.length ? `<h3>Weapons</h3><p class="fliste">${esc(b.waffen.join(' · '))}</p>` : ''}
-        ${b.mods?.length ? `<h3>Mods</h3><p class="fliste">${esc(b.mods.join(' · '))}</p>` : ''}
+        <h3>Weapons</h3>
+        ${b.empf?.exotic ? `<div class="fz ${besitz.has(b.empf.exotic.n) ? 'hat' : 'fehlt'}"><i style="background-image:url(${BILD}${b.empf.exotic.i})"></i><span><b>${esc(b.empf.exotic.n)}</b> (exotic)</span><em>${besitz.has(b.empf.exotic.n) ? 'owned' : 'missing'}</em>${besitz.has(b.empf.exotic.n) ? '' : blip(b.empf.exotic.n, quelleText(b.empf.exotic))}${b.empf.exotic.xd ? `<small>${esc(b.empf.exotic.xp || '')}: ${esc(b.empf.exotic.xd)}</small>` : ''}</div>` : ''}
+        ${Object.entries(b.empf?.legendaries || {}).map(([slot, l]) => l.length ? `<div class="wslot"><small>${slot[0].toUpperCase() + slot.slice(1)}</small>${l.map((x) => waffeHtml(x, besitz)).join('')}</div>` : '').join('')}
+        ${b.waffen?.length ? `<p class="fliste klein2">Build note: ${esc(b.waffen.join(' · '))}</p>` : ''}
+        <h3>Armor mods</h3><p class="fliste">${esc(b.modNamen.join(' · '))}</p>
         <h3>Stat focus</h3><p class="fliste">${esc(b.stats.join(' › '))}</p>
         <p class="fquelle">Source: ${b.link ? `<a href="${esc(b.link)}" target="_blank" rel="noopener">${esc(b.quelle || 'Source')} ↗</a>` : esc(b.quelle || '')}</p>
         <h3>More builds with ${esc(b.exotics[0])}</h3><div class="fquellen">${quellen(b.exotics[0]).map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n} ↗</a>`).join('')}</div>
@@ -181,7 +201,10 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
       const exo = items.find((x) => x.d.t === 2 && x.d.q === 6 && b.exotics.includes(x.d.n));
       const ziele = Object.fromEntries(b.stats.slice(0, 2).map((s, i) => [s, i ? 100 : 150]));
       oeffneOptimizer({ klasse: wahl.klasse, exotic: exo?.hash || 0, ziele: b.ziele && Object.keys(b.ziele).length ? b.ziele : ziele,
-        build: { name: b.name, subclass: b.subclass, aspekte: b.aspekte || [], fragmente: b.fragmente || [], faehigkeiten: b.faehigkeiten || [], exotics: b.exotics } });
+        build: { name: b.name, subclass: b.subclass, element: b.element, aspekte: b.aspekte || [], fragmente: b.fragmente || [], faehigkeiten: b.faehigkeiten || [], stats: b.stats || [],
+          mods: b.modNamen || [], artefaktPerks: b.artefaktPerks || [], waffen: b.waffen || [],
+          exotics: [...new Set([...b.exotics, ...(b.empf?.exotic ? [b.empf.exotic.n] : [])])],
+          legendaries: Object.values(b.empf?.legendaries || {}).map((l) => l.map((x) => x.n)) } });
     }
   };
   haupt.onpointerover = (e) => {

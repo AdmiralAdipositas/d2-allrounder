@@ -5,6 +5,7 @@ import { defs } from './defs.js';
 import { sammle, merkeAenderung, ARMOR_STATS } from './vault.js';
 import { meldung } from './app.js';
 import { SUBCLASS } from './generator.js';
+import * as modplan from './mods.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -245,17 +246,35 @@ async function ausruesten(b, zustand, char, knopf) {
       merkeAenderung(it.id, { ort: cid, angelegt: false });
     }
     await bungie.ausruestenAlle(k, b.items.map((i) => i.id), cid);
-    // Stat-Mods stecken.
-    const mods = statMods();
-    const offen = ARMOR_STATS.flatMap((n, j) => Array(b.modsJeStat[j] || 0).fill(n));
-    for (const it of b.items) {
-      if (it.modSockel < 0 || !offen.length) continue;
-      const n = offen.shift();
-      try { await bungie.plugSetzen(k, it, cid, it.modSockel, mods[n].plug); } catch (e) { meldung(`${mods[n].name} on ${it.d.n}: ${e.message}`, true); }
+    // Mods stecken: Stat-Mods in den allgemeinen Sockel, beim Build zusätzlich alle Build-Mods (Firepower, Siphons, Surges …)
+    // in die Slot-Sockel, mit Energie-Grenze. Was nicht zum Build gehört, wird beim Build vorher geleert, damit Energie frei ist.
+    const bdM = zustandO.build;
+    const z = zuteilung(b);
+    const el = bdM?.element || '';
+    const wunsch = bdM ? (bdM.mods?.length ? bdM.mods : modplan.vorschlag(el, bdM.stats || [], [bdM.subclass, ...(bdM.faehigkeiten || [])].join(' '))) : [];
+    const { plan, uebrig } = modplan.plane(b.items, z, wunsch, el);
+    const modFehler = [];
+    for (const { teil, sockel, soll } of plan) {
+      if (bdM) {
+        for (const so of sockel) {
+          const ziel = soll.get(so.i);
+          const zielHash = ziel ? ziel.hash || ziel.plug : null;
+          if (zielHash === so.jetzt || defs.items[so.jetzt]?.n?.startsWith('Empty')) continue;
+          const leer = modplan.leerPlug(so.pc);
+          if (leer) await bungie.plugSetzen(k, teil, cid, so.i, leer.hash).catch(() => {});
+        }
+      }
+      for (const [i, m] of soll) {
+        const h = m.hash || m.plug;
+        if (teil.sockel[i] === h) continue;
+        meldung(`${m.n || m.name} on ${teil.d.n}…`);
+        try { await bungie.plugSetzen(k, teil, cid, i, h); } catch (e) { modFehler.push(`${m.n || m.name} on ${teil.d.n}: ${e.message}`); }
+      }
     }
+    if (bdM && uebrig.length) modFehler.push(`No room or energy for: ${uebrig.join(', ')}`);
     for (const it of b.items) merkeAenderung(it.id, { ort: cid, angelegt: true });
     const bd = zustandO.build;
-    const probleme = [];
+    const probleme = [...modFehler];
     if (bd) await baueBuild(bd, zustand, cid, probleme);
     const slot = bd ? Number(zustandO.slot ?? -1) : -1;
     if (slot >= 0) {
@@ -274,19 +293,28 @@ async function ausruesten(b, zustand, char, knopf) {
 async function baueBuild(bd, zustand, cid, probleme) {
   const k = zustand.konto;
   const profil = zustand.profil;
-  // Exotic-Waffen des Builds holen und ausrüsten.
-  for (const name of bd.exotics || []) {
-    const w = sammle(profil).find((x) => x.d.t === 3 && x.d.n === name);
-    if (!w) continue;
+  // Exotic-Waffe des Builds und je Slot die erste empfohlene Legendary, die du besitzt.
+  const liste = sammle(profil);
+  const exoW = (bd.exotics || []).map((n) => liste.find((x) => x.d.t === 3 && x.d.n === n)).filter(Boolean)[0];
+  const ziele = exoW ? [exoW] : [];
+  for (const slot of bd.legendaries || []) {
+    const w = slot.map((n) => liste.filter((x) => x.d.t === 3 && x.d.n === n).sort((a, b) => (/god/.test(b.m?.roll || '') - /god/.test(a.m?.roll || '')) || b.power - a.power)[0]).find(Boolean);
+    if (w && !ziele.some((z) => z.d.b === w.d.b)) ziele.push(w);
+  }
+  for (const w of ziele) {
+    const name = w.d.n;
     try {
       meldung(`Equipping ${name}…`);
       let ort = w.ort;
       if (ort.startsWith('post:')) { ort = ort.slice(5); await bungie.abholen(k, w, ort); }
       if (ort !== cid) { if (ort !== 'tresor') { if (w.angelegt) throw new Error(`${name} is equipped on another character.`); await bungie.verschiebe(k, w, ort, true); } await bungie.verschiebe(k, w, cid, false); }
-      await bungie.ausruesten(k, w, cid);
+      if (w.d.q === 6) await bungie.ausruesten(k, w, cid);
       merkeAenderung(w.id, { ort: cid, angelegt: true });
     } catch (e) { probleme.push(e.message); }
   }
+  // Legendaries zusammen ausrüsten (nach der Exotic, damit kein zweites Exotic stört).
+  const leg = ziele.filter((w) => w.d.q !== 6).map((w) => w.id);
+  if (leg.length) await bungie.ausruestenAlle(k, leg, cid).catch((e) => probleme.push(`Weapons: ${e.message}`));
   if (!bd.subclass) return;
   const alle = [...(profil.characterInventories?.data?.[cid]?.items || []), ...(profil.characterEquipment?.data?.[cid]?.items || [])];
   const sub = alle.find((i) => defs.items[i.itemHash]?.t === 16 && defs.items[i.itemHash].n === bd.subclass);
@@ -317,4 +345,38 @@ async function baueBuild(bd, zustand, cid, probleme) {
       try { await bungie.plugSetzen(k, { id: sub.itemInstanceId }, cid, i, Number(ph)); } catch (e) { probleme.push(`${name}: ${e.message}`); }
     }
   } catch (e) { probleme.push(e.message); }
+  await artefakt(bd, zustand, cid, probleme);
+}
+
+// Artefakt-Perks: gewünschte aus dem Build, sonst die am besten passenden aus deinem aktuellen Artefakt.
+async function artefakt(bd, zustand, cid, probleme) {
+  const k = zustand.konto;
+  const p = zustand.profil;
+  const art = [...(p.characterEquipment?.data?.[cid]?.items || [])].find((i) => i.bucketHash === 1506418338);
+  if (!art) return;
+  try {
+    const r = await bungie.item(k, art.itemInstanceId);
+    const sockel = (r.sockets?.data?.sockets || []).map((s, i) => ({ i, jetzt: s.plugHash })).filter((s) => defs.items[s.jetzt]?.pc === 'artifact_perks');
+    const sets = { ...(p.profilePlugSets?.data?.plugs || {}) };
+    for (const c of Object.values(p.characterPlugSets?.data || {})) Object.assign(sets, c.plugs || {});
+    const artSets = Object.entries(sets).filter(([, l]) => l.some((x) => defs.items[x.plugItemHash]?.pc === 'artifact_perks'));
+    // Gruppe des aktuellen Artefakts: die Plug-Sets, in denen die gerade gesteckten Perks vorkommen.
+    const gruppen = new Map();
+    for (const [h, l] of artSets) { const g = h.slice(0, -1); const n = sockel.filter((so) => l.some((x) => x.plugItemHash === so.jetzt)).length; gruppen.set(g, (gruppen.get(g) || 0) + n); }
+    const gruppe = [...gruppen].sort((a, b) => b[1] - a[1])[0]?.[0];
+    const meine = artSets.filter(([h]) => h.slice(0, -1) === gruppe).map(([, l]) => l.filter((x) => x.canInsert !== false).map((x) => x.plugItemHash));
+    const text = [bd.subclass, bd.element, ...(bd.faehigkeiten || []), ...(bd.aspekte || []), ...(bd.exotics || []), ...(bd.waffen || []), ...(bd.stats || [])].join(' ').toLowerCase();
+    const worte = new Set(text.match(/[a-z]{4,}/g) || []);
+    const wert = (h) => { const d = defs.items[h]; if (!d || /^Empty/.test(d.n)) return -1; if ((bd.artefaktPerks || []).includes(d.n)) return 100; let s = 0; for (const w of `${d.n} ${d.d || ''}`.toLowerCase().match(/[a-z]{4,}/g) || []) if (worte.has(w)) s += 1; return s; };
+    const benutzt = new Set();
+    for (const so of sockel) {
+      const set = meine.find((l) => l.includes(so.jetzt)) || [];
+      const best = set.filter((h) => !benutzt.has(h)).sort((a, b) => wert(b) - wert(a))[0];
+      const ziel = best && wert(best) > Math.max(0, wert(so.jetzt)) ? best : so.jetzt;
+      benutzt.add(ziel);
+      if (ziel === so.jetzt) continue;
+      meldung(`Artifact: ${defs.items[ziel].n}…`);
+      try { await bungie.plugSetzen(k, { id: art.itemInstanceId }, cid, so.i, ziel); } catch (e) { probleme.push(`Artifact ${defs.items[ziel].n}: ${e.message}`); }
+    }
+  } catch (e) { probleme.push(`Artifact: ${e.message}`); }
 }
