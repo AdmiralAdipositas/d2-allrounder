@@ -347,3 +347,4 @@ button:disabled{opacity:.45;cursor:progress}
 .wf{display:flex;align-items:center;gap:6px;background:#ffffff08;border:1px solid #2e2760;border-radius:6px;padding:3px 8px 3px 3px;font-size:.8rem}.wf.hat{border-color:#5fe0a866}
 .wf i{width:26px;height:26px;border-radius:3px;background:center/cover}.wf .gr{font-style:normal;font-size:.62rem;color:var(--gut);text-transform:uppercase;margin-left:2px}
 .wf .gr.el2{color:var(--arc)}.wf .gr.el3{color:var(--solar)}.wf .gr.el4{color:var(--void)}.wf .gr.el6{color:var(--stasis)}.wf .gr.el7{color:var(--strand)}
+.kteil small.aktivset{color:var(--gold);font-weight:700}
