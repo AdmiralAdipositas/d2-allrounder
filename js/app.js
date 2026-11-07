@@ -157,7 +157,7 @@ async function start() {
   if ('serviceWorker' in navigator) {
     // Neue Version veröffentlicht: der neue Service Worker übernimmt, die Seite lädt einmal neu.
     const hatte = Boolean(navigator.serviceWorker.controller);
-    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hatte && !sessionStorage.getItem('d2a.neu')) { sessionStorage.setItem('d2a.neu', '1'); location.reload(); } });
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hatte && !window.d2aWeg && !sessionStorage.getItem('d2a.neu')) { sessionStorage.setItem('d2a.neu', '1'); location.reload(); } });
     setTimeout(() => sessionStorage.removeItem('d2a.neu'), 30_000);
     navigator.serviceWorker.register('sw.js').then((r) => { r.update().catch(() => {}); setInterval(() => r.update().catch(() => {}), 15 * 60_000); }).catch(() => {});
   }

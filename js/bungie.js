@@ -15,6 +15,7 @@ export const abmelden = (bewusst = false) => { try { localStorage.removeItem(SPE
 export const warAngemeldet = () => { try { return localStorage.getItem('d2a.warDa') === '1'; } catch { return false; } };
 
 export function anmelden() {
+  window.d2aWeg = true;
   const state = crypto.randomUUID();
   try { sessionStorage.setItem('d2a.state', state); } catch {}
   location.href = `${BASIS}/en/OAuth/Authorize?client_id=${encodeURIComponent(CONFIG.clientId)}&response_type=code&state=${state}`;
