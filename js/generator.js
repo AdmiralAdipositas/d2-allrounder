@@ -40,9 +40,18 @@ function wahl(liste, text, anzahl) {
   }).sort((a, b) => b.s - a.s || a.n.localeCompare(b.n)).slice(0, anzahl);
 }
 
+// Element aus Schlüsselwörtern: Verben wie "volatile" oder "scorch" verraten das Element, auch ohne dass es genannt wird.
+const MERKMALE = {
+  Void: /\bvoid\b|volatile|blink|nova|devour|suppress|weaken|overshield|invisib|vortex|bubble|ward of dawn|axion|scatter|handheld supernova/gi,
+  Solar: /\bsolar\b|scorch|ignit|radiant|restor|healing grenade|cure|sunspot|well of radiance|daybreak|phoenix|firebolt|incandescent|golden gun|hammer/gi,
+  Arc: /\barc\b|jolt|blind|amplified|ionic|arc soul|chain lightning|stormtrance|thundercrash|arc staff|lightning/gi,
+  Stasis: /stasis|freez|slow|shatter|crystal|frost|winter's wrath|glacial|silence and squall|whisper/gi,
+  Strand: /strand|unravel|sever|suspend|woven mail|threadling|tangle|grappl|needlestorm|bladefury|silkstrike/gi,
+};
 export function elementeAus(text) {
   if (/Light and Darkness|Prismatic|Transcendence/i.test(text || '')) return ['Prismatic'];
-  return Object.keys(EL).filter((e) => e !== 'Prismatic' && new RegExp(`\\b${e}\\b`, 'i').test(text || ''));
+  const zahl = Object.entries(MERKMALE).map(([e, re]) => [e, ((text || '').match(re) || []).length]).filter(([, n]) => n).sort((a, b) => b[1] - a[1]);
+  return zahl.map(([e]) => e);
 }
 
 const WAFFEN = ['Glaive', 'Sword', 'Hand Cannon', 'Shotgun', 'Sniper Rifle', 'Fusion Rifle', 'Linear Fusion Rifle', 'Grenade Launcher', 'Rocket Launcher', 'Auto Rifle', 'Pulse Rifle', 'Scout Rifle', 'Submachine Gun', 'Sidearm', 'Bow', 'Trace Rifle', 'Machine Gun'];
@@ -66,7 +75,7 @@ export function baueIdee(hash, d) {
   const subclass = SUBCLASS[kl][el];
   const begruendung = (p) => (p ? `${p.n}: ${p.d.split('. ')[0].replace(/\.$/, '')}.` : '');
   return {
-    id: `idee-${hash}`, idee: true, klasse: d.c, name: `${d.n} ${subclass.replace(/^Prismatic /, 'Prismatic')}`.replace(`${d.n} Prismatic`, `${d.n} · Prismatic`),
+    id: `idee-${hash}`, idee: true, klasse: d.c, name: `${d.n} · ${subclass}`,
     subclass, elemente: [els[0] || 'Prismatic'], exotics: [d.n], aktivitaet: ['Auto-built'],
     warum: d.xp ? `${d.xp}: ${d.xd}` : d.xd,
     aspekte: aspekte.map((p) => p.n), fragmente: fragmente.map((p) => p.n),
