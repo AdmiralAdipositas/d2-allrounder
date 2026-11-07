@@ -534,3 +534,5 @@ body.ziehe{user-select:none;cursor:ew-resize}
 .qblase{position:relative;display:inline-block}.qblase>summary{list-style:none;cursor:pointer;width:18px;height:18px;border-radius:50%;border:1px solid var(--linie);font-size:.7rem;display:inline-flex;align-items:center;justify-content:center}
 .qblase>div{position:absolute;z-index:30;left:0;top:22px;width:260px;background:#120e2c;border:1px solid var(--linie);border-radius:8px;padding:8px 10px;color:var(--text);box-shadow:0 8px 20px #000a}
 .symliste{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 10px}.symliste span{display:flex;flex-direction:column;padding:4px 8px;border-left:2px solid #9b7bff55}.symliste small{color:var(--matt);font-size:.72rem}
+.filter .fpop .chips{max-height:52vh;overflow:auto;max-width:520px}
+.konto-sprache select{width:100%;padding:8px 10px;background:var(--bg2);color:var(--text);border:1px solid var(--linie);border-radius:8px;font:inherit}

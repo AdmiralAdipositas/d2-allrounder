@@ -7232,6 +7232,9 @@ const SYMB={
   p:{de:'Zwei 2D-Formen einer Statue ergeben eine 3D-Form. Kreis, Quadrat, Dreieck.',en:'Two 2D shapes held by a statue make one 3D shape. Circle, square, triangle.'},
   formen:[['circle','circle','Sphere','Kugel'],['square','square','Cube','Würfel'],['triangle','triangle','Pyramid','Pyramide'],['circle','square','Cylinder','Zylinder'],['circle','triangle','Cone','Kegel'],['square','triangle','Prism','Prisma']]}
 };
+SYMB.kalli={...SYMB.vault,t:{de:'Symbole & Callouts (Platten)',en:'Symbols & callouts (plates)'},
+  p:{de:'Alle neun Platten tragen eines dieser Symbole – dieselben wie später im Vault und an der Wunschmauer. Ruft Platten beim Symbolnamen statt „links/rechts“ aus, dann weiß jeder sofort, welche gemeint ist.',en:'All nine plates carry one of these symbols – the same ones used later in the Vault and at the Wish Wall. Call plates by symbol name instead of “left/right” so everyone knows which one is meant.'}};
+SYMB.vault.p={de:'Jeder Bildschirm (Fels, Baum, Eingang) zeigt drei Symbole. Ruft das mittlere aus. Liegt das passende Symbol rechts → Antumbra-Reinigung, links → Penumbra. Dieselben Symbole kennt ihr schon von Kallis Platten.',en:'Each screen (Rock, Tree, Entrance) shows three symbols. Call out the middle one. Match on the right → Antumbra cleanse, on the left → Penumbra. Same symbols as on Kalli\u2019s plates.'};
 const FORM2D={circle:'<circle cx="16" cy="16" r="11"/>',square:'<rect x="5" y="5" width="22" height="22"/>',triangle:'<path d="M16 4 L28 27 H4 Z"/>'};
 function renderSymb(){
  const S=SYMB[encId],el=$g('symb');el.hidden=!S;if(!S)return;

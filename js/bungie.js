@@ -60,7 +60,7 @@ export async function konto() {
   const k = d.destinyMemberships.find((x) => x.membershipId === d.primaryMembershipId)
     || d.destinyMemberships.find((x) => x.crossSaveOverride === x.membershipType) || d.destinyMemberships[0];
   if (!k) throw new Error('No Destiny profile on this Bungie account.');
-  return { ...k, name: d.bungieNetUser?.uniqueName || k.bungieGlobalDisplayName || k.displayName };
+  return { ...k, name: d.bungieNetUser?.uniqueName || k.bungieGlobalDisplayName || k.displayName, locale: d.bungieNetUser?.locale || '' };
 }
 export const profil = (k) => get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/?components=${KOMPONENTEN}`);
 

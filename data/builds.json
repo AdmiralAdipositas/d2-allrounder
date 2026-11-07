@@ -830,6 +830,125 @@
      "grund": "2-piece alternative."
     }
    ]
+  },
+  {
+   "id": "radiant-assassin",
+   "klasse": 1,
+   "name": "Radiant Assassin",
+   "subclass": "Gunslinger",
+   "aktivitaet": [
+    "Solo"
+   ],
+   "exotics": [
+    "Assassin's Cowl"
+   ],
+   "waffen": [
+    "Yeartide Apex"
+   ],
+   "artefakt": null,
+   "aspekte": [
+    "Knock 'Em Down",
+    "On Your Mark"
+   ],
+   "fragmente": [
+    "Ember of Mercy",
+    "Ember of Torches",
+    "Ember of Empyrean",
+    "Ember of Singeing",
+    "Ember of Searing"
+   ],
+   "stats": [
+    "Melee",
+    "Class",
+    "Weapons",
+    "Health"
+   ],
+   "ziele": {},
+   "hinweis": "Any Solar primary works; the source suggests Yeartide Apex.",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/hunter-solar-builds/",
+   "warum": "Assassin's Cowl turns melee kills into invisibility and healing; chaining Knife Trick kills keeps it running.",
+   "faehigkeiten": [
+    "Blade Barrage",
+    "Healing Grenade",
+    "Knife Trick",
+    "Gambler's Dodge"
+   ],
+   "artefaktPerks": [],
+   "mods": [
+    "Hands-On",
+    "Heavy Ammo Finder",
+    "Harmonic Siphon",
+    "Heavy Handed",
+    "Focusing Strike",
+    "Melee Font",
+    "Concussive Dampener",
+    "Stacks on Stacks",
+    "Solar Surge",
+    "Time Dilation",
+    "Reaper",
+    "Powerful Attraction"
+   ],
+   "plan": []
+  },
+  {
+   "id": "temporal-teleporter",
+   "klasse": 1,
+   "name": "Temporal Teleporter",
+   "subclass": "Prismatic Hunter",
+   "aktivitaet": [
+    "Grandmaster"
+   ],
+   "exotics": [
+    "Mask of Bakris",
+    "Graviton Spike"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Threaded Specter",
+    "Winter's Shroud"
+   ],
+   "fragmente": [
+    "Facet of Purpose",
+    "Facet of Protection",
+    "Facet of Dawn",
+    "Facet of Balance",
+    "Facet of Blessing"
+   ],
+   "stats": [
+    "Weapons",
+    "Class",
+    "Melee"
+   ],
+   "ziele": {
+    "Class": 80,
+    "Melee": 80
+   },
+   "hinweis": "Ascension instead of Winter's Shroud also works.",
+   "quelle": "Blueberries",
+   "link": "https://www.blueberries.gg/armor/hunter-void-builds/",
+   "warum": "Graviton Spike's form switch plus Mask of Bakris' Light Shift keep dodge energy flowing from kills, so you are hard to pin down in Grandmasters.",
+   "faehigkeiten": [
+    "Silence and Squall",
+    "Duskfield Grenade",
+    "Threaded Spike",
+    "Gambler's Dodge"
+   ],
+   "artefaktPerks": [],
+   "mods": [
+    "Heavy Ammo Finder",
+    "Harmonic Siphon",
+    "Momentum Transfer",
+    "Heavy Handed",
+    "Concussive Dampener",
+    "Weapons Font",
+    "Recuperation",
+    "Reaper",
+    "Powerful Attraction",
+    "Bomber"
+   ],
+   "plan": []
   }
  ],
  "neutral": [

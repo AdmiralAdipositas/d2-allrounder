@@ -1,107 +1,1144 @@
 {
-  "hinweis": "Loot per encounter. Weapon names match Bungie's item names. Armor = slots that can drop there. Checked against two sources where possible.",
-  "quellen": {
-    "blueberries": "https://www.blueberries.gg/weapons/destiny-2-loot-tables/",
-    "shacknews": "https://www.shacknews.com/",
-    "esports.gg": "https://esports.gg/",
-    "destructoid": "https://www.destructoid.com/",
-    "dexerto": "https://www.dexerto.com/",
-    "sportskeeda": "https://www.sportskeeda.com/",
-    "pcgamer": "https://www.pcgamer.com/",
-    "ginx": "https://www.ginx.tv/"
+ "hinweis": "Loot per encounter. Weapon names match Bungie's item names. Armor = slots that can drop there. Checked against two sources where possible.",
+ "quellen": {
+  "blueberries": "https://www.blueberries.gg/weapons/destiny-2-loot-tables/",
+  "shacknews": "https://www.shacknews.com/",
+  "esports.gg": "https://esports.gg/",
+  "destructoid": "https://www.destructoid.com/",
+  "dexerto": "https://www.dexerto.com/",
+  "sportskeeda": "https://www.sportskeeda.com/",
+  "pcgamer": "https://www.pcgamer.com/",
+  "ginx": "https://www.ginx.tv/"
+ },
+ "akt": {
+  "Vault of Glass": {
+   "art": "Raid",
+   "q": "esports.gg",
+   "exo": [
+    "Vex Mythoclast",
+    "Atheon (final boss), random drop; one chance per character per week"
+   ],
+   "enc": [
+    [
+     "Confluxes",
+     [
+      "Vision of Confluence",
+      "Found Verdict",
+      "Corrective Measure"
+     ],
+     [
+      "Arms",
+      "Class Item"
+     ]
+    ],
+    [
+     "Oracles",
+     [
+      "Praedyth's Revenge",
+      "Vision of Confluence",
+      "Found Verdict"
+     ],
+     [
+      "Arms",
+      "Legs"
+     ]
+    ],
+    [
+     "Templar",
+     [
+      "Fatebringer",
+      "Vision of Confluence",
+      "Corrective Measure"
+     ],
+     [
+      "Arms",
+      "Chest"
+     ]
+    ],
+    [
+     "Gatekeepers",
+     [
+      "Fatebringer",
+      "Hezen Vengeance",
+      "Found Verdict"
+     ],
+     [
+      "Helmet",
+      "Legs"
+     ]
+    ],
+    [
+     "Atheon",
+     [
+      "Vex Mythoclast",
+      "Praedyth's Revenge",
+      "Corrective Measure",
+      "Hezen Vengeance"
+     ],
+     [
+      "Helmet",
+      "Chest"
+     ]
+    ]
+   ]
   },
-  "akt": {
-    "Vault of Glass": { "art": "Raid", "q": "esports.gg", "exo": ["Vex Mythoclast", "Atheon (final boss), random drop; one chance per character per week"], "enc": [
-      ["Confluxes", ["Vision of Confluence", "Found Verdict", "Corrective Measure"], ["Arms", "Class Item"]],
-      ["Oracles", ["Praedyth's Revenge", "Vision of Confluence", "Found Verdict"], ["Arms", "Legs"]],
-      ["Templar", ["Fatebringer", "Vision of Confluence", "Corrective Measure"], ["Arms", "Chest"]],
-      ["Gatekeepers", ["Fatebringer", "Hezen Vengeance", "Found Verdict"], ["Helmet", "Legs"]],
-      ["Atheon", ["Vex Mythoclast", "Praedyth's Revenge", "Corrective Measure", "Hezen Vengeance"], ["Helmet", "Chest"]]] },
-    "Last Wish": { "art": "Raid", "q": "ginx", "alle": true, "exo": ["One Thousand Voices", "Final chest after Queenswalk, random drop"], "enc": [
-      ["Kalli", ["Age-Old Bond"], []], ["Shuro Chi", ["Transfiguration"], []], ["Morgeth", ["Nation of Beasts"], []], ["Vault", ["Tyranny of Heaven"], []], ["Riven", ["Chattering Bone"], []],
-      ["Queenswalk", ["One Thousand Voices"], []]],
-      "alleText": "Every encounter can drop every Last Wish weapon and armor piece. The weapon listed is only the curated one." ,
-      "pool": ["Age-Old Bond", "Transfiguration", "Nation of Beasts", "Tyranny of Heaven", "Chattering Bone", "Techeun Force", "The Supremacy", "Apex Predator"] },
-    "Garden of Salvation": { "art": "Raid", "q": "destructoid", "exo": ["Divinity", "Exotic quest with a puzzle inside the raid"], "enc": [
-      ["Evade the Consecrated Mind", ["Accrued Redemption", "Zealot's Reward"], ["Legs"]],
-      ["Summon the Consecrated Mind", ["Reckless Oracle", "Prophet of Doom"], ["Arms"]],
-      ["Consecrated Mind", ["Ancient Gospel", "Sacred Provenance"], ["Chest"]],
-      ["Sanctified Mind", ["Omniscient Eye"], ["Helmet", "Class Item"]]] },
-    "Deep Stone Crypt": { "art": "Raid", "q": "dexerto", "exo": ["Eyes of Tomorrow", "Taniks, the Abomination (final boss), random drop"], "enc": [
-      ["Crypt Security", ["Trustee"], ["Arms", "Legs", "Class Item"]],
-      ["Atraks-1", ["Heritage", "Succession"], ["Arms", "Legs", "Class Item"]],
-      ["Rapture", ["Posterity"], ["Arms", "Chest", "Class Item"]],
-      ["Taniks, the Abomination", ["Eyes of Tomorrow", "Bequest", "Commemoration"], ["Helmet", "Chest", "Legs"]]] },
-    "Vow of the Disciple": { "art": "Raid", "q": "blueberries", "exo": ["Collective Obligation", "Rhulk (final boss), random drop"], "enc": [
-      ["Acquisition", ["Submission", "Deliverance", "Cataclysmic"], ["Helmet", "Chest", "Legs"]],
-      ["The Caretaker", ["Submission", "Insidious", "Cataclysmic", "Forbearance"], ["Helmet", "Arms", "Class Item"]],
-      ["Exhibition", ["Submission", "Deliverance"], ["Chest", "Legs"]],
-      ["Rhulk", ["Collective Obligation", "Insidious", "Lubrae's Ruin", "Forbearance"], ["Helmet", "Arms", "Class Item"]]] },
-    "King's Fall": { "art": "Raid", "q": "blueberries", "exo": ["Touch of Malice", "Oryx (final boss), random drop"], "enc": [
-      ["Totems", ["Doom of Chelchis", "Qullim's Terminus"], ["Chest", "Legs", "Class Item"]],
-      ["Warpriest", ["Smite of Merain", "Defiance of Yasmin"], ["Arms", "Chest"]],
-      ["Golgoroth", ["Qullim's Terminus", "Midha's Reckoning", "Zaouli's Bane"], ["Helmet", "Legs"]],
-      ["Daughters of Oryx", ["Smite of Merain", "Defiance of Yasmin", "Zaouli's Bane"], ["Arms", "Chest"]],
-      ["Oryx", ["Touch of Malice", "any King's Fall weapon"], ["Helmet", "Arms"]]] },
-    "Root of Nightmares": { "art": "Raid", "q": "sportskeeda", "exo": ["Conditional Finality", "Nezarec (final boss), random drop"], "enc": [
-      ["Cataclysm", ["Briar's Contempt", "Koraxis's Distress", "Nessa's Oblation"], ["Helmet", "Arms", "Chest"]],
-      ["Scission", ["Mykel's Reverence", "Koraxis's Distress", "Acasia's Dejection", "Nessa's Oblation"], ["Arms", "Chest", "Legs"]],
-      ["Macrocosm", ["Mykel's Reverence", "Rufus's Fury", "Acasia's Dejection"], ["Chest", "Legs", "Class Item"]],
-      ["Nezarec", ["Conditional Finality", "any Root of Nightmares weapon"], ["Helmet", "Legs", "Class Item"]]] },
-    "Crota's End": { "art": "Raid", "q": "blueberries", "exo": ["Necrochasm", "Exotic quest (Bottomless Pit), finished in the raid"], "enc": [
-      ["Enter the Abyss", ["Song of Ir Yût", "Fang of Ir Yût", "Abyss Defiant"], ["Helmet", "Arms", "Chest"]],
-      ["Cross the Bridge", ["Swordbreaker", "Fang of Ir Yût", "Oversoul Edict"], ["Arms", "Chest", "Legs"]],
-      ["Ir Yût, the Deathsinger", ["Word of Crota", "Song of Ir Yût", "Oversoul Edict"], ["Chest", "Legs", "Class Item"]],
-      ["Crota, Son of Oryx", ["Word of Crota", "Abyss Defiant", "Swordbreaker"], ["Helmet", "Legs", "Class Item"]]] },
-    "Salvation's Edge": { "art": "Raid", "q": "pcgamer", "exo": ["Euphony", "The Witness (final boss), random drop"], "enc": [
-      ["Substratum", ["Nullify", "Non-Denouement", "Imminence"], ["Arms", "Chest"]],
-      ["Herald of Finality", ["Summum Bonum", "Non-Denouement", "Forthcoming Deviance"], ["Helmet", "Class Item"]],
-      ["Repository", ["Nullify", "Critical Anomaly", "Imminence"], ["Arms"]],
-      ["Verity", ["Summum Bonum", "Non-Denouement", "Imminence"], ["Legs"]],
-      ["The Witness", ["Euphony", "Summum Bonum", "Nullify", "Critical Anomaly"], ["Helmet", "Legs"]]] },
-    "The Desert Perpetual": { "art": "Raid", "q": "blueberries", "exo": ["Whirling Ovation", "Koregos, the Worldline (final boss), random drop"], "frei": "The first three bosses can be done in any order.", "enc": [
-      ["Agraios, Inherent", ["Antedate", "Lance Ephemeral", "Intercalary"], ["Legs"]],
-      ["Iatros, Inward-Turned", ["Finite Maybe", "The When and Where"], ["Helmet", "Chest"]],
-      ["Epoptes, Lord of Quanta", ["Opaque Hourglass"], ["Arms", "Legs", "Class Item"]],
-      ["Koregos, the Worldline", ["Whirling Ovation", "any Desert Perpetual weapon"], ["Helmet", "Arms", "Chest", "Legs", "Class Item"]]] },
-    "The Shattered Throne": { "art": "Dungeon", "q": "blueberries", "alle": true, "exo": ["Wish-Ender", "Exotic quest that ends in this dungeon; its catalyst also drops here"], "enc": [["Any encounter", ["Fractethyst", "Canis Major", "Chrysura Melo", "Vulpecula"], ["Helmet", "Arms", "Chest", "Legs", "Class Item"]]] },
-    "Pit of Heresy": { "art": "Dungeon", "q": "blueberries", "alle": true, "exo": ["Xenophage", "Exotic quest inside the dungeon"], "enc": [["Any encounter", ["Adamantite", "Refusal of the Call", "Psychopomp", "Eyes Unveiled"], ["Helmet", "Arms", "Chest", "Legs", "Class Item"]]] },
-    "Prophecy": { "art": "Dungeon", "q": "shacknews", "exo": null, "enc": [
-      ["Phalanx Echo", ["Relentless", "Prosecutor"], ["Legs", "Class Item"]],
-      ["Hexahedron", ["A Sudden Death", "Adjudicator"], ["Arms"]],
-      ["Kell Echo", [], ["Helmet", "Arms", "Chest", "Legs", "Class Item"]],
-      ["Emissary chest", ["Judgment", "Darkest Before"], ["Helmet", "Chest", "Class Item"]]] },
-    "Grasp of Avarice": { "art": "Dungeon", "q": "shacknews", "exo": ["Gjallarhorn", "Exotic quest; the final chest after Captain Avarokk"], "enc": [
-      ["Phry'zhia, the Insatiable", ["Matador 64"], ["Legs", "Class Item"]],
-      ["Fallen Shield", ["Hero of Ages"], ["Arms", "Chest"]],
-      ["Captain Avarokk, the Covetous", ["Matador 64", "Hero of Ages", "1000 Yard Stare", "Eyasluna"], ["Helmet", "Arms", "Chest", "Legs", "Class Item"]]] },
-    "Duality": { "art": "Dungeon", "q": "blueberries", "exo": ["Heartshadow", "Caiatl (final boss), random drop; triumphs raise the chance"], "enc": [
-      ["Nightmare of Gahlran", ["Lingering Dread", "The Epicurean"], []],
-      ["Unlock the Vault", ["Stormchaser", "Unforgiven"], []],
-      ["Nightmare of Caiatl", ["Heartshadow", "New Purpose", "Fixed Odds"], []]] },
-    "Spire of the Watcher": { "art": "Dungeon", "q": "shacknews", "exo": ["Hierarchy of Needs", "Persys (final boss), random drop"], "enc": [
-      ["Ascend the Spire", ["Long Arm", "Seventh Seraph Carbine", "Terminus Horizon"], ["Helmet", "Arms", "Legs"]],
-      ["Akelous, the Siren's Current", ["Terminus Horizon", "Seventh Seraph Officer Revolver"], ["Arms", "Chest", "Class Item"]],
-      ["Persys, Primordial Ruin", ["Hierarchy of Needs", "Wilderflight", "Liminal Vigil"], ["Helmet", "Arms", "Chest", "Legs", "Class Item"]]] },
-    "Ghosts of the Deep": { "art": "Dungeon", "q": "shacknews", "exo": ["The Navigator", "Simmumah ur-Nokru (final boss), random drop"], "enc": [
-      ["Hive Ritual", ["No Survivors", "New Pacific Epitaph", "Cold Comfort"], ["Helmet", "Arms", "Legs"]],
-      ["Ecthar, the Shield of Savathûn", ["Cold Comfort", "Greasy Luck"], ["Chest"]],
-      ["Simmumah ur-Nokru", ["The Navigator", "New Pacific Epitaph", "No Survivors", "Greasy Luck"], ["Helmet", "Legs"]]] },
-    "Warlord's Ruin": { "art": "Dungeon", "q": "blueberries", "exo": ["Buried Bloodline", "Hefnd's Vengeance (final boss), random drop; triumphs raise the chance"], "enc": [
-      ["Rathil", ["Vengeful Whisper", "Dragoncult Sickle", "Indebted Kindness"], ["Helmet", "Arms", "Legs"]],
-      ["Locus of Wailing Grief", ["Vengeful Whisper", "Naeem's Lance", "Indebted Kindness"], ["Arms", "Chest", "Class Item"]],
-      ["Hefnd's Vengeance", ["Buried Bloodline", "Naeem's Lance", "Indebted Kindness", "Dragoncult Sickle"], ["Helmet", "Arms", "Chest", "Legs", "Class Item"]]] },
-    "Vesper's Host": { "art": "Dungeon", "q": "blueberries", "exo": ["Ice Breaker", "Corrupted Puppeteer (final boss), random drop; triumphs raise the chance"], "enc": [
-      ["Vesper Station", ["VS Chill Inhibitor", "VS Gravitic Arrest", "VS Velocity Baton"], ["Arms", "Chest", "Legs"]],
-      ["Raneiks Unified", ["VS Chill Inhibitor", "VS Gravitic Arrest", "VS Pyroelectric Propellant"], ["Helmet", "Arms", "Legs"]],
-      ["Corrupted Puppeteer", ["Ice Breaker", "VS Gravitic Arrest", "VS Pyroelectric Propellant", "VS Velocity Baton"], ["Chest", "Legs", "Class Item"]]] },
-    "Sundered Doctrine": { "art": "Dungeon", "q": "esports.gg", "exo": ["Finality's Auger", "Kerrev, the Erased (final boss), random drop"], "enc": [
-      ["Solve the Riddle", ["Unloved", "Unworthy", "Unsworn"], ["Helmet", "Arms", "Legs"]],
-      ["Zoetic Lockset", ["Unworthy", "Unvoiced", "Unsworn"], ["Helmet", "Arms", "Legs"]],
-      ["Kerrev, the Erased", ["Finality's Auger", "Unloved", "Unworthy", "Unvoiced", "Unsworn"], ["Helmet", "Arms", "Chest", "Legs"]]] },
-    "Equilibrium": { "art": "Dungeon", "q": "blueberries", "exo": ["Heirloom", "Sere (final boss), random drop; once per character per week"], "enc": [
-      ["Harvester", ["Zealous Ideal", "Voltaic Shade"], ["Arms", "Chest", "Legs"]],
-      ["Harrow", ["Bitter End", "Voltaic Shade", "Conspiracy Honed"], ["Helmet", "Arms", "Class Item"]],
-      ["Sere", ["Heirloom", "High Tyrant", "Sullen Claw", "any Equilibrium weapon"], ["Legs", "Class Item"]]] }
+  "Last Wish": {
+   "art": "Raid",
+   "q": "ginx",
+   "alle": true,
+   "exo": [
+    "One Thousand Voices",
+    "Final chest after Queenswalk, random drop"
+   ],
+   "enc": [
+    [
+     "Kalli",
+     [
+      "Age-Old Bond"
+     ],
+     []
+    ],
+    [
+     "Shuro Chi",
+     [
+      "Transfiguration"
+     ],
+     []
+    ],
+    [
+     "Morgeth",
+     [
+      "Nation of Beasts"
+     ],
+     []
+    ],
+    [
+     "Vault",
+     [
+      "Tyranny of Heaven"
+     ],
+     []
+    ],
+    [
+     "Riven",
+     [
+      "Chattering Bone"
+     ],
+     []
+    ],
+    [
+     "Queenswalk",
+     [
+      "One Thousand Voices"
+     ],
+     []
+    ]
+   ],
+   "alleText": "Every encounter can drop every Last Wish weapon and armor piece. The weapon listed is only the curated one.",
+   "pool": [
+    "Age-Old Bond",
+    "Transfiguration",
+    "Nation of Beasts",
+    "Tyranny of Heaven",
+    "Chattering Bone",
+    "Techeun Force",
+    "The Supremacy",
+    "Apex Predator"
+   ]
+  },
+  "Garden of Salvation": {
+   "art": "Raid",
+   "q": "destructoid",
+   "exo": [
+    "Divinity",
+    "Exotic quest with a puzzle inside the raid"
+   ],
+   "enc": [
+    [
+     "Evade the Consecrated Mind",
+     [
+      "Accrued Redemption",
+      "Zealot's Reward"
+     ],
+     [
+      "Legs"
+     ]
+    ],
+    [
+     "Summon the Consecrated Mind",
+     [
+      "Reckless Oracle",
+      "Prophet of Doom"
+     ],
+     [
+      "Arms"
+     ]
+    ],
+    [
+     "Consecrated Mind",
+     [
+      "Ancient Gospel",
+      "Sacred Provenance"
+     ],
+     [
+      "Chest"
+     ]
+    ],
+    [
+     "Sanctified Mind",
+     [
+      "Omniscient Eye"
+     ],
+     [
+      "Helmet",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "Deep Stone Crypt": {
+   "art": "Raid",
+   "q": "dexerto",
+   "exo": [
+    "Eyes of Tomorrow",
+    "Taniks, the Abomination (final boss), random drop"
+   ],
+   "enc": [
+    [
+     "Crypt Security",
+     [
+      "Trustee"
+     ],
+     [
+      "Arms",
+      "Legs",
+      "Class Item"
+     ]
+    ],
+    [
+     "Atraks-1",
+     [
+      "Heritage",
+      "Succession"
+     ],
+     [
+      "Arms",
+      "Legs",
+      "Class Item"
+     ]
+    ],
+    [
+     "Rapture",
+     [
+      "Posterity"
+     ],
+     [
+      "Arms",
+      "Chest",
+      "Class Item"
+     ]
+    ],
+    [
+     "Taniks, the Abomination",
+     [
+      "Eyes of Tomorrow",
+      "Bequest",
+      "Commemoration"
+     ],
+     [
+      "Helmet",
+      "Chest",
+      "Legs"
+     ]
+    ]
+   ]
+  },
+  "Vow of the Disciple": {
+   "art": "Raid",
+   "q": "blueberries",
+   "exo": [
+    "Collective Obligation",
+    "Rhulk (final boss), random drop"
+   ],
+   "enc": [
+    [
+     "Acquisition",
+     [
+      "Submission",
+      "Deliverance",
+      "Cataclysmic"
+     ],
+     [
+      "Helmet",
+      "Chest",
+      "Legs"
+     ]
+    ],
+    [
+     "The Caretaker",
+     [
+      "Submission",
+      "Insidious",
+      "Cataclysmic",
+      "Forbearance"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Class Item"
+     ]
+    ],
+    [
+     "Exhibition",
+     [
+      "Submission",
+      "Deliverance"
+     ],
+     [
+      "Chest",
+      "Legs"
+     ]
+    ],
+    [
+     "Rhulk",
+     [
+      "Collective Obligation",
+      "Insidious",
+      "Lubrae's Ruin",
+      "Forbearance"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "King's Fall": {
+   "art": "Raid",
+   "q": "blueberries",
+   "exo": [
+    "Touch of Malice",
+    "Oryx (final boss), random drop"
+   ],
+   "enc": [
+    [
+     "Totems",
+     [
+      "Doom of Chelchis",
+      "Qullim's Terminus"
+     ],
+     [
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ],
+    [
+     "Warpriest",
+     [
+      "Smite of Merain",
+      "Defiance of Yasmin"
+     ],
+     [
+      "Arms",
+      "Chest"
+     ]
+    ],
+    [
+     "Golgoroth",
+     [
+      "Qullim's Terminus",
+      "Midha's Reckoning",
+      "Zaouli's Bane"
+     ],
+     [
+      "Helmet",
+      "Legs"
+     ]
+    ],
+    [
+     "Daughters of Oryx",
+     [
+      "Smite of Merain",
+      "Defiance of Yasmin",
+      "Zaouli's Bane"
+     ],
+     [
+      "Arms",
+      "Chest"
+     ]
+    ],
+    [
+     "Oryx",
+     [
+      "Touch of Malice",
+      "any King's Fall weapon"
+     ],
+     [
+      "Helmet",
+      "Arms"
+     ]
+    ]
+   ]
+  },
+  "Root of Nightmares": {
+   "art": "Raid",
+   "q": "sportskeeda",
+   "exo": [
+    "Conditional Finality",
+    "Nezarec (final boss), random drop"
+   ],
+   "enc": [
+    [
+     "Cataclysm",
+     [
+      "Briar's Contempt",
+      "Koraxis's Distress",
+      "Nessa's Oblation"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Chest"
+     ]
+    ],
+    [
+     "Scission",
+     [
+      "Mykel's Reverence",
+      "Koraxis's Distress",
+      "Acasia's Dejection",
+      "Nessa's Oblation"
+     ],
+     [
+      "Arms",
+      "Chest",
+      "Legs"
+     ]
+    ],
+    [
+     "Macrocosm",
+     [
+      "Mykel's Reverence",
+      "Rufus's Fury",
+      "Acasia's Dejection"
+     ],
+     [
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ],
+    [
+     "Nezarec",
+     [
+      "Conditional Finality",
+      "any Root of Nightmares weapon"
+     ],
+     [
+      "Helmet",
+      "Legs",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "Crota's End": {
+   "art": "Raid",
+   "q": "blueberries",
+   "exo": [
+    "Necrochasm",
+    "Exotic quest (Bottomless Pit), finished in the raid"
+   ],
+   "enc": [
+    [
+     "Enter the Abyss",
+     [
+      "Song of Ir Yût",
+      "Fang of Ir Yût",
+      "Abyss Defiant"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Chest"
+     ]
+    ],
+    [
+     "Cross the Bridge",
+     [
+      "Swordbreaker",
+      "Fang of Ir Yût",
+      "Oversoul Edict"
+     ],
+     [
+      "Arms",
+      "Chest",
+      "Legs"
+     ]
+    ],
+    [
+     "Ir Yût, the Deathsinger",
+     [
+      "Word of Crota",
+      "Song of Ir Yût",
+      "Oversoul Edict"
+     ],
+     [
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ],
+    [
+     "Crota, Son of Oryx",
+     [
+      "Word of Crota",
+      "Abyss Defiant",
+      "Swordbreaker"
+     ],
+     [
+      "Helmet",
+      "Legs",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "Salvation's Edge": {
+   "art": "Raid",
+   "q": "pcgamer",
+   "exo": [
+    "Euphony",
+    "The Witness (final boss), random drop"
+   ],
+   "enc": [
+    [
+     "Substratum",
+     [
+      "Nullify",
+      "Non-Denouement",
+      "Imminence"
+     ],
+     [
+      "Arms",
+      "Chest"
+     ]
+    ],
+    [
+     "Herald of Finality",
+     [
+      "Summum Bonum",
+      "Non-Denouement",
+      "Forthcoming Deviance"
+     ],
+     [
+      "Helmet",
+      "Class Item"
+     ]
+    ],
+    [
+     "Repository",
+     [
+      "Nullify",
+      "Critical Anomaly",
+      "Imminence"
+     ],
+     [
+      "Arms"
+     ]
+    ],
+    [
+     "Verity",
+     [
+      "Summum Bonum",
+      "Non-Denouement",
+      "Imminence"
+     ],
+     [
+      "Legs"
+     ]
+    ],
+    [
+     "The Witness",
+     [
+      "Euphony",
+      "Summum Bonum",
+      "Nullify",
+      "Critical Anomaly"
+     ],
+     [
+      "Helmet",
+      "Legs"
+     ]
+    ]
+   ]
+  },
+  "The Desert Perpetual": {
+   "art": "Raid",
+   "q": "blueberries",
+   "exo": [
+    "Whirling Ovation",
+    "Koregos, the Worldline (final boss), random drop"
+   ],
+   "frei": "The first three bosses can be done in any order.",
+   "enc": [
+    [
+     "Agraios, Inherent",
+     [
+      "Antedate",
+      "Lance Ephemeral",
+      "Intercalary"
+     ],
+     [
+      "Legs"
+     ]
+    ],
+    [
+     "Iatros, Inward-Turned",
+     [
+      "Finite Maybe",
+      "The When and Where"
+     ],
+     [
+      "Helmet",
+      "Chest"
+     ]
+    ],
+    [
+     "Epoptes, Lord of Quanta",
+     [
+      "Opaque Hourglass"
+     ],
+     [
+      "Arms",
+      "Legs",
+      "Class Item"
+     ]
+    ],
+    [
+     "Koregos, the Worldline",
+     [
+      "Whirling Ovation",
+      "any Desert Perpetual weapon"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ]
+   ],
+   "feats": {
+    "text": "No weekly encounter challenge here: the raid uses Feats you switch on at the start. Clearing every encounter with a feat active counts for its triumph.",
+    "liste": [
+     [
+      "Phase Race",
+      "Brutal Efficiency"
+     ],
+     [
+      "Cutthroat Combat",
+      "This is War"
+     ],
+     [
+      "Battalions",
+      "Battling Battalions"
+     ],
+     [
+      "Token Limit",
+      "Cherished Lifetimes"
+     ]
+    ],
+    "q": "https://kyberscorner.com/destiny-2-the-desert-perpetual-raid/"
+   }
+  },
+  "The Shattered Throne": {
+   "art": "Dungeon",
+   "q": "blueberries",
+   "alle": true,
+   "exo": [
+    "Wish-Ender",
+    "Exotic quest that ends in this dungeon; its catalyst also drops here"
+   ],
+   "enc": [
+    [
+     "Any encounter",
+     [
+      "Fractethyst",
+      "Canis Major",
+      "Chrysura Melo",
+      "Vulpecula"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "Pit of Heresy": {
+   "art": "Dungeon",
+   "q": "blueberries",
+   "alle": true,
+   "exo": [
+    "Xenophage",
+    "Exotic quest inside the dungeon"
+   ],
+   "enc": [
+    [
+     "Any encounter",
+     [
+      "Adamantite",
+      "Refusal of the Call",
+      "Psychopomp",
+      "Eyes Unveiled"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "Prophecy": {
+   "art": "Dungeon",
+   "q": "shacknews",
+   "exo": null,
+   "enc": [
+    [
+     "Phalanx Echo",
+     [
+      "Relentless",
+      "Prosecutor"
+     ],
+     [
+      "Legs",
+      "Class Item"
+     ]
+    ],
+    [
+     "Hexahedron",
+     [
+      "A Sudden Death",
+      "Adjudicator"
+     ],
+     [
+      "Arms"
+     ]
+    ],
+    [
+     "Kell Echo",
+     [],
+     [
+      "Helmet",
+      "Arms",
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ],
+    [
+     "Emissary chest",
+     [
+      "Judgment",
+      "Darkest Before"
+     ],
+     [
+      "Helmet",
+      "Chest",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "Grasp of Avarice": {
+   "art": "Dungeon",
+   "q": "shacknews",
+   "exo": [
+    "Gjallarhorn",
+    "Exotic quest; the final chest after Captain Avarokk"
+   ],
+   "enc": [
+    [
+     "Phry'zhia, the Insatiable",
+     [
+      "Matador 64"
+     ],
+     [
+      "Legs",
+      "Class Item"
+     ]
+    ],
+    [
+     "Fallen Shield",
+     [
+      "Hero of Ages"
+     ],
+     [
+      "Arms",
+      "Chest"
+     ]
+    ],
+    [
+     "Captain Avarokk, the Covetous",
+     [
+      "Matador 64",
+      "Hero of Ages",
+      "1000 Yard Stare",
+      "Eyasluna"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "Duality": {
+   "art": "Dungeon",
+   "q": "blueberries",
+   "exo": [
+    "Heartshadow",
+    "Caiatl (final boss), random drop; triumphs raise the chance"
+   ],
+   "enc": [
+    [
+     "Nightmare of Gahlran",
+     [
+      "Lingering Dread",
+      "The Epicurean"
+     ],
+     []
+    ],
+    [
+     "Unlock the Vault",
+     [
+      "Stormchaser",
+      "Unforgiven"
+     ],
+     []
+    ],
+    [
+     "Nightmare of Caiatl",
+     [
+      "Heartshadow",
+      "New Purpose",
+      "Fixed Odds"
+     ],
+     []
+    ]
+   ]
+  },
+  "Spire of the Watcher": {
+   "art": "Dungeon",
+   "q": "shacknews",
+   "exo": [
+    "Hierarchy of Needs",
+    "Persys (final boss), random drop"
+   ],
+   "enc": [
+    [
+     "Ascend the Spire",
+     [
+      "Long Arm",
+      "Seventh Seraph Carbine",
+      "Terminus Horizon"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Legs"
+     ]
+    ],
+    [
+     "Akelous, the Siren's Current",
+     [
+      "Terminus Horizon",
+      "Seventh Seraph Officer Revolver"
+     ],
+     [
+      "Arms",
+      "Chest",
+      "Class Item"
+     ]
+    ],
+    [
+     "Persys, Primordial Ruin",
+     [
+      "Hierarchy of Needs",
+      "Wilderflight",
+      "Liminal Vigil"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "Ghosts of the Deep": {
+   "art": "Dungeon",
+   "q": "shacknews",
+   "exo": [
+    "The Navigator",
+    "Simmumah ur-Nokru (final boss), random drop"
+   ],
+   "enc": [
+    [
+     "Hive Ritual",
+     [
+      "No Survivors",
+      "New Pacific Epitaph",
+      "Cold Comfort"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Legs"
+     ]
+    ],
+    [
+     "Ecthar, the Shield of Savathûn",
+     [
+      "Cold Comfort",
+      "Greasy Luck"
+     ],
+     [
+      "Chest"
+     ]
+    ],
+    [
+     "Simmumah ur-Nokru",
+     [
+      "The Navigator",
+      "New Pacific Epitaph",
+      "No Survivors",
+      "Greasy Luck"
+     ],
+     [
+      "Helmet",
+      "Legs"
+     ]
+    ]
+   ]
+  },
+  "Warlord's Ruin": {
+   "art": "Dungeon",
+   "q": "blueberries",
+   "exo": [
+    "Buried Bloodline",
+    "Hefnd's Vengeance (final boss), random drop; triumphs raise the chance"
+   ],
+   "enc": [
+    [
+     "Rathil",
+     [
+      "Vengeful Whisper",
+      "Dragoncult Sickle",
+      "Indebted Kindness"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Legs"
+     ]
+    ],
+    [
+     "Locus of Wailing Grief",
+     [
+      "Vengeful Whisper",
+      "Naeem's Lance",
+      "Indebted Kindness"
+     ],
+     [
+      "Arms",
+      "Chest",
+      "Class Item"
+     ]
+    ],
+    [
+     "Hefnd's Vengeance",
+     [
+      "Buried Bloodline",
+      "Naeem's Lance",
+      "Indebted Kindness",
+      "Dragoncult Sickle"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "Vesper's Host": {
+   "art": "Dungeon",
+   "q": "blueberries",
+   "exo": [
+    "Ice Breaker",
+    "Corrupted Puppeteer (final boss), random drop; triumphs raise the chance"
+   ],
+   "enc": [
+    [
+     "Vesper Station",
+     [
+      "VS Chill Inhibitor",
+      "VS Gravitic Arrest",
+      "VS Velocity Baton"
+     ],
+     [
+      "Arms",
+      "Chest",
+      "Legs"
+     ]
+    ],
+    [
+     "Raneiks Unified",
+     [
+      "VS Chill Inhibitor",
+      "VS Gravitic Arrest",
+      "VS Pyroelectric Propellant"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Legs"
+     ]
+    ],
+    [
+     "Corrupted Puppeteer",
+     [
+      "Ice Breaker",
+      "VS Gravitic Arrest",
+      "VS Pyroelectric Propellant",
+      "VS Velocity Baton"
+     ],
+     [
+      "Chest",
+      "Legs",
+      "Class Item"
+     ]
+    ]
+   ]
+  },
+  "Sundered Doctrine": {
+   "art": "Dungeon",
+   "q": "esports.gg",
+   "exo": [
+    "Finality's Auger",
+    "Kerrev, the Erased (final boss), random drop"
+   ],
+   "enc": [
+    [
+     "Solve the Riddle",
+     [
+      "Unloved",
+      "Unworthy",
+      "Unsworn"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Legs"
+     ]
+    ],
+    [
+     "Zoetic Lockset",
+     [
+      "Unworthy",
+      "Unvoiced",
+      "Unsworn"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Legs"
+     ]
+    ],
+    [
+     "Kerrev, the Erased",
+     [
+      "Finality's Auger",
+      "Unloved",
+      "Unworthy",
+      "Unvoiced",
+      "Unsworn"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Chest",
+      "Legs"
+     ]
+    ]
+   ]
+  },
+  "Equilibrium": {
+   "art": "Dungeon",
+   "q": "blueberries",
+   "exo": [
+    "Heirloom",
+    "Sere (final boss), random drop; once per character per week"
+   ],
+   "enc": [
+    [
+     "Harvester",
+     [
+      "Zealous Ideal",
+      "Voltaic Shade"
+     ],
+     [
+      "Arms",
+      "Chest",
+      "Legs"
+     ]
+    ],
+    [
+     "Harrow",
+     [
+      "Bitter End",
+      "Voltaic Shade",
+      "Conspiracy Honed"
+     ],
+     [
+      "Helmet",
+      "Arms",
+      "Class Item"
+     ]
+    ],
+    [
+     "Sere",
+     [
+      "Heirloom",
+      "High Tyrant",
+      "Sullen Claw",
+      "any Equilibrium weapon"
+     ],
+     [
+      "Legs",
+      "Class Item"
+     ]
+    ]
+   ]
   }
+ }
 }

@@ -2,6 +2,7 @@
 import { defs, champion, CHAMP_NAME } from './defs.js';
 import { oeffneDetail } from './detail.js';
 import { bewerte } from './rolls.js';
+import { quelle } from './quellen.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -68,8 +69,8 @@ function kachel(x) {
 const AMMO = { 1: 'Primary', 2: 'Special', 3: 'Heavy' };
 const SELTEN = { 6: 'Exotic', 5: 'Legendary', 4: 'Rare', 3: 'Uncommon', 2: 'Common' };
 const GRUPPEN = [
-  ['ort', 'Location'], ['element', 'Element'], ['ammo', 'Ammo'], ['champ', 'Champion'], ['art', 'Weapon type'], ['frame', 'Frame'],
-  ['selten', 'Rarity'], ['set', 'Armor set'], ['kopien', 'Copies'], ['roll', 'God rolls'], ['putz', 'Clean-up'],
+  ['ort', 'Location'], ['element', 'Element'], ['ammo', 'Ammo'], ['champ', 'Champion'], ['art', 'Weapon type'], ['frame', 'Frame'], ['perk', 'Perks'],
+  ['quelle', 'Source'], ['selten', 'Rarity'], ['set', 'Armor set'], ['kopien', 'Copies'], ['roll', 'God rolls'], ['putz', 'Clean-up'],
 ];
 
 // Aufräumen-Regeln: jede Kopie bekommt einen Grund, warum sie bleibt oder weg kann. Schalter liegen in d2a.putz.
@@ -126,6 +127,9 @@ const merkmale = (x, anzahl, nachChar) => ({
   set: x.d.e ? defs.sets?.[x.d.e]?.n || '' : '',
   kopien: anzahl[x.hash] > 1 ? 'Duplicates' : 'Single',
   roll: x.d.t === 3 ? bewerte(x.hash, x.plugs) : '',
+  // Mehrere Werte: alle Trait-Perks (Spalten 3/4) und Origin-Perks, die auf diesem Item sitzen.
+  perk: x.d.t === 3 ? [...new Set(x.plugs.map((p) => defs.items[p]).filter((p) => p && /^(frames|origins)$/.test(p.pc)).map((p) => p.n))] : [],
+  quelle: (quelle(x.hash, x.d)?.text || '').replace(/^Source:\s*/i, '').slice(0, 48),
 });
 let filter = (() => { try { return JSON.parse(localStorage.getItem('d2a.filter') || '{}'); } catch { return {}; } })();
 let suche = '';
@@ -133,7 +137,7 @@ const merke = () => { try { localStorage.setItem('d2a.filter', JSON.stringify(fi
 
 function passt(x) {
   if (x.st) for (const [n, v] of Object.entries(statMin)) if (v && x.st[n] < v) return false;
-  for (const [g, werte] of Object.entries(filter)) if (werte.length && !werte.includes(x.m[g])) return false;
+  for (const [g, werte] of Object.entries(filter)) if (werte.length && ![].concat(x.m[g] || []).some((v) => werte.includes(v))) return false;
   if (!suche) return true;
   const plugNamen = x.plugs.map((p) => defs.items[p]?.n || '').join(' ');
   return suche.split(/\s+/).every((w) => `${x.d.n} ${x.d.k} ${plugNamen} ${Object.values(x.m).join(' ')}`.toLowerCase().includes(w));
@@ -185,7 +189,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   const zeichneFilter = (sichtbar) => {
     fBox.innerHTML = GRUPPEN.map(([g, titel]) => {
       const zaehl = {};
-      for (const x of sichtbar) if (x.m[g]) zaehl[x.m[g]] = (zaehl[x.m[g]] || 0) + 1;
+      for (const x of sichtbar) for (const v of [].concat(x.m[g] || [])) zaehl[v] = (zaehl[v] || 0) + 1;
       const werte = Object.keys(zaehl).sort((a, b) => zaehl[b] - zaehl[a] || a.localeCompare(b));
       const regeln = g === 'putz' && istWaffe;
       if (!werte.length && !regeln) return '';

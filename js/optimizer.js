@@ -26,16 +26,19 @@ const istStatMod = (p) => {
   return Boolean(d && d.t === 19 && /^enhancements\./.test(d.pc || '') && armorTeil(d).length === 1 && / Mod$/.test(d.n || '') && !/\//.test(d.n));
 };
 let modKarte = null;
-function statMods() {
-  if (modKarte) return modKarte;
-  modKarte = {};
+// Stat-Mods: groß (+10, "Health Mod") oder klein (+5, "Minor Health Mod", kostet weniger Energie). Wahl über zustandO.modGroesse.
+function statMods(groesse = zustandO.modGroesse || 10) {
+  modKarte = modKarte || {};
+  if (modKarte[groesse]) return modKarte[groesse];
+  const k = (modKarte[groesse] = {});
   for (const [h, d] of Object.entries(defs.items)) {
     if (!istStatMod(h)) continue;
     const [[sh, wert]] = armorTeil(d);
     const n = statName(sh);
-    if (d.n === `${n} Mod` && d.pc === 'enhancements.v2_general' && (!modKarte[n] || modKarte[n].wert < wert)) modKarte[n] = { plug: Number(h), wert, name: d.n, icon: d.i, pc: d.pc };
+    const name = groesse === 5 ? `Minor ${n} Mod` : `${n} Mod`;
+    if (d.n === name && d.pc === 'enhancements.v2_general' && (!k[n] || (groesse === 5 ? k[n].wert > wert : k[n].wert < wert))) k[n] = { plug: Number(h), wert, name: d.n, icon: d.i, pc: d.pc };
   }
-  return modKarte;
+  return k;
 }
 
 function ruestung(profil, klasse) {
@@ -209,7 +212,7 @@ export function zeigeOptimizer(haupt, zustand) {
     <div class="optgrid"><section class="karte"><div class="optleiste">
       <label>Exotic <select id="exo">${[['any', 'Best exotic (any)'], ['vary', 'Compare exotics (1 card each)'], ['none', 'No exotic']].map(([v, t]) => `<option value="${v}" ${!zustandO.exotic && (zustandO.exoModus || 'any') === v ? 'selected' : ''}>${t}</option>`).join('')}<optgroup label="Specific exotic">${exotics.map((e) => `<option value="${e.hash}" ${e.hash === zustandO.exotic ? 'selected' : ''}>${esc(e.d.n)} · ${esc(e.d.k || '')}</option>`).join('')}</optgroup></select></label>
       <label>Rank by <select id="rang">${Object.entries(RANG).map(([v, [t]]) => `<option value="${v}" ${(zustandO.rang || 'total') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
-      <label class="haken"><input type="checkbox" id="mitMods" ${zustandO.mods ? 'checked' : ''}> Use stat mods</label>
+      <label>Stat mods <select id="modWahl" title="+5 mods cost less armor energy, leaving room for Firepower, Siphons and co."><option value="0" ${!zustandO.mods ? 'selected' : ''}>None</option><option value="10" ${zustandO.mods && (zustandO.modGroesse || 10) === 10 ? 'selected' : ''}>+10 (1 per piece)</option><option value="5" ${zustandO.mods && zustandO.modGroesse === 5 ? 'selected' : ''}>+5 minor (cheaper)</option></select></label>
       ${[0, 1].map((k) => { const st = zustandO.sets[k] || {}; if (k === 1 && !(zustandO.sets[0]?.n && zustandO.sets[0].stk === 2)) return ''; return `<label>${k ? 'Second set' : 'Armor set'} <select data-setn="${k}"><option value="">${k ? 'None' : 'Any'}</option>${[...new Set(liste.filter((i) => i.set).map((i) => i.set.n))].sort().filter((n) => k === 0 || n !== zustandO.sets[0]?.n).map((n) => `<option ${n === st.n ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>${st.n && k === 0 ? `<label>Pieces <select data-setk="0"><option value="2" ${st.stk !== 4 ? 'selected' : ''}>2 (one bonus, room for a 2nd set)</option><option value="4" ${st.stk === 4 ? 'selected' : ''}>4 (both bonuses)</option></select></label>` : ''}`; }).join('')}
       <span class="anzahl"><b>${r.anzahl.toLocaleString()}</b> combinations</span><button class="chip" id="reset">Reset</button></div>
       ${ARMOR_STATS.map((n, k) => {
@@ -282,7 +285,7 @@ export function zeigeOptimizer(haupt, zustand) {
     if (e.target.id === 'rang') zustandO.rang = e.target.value;
     if (e.target.dataset.setn) { const k = Number(e.target.dataset.setn); const n = e.target.value; if (!n) zustandO.sets = zustandO.sets.slice(0, k); else zustandO.sets[k] = { n, stk: k ? 2 : zustandO.sets[0]?.stk || 2 }; return zeichne(); }
     if (e.target.dataset.setk) { zustandO.sets[0].stk = Number(e.target.value); if (zustandO.sets[0].stk === 4) zustandO.sets = zustandO.sets.slice(0, 1); return zeichne(); }
-    if (e.target.id === 'mitMods') zustandO.mods = e.target.checked;
+    if (e.target.id === 'modWahl') { const v = Number(e.target.value); zustandO.mods = v > 0; if (v) zustandO.modGroesse = v; }
     if (e.target.id === 'slot') { zustandO.slot = Number(e.target.value); speichere('d2a.opt', zustandO); return; }
     if (e.target.id === 'leeren') { zustandO.leeren = e.target.checked; speichere('d2a.opt', zustandO); return; }
     if (e.target.dataset.bonus) zustandO.bonus[e.target.dataset.bonus] = Number(e.target.value) || 0;

@@ -1,3 +1,4 @@
+import { SPRACHEN, sprache, waehle } from './sprache.js';
 // Konto: Bungie-Name, Plattform, Charaktere mit Emblem, Spielzeit, Abmelden, App-Einstellungen.
 import { defs } from './defs.js';
 import { rolls } from './rolls.js';
@@ -22,11 +23,15 @@ export function zeigeKonto(el, zustand, aktionen) {
       <div class="konto-zahlen"><span><b>${zeit(gesamt)}</b>played</span><span><b>${prof.currentGuardianRank || '–'}</b>Guardian Rank</span><span><b>${chars.length}</b>characters</span></div></div>
     ${chars.map((c) => `<div class="kchar" style="background-image:linear-gradient(90deg,#0b0a1add,#0b0a1a55),url(${BILD}${c.emblemBackgroundPath || ''})">
       <i style="background-image:url(${BILD}${c.emblemPath || ''})"></i><div><b>${KLASSE[c.classType]}</b><small>${RASSE[c.raceType] || ''} · ${zeit(c.minutesPlayedTotal || 0)} · last played ${vor(c.dateLastPlayed)}</small></div><span class="klicht">${c.light}</span></div>`).join('')}
+    <section class="karte konto-sprache"><h3>Language</h3><select id="sprachWahl" aria-label="Language" data-roh>${SPRACHEN.map(([c, n]) => `<option value="${c}" ${c === sprache ? 'selected' : ''}>${n}</option>`).join('')}</select>
+      <p class="leer klein">Item names, perks and descriptions use Bungie's own translations. App texts are available in English and German. Saved for this Bungie account.</p></section>
     <section class="karte konto-app"><h3>App</h3>
       <p>Game data: ${esc(String(defs.version || '').slice(0, 24))}<br>God rolls: ${Object.keys(rolls.items || {}).length.toLocaleString()} weapons, updated ${esc((rolls.erstellt || '').slice(0, 10) || '–')}</p>
       <div class="konto-knoepfe"><button data-k="neu">↻ Reload data from Bungie</button><a class="knopf-link" href="https://www.bungie.net/7/en/User/Profile/${k.membershipType}/${k.membershipId}" target="_blank" rel="noopener">Bungie profile ↗</a>
       <button data-k="reset">Reset app settings</button><button data-k="ab" class="rot-knopf">Sign out</button></div>
-      <p class="leer klein">Install on your phone: open this page in Safari or Chrome → Share → “Add to Home Screen”.</p></section>`;
+      <p class="leer klein">Install on your phone: open this page in Safari or Chrome → Share → “Add to Home Screen”.</p>
+      <p class="leer klein"><a href="privacy.html" target="_blank" rel="noopener">Privacy</a> · Not affiliated with Bungie. Destiny content © Bungie, Inc.</p></section>`;
+  el.querySelector('#sprachWahl')?.addEventListener('change', (e) => waehle(k, e.target.value));
   el.onclick = (e) => {
     const b = e.target.closest('[data-k]');
     if (!b) return;

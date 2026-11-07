@@ -15,6 +15,7 @@ import { zeigeKonto } from './konto.js';
 import { zeigeWiki, setzeWikiSuche } from './wiki.js';
 import { zeigeSquad } from './squad.js';
 import { setzeNav } from './info.js';
+import { starte as starteSprache } from './sprache.js';
 import { sammle } from './vault.js';
 
 const $ = (s) => document.querySelector(s);
@@ -196,7 +197,7 @@ function anmeldeSeite() {
   const bereit = bungie.eingerichtet();
   haupt.innerHTML = `<div class="anmelden karte"><h1>D2 Allrounder</h1>
     <p>Vault, loadouts, armor optimizer and weekly rotation for every class, on phone and PC.</p>
-    ${bereit ? '<button class="haupt-knopf" id="los">Sign in with Bungie</button>' : '<p>Setup is not finished yet: the Bungie app keys are missing.</p>'}</div>`;
+    ${bereit ? '<button class="haupt-knopf" id="los">Sign in with Bungie</button>' : '<p>Setup is not finished yet: the Bungie app keys are missing.</p>'}<p class="leer klein">Your sign-in stays in this browser. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></p></div>`;
   $('#los')?.addEventListener('click', () => bungie.anmelden());
 }
 
@@ -214,7 +215,7 @@ async function start() {
   // Abgelaufene Anmeldung: Bungie kennt die Freigabe schon und leitet ohne Rückfrage zurück.
   if (bungie.eingerichtet() && !bungie.angemeldet() && bungie.warAngemeldet() && !new URLSearchParams(location.search).has('error') && Date.now() - Number(sessionStorage.getItem('d2a.auto') || 0) > 120_000) {
     sessionStorage.setItem('d2a.auto', String(Date.now())); haupt.innerHTML = '<p class="leer">Renewing your Bungie sign-in…</p>'; return bungie.anmelden(); }
-  if (!bungie.eingerichtet() || !bungie.angemeldet()) { wechsleNurLeiste(); return anmeldeSeite(); }
+  if (!bungie.eingerichtet() || !bungie.angemeldet()) { wechsleNurLeiste(); starteSprache(null); return anmeldeSeite(); }
   haupt.innerHTML = '<p class="leer">Loading your guardians…</p>';
   try {
     await Promise.all([ladeDefs(), ladeRolls(), ladeQuellen()]);
@@ -224,12 +225,14 @@ async function start() {
     const alt = await gespeichertesProfil();
     let klicks = 0;
     if (alt) {
+      await starteSprache(alt.konto);
       zustand.konto = alt.konto; zustand.profil = alt.profil;
       $('#kontoName').textContent = alt.konto.name;
       wechsle(zustand.tab);
       document.addEventListener('pointerdown', () => { klicks += 1; }, { once: true });
     }
     zustand.konto = await bungie.konto();
+    await starteSprache(zustand.konto);
     $('#kontoName').textContent = zustand.konto.name;
     $('#konto').title = 'Account';
     await ladeProfil();
