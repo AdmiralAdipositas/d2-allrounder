@@ -151,7 +151,7 @@ const SORT = {
   neu: ['Newest first', (p, q) => (BigInt(q.id) > BigInt(p.id) ? 1 : -1)],
 };
 const rang = (x) => (/god/.test(x.m?.roll || '') ? 3 : /good/.test(x.m?.roll || '') ? 2 : 0) + (x.d.q === 6 ? 0.5 : 0) + (x.st?.Total || 0) / 1000;
-const ansicht = (() => { try { return { sort: 'power', typ: false, ...JSON.parse(localStorage.getItem('d2a.ansicht') || '{}') }; } catch { return { sort: 'power', typ: false }; } })();
+const ansicht = (() => { try { const a = { sort: 'power', typ: true, ...JSON.parse(localStorage.getItem('d2a.ansicht') || '{}') }; if (!a.v) { a.typ = true; a.v = 2; } return a; } catch { return { sort: 'power', typ: true }; } })();
 const merkeAnsicht = () => { try { localStorage.setItem('d2a.ansicht', JSON.stringify(ansicht)); } catch {} };
 
 const zuRaw = (() => { try { return JSON.parse(localStorage.getItem('d2a.zu') || '[]'); } catch { return []; } })();
@@ -215,7 +215,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
         if (ansicht.typ) {
           const g = new Map();
           for (const x of st) { const k = istWaffe ? x.d.k : x.d.q === 6 ? 'Exotic' : x.m.set || 'No set'; g.set(k, [...(g.get(k) || []), x]); }
-          inhalt = `<div class="tgruppen">${[...g].sort((a, b) => (a[0] === 'Exotic' ? -1 : b[0] === 'Exotic' ? 1 : b[1].length - a[1].length)).map(([k, l]) => `<div class="tgr"><small>${esc(k)} <b>${l.length}</b></small><div class="raster">${l.map(kachel).join('')}</div></div>`).join('')}</div>`;
+          inhalt = `<div class="tgruppen">${[...g].sort((a, b) => (istWaffe ? a[0].localeCompare(b[0]) : a[0] === 'Exotic' ? -1 : b[0] === 'Exotic' ? 1 : b[1].length - a[1].length)).map(([k, l]) => `<div class="tgr"><small>${esc(k)} <b>${l.length}</b></small><div class="raster">${l.map(kachel).join('')}</div></div>`).join('')}</div>`;
         } else inhalt = `<div class="raster">${st.map(kachel).join('')}</div>`;
       }
       return `<section class="reihe ${offenR ? '' : 'zu'}" id="slot-${name.replace(/\s/g, '')}"><h3><button class="klapp" data-reihe="${name}" aria-expanded="${offenR}">${offenR ? '▾' : '▸'} ${name} <small>${st.length}</small></button></h3>${inhalt}</section>`;

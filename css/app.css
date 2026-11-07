@@ -536,3 +536,19 @@ body.ziehe{user-select:none;cursor:ew-resize}
 .symliste{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 10px}.symliste span{display:flex;flex-direction:column;padding:4px 8px;border-left:2px solid #9b7bff55}.symliste small{color:var(--matt);font-size:.72rem}
 .filter .fpop .chips{max-height:52vh;overflow:auto;max-width:520px}
 .konto-sprache select{width:100%;padding:8px 10px;background:var(--bg2);color:var(--text);border:1px solid var(--linie);border-radius:8px;font:inherit}
+.sfrag{font-size:.7rem;color:var(--gut);white-space:nowrap}.sfrag.minus{color:#ff7b7b}
+
+/* Optimizer vereinfacht: nummerierte Schritte, Hilfetexte, Aufschlüsselung pro Stat */
+.optlinks{display:flex;flex-direction:column;gap:6px}
+.oschritt{padding:10px 0;border-bottom:1px solid #241e4d}.oschritt:last-of-type{border-bottom:0}
+.oschritt h3{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:.92rem}.oschritt h3 small{color:var(--matt);font-weight:400;font-size:.75rem;text-transform:none;letter-spacing:0}
+.oschritt h3>span{width:22px;height:22px;border-radius:50%;background:var(--gold);color:#120e2c;display:inline-flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700}
+.ozeile{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--matt);margin:6px 0}.ozeile select{width:100%;padding:7px 9px;font-size:.88rem}
+.ohilfe{font-size:.76rem;color:var(--matt);margin:4px 0 8px;line-height:1.4}.ohilfe b.plus{color:var(--gut)}.ohilfe b.minus{color:#ff7b7b}
+.omehr>summary{cursor:pointer;font-weight:600;font-size:.88rem;color:var(--matt)}.omehr[open]>summary{color:var(--text)}
+.obonus{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:.78rem;margin-top:6px}.obonus small{flex-basis:100%;color:var(--matt)}.obonus input{width:52px}
+.optlinks .anzahl{font-size:.82rem;color:var(--matt);margin:6px 0 0}.optlinks .anzahl b{color:var(--text)}
+.kwerte span em{display:block;font-style:normal;font-size:.66rem;color:var(--matt);white-space:nowrap}.kwerte span em ins{text-decoration:none;color:var(--gut);margin-left:2px}.kwerte span em ins.minus{color:#ff7b7b}
+.kwerte span.erreicht b{color:var(--gut)}
+.klegende{display:block;font-size:.7rem;color:var(--matt);margin:2px 0 6px}.klegende ins{text-decoration:none;color:var(--gut)}
+.kweg{display:block;flex-basis:100%;font-size:.74rem;opacity:.8;margin:2px 0 0}
