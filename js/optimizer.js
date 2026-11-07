@@ -300,16 +300,19 @@ async function baueBuild(bd, zustand, cid, probleme) {
     const kl = ['titan', 'hunter', 'warlock'][defs.items[sub.itemHash].c];
     const el = Object.entries(SUBCLASS[kl] || {}).find(([, n]) => n === bd.subclass)?.[0];
     const belegt = new Set();
+    const wunsch = new Set([...bd.faehigkeiten, ...bd.aspekte, ...bd.fragmente]);
     // Reihenfolge wichtig: Aspekte bestimmen, wie viele Fragment-Plätze frei sind.
     for (const name of [...bd.faehigkeiten, ...bd.aspekte, ...bd.fragmente]) {
       const kandidaten = Object.entries(defs.items).filter(([, d]) => d.t === 19 && d.n === name && new RegExp(`^(${kl}|shared)\\.${el}\\.`).test(d.pc || ''));
       if (!kandidaten.length) { probleme.push(`${name}: not found for ${bd.subclass}.`); continue; }
       const [ph, pd] = kandidaten[0];
       const typ = typVon(pd.pc);
-      const i = sockel.findIndex((so, n) => !belegt.has(n) && typVon(defs.items[so.plugHash]?.pc) === typ);
+      // Schon gesteckt? Dann diesen Sockel behalten, sonst würde Bungie das doppelte Teil ablehnen.
+      const schon = sockel.findIndex((so, n) => !belegt.has(n) && kandidaten.some(([h]) => Number(h) === so.plugHash));
+      const i = schon >= 0 ? schon : sockel.findIndex((so, n) => !belegt.has(n) && typVon(defs.items[so.plugHash]?.pc) === typ && !wunsch.has(defs.items[so.plugHash]?.n));
       if (i < 0) { probleme.push(`${name}: no free ${typ} slot.`); continue; }
       belegt.add(i);
-      if (sockel[i].plugHash === Number(ph)) continue;
+      if (schon >= 0) continue;
       meldung(`Setting ${name}…`);
       try { await bungie.plugSetzen(k, { id: sub.itemInstanceId }, cid, i, Number(ph)); } catch (e) { probleme.push(`${name}: ${e.message}`); }
     }
