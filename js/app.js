@@ -13,6 +13,7 @@ import { zeigeXur, xurDa } from './xur.js';
 import { zeigePost, postAnzahl } from './post.js';
 import { zeigeKonto } from './konto.js';
 import { zeigeWiki, setzeWikiSuche } from './wiki.js';
+import { zeigeSquad } from './squad.js';
 
 const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
@@ -64,6 +65,7 @@ const ANSICHTEN = {
   finder: ['Build Finder', (el) => zeigeFinder(el, zustand, (w) => { setzeOptimizer(w); wechsle('optimizer'); })],
   stats: ['Stats', (el) => zeigeStats(el, zustand)],
   wiki: ['Wiki', (el) => zeigeWiki(el, zustand)],
+  squad: ['Squad check', (el) => zeigeSquad(el, zustand)],
   guide: ['Raid Guide', (el) => { el.innerHTML = '<iframe class="guide" src="guide/index.html" title="Raid briefing"></iframe><p class="leer klein">Your raid and dungeon briefing with animations, roles, challenges and callouts (DE/EN). <a href="guide/index.html" target="_blank" rel="noopener">Open full screen ↗</a></p>'; }],
 };
 const TABS = Object.fromEntries(['vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
@@ -95,6 +97,7 @@ panel.addEventListener('pointerover', (e) => {
   const r = m.getBoundingClientRect(), b = t.getBoundingClientRect();
   t.style.left = `${Math.max(8, r.left - b.width - 8)}px`; t.style.top = `${Math.min(r.top, innerHeight - b.height - 8)}px`;
 });
+haupt.addEventListener('click', (e) => { const p = e.target.closest('[data-panelart]'); if (p) oeffnePanel(p.dataset.panelart); });
 panel.addEventListener('click', (e) => { const g = e.target.closest('[data-geh]'); if (g) wechsle(g.dataset.geh); });
 panel.addEventListener('click', (e) => { const w = e.target.closest('[data-wiki]'); if (w) { setzeWikiSuche(w.dataset.wiki); wechsle('wiki'); } });
 panel.addEventListener('pointerout', (e) => { if (e.target.closest('[data-tn]')) $('#tipp').hidden = true; });
