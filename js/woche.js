@@ -2,6 +2,7 @@
 import * as bungie from './bungie.js';
 import { defs } from './defs.js';
 import { CHALLENGES as LISTE } from './challenges.js';
+import { zeigeXur } from './xur.js';
 const CH = Object.fromEntries(Object.entries(LISTE).map(([k, v]) => [k.toLowerCase(), v]));
 const CHALLENGES = new Proxy({}, { get: (_, n) => CH[String(n).toLowerCase()] });
 const ALLGEMEIN = /^(Weekly Raid Challenge|Weekly Dungeon Challenge|All encounters completed)$/;
@@ -93,7 +94,9 @@ function karte(e) {
 export async function zeigeWoche(panel, zustand, xur) {
   const r = resets();
   panel.innerHTML = `<h2>This week</h2><p class="reset">Daily reset in <b>${dauer(r.taeglich)}</b> (${uhr(r.taeglich)}) · Weekly in <b>${dauer(r.woechentlich)}</b></p>
-    ${xur ? `<button class="xur-knopf" data-geh="xur">Xûr is here · stock refreshes ${uhr(xur)} →</button>` : ''}<div id="wInhalt"><p class="leer">Loading activities…</p></div>`;
+    ${xur ? `<details class="xur-box"><summary class="xur-knopf">Xûr is here · stock refreshes ${uhr(xur)}</summary><div class="xur-inhalt"><p class="leer">Loading…</p></div></details>` : ''}<div id="wInhalt"><p class="leer">Loading activities…</p></div>`;
+  const xb = panel.querySelector('.xur-box');
+  if (xb) xb.addEventListener('toggle', () => { if (xb.open && !xb.dataset.da) { xb.dataset.da = '1'; zeigeXur(xb.querySelector('.xur-inhalt'), zustand, true); } });
   if (!zustand.profil) { panel.querySelector('#wInhalt').innerHTML = '<p class="leer">Sign in first.</p>'; return; }
   try {
     const g = await lade(zustand);

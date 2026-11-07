@@ -32,15 +32,18 @@ export function meldung(text, fehler = false) {
 rail.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' && !rail.classList.contains('offen')) rail.classList.add('offen'); });
 document.addEventListener('pointerdown', (e) => { if (!rail.contains(e.target)) rail.classList.remove('offen'); });
 
-const TABS = {
-  vault: () => zeigeVault(haupt, zustand, 'waffen'),
-  armor: () => zeigeVault(haupt, zustand, 'ruestung'),
-  xur: () => zeigeXur(haupt, zustand),
-  loadouts: () => zeigeLoadouts(haupt, zustand),
-  optimizer: () => zeigeOptimizer(haupt, zustand),
-  finder: () => zeigeFinder(haupt, zustand, (w) => { setzeOptimizer(w); wechsle('optimizer'); }),
-  stats: () => zeigeStats(haupt, zustand),
+// Jede Ansicht kann im Hauptbereich oder im Seitenpanel laufen.
+const ANSICHTEN = {
+  woche: ['This week', (el) => zeigeWoche(el, zustand, zustand.xur)],
+  xur: ['Xûr', (el) => zeigeXur(el, zustand)],
+  vault: ['Weapons', (el) => zeigeVault(el, zustand, 'waffen')],
+  armor: ['Armor', (el) => zeigeVault(el, zustand, 'ruestung')],
+  loadouts: ['Loadouts', (el) => zeigeLoadouts(el, zustand)],
+  optimizer: ['Optimizer', (el) => zeigeOptimizer(el, zustand)],
+  finder: ['Build Finder', (el) => zeigeFinder(el, zustand, (w) => { setzeOptimizer(w); wechsle('optimizer'); })],
+  stats: ['Stats', (el) => zeigeStats(el, zustand)],
 };
+const TABS = Object.fromEntries(['vault', 'armor', 'loadouts', 'optimizer', 'finder', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
 
 function wechsle(tab) {
@@ -56,31 +59,46 @@ rail.addEventListener('click', (e) => {
   const b = e.target.closest('button');
   if (!b) return;
   if (b.dataset.tab) wechsle(b.dataset.tab);
-  else if (b.dataset.panel) schaltePanel(b);
+  else if (b.dataset.panel) schaltePanel();
   else if (b.id === 'konto') kontoKlick();
   if (matchMedia('(pointer: coarse)').matches) rail.classList.remove('offen');
 });
 
-panel.addEventListener('click', (e) => { const g = e.target.closest('[data-geh]'); if (g) wechsle(g.dataset.geh); });
 panel.addEventListener('pointerover', (e) => {
   const m = e.target.closest('[data-tn]'); const t = $('#tipp');
-  if (!m) { t.hidden = true; return; }
+  if (!m) return;
   t.innerHTML = `<b>${m.dataset.tn.replace(/</g, '&lt;')}</b><p class="tt">${m.dataset.td.replace(/</g, '&lt;')}</p>`;
   t.hidden = false;
   const r = m.getBoundingClientRect(), b = t.getBoundingClientRect();
   t.style.left = `${Math.max(8, r.left - b.width - 8)}px`; t.style.top = `${Math.min(r.top, innerHeight - b.height - 8)}px`;
 });
-panel.addEventListener('pointerleave', () => { $('#tipp').hidden = true; });
-// Panels liegen neben dem aktiven Tab und lassen ihn unberührt.
-function schaltePanel(b) {
-  const offen = !panel.hidden && panel.dataset.art === b.dataset.panel;
-  rail.querySelectorAll('[data-panel]').forEach((x) => x.classList.remove('panel-an'));
-  if (offen) { panel.hidden = true; return; }
-  panel.dataset.art = b.dataset.panel;
-  b.classList.add('panel-an');
+panel.addEventListener('pointerout', (e) => { if (e.target.closest('[data-tn]')) $('#tipp').hidden = true; });
+
+// Seitenpanel: zeigt "This week" oder eine Ansicht nach Wahl; angeheftet bleibt es offen, auch nach Neuladen.
+const pz = (() => { try { return { art: 'woche', fest: false, breit: false, ...JSON.parse(localStorage.getItem('d2a.panel') || '{}') }; } catch { return { art: 'woche', fest: false, breit: false }; } })();
+const merkePanel = () => { try { localStorage.setItem('d2a.panel', JSON.stringify(pz)); } catch {} };
+function zeigePanel() {
   panel.hidden = false;
-  zeigeWoche(panel, zustand, zustand.xur);
+  panel.classList.toggle('breit', pz.breit);
+  document.body.classList.toggle('panel-fest', pz.fest);
+  rail.querySelector('[data-panel]').classList.add('panel-an');
+  panel.innerHTML = `<div class="pkopf"><select id="pArt" aria-label="Panel content">${Object.entries(ANSICHTEN).map(([k, [n]]) => `<option value="${k}" ${k === pz.art ? 'selected' : ''}>${n}</option>`).join('')}</select>
+    <button id="pBreit" class="pknopf" title="${pz.breit ? 'Narrow' : 'Wide'}" aria-pressed="${pz.breit}">⇔</button>
+    <button id="pFest" class="pknopf" title="${pz.fest ? 'Unpin' : 'Pin: keep open'}" aria-pressed="${pz.fest}">📌</button>
+    <button id="pZu" class="pknopf" title="Close">✕</button></div><div id="pInhalt"></div>`;
+  const inhalt = panel.querySelector('#pInhalt');
+  if (!zustand.profil) { inhalt.innerHTML = '<p class="leer">Sign in first.</p>'; return; }
+  ANSICHTEN[pz.art][1](inhalt);
 }
+function schliessePanel() { panel.hidden = true; rail.querySelector('[data-panel]').classList.remove('panel-an'); document.body.classList.remove('panel-fest'); }
+function schaltePanel() { if (!panel.hidden) { pz.fest = false; merkePanel(); schliessePanel(); } else zeigePanel(); }
+panel.addEventListener('change', (e) => { if (e.target.id === 'pArt') { pz.art = e.target.value; merkePanel(); zeigePanel(); } });
+panel.addEventListener('click', (e) => {
+  const id = e.target.closest('button')?.id;
+  if (id === 'pZu') { pz.fest = false; merkePanel(); schliessePanel(); }
+  if (id === 'pFest') { pz.fest = !pz.fest; merkePanel(); zeigePanel(); meldung(pz.fest ? 'Panel pinned. It stays open.' : 'Panel unpinned.'); }
+  if (id === 'pBreit') { pz.breit = !pz.breit; merkePanel(); zeigePanel(); }
+});
 
 function kontoKlick() {
   if (!bungie.eingerichtet()) return meldung('The app is not connected to Bungie yet.', true);
@@ -122,13 +140,13 @@ async function start() {
     $('#kontoName').textContent = zustand.konto.name;
     $('#konto').title = 'Sign out';
     await ladeProfil();
-    if (zustand.tab === 'xur') zustand.tab = 'vault';
+    if (!TABS[zustand.tab]) zustand.tab = 'vault';
     wechsle(zustand.tab);
-    // Xûr-Tab nur zeigen, wenn er da ist.
+    if (pz.fest && !matchMedia('(max-width: 760px)').matches) zeigePanel();
+    // Xûr steckt im This-week-Panel, sobald Bungie sagt, dass er da ist.
     xurDa(zustand).then((bis) => {
       zustand.xur = bis;
-      rail.querySelector('[data-tab="xur"]').hidden = !bis;
-      if (!panel.hidden && panel.dataset.art === 'woche') zeigeWoche(panel, zustand, bis);
+      if (!panel.hidden && pz.art === 'woche') zeigePanel();
     });
   } catch (e) {
     meldung(e.message, true);

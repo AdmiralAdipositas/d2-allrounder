@@ -79,10 +79,11 @@ const tabelle = (titel, liste) => liste.length ? `<section class="karte"><h3>${t
   ${liste.map((r) => `<tr><td>${r.icon ? `<i style="background-image:url(${BILD}${r.icon})"></i>` : ''}${esc(r.name)}</td><td><b>${zahl(r.clears)}</b></td><td>${zeitText(r.schnellste)}</td><td>${stunden(r.sekunden)}</td></tr>`).join('')}</tbody></table></section>` : '';
 
 export async function zeigeStats(haupt, zustand) {
+  const lauf = (haupt.dataset.lauf = String(Number(haupt.dataset.lauf || 0) + 1));
   haupt.innerHTML = '<h1>Stats</h1><p class="leer">Reading your history from Bungie…</p>';
   let d;
   try { d = await lade(zustand); } catch (e) { haupt.innerHTML = `<h1>Stats</h1><p class="leer">${esc(e.message)}</p>`; return; }
-  if (zustand.tab !== 'stats') return;
+  if (haupt.dataset.lauf !== lauf) return;
   const maxTag = Math.max(1, ...d.tage.map((t) => t.s));
   const maxTyp = Math.max(1, ...d.typen.map((t) => t.kills));
   const sieg = d.pvp.spiele ? Math.round((d.pvp.siege / d.pvp.spiele) * 100) : 0;

@@ -232,3 +232,16 @@ button:disabled{opacity:.45;cursor:progress}
 .legende{display:inline-flex;align-items:center;gap:4px;margin-left:4px}.legende .dot{position:static;display:inline-block}
 .rollinfo{color:var(--gut)!important;font-weight:600}.rollinfo.pvp{color:var(--arc)!important}
 .legende .dot.pve{background:var(--gut)}.legende .dot.pvp{background:var(--arc)}.legende{display:flex;flex-wrap:wrap;margin:6px 0 0}
+
+/* Seitenpanel: Auswahl, anheften, breit */
+#panel.breit{width:560px}
+.pkopf{display:flex;gap:6px;align-items:center;margin:-4px 0 12px;position:sticky;top:-16px;z-index:2;background:#110e25;padding:6px 0}
+.pkopf select{flex:1;background:var(--bg2);color:var(--text);border:1px solid var(--linie);border-radius:6px;padding:5px 8px;font:600 .9rem var(--kopf);letter-spacing:.04em;text-transform:uppercase}
+.pknopf{padding:4px 8px;font-size:.85rem;line-height:1}.pknopf[aria-pressed=true]{border-color:var(--gold);background:#e8c35a22}
+#panel h1{font-size:1.2rem}
+#panel .xraster,#panel .fraster,#panel .loraster,#panel .zwei,#panel .optgrid{grid-template-columns:1fr}
+#panel .reihe{grid-template-columns:1fr}#panel .reihe>h3{padding-top:0}
+#panel .kpis{grid-template-columns:1fr 1fr}#panel .sbar{grid-template-columns:62px minmax(0,1fr) 64px}#panel .sbonus{grid-column:2/4}
+#panel .ic{width:44px;height:44px}#panel .statmin label{font-size:.7rem}
+.xur-box{margin-bottom:8px}.xur-box>summary{list-style:none;cursor:pointer;display:block;border:1px solid var(--gold);border-radius:6px;padding:7px 12px}.xur-box>summary::-webkit-details-marker{display:none}
+.xur-box[open]>summary{margin-bottom:8px}.xur-inhalt .xg{font-size:.95rem;margin:10px 0 6px}

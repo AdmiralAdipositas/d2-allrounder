@@ -50,7 +50,7 @@ function karte(x) {
   </article>`;
 }
 
-export async function zeigeXur(haupt, zustand) {
+export async function zeigeXur(haupt, zustand, eingebettet = false) {
   haupt.innerHTML = '<h1>Xûr</h1><p class="leer">Asking Xûr what he brought…</p>';
   const bis = !daten || Date.now() - daten.zeit > 10 * 60_000 ? await xurDa(zustand) : new Date(daten.teile[0].vendor.data.nextRefreshDate);
   if (!bis) { haupt.innerHTML = '<h1>Xûr</h1><p class="leer">Xûr is not here right now. He arrives on Friday at the daily reset.</p>'; return; }
@@ -67,7 +67,8 @@ export async function zeigeXur(haupt, zustand) {
     liste.forEach((x) => { x.g = titel; });
     return liste.length ? `<section><h2 class="xg">${titel} <small>${liste.length}</small></h2><div class="xraster">${liste.map(karte).join('')}</div></section>` : '';
   }).join('');
-  haupt.innerHTML = `<div class="kopf"><h1>Xûr</h1><span class="tag gold">Stock refreshes in ${dauer(bis)}</span><span class="platz"></span><small class="leer">Rolls as Xûr offers them to your ${esc(['Titan', 'Hunter', 'Warlock'][letzterChar(zustand.profil).classType])}</small></div>${html}`;
+  const kopf = `<div class="kopf"><h1>Xûr</h1><span class="tag gold">Stock refreshes in ${dauer(bis)}</span><span class="platz"></span><small class="leer">Rolls as Xûr offers them to your ${esc(['Titan', 'Hunter', 'Warlock'][letzterChar(zustand.profil).classType])}</small></div>`;
+  haupt.innerHTML = `${eingebettet ? '' : kopf}${html}`;
   const tipp = document.querySelector('#tipp');
   haupt.onpointerover = (e) => {
     const el = e.target.closest('[data-h]');
