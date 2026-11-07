@@ -1,0 +1,41 @@
+// Konto: Bungie-Name, Plattform, Charaktere mit Emblem, Spielzeit, Abmelden, App-Einstellungen.
+import { defs } from './defs.js';
+import { rolls } from './rolls.js';
+
+const BILD = 'https://www.bungie.net';
+const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
+const RASSE = { 0: 'Human', 1: 'Awoken', 2: 'Exo' };
+const PLATTFORM = { 1: 'Xbox', 2: 'PlayStation', 3: 'Steam', 5: 'Stadia', 6: 'Epic Games' };
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+const zeit = (min) => `${Math.round(min / 60).toLocaleString()} h`;
+const vor = (d) => { const m = Math.round((Date.now() - new Date(d)) / 60000); return m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} days ago`; };
+
+export function zeigeKonto(el, zustand, aktionen) {
+  const k = zustand.konto;
+  const p = zustand.profil;
+  const prof = p.profile?.data || {};
+  const chars = Object.values(p.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
+  const gesamt = chars.reduce((a, c) => a + Number(c.minutesPlayedTotal || 0), 0);
+  const plattformen = (prof.userInfo?.applicableMembershipTypes || [k.membershipType]).map((t) => PLATTFORM[t]).filter(Boolean);
+  el.innerHTML = `<div class="konto-kopf" style="background-image:linear-gradient(90deg,#0b0a1aee,#0b0a1a66),url(${BILD}${chars[0]?.emblemBackgroundPath || ''})">
+      <h1>${esc(k.name)}</h1><small>${esc(PLATTFORM[k.membershipType] || 'Bungie')}${plattformen.length > 1 ? ` · Cross Save: ${esc(plattformen.join(', '))}` : ''}</small>
+      <div class="konto-zahlen"><span><b>${zeit(gesamt)}</b>played</span><span><b>${prof.currentGuardianRank || '–'}</b>Guardian Rank</span><span><b>${chars.length}</b>characters</span></div></div>
+    ${chars.map((c) => `<div class="kchar" style="background-image:linear-gradient(90deg,#0b0a1add,#0b0a1a55),url(${BILD}${c.emblemBackgroundPath || ''})">
+      <i style="background-image:url(${BILD}${c.emblemPath || ''})"></i><div><b>${KLASSE[c.classType]}</b><small>${RASSE[c.raceType] || ''} · ${zeit(c.minutesPlayedTotal || 0)} · last played ${vor(c.dateLastPlayed)}</small></div><span class="klicht">${c.light}</span></div>`).join('')}
+    <section class="karte konto-app"><h3>App</h3>
+      <p>Game data: ${esc(String(defs.version || '').slice(0, 24))}<br>God rolls: ${Object.keys(rolls.items || {}).length.toLocaleString()} weapons, updated ${esc((rolls.erstellt || '').slice(0, 10) || '–')}</p>
+      <div class="konto-knoepfe"><button data-k="neu">↻ Reload data from Bungie</button><a class="knopf-link" href="https://www.bungie.net/7/en/User/Profile/${k.membershipType}/${k.membershipId}" target="_blank" rel="noopener">Bungie profile ↗</a>
+      <button data-k="reset">Reset app settings</button><button data-k="ab" class="rot-knopf">Sign out</button></div>
+      <p class="leer klein">Install on your phone: open this page in Safari or Chrome → Share → “Add to Home Screen”.</p></section>`;
+  el.onclick = (e) => {
+    const b = e.target.closest('[data-k]');
+    if (!b) return;
+    if (b.dataset.k === 'neu') aktionen.neuLaden();
+    if (b.dataset.k === 'ab') aktionen.abmelden();
+    if (b.dataset.k === 'reset') {
+      if (b.dataset.sicher !== '1') { b.dataset.sicher = '1'; b.textContent = 'Click again to reset'; return; }
+      try { Object.keys(localStorage).filter((x) => x.startsWith('d2a.') && x !== 'd2a.token' && x !== 'd2a.warDa').forEach((x) => localStorage.removeItem(x)); } catch {}
+      location.reload();
+    }
+  };
+}

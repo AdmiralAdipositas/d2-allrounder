@@ -255,3 +255,33 @@ button:disabled{opacity:.45;cursor:progress}
 #rail button.an{box-shadow:inset 3px 0 0 var(--ak);background:linear-gradient(90deg,color-mix(in srgb,var(--ak) 22%,transparent),transparent)}
 @media(max-width:760px){#rail button.an{box-shadow:inset 0 -3px 0 var(--ak)}}
 .lo-knoepfe .loeschen{margin-left:auto;border-color:#ff7a6b66;color:#ffb3a8}.lo-knoepfe .loeschen:hover{border-color:var(--warn)}
+
+/* Build-Feed */
+.feed-filter{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,var(--bg) 70%,transparent);padding:6px 0 12px;align-items:center}
+.feed-zahl{margin-left:auto;color:var(--matt);font-size:.85rem}
+.el-chip.el-solar[aria-pressed=true]{background:var(--solar);border-color:var(--solar)}.el-chip.el-arc[aria-pressed=true]{background:var(--arc);border-color:var(--arc)}
+.el-chip.el-void[aria-pressed=true]{background:var(--void);border-color:var(--void)}.el-chip.el-stasis[aria-pressed=true]{background:var(--stasis);border-color:var(--stasis);color:#fff}
+.el-chip.el-strand[aria-pressed=true]{background:var(--strand);border-color:var(--strand)}.el-chip.el-prismatic[aria-pressed=true]{background:linear-gradient(90deg,var(--solar),var(--void),var(--arc));border-color:var(--gold)}
+#feed{display:flex;flex-direction:column;gap:14px;max-width:820px;margin:0 auto}
+.feed-karte{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;background:linear-gradient(135deg,var(--flaeche),var(--bg2));border:1px solid var(--linie);border-radius:14px;padding:14px;scroll-snap-align:start}
+.feed-karte.kuratiert{border-color:#e8c35a55}
+.fk-bild{width:120px;height:120px;border-radius:10px;background:#0f0c24 center/cover;border:2px solid var(--gold);box-shadow:0 8px 24px #0008}
+.fk-kopf{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}.fk-kopf small{color:var(--matt)}
+.fk-tags{display:flex;gap:5px;flex-wrap:wrap}.tag.gut{color:var(--gut);background:#5fe0a822}
+.eltag{font-size:.68rem;font-weight:700;padding:1px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;color:#120c22}
+.eltag.el-solar{background:var(--solar)}.eltag.el-arc{background:var(--arc)}.eltag.el-void{background:var(--void)}.eltag.el-stasis{background:var(--stasis);color:#fff}.eltag.el-strand{background:var(--strand)}.eltag.el-prismatic{background:linear-gradient(90deg,var(--solar),var(--void),var(--arc))}
+.fk-warum{margin:10px 0 6px;color:#d9d5f2;font-size:.92rem;line-height:1.45;cursor:pointer}
+.fk-klapp{background:none;border:0;padding:0;color:var(--arc);font-size:.82rem}
+.fk-mehr h3{margin:12px 0 6px;font-size:.8rem}
+.feed-ende{text-align:center;color:var(--matt);padding:24px;font-size:.85rem}
+@media(max-width:760px){.feed-karte{grid-template-columns:64px minmax(0,1fr);gap:10px}.fk-bild{width:64px;height:64px}}
+#panel .feed-karte{grid-template-columns:56px minmax(0,1fr)}#panel .fk-bild{width:56px;height:56px}
+
+/* Konto */
+.konto-kopf{border-radius:12px;padding:18px;background:center/cover;border:1px solid var(--linie);margin-bottom:10px}.konto-kopf small{color:var(--matt)}
+.konto-zahlen{display:flex;gap:18px;margin-top:12px;flex-wrap:wrap}.konto-zahlen span{color:var(--matt);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em}.konto-zahlen b{display:block;font:700 1.3rem var(--kopf);color:var(--gold);text-transform:none}
+.kchar{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:center/cover;border:1px solid var(--linie);margin-bottom:8px}
+.kchar i{width:44px;height:44px;background:center/cover;border-radius:4px;flex:none}.kchar div{flex:1}.kchar small{display:block;color:#cfc9ee;font-size:.78rem}.klicht{font:700 1.4rem var(--kopf);color:var(--gold)}
+.konto-app p{color:var(--matt);font-size:.85rem}.konto-knoepfe{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.knopf-link{display:inline-block;padding:6px 12px;border:1px solid var(--linie);border-radius:6px;color:var(--arc);text-decoration:none;font-size:.9rem}
+.rot-knopf{border-color:var(--warn);color:#ffb3a8}

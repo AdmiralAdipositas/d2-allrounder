@@ -10,6 +10,7 @@ import { zeigeFinder } from './finder.js';
 import { zeigeStats } from './stats.js';
 import { zeigeXur, xurDa } from './xur.js';
 import { zeigePost, postAnzahl } from './post.js';
+import { zeigeKonto } from './konto.js';
 
 const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
@@ -38,6 +39,7 @@ const ANSICHTEN = {
   woche: ['This week', (el) => zeigeWoche(el, zustand, zustand.xur)],
   xur: ['Xûr', (el) => zeigeXur(el, zustand)],
   post: ['Postmaster', (el) => zeigePost(el, zustand)],
+  konto: ['Account', (el) => zeigeKonto(el, zustand, { neuLaden: zustand.neuLaden, abmelden })],
   vault: ['Weapons', (el) => zeigeVault(el, zustand, 'waffen')],
   armor: ['Armor', (el) => zeigeVault(el, zustand, 'ruestung')],
   loadouts: ['Loadouts', (el) => zeigeLoadouts(el, zustand)],
@@ -106,13 +108,17 @@ panel.addEventListener('click', (e) => {
 
 function kontoKlick() {
   if (!bungie.eingerichtet()) return meldung('The app is not connected to Bungie yet.', true);
-  if (zustand.konto) {
+  if (zustand.konto) return oeffnePanel('konto');
+  bungie.anmelden();
+}
+function abmelden() {
+  {
+    schliessePanel();
     bungie.abmelden(true);
     zustand.konto = zustand.profil = null;
     $('#kontoName').textContent = 'Sign in';
     return wechsle(zustand.tab);
   }
-  bungie.anmelden();
 }
 
 export async function ladeProfil() {
@@ -148,7 +154,7 @@ async function start() {
     await Promise.all([ladeDefs(), ladeRolls()]);
     zustand.konto = await bungie.konto();
     $('#kontoName').textContent = zustand.konto.name;
-    $('#konto').title = 'Sign out';
+    $('#konto').title = 'Account';
     await ladeProfil();
     zustand.oeffnePanel = oeffnePanel; zustand.postZahl = postZahl;
     if (!TABS[zustand.tab]) zustand.tab = 'vault';
