@@ -46,6 +46,7 @@ for (const lang of SPRACHEN) {
   const lo = await lade(lang, 'DestinySandboxPerkDefinition').catch(() => ({}));
   for (const h of setPerkHashes) { merke(enPerks[h]?.displayProperties?.name, lang, lo[h]?.displayProperties?.name); merke(enPerks[h]?.displayProperties?.description, lang, lo[h]?.displayProperties?.description); }
 }
+fs.mkdirSync('data/lang', { recursive: true });
 const keys = [...paare.keys()];
 fs.writeFileSync('data/lang/keys.json', JSON.stringify({ schema: 1, version: manifest.version, keys }));
 for (const lang of SPRACHEN) fs.writeFileSync(`data/lang/${lang}.json`, JSON.stringify(keys.map((k) => paare.get(k)[lang] || '')));
