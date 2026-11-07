@@ -85,7 +85,7 @@ function karte(b, besitz, besitzSets, sets) {
       <div class="fk-vorschau">${(b.plan || [])[0] ? `<span>🛡 ${esc(b.plan[0].set)} <em>${besitzSets(b.plan[0].set)} owned</em></span>` : ''}${b.empf?.exotic ? `<span><i data-ih="${b.empf.exotic.hash}" style="background-image:url(${BILD}${b.empf.exotic.i})"></i>${esc(b.empf.exotic.n)}${besitz.has(b.empf.exotic.n) ? ' ✓' : ''}</span>` : ''}</div>
       <button class="fk-klapp" data-klapp="${esc(b.id)}" aria-expanded="${auf}">${auf ? 'Less ▴' : 'Details ▾'}</button>
       ${auf ? `<div class="fk-mehr">
-        <h3>Exotics</h3>${b.exotics.map((e) => { const d = finde(e); const hat = besitz.has(e); return `<div class="fz ${hat ? 'hat' : 'fehlt'}">${d?.i ? `<i data-ih="${d.hash}" style="background-image:url(${BILD}${d.i})"></i>` : ''}<span>${esc(e)}</span><em>${hat ? 'owned' : 'missing'}</em>${hat ? '' : blip(e, quelleText(d))}${d?.xd && !b.idee ? `<small>${esc(d.xp || '')}: ${esc(d.xd)}</small>` : ''}</div>`; }).join('')}
+        <h3>Exotic armor</h3>${(b.exotics.filter((e) => finde(e)?.t !== 3).length ? b.exotics.filter((e) => finde(e)?.t !== 3) : []).map((e) => { const d = finde(e); const hat = besitz.has(e); return `<div class="fz ${hat ? 'hat' : 'fehlt'}">${d?.i ? `<i data-ih="${d.hash}" style="background-image:url(${BILD}${d.i})"></i>` : ''}<span>${esc(e)}</span><em>${hat ? 'owned' : 'missing'}</em>${hat ? '' : blip(e, quelleText(d))}${d?.xd && !b.idee ? `<small>${esc(d.xp || '')}: ${esc(d.xd)}</small>` : ''}</div>`; }).join('')}
         ${(b.plan || []).length ? `<h3>Armor set</h3>${b.plan.map((p) => { const info = Object.entries(sets).find(([n]) => p.set.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(p.set.toLowerCase()))?.[1]; const n = besitzSets(p.set); return `<div class="fz ${n >= p.stuecke ? 'hat' : 'fehlt'}"><span><b>${esc(p.set)}</b> · ${p.stuecke} pieces</span><em>${n} owned</em>${blip(`${p.set}: where to farm`, info ? `${info.farm}${info.schnell ? ' · fast farm' : ''}` : 'Drop source not in the list yet.')}<small>${esc(p.grund)}</small></div>`; }).join('')}` : ''}
         ${b.subclass ? `<h3>Subclass</h3><p class="fliste">${esc(b.subclass)}</p>` : ''}
         ${b.faehigkeiten?.length ? `<h3>Super & abilities</h3><p class="fliste">${esc(b.faehigkeiten.join(' · '))}</p>` : ''}
@@ -98,7 +98,7 @@ function karte(b, besitz, besitzSets, sets) {
         ${b.modNamen.length ? `<h3>Armor mods</h3><p class="fliste">${esc(b.modNamen.join(' · '))}</p>` : ''}
         ${b.artefaktPerks?.length ? `<h3>Artifact perks</h3><p class="fliste">${esc(b.artefaktPerks.join(' · '))}</p><p class="fliste klein2">From the season the source was made in. Artifacts change, so check which of these you still have.</p>` : ''}
         ${b.hinweis ? `<p class="fliste klein2">Note: ${esc(b.hinweis)}</p>` : ''}
-        <h3>Stat focus</h3><p class="fliste">${esc(b.stats.join(' › '))}</p>
+        ${b.stats?.length ? `<h3>Stat focus</h3><p class="fliste">${esc(b.stats.join(' › '))}</p>` : ''}
         <p class="fquelle">Source: ${b.link ? `<a href="${esc(b.link)}" target="_blank" rel="noopener">${esc(b.quelle || 'Source')} ↗</a>` : esc(b.quelle || '')}</p>
         <h3>More builds with ${esc(b.exotics[0])}</h3><div class="fquellen">${quellen(b.exotics[0]).map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n} ↗</a>`).join('')}</div>
         <div class="fb-fuss"><button class="haupt-knopf" data-opt="${esc(b.id)}">Build it: pick armor & equip all</button><button class="fk-klapp" data-klapp="${esc(b.id)}" aria-expanded="true">Collapse ▴</button></div></div>` : ''}
@@ -134,7 +134,10 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
       return worte.every((w) => text.includes(w));
     });
     // Kuratierte zuerst, dann was du schon besitzt.
-    liste.sort((a, b) => (a.idee - b.idee) || (b.exotics.every((e) => besitz.has(e)) - a.exotics.every((e) => besitz.has(e))));
+    // Spielbar zuerst, dann die neuesten Quellen.
+    const MON = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };
+    const wann = (b) => { const m = (b.quelle || '').match(/\((?:[^)]*?)(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* (20\d\d)/); return m ? Number(m[2]) * 12 + MON[m[1]] : 0; };
+    liste.sort((a, b) => (b.exotics.every((e) => besitz.has(e)) - a.exotics.every((e) => besitz.has(e))) || wann(b) - wann(a));
   };
 
   const kopf = () => `<div class="kopf"><h1>Build Finder</h1><input id="fsuche" type="search" placeholder="Search a niche: turret, freeze, healing, Bubble…" value="${esc(wahl.suche)}"><span class="platz"></span>

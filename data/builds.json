@@ -1996,14 +1996,1103 @@
    "ziele": {}
   },
   {
-   "id": "strand-melee-dps",
-   "name": "Strand Melee DPS",
-   "klasse": 0,
-   "aktivitaet": [
-    "Boss DPS"
+   "id": "mob-plunder-best-arc-warlock",
+   "name": "Best Arc Warlock",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Stormcaller",
+   "exotics": [
+    "Vesper of Radius",
+    "Thunderlord"
    ],
+   "waffen": [
+    "Nightshade",
+    "Indebted Kindness"
+   ],
+   "aspekte": [
+    "Arc Soul",
+    "Ionic Sentry"
+   ],
+   "fragmente": [
+    "Spark of Shock",
+    "Spark of Resistance",
+    "Spark of Discharge",
+    "Spark of Frequency"
+   ],
+   "faehigkeiten": [
+    "Stormtrance",
+    "Healing Rift",
+    "Chain Lightning",
+    "Flashbang Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Aug 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/arc/plunder-best-arc-warlock",
+   "warum": "Vesper of Radius: your Rift releases Arc shockwaves that blind with an Arc Super, and the Rift recharges faster when you're surrounded. Arc Soul and Ionic Sentry jolt everything nearby, and through Spark of Shock and Discharge that turns into Ionic Traces and constant ability energy; Thunderlord kills add Bolt Charge.",
+   "datum": "Aug 2026",
+   "hinweis": "Source uses Exodus Down / Luminopotent pieces."
+  },
+  {
+   "id": "mob-rest-cyclical-trance",
+   "name": "Cyclical Trance",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Stormcaller",
+   "exotics": [
+    "Stormdancer's Brace",
+    "Bad Juju"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Electrostatic Mind",
+    "Ionic Sentry"
+   ],
+   "fragmente": [
+    "Spark of Resistance",
+    "Spark of Shock",
+    "Spark of Discharge",
+    "Spark of Frequency"
+   ],
+   "faehigkeiten": [
+    "Stormtrance",
+    "Healing Rift",
+    "Chain Lightning",
+    "Storm Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/arc/rest-cyclical-trance",
+   "warum": "Stormdancer's Brace: Stormtrance hits and kills raise its damage, it refunds Super energy when it ends, and ability damage while amplified gives Bolt Charge. Electrostatic Mind keeps you amplified, so the next Stormtrance comes back fast.",
+   "datum": "Jul 2026",
+   "hinweis": "Source uses the Iron Battalion set."
+  },
+  {
+   "id": "mob-rest-definitive-chaos",
+   "name": "Definitive Chaos",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Stormcaller",
+   "exotics": [
+    "Geomag Stabilizers",
+    "Anarchy"
+   ],
+   "waffen": [
+    "Voltaic Shade"
+   ],
+   "aspekte": [
+    "Arc Soul",
+    "Ionic Sentry"
+   ],
+   "fragmente": [
+    "Spark of Resistance",
+    "Spark of Shock",
+    "Spark of Discharge",
+    "Spark of Frequency"
+   ],
+   "faehigkeiten": [
+    "Chaos Reach",
+    "Healing Rift",
+    "Ball Lightning",
+    "Pulse Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/arc/rest-definitive-chaos",
+   "warum": "Geomag Stabilizers: collecting Ionic Traces gives Chaos Reach energy and damaging with Chaos Reach extends it. Loop (per source): grenades and class ability, Ionic Sentry when ready, collect every Ionic Trace, cast Chaos Reach constantly; any jolting weapon helps make more traces.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-marshix-delicate-chaos",
+   "name": "Delicate Chaos",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Stormcaller",
+   "exotics": [
+    "Geomag Stabilizers",
+    "Delicate Tomb"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Ionic Sentry",
+    "Electrostatic Mind"
+   ],
+   "fragmente": [
+    "Spark of Discharge",
+    "Spark of Ions",
+    "Spark of Beacons",
+    "Spark of Resistance"
+   ],
+   "faehigkeiten": [
+    "Chaos Reach",
+    "Healing Rift",
+    "Ball Lightning",
+    "Pulse Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Marshix on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/arc/marshix-delicate-chaos",
+   "warum": "Geomag Stabilizers turn every Ionic Trace into Chaos Reach energy (per source about 7% Super each after the buff, so ~14 traces = a full Super). Delicate Tomb makes Ionic Traces on kills, so Chaos Reach comes back in seconds.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-plunder-best-well-warlock",
+   "name": "Best Well-Lock",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Dawnblade",
+   "exotics": [
+    "Mantle of Battle Harmony",
+    "Prometheus Lens"
+   ],
+   "waffen": [
+    "Lethal Abundance"
+   ],
+   "aspekte": [
+    "Hellion",
+    "Touch of Flame"
+   ],
+   "fragmente": [
+    "Ember of Ashes",
+    "Ember of Empyrean",
+    "Ember of Eruption",
+    "Ember of Singeing"
+   ],
+   "faehigkeiten": [
+    "Well of Radiance",
+    "Phoenix Dive",
+    "Incinerator Snap",
+    "Healing Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/solar/plunder-best-well-warlock",
+   "warum": "Mantle of Battle Harmony: Solar weapon kills and damage charge your Super, and with a full Super you get a Solar weapon damage bonus instead, so Well of Radiance comes up for every damage phase. Per source, add a damage-reduction set like Exodus Down or Smoke Jumper.",
+   "datum": "Jul 2026"
+  },
+  {
+   "id": "mob-divide-warlock-solar-sunbracers",
+   "name": "Sunbracers Infinite Grenades",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Dawnblade",
+   "exotics": [
+    "Sunbracers",
+    "Sunshot"
+   ],
+   "waffen": [
+    "Deliverance",
+    "Synanceia"
+   ],
+   "aspekte": [
+    "Heat Rises",
+    "Touch of Flame"
+   ],
+   "fragmente": [
+    "Ember of Empyrean",
+    "Ember of Singeing",
+    "Ember of Torches",
+    "Ember of Searing"
+   ],
+   "faehigkeiten": [
+    "Song of Flame",
+    "Phoenix Dive",
+    "Celestial Fire",
+    "Solar Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Divide on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/solar/divide-warlock-solar-sunbracers",
+   "warum": "Sunbracers: Solar melee kills give unlimited Solar Grenade energy for a short time and make Solar Grenades last longer. Celestial Fire kills open the window, then you spam Solar Grenades.",
+   "datum": "Jun 2026",
+   "hinweis": "Source uses Techsec / Smoke Jumper pieces (Wrecker bonus)."
+  },
+  {
+   "id": "mob-rest-infinite-ignition-v4",
+   "name": "Definitive Ignition",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Dawnblade",
+   "exotics": [
+    "Dawn Chorus"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Hellion",
+    "Icarus Dash"
+   ],
+   "fragmente": [
+    "Ember of Singeing",
+    "Ember of Empyrean",
+    "Ember of Char",
+    "Ember of Ashes",
+    "Ember of Eruption"
+   ],
+   "faehigkeiten": [
+    "Daybreak",
+    "Phoenix Dive",
+    "Incinerator Snap",
+    "Healing Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/solar/rest-infinite-ignition-v4",
+   "warum": "Dawn Chorus: Daybreak ignites on impact, Scorch does more damage and builds stronger Ignitions, and Scorch/Ignition damage gives melee energy. Loop: ignite with everything, watch the Ignitions chain, Daybreak for more. Any scorching weapon works (per source).",
+   "datum": "Jun 2026",
+   "hinweis": "Source uses Seventh Seraph pieces."
+  },
+  {
+   "id": "mob-plunder-dark-blink-insanity",
+   "name": "Dark Blink Insanity",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Voidwalker",
+   "exotics": [
+    "Astrocyte Verse",
+    "Slayer's Fang"
+   ],
+   "waffen": [
+    "Lethal Abundance",
+    "Commemoration"
+   ],
+   "aspekte": [
+    "Child of the Old Gods",
+    "Feed the Void"
+   ],
+   "fragmente": [
+    "Echo of Cessation",
+    "Echo of Dilation",
+    "Echo of Harvest",
+    "Echo of Reprisal",
+    "Echo of Expulsion"
+   ],
+   "faehigkeiten": [
+    "Nova Warp",
+    "Healing Rift",
+    "Blink",
+    "Pocket Singularity",
+    "Vortex Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/void/plunder-dark-blink-insanity",
+   "warum": "Astrocyte Verse: Blink (and the air-dodge Dark Blink) goes farther, recharges faster, makes nearby enemies volatile and gives Volatile Rounds. Blink into a pack, everything explodes; Feed the Void and Child of the Old Gods heal you.",
+   "datum": "Jul 2026"
+  },
+  {
+   "id": "mob-rest-obsidian-mind",
+   "name": "Obsidian Mind",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Voidwalker",
+   "exotics": [
+    "Skull of Dire Ahamkara",
+    "Bad Juju"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Chaos Accelerant",
+    "Feed the Void"
+   ],
+   "fragmente": [
+    "Echo of Expulsion",
+    "Echo of Reprisal",
+    "Echo of Undermining",
+    "Echo of Harvest"
+   ],
+   "faehigkeiten": [
+    "Nova Bomb: Cataclysm",
+    "Healing Rift",
+    "Pocket Singularity",
+    "Axion Bolt"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/void/rest-obsidian-mind",
+   "warum": "Skull of Dire Ahamkara: after a Nova Bomb you get a free Nova Bomb: Lance, and kills while Devour is active give Super energy. Feed the Void keeps Devour up, so the Nova Bombs keep coming.",
+   "datum": "Jul 2026",
+   "hinweis": "Source uses the Iron Battalion set."
+  },
+  {
+   "id": "mob-rest-devouring-sin",
+   "name": "Devouring Sin",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Voidwalker",
+   "exotics": [
+    "Nezarec's Sin"
+   ],
+   "waffen": [
+    "Turncoat"
+   ],
+   "aspekte": [
+    "Child of the Old Gods",
+    "Soul Siphon"
+   ],
+   "fragmente": [
+    "Echo of Expulsion",
+    "Echo of Reprisal",
+    "Echo of Persistence",
+    "Echo of Domineering",
+    "Echo of Undermining",
+    "Echo of Starvation"
+   ],
+   "faehigkeiten": [
+    "Nova Bomb: Cataclysm",
+    "Empowering Rift",
+    "Pocket Singularity",
+    "Vortex Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/void/rest-devouring-sin",
+   "warum": "Nezarec's Sin: Void kills speed up all ability recharge, and enemies hit by Soul Siphon are suppressed. Child of the Old Gods with Soul Siphon drains enemies and feeds energy back, so Void kills keep everything recharging.",
+   "datum": "Jun 2026",
+   "hinweis": "Source uses Eutechnology pieces."
+  },
+  {
+   "id": "mob-divide-vortex-god",
+   "name": "Vortex God",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Voidwalker",
+   "exotics": [
+    "Contraverse Hold",
+    "Outbreak Perfected"
+   ],
+   "waffen": [
+    "Romantic Death",
+    "Commemoration"
+   ],
+   "aspekte": [
+    "Chaos Accelerant",
+    "Feed the Void"
+   ],
+   "fragmente": [
+    "Echo of Reprisal",
+    "Echo of Expulsion",
+    "Echo of Remnants",
+    "Echo of Harvest"
+   ],
+   "faehigkeiten": [
+    "Nova Bomb: Cataclysm",
+    "Healing Rift",
+    "Pocket Singularity",
+    "Vortex Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Divide on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/void/divide-vortex-god",
+   "warum": "Contraverse Hold: you take less damage while charging a Void grenade with Chaos Accelerant, and charged grenades refund grenade energy on hit and weaken. Feed the Void kills refund even more, so Vortex Grenades never run out.",
+   "datum": "Jun 2026",
+   "hinweis": "Source uses Techsec pieces (Wrecker bonus)."
+  },
+  {
+   "id": "mob-imnexusss-ultimate-strand-warlock",
+   "name": "Ultimate Strand Warlock",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Broodweaver",
+   "exotics": [
+    "Mataiodoxía",
+    "Barrow-Dyad"
+   ],
+   "waffen": [
+    "Psi Aeterna IV"
+   ],
+   "aspekte": [
+    "Weavewalk",
+    "The Wanderer"
+   ],
+   "fragmente": [
+    "Thread of Rebirth",
+    "Thread of Evolution",
+    "Thread of Generation",
+    "Thread of Warding",
+    "Thread of Propagation"
+   ],
+   "faehigkeiten": [
+    "Needlestorm",
+    "Healing Rift",
+    "Arcane Needle",
+    "Shackle Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "ImNexusss on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/strand/imnexusss-ultimate-strand-warlock",
+   "warum": "Mataiodoxía: enemies hit by Arcane Needle explode and suspend on death, and killing suspended enemies gives melee energy back, so you keep throwing needles. Barrow-Dyad and the Strand fragments add Threadlings on top.",
+   "datum": "Jul 2026",
+   "hinweis": "Source uses Seventh Seraph pieces."
+  },
+  {
+   "id": "mob-rest-definitive-army",
+   "name": "Definitive Army",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Broodweaver",
+   "exotics": [
+    "Swarmers",
+    "Service of Luzaku"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Mindspun Invocation",
+    "Weaver's Call"
+   ],
+   "fragmente": [
+    "Thread of Rebirth",
+    "Thread of Evolution",
+    "Thread of Generation",
+    "Thread of Finality"
+   ],
+   "faehigkeiten": [
+    "Needlestorm",
+    "Healing Rift",
+    "Arcane Needle",
+    "Threadling Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/strand/rest-definitive-army",
+   "warum": "Swarmers: destroying a Tangle spawns a Threadling, and your Threadlings unravel what they hit. Weaver's Call and Mindspun Invocation add more Threadlings; Service of Luzaku keeps the army healing and hitting.",
+   "datum": "Jun 2026",
+   "hinweis": "Source uses Thunderhead pieces."
+  },
+  {
+   "id": "mob-plunder-lightning-surge-god",
+   "name": "Lightning Surge God",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Necrotic Grip",
+    "Khvostov 7G-0X"
+   ],
+   "waffen": [
+    "Lotus-Eater",
+    "Pro Memoria"
+   ],
+   "aspekte": [
+    "Feed the Void",
+    "Lightning Surge"
+   ],
+   "fragmente": [
+    "Facet of Dawn",
+    "Facet of Courage",
+    "Facet of Dominance",
+    "Facet of Protection",
+    "Facet of Purpose"
+   ],
+   "faehigkeiten": [
+    "Song of Flame",
+    "Phoenix Dive",
+    "Arcane Needle",
+    "Storm Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/prismatic/plunder-lightning-surge-god",
+   "warum": "Necrotic Grip: melee hits inflict corruption that ramps up and spreads on kills. Lightning Surge hits a whole line of enemies, so one melee poisons a group; Feed the Void heals you on kills.",
+   "datum": "Jul 2026",
+   "hinweis": "Source uses Exodus Down pieces."
+  },
+  {
+   "id": "mob-rest-definitive-buddies",
+   "name": "Definitive Buddies",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Getaway Artist"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Feed the Void",
+    "Hellion"
+   ],
+   "fragmente": [
+    "Facet of Protection",
+    "Facet of Purpose",
+    "Facet of Courage",
+    "Facet of Dominance"
+   ],
+   "faehigkeiten": [
+    "Song of Flame",
+    "Phoenix Dive",
+    "Arcane Needle",
+    "Storm Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/prismatic/rest-definitive-buddies",
+   "warum": "Getaway Artist: your Arc grenade turns into an Arc Soul turret and amplifies you. Hellion adds a second Solar buddy, so two turrets fight for you while Feed the Void heals.",
+   "datum": "Jul 2026",
+   "hinweis": "Source uses Thunderhead pieces."
+  },
+  {
+   "id": "mob-rickkackis-sigma-stormtrance-spam",
+   "name": "Sigma Stormtrance Spam",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Stormdancer's Brace",
+    "Microcosm"
+   ],
+   "waffen": [
+    "Threat Level"
+   ],
+   "aspekte": [
+    "Bleak Watcher",
+    "Feed the Void"
+   ],
+   "fragmente": [
+    "Facet of Sacrifice",
+    "Facet of Grace",
+    "Facet of Protection",
+    "Facet of Dominance"
+   ],
+   "faehigkeiten": [
+    "Stormtrance",
+    "Phoenix Dive",
+    "Arcane Needle",
+    "Storm Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Rick Kackis on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/prismatic/rickkackis-sigma-stormtrance-spam",
+   "warum": "Stormdancer's Brace refunds Super energy when Stormtrance ends; per source, together with the 4-piece Iron Battalion set you get 60–75% of your Super back, and Microcosm adds even more.",
+   "datum": "Jul 2026",
+   "hinweis": "Needs the Iron Battalion set (Iron Banner)."
+  },
+  {
+   "id": "mob-rest-warmind-raiment",
+   "name": "Warmind Raiment",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Rime-coat Raiment",
+    "Ice Breaker"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Bleak Watcher",
+    "Feed the Void"
+   ],
+   "fragmente": [
+    "Facet of Protection",
+    "Facet of Purpose",
+    "Facet of Balance",
+    "Facet of Ruin"
+   ],
+   "faehigkeiten": [
+    "Song of Flame",
+    "Phoenix Dive",
+    "Arcane Needle",
+    "Healing Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/prismatic/rest-warmind-raiment",
+   "warum": "Rime-coat Raiment: Bleak Watcher turrets get more range plus crystals and a storm; standing in the storm gives icicles that slow what you shoot. Ice Breaker shatters the crystals.",
+   "datum": "Jun 2026",
+   "hinweis": "Source uses Seventh Seraph pieces."
+  },
+  {
+   "id": "mob-rest-perfected-poison",
+   "name": "Perfected Poison",
+   "klasse": 2,
+   "aktivitaet": [],
+   "subclass": "Prismatic Warlock",
+   "exotics": [
+    "Solipsism"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Feed the Void",
+    "Weaver's Call"
+   ],
+   "fragmente": [
+    "Facet of Protection",
+    "Facet of Purpose",
+    "Facet of Dominance",
+    "Facet of Grace",
+    "Facet of Hope"
+   ],
+   "faehigkeiten": [
+    "Song of Flame",
+    "Phoenix Dive",
+    "Arcane Needle",
+    "Storm Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/prismatic/rest-perfected-poison",
+   "warum": "Solipsism (exotic class item) with Spirit of Necrotic: melee hits inflict corruption that spreads when poisoned enemies die. The source pairs it with Spirit of Synthoceps and the Blinding Jolts artifact perk.",
+   "datum": "Jun 2026",
+   "hinweis": "Exotic class item rolls: Spirit of Necrotic + Spirit of Synthoceps."
+  },
+  {
+   "id": "mob-rickkackis-easy-bolt-charge",
+   "name": "Super Easy Bolt Charge",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Striker",
+   "exotics": [
+    "Crest of Alpha Lupi",
+    "The Queenbreaker"
+   ],
+   "waffen": [
+    "Service Revolver",
+    "Psychopomp"
+   ],
+   "aspekte": [
+    "Storm's Keep",
+    "Touch of Thunder"
+   ],
+   "fragmente": [
+    "Spark of Ions",
+    "Spark of Shock",
+    "Spark of Resistance",
+    "Spark of Frequency"
+   ],
+   "faehigkeiten": [
+    "Thundercrash",
+    "Rally Barricade",
+    "Thunderclap",
+    "Pulse Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Rick Kackis on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/arc/rickkackis-easy-bolt-charge",
+   "warum": "Crest of Alpha Lupi: casting your Barricade (and fighting from behind it) sends out healing pulses, and healing allies gives Barricade energy back. Per source: Barricade, win, repeat; lots of healing and team support with the Bolt Charge loop.",
+   "datum": "Jul 2026"
+  },
+  {
+   "id": "mob-divide-titan-arc-thundercrash-dps",
+   "name": "Thundercrash DPS",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Striker",
+   "exotics": [
+    "Cuirass of the Falling Star",
+    "Centrifuse"
+   ],
+   "waffen": [
+    "Deliverance",
+    "Synanceia"
+   ],
+   "aspekte": [
+    "Knockout",
+    "Storm's Keep"
+   ],
+   "fragmente": [
+    "Spark of Shock",
+    "Spark of Ions",
+    "Spark of Focus",
+    "Spark of Discharge"
+   ],
+   "faehigkeiten": [
+    "Thundercrash",
+    "Rally Barricade",
+    "Ballistic Slam",
+    "Pulse Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Divide on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/arc/divide-titan-arc-thundercrash-dps",
+   "warum": "Cuirass of the Falling Star: Thundercrash does much more damage and gives damage resistance after impact, and melee kills while amplified give Super energy. Built for burst damage on bosses.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-rest-khepris-burst",
+   "name": "Khepri's Burst",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Sunbreaker",
+   "exotics": [
+    "Khepri's Horn",
+    "Ice Breaker"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Roaring Flames",
+    "Shieldburst"
+   ],
+   "fragmente": [
+    "Ember of Singeing",
+    "Ember of Ashes",
+    "Ember of Char",
+    "Ember of Eruption",
+    "Ember of Wonder"
+   ],
+   "faehigkeiten": [
+    "Hammer of Sol",
+    "Rally Barricade",
+    "Throwing Hammer",
+    "Healing Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/solar/rest-khepris-burst",
+   "warum": "Khepri's Horn: Solar kills recharge your Barricade, and with a Solar Super casting it sends out waves that scorch enemies and leave Sunspots. Barricade → waves → kills → Barricade again.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-yours-ritika-hinokami-protocol",
+   "name": "Hinokami Protocol",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Sunbreaker",
+   "exotics": [
+    "Hallowfire Heart",
+    "Dragon's Breath"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Roaring Flames",
+    "Sol Invictus"
+   ],
+   "fragmente": [
+    "Ember of Char",
+    "Ember of Combustion",
+    "Ember of Eruption",
+    "Ember of Ashes"
+   ],
+   "faehigkeiten": [
+    "Burning Maul",
+    "Rally Barricade",
+    "Throwing Hammer",
+    "Healing Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "yours_ritika on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/solar/yours-ritika-hinokami-protocol",
+   "warum": "Hallowfire Heart: with your Solar Super charged, ability kills cure you and build Sunfire Furnace stacks. Per source: get 10 stacks first, apply a debuff (e.g. Slice), then cast Burning Maul with all buffs up for burst damage.",
+   "datum": "Jul 2026"
+  },
+  {
+   "id": "mob-divide-titan-solar-dps-ability",
+   "name": "Solar DPS Ability",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Sunbreaker",
+   "exotics": [
+    "Hallowfire Heart",
+    "Sunshot"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Roaring Flames",
+    "Sol Invictus"
+   ],
+   "fragmente": [
+    "Ember of Torches",
+    "Ember of Combustion",
+    "Ember of Solace",
+    "Ember of Ashes"
+   ],
+   "faehigkeiten": [
+    "Burning Maul",
+    "Rally Barricade",
+    "Throwing Hammer",
+    "Healing Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Divide on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/solar/divide-titan-solar-dps-ability",
+   "warum": "Hallowfire Heart: while your Solar Super is charged, ability kills cure you and give Sunfire Furnace stacks that speed up grenade and class ability. You keep the Super for the boss and play on abilities until then.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-plunder-vortex-gatling-titan",
+   "name": "Vortex Gatling",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Sentinel",
+   "exotics": [
+    "Armamentarium",
+    "Turncoat"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Bastion",
+    "Offensive Bulwark"
+   ],
+   "fragmente": [
+    "Echo of Harvest",
+    "Echo of Persistence",
+    "Echo of Remnants",
+    "Echo of Starvation",
+    "Echo of Undermining"
+   ],
+   "faehigkeiten": [
+    "Ward of Dawn",
+    "Rally Barricade",
+    "Shield Throw",
+    "Vortex Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/void/plunder-vortex-gatling-titan",
+   "warum": "Armamentarium: an extra grenade charge, grenade kills drop Orbs, weapon kills give grenade energy and throwing a grenade reloads your weapon. Two Vortex Grenades back to back, with Bastion overshields keeping you alive.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-divide-bubble-2.0",
+   "name": "Bubble 2.0",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Sentinel",
+   "exotics": [
+    "Helm of Saint-14",
+    "Outbreak Perfected"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Bastion",
+    "Controlled Demolition"
+   ],
+   "fragmente": [
+    "Echo of Instability",
+    "Echo of Undermining",
+    "Echo of Starvation",
+    "Echo of Harvest",
+    "Echo of Domineering"
+   ],
+   "faehigkeiten": [
+    "Ward of Dawn",
+    "Rally Barricade",
+    "Shield Bash",
+    "Scatter Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Divide on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/void/divide-bubble-2.0",
+   "warum": "Helm of Saint-14: Weapons of Light stays after you leave the bubble, and while it's active kills stack The Saint; Void and Kinetic damage trigger a suppressing burst. Team support build around Ward of Dawn.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-mrronit-infinite-ammo-choir",
+   "name": "Infinite Ammo Choir of One",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Sentinel",
+   "exotics": [
+    "Actium War Rig",
+    "Choir of One"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Bastion",
+    "Controlled Demolition"
+   ],
+   "fragmente": [
+    "Echo of Cessation",
+    "Echo of Persistence",
+    "Echo of Starvation",
+    "Echo of Vigilance",
+    "Echo of Harvest"
+   ],
+   "faehigkeiten": [
+    "Twilight Arsenal",
+    "Rally Barricade",
+    "Shield Throw",
+    "Scatter Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "MrRonit on Mobalytics (Aug 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/void/mrronit-infinite-ammo-choir",
+   "warum": "Actium War Rig reloads Choir of One from reserves while you shoot and its kills stack a damage bonus (per source up to 15% at 10 stacks). Controlled Demolition heals on kills of volatile targets.",
+   "datum": "Aug 2026"
+  },
+  {
+   "id": "mob-rickkackis-nuclear-bomb-shatters",
+   "name": "Nuclear Bomb Shatters",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Behemoth",
+   "exotics": [
+    "Icefall Mantle",
+    "Ice Breaker"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Howl of the Storm",
+    "Tectonic Harvest"
+   ],
+   "fragmente": [
+    "Whisper of Fissures",
+    "Whisper of Shards",
+    "Whisper of Conduction",
+    "Whisper of Rime"
+   ],
+   "faehigkeiten": [
+    "Glacial Quake",
+    "Rally Barricade",
+    "Shiver Strike",
+    "Glacier Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Rick Kackis on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/stasis/rickkackis-nuclear-bomb-shatters",
+   "warum": "Howl of the Storm and Glacier Grenade make lots of Stasis crystals, and Whisper of Fissures makes shatters much bigger. Icefall Mantle gives Frost Armor on Stasis kills and heals you. Per source, the Seventh Seraph 4-piece bonus makes the shatters even stronger.",
+   "datum": "Jun 2026",
+   "hinweis": "Source uses the Seventh Seraph 4-piece bonus."
+  },
+  {
+   "id": "mob-plunder-stasis-titan-nuke",
+   "name": "Stasis Titan Nuke",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Behemoth",
+   "exotics": [
+    "Icefall Mantle",
+    "Gjallarhorn"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Howl of the Storm",
+    "Tectonic Harvest"
+   ],
+   "fragmente": [
+    "Whisper of Conduction",
+    "Whisper of Fissures",
+    "Whisper of Hunger",
+    "Whisper of Rime"
+   ],
+   "faehigkeiten": [
+    "Glacial Quake",
+    "Rally Barricade",
+    "Shiver Strike",
+    "Shatter Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/stasis/plunder-stasis-titan-nuke",
+   "warum": "Freeze and shatter: Howl of the Storm freezes a whole line, Tectonic Harvest makes shards, Whisper of Fissures makes the shatters bigger. Icefall Mantle gives Frost Armor and healing on rapid Stasis kills.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-divide-strand-melee-dps",
+   "name": "Strand Melee DPS v2",
+   "klasse": 0,
+   "aktivitaet": [],
    "subclass": "Berserker",
    "exotics": [
+    "Wishful Ignorance",
     "Praxic Blade"
    ],
    "waffen": [],
@@ -2019,23 +3108,885 @@
    ],
    "faehigkeiten": [
     "Bladefury",
+    "Rally Barricade",
     "Frenzied Blade",
-    "Grapple",
-    "Rally Barricade"
+    "Grapple"
    ],
-   "stats": [
-    "Melee",
-    "Super",
-    "Weapons"
-   ],
-   "hinweis": "No exotic armor named in the source.",
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
    "quelle": "Divide on Mobalytics (Jun 2026)",
    "link": "https://mobalytics.gg/destiny-2/builds/titan/strand/divide-strand-melee-dps",
-   "warum": "A melee or sword kill starts Banner of War, and more kills stack it. Block with the sword to get Amplified, pick up Orbs for Woven Mail, and use Tangles for ability energy.",
-   "plan": [],
-   "artefaktPerks": [],
+   "warum": "Wishful Ignorance: an extra Frenzied Blade charge, Frenzied Blade and Flechette Storm ramp up with each hit, and Banner of War pulses give melee energy back. Melee kill starts Banner of War, more kills stack it.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-llama-unkillable-strand",
+   "name": "Unkillable Strand Strongholds",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Berserker",
+   "exotics": [
+    "Stronghold",
+    "Praxic Blade"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Banner of War",
+    "Into the Fray"
+   ],
+   "fragmente": [
+    "Thread of Ascent",
+    "Thread of Continuity",
+    "Thread of Generation",
+    "Thread of Warding"
+   ],
+   "faehigkeiten": [
+    "Bladefury",
+    "Rally Barricade",
+    "Frenzied Blade",
+    "Shackle Grenade"
+   ],
+   "stats": [],
    "mods": [],
-   "ziele": {}
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "LlamaD2 on Mobalytics (Jan 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/strand/llama-unkillable-strand",
+   "warum": "Stronghold: sword guard stats are maxed, you take less damage while blocking, and attacking after blocking gives Restoration. Per source this is an active sword build, not \"hold block\": Banner of War and Woven Mail on top.",
+   "datum": "Jan 2026",
+   "hinweis": "Source uses the Swordmaster set (Renegades)."
+  },
+  {
+   "id": "mob-divide-titan-prismatic-thunderclap",
+   "name": "Prismatic Thunderclap DPS",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Prismatic Titan",
+   "exotics": [
+    "An Insurmountable Skullfort",
+    "Praxic Blade"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Drengr's Lash",
+    "Knockout"
+   ],
+   "fragmente": [
+    "Facet of Hope",
+    "Facet of Protection",
+    "Facet of Dawn",
+    "Facet of Purpose",
+    "Facet of Courage"
+   ],
+   "faehigkeiten": [
+    "Twilight Arsenal",
+    "Thruster",
+    "Thunderclap",
+    "Shackle Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Divide on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/prismatic/divide-titan-prismatic-thunderclap",
+   "warum": "An Insurmountable Skullfort: Arc melee kills heal you and fully restore the melee, and melee hits give Arc melee energy. Thunderclap is the boss damage; Knockout adds melee damage.",
+   "datum": "Jul 2026"
+  },
+  {
+   "id": "mob-rickkackis-consecration-titan",
+   "name": "Consecration Titan Perfected",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Prismatic Titan",
+   "exotics": [
+    "Stoicism",
+    "Conditional Finality"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Consecration",
+    "Knockout"
+   ],
+   "fragmente": [
+    "Facet of Protection",
+    "Facet of Purpose",
+    "Facet of Ruin",
+    "Facet of Courage"
+   ],
+   "faehigkeiten": [
+    "Glacial Quake",
+    "Thruster",
+    "Frenzied Blade",
+    "Glacier Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Rick Kackis on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/prismatic/rickkackis-consecration-titan",
+   "warum": "Per source: three Consecrations in a row thanks to Frenzied Blade charges on Prismatic, and the Hunter's Journal artifact fits it well. Stoicism (exotic class item) makes powered melee and finisher kills explode.",
+   "datum": "Jul 2026",
+   "hinweis": "Exotic class item rolls are in the source."
+  },
+  {
+   "id": "mob-rest-bulwark-bear",
+   "name": "Bulwark Bear",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Prismatic Titan",
+   "exotics": [
+    "Stoicism",
+    "Ursa Furiosa"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Diamond Lance",
+    "Unbreakable"
+   ],
+   "fragmente": [
+    "Facet of Protection",
+    "Facet of Purpose",
+    "Facet of Dominance",
+    "Facet of Mending",
+    "Facet of Bravery",
+    "Facet of Courage"
+   ],
+   "faehigkeiten": [
+    "Twilight Arsenal",
+    "Rally Barricade",
+    "Shield Throw",
+    "Suppressor Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/prismatic/rest-bulwark-bear",
+   "warum": "Ursa Furiosa (or Stoicism with Spirit of the Bear): damage blocked with the Unbreakable shield turns into grenade energy, and you move faster while guarding. Block, grenade, repeat.",
+   "datum": "Jun 2026",
+   "hinweis": "Per source: Stoicism with Spirit of the Bear, or Ursa Furiosa."
+  },
+  {
+   "id": "mob-llama-smg-x-peacekeeper",
+   "name": "SMG x Peacekeepers",
+   "klasse": 0,
+   "aktivitaet": [],
+   "subclass": "Prismatic Titan",
+   "exotics": [
+    "Peacekeepers",
+    "Tractor Cannon"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Consecration",
+    "Knockout"
+   ],
+   "fragmente": [
+    "Facet of Courage",
+    "Facet of Protection",
+    "Facet of Ruin",
+    "Facet of Command"
+   ],
+   "faehigkeiten": [
+    "Thundercrash",
+    "Thruster",
+    "Frenzied Blade",
+    "Shackle Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "LlamaD2 on Mobalytics (Jan 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/titan/prismatic/llama-smg-x-peacekeeper",
+   "warum": "Peacekeepers: SMGs handle better, reload when stowed and do more damage the longer you stay on target. Per source, it works with Heat SMGs like the M-17 \"Fast Talker\" for long uninterrupted DPS.",
+   "datum": "Jan 2026"
+  },
+  {
+   "id": "mob-plunder-lightning-nuke-hunter",
+   "name": "Lightning Nuke Hunter",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Arcstrider",
+   "exotics": [
+    "Fortune's Favor",
+    "Bastion"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Flow State",
+    "Tempest Strike"
+   ],
+   "fragmente": [
+    "Spark of Beacons",
+    "Spark of Discharge",
+    "Spark of Frequency",
+    "Spark of Resistance"
+   ],
+   "faehigkeiten": [
+    "Gathering Storm",
+    "Gambler's Dodge",
+    "Combination Blow",
+    "Flashbang Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/arc/plunder-lightning-nuke-hunter",
+   "warum": "Fortune's Favor: kills at full health (or time out of combat) turn your shields into an overshield, and with the overshield your weapons get better and hit harder. Tempest Strike and Combination Blow clear, Gathering Storm for the boss.",
+   "datum": "Jul 2026"
+  },
+  {
+   "id": "mob-plunder-culling-arc-hunter",
+   "name": "Culling Arc Hunter",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Arcstrider",
+   "exotics": [
+    "The Bombardiers"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Lethal Current",
+    "Tempest Strike"
+   ],
+   "fragmente": [
+    "Spark of Amplitude",
+    "Spark of Frequency",
+    "Spark of Shock",
+    "Spark of Resistance"
+   ],
+   "faehigkeiten": [
+    "Gathering Storm",
+    "Gambler's Dodge",
+    "Combination Blow",
+    "Flashbang Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/arc/plunder-culling-arc-hunter",
+   "warum": "The Bombardiers: every dodge leaves an explosive that blinds with an Arc Super. Gambler's Dodge refunds melee, so dodge → bomb → Tempest Strike → repeat. Per source aim for 150 Melee, 100 Super, 100 Class.",
+   "datum": "Jun 2026",
+   "hinweis": "Source uses Exodus Down (Nessus) and the exotic weapon Cull Shadow."
+  },
+  {
+   "id": "mob-rest-trick-bolts",
+   "name": "Trick Bolts",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Arcstrider",
+   "exotics": [
+    "Shinobu's Vow"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Ascension",
+    "Tempest Strike"
+   ],
+   "fragmente": [
+    "Spark of Resistance",
+    "Spark of Shock",
+    "Spark of Discharge",
+    "Spark of Frequency",
+    "Spark of Ions"
+   ],
+   "faehigkeiten": [
+    "Gathering Storm",
+    "Marksman's Dodge",
+    "Disorienting Blow",
+    "Skip Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/arc/rest-trick-bolts",
+   "warum": "Shinobu's Vow: an extra Skip Grenade charge, Skip Grenade damage gives Bolt Charge and Bolt Charge gives Skip Grenade energy back. When Bolt Charge is ready you heal allies and the next Skip Grenade is stronger.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-marshix-tempest-strike",
+   "name": "Tempest Strike Perfected",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Arcstrider",
+   "exotics": [
+    "Gifted Conviction"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Ascension",
+    "Tempest Strike"
+   ],
+   "fragmente": [
+    "Spark of Feedback",
+    "Spark of Resistance",
+    "Spark of Ions",
+    "Spark of Frequency",
+    "Spark of Discharge"
+   ],
+   "faehigkeiten": [
+    "Gathering Storm",
+    "Gambler's Dodge",
+    "Combination Blow",
+    "Pulse Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Marshix on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/arc/marshix-tempest-strike",
+   "warum": "Gifted Conviction: Ascension and Tempest Strike throw bouncing jolt explosives, and jolting nearby enemies gives you damage resistance. Combination Blow and Gambler's Dodge keep the melee coming.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-plunder-true-gunslinger",
+   "name": "The True Gunslinger",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Gunslinger",
+   "exotics": [
+    "Young Ahamkara's Spine",
+    "Skyburner's Oath"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Crackshot",
+    "On Your Mark"
+   ],
+   "fragmente": [
+    "Ember of Ashes",
+    "Ember of Char",
+    "Ember of Combustion",
+    "Ember of Singeing",
+    "Ember of Torches"
+   ],
+   "faehigkeiten": [
+    "Golden Gun: Deadshot",
+    "Gambler's Dodge",
+    "Knife Trick",
+    "Tripmine Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/solar/plunder-true-gunslinger",
+   "warum": "Young Ahamkara's Spine: bigger, longer Tripmines, and any ability damage gives Tripmine energy back. Knife Trick and the tripmines feed each other, On Your Mark speeds everything up.",
+   "datum": "Jun 2026",
+   "hinweis": "Source uses Exodus Down for damage reduction."
+  },
+  {
+   "id": "mob-divide-blade-barage-dps",
+   "name": "Blade Barrage DPS",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Gunslinger",
+   "exotics": [
+    "Shards of Galanor",
+    "Sunshot"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Crackshot",
+    "Knock 'Em Down"
+   ],
+   "fragmente": [
+    "Ember of Searing",
+    "Ember of Mercy",
+    "Ember of Empyrean",
+    "Ember of Torches"
+   ],
+   "faehigkeiten": [
+    "Blade Barrage",
+    "Gambler's Dodge",
+    "Knife Trick",
+    "Healing Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Divide on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/solar/divide-blade-barage-dps",
+   "warum": "Shards of Galanor: knife kills lower your Super cooldown, and Blade Barrage on one target explodes and refunds Super energy. Blade Barrage on the boss, Knife Trick to get it back.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-mrronits-infinite-crackshot",
+   "name": "Infinite Crackshot",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Gunslinger",
+   "exotics": [
+    "Speedloader Slacks",
+    "Vex Mythoclast"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Crackshot",
+    "On Your Mark"
+   ],
+   "fragmente": [
+    "Ember of Ashes",
+    "Ember of Char",
+    "Ember of Empyrean",
+    "Ember of Singeing",
+    "Ember of Solace"
+   ],
+   "faehigkeiten": [
+    "Blade Barrage",
+    "Acrobat's Dodge",
+    "Knife Trick",
+    "Healing Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "MrRonit on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/solar/mrronits-infinite-crackshot",
+   "warum": "Speedloader Slacks: dodging reloads all weapons and buffs reload and handling, and sustained damage gives class ability energy back (per source very fast). Ember of Singeing returns dodge energy on scorch, so Crackshot stays active.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-blur-crackshot-spam",
+   "name": "Crackshot Spam",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Gunslinger",
+   "exotics": [
+    "Radiant Dance Machines",
+    "Sunshot"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "On Your Mark"
+   ],
+   "fragmente": [
+    "Ember of Ashes",
+    "Ember of Empyrean",
+    "Ember of Eruption",
+    "Ember of Searing",
+    "Ember of Solace"
+   ],
+   "faehigkeiten": [
+    "Blade Barrage",
+    "Acrobat's Dodge",
+    "Knife Trick",
+    "Healing Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Blur on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/solar/blur-crackshot-spam",
+   "warum": "Radiant Dance Machines: primary weapon kills return dodge energy and can overflow into extra charges. With Sunshot every kill gives a dodge back, so the dodge buffs never stop.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-llamad2-knife-god-hunter",
+   "name": "Knife God",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Gunslinger",
+   "exotics": [
+    "Ophidia Spathe"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Knock 'Em Down",
+    "On Your Mark"
+   ],
+   "fragmente": [
+    "Ember of Eruption",
+    "Ember of Singeing",
+    "Ember of Empyrean",
+    "Ember of Ashes",
+    "Ember of Torches"
+   ],
+   "faehigkeiten": [
+    "Blade Barrage",
+    "Gambler's Dodge",
+    "Knife Trick",
+    "Healing Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "LlamaD2 on Mobalytics (Apr 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/solar/llamad2-knife-god-hunter",
+   "warum": "Ophidia Spathe: two knives per charge, and knife kills give the next knives a stacking damage bonus that Gambler's Dodge refreshes. Per source: melee kills stack Scissor Fingers, finishers for Void overshield, keep knifing.",
+   "datum": "Apr 2026"
+  },
+  {
+   "id": "mob-rickkackis-busted-bow-dps",
+   "name": "Busted Bow DPS",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Nightstalker",
+   "exotics": [
+    "Fortune's Favor",
+    "Hierarchy of Needs"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "On the Prowl",
+    "Stylish Executioner"
+   ],
+   "fragmente": [
+    "Echo of Vigilance",
+    "Echo of Harvest",
+    "Echo of Starvation",
+    "Echo of Undermining",
+    "Echo of Dilation"
+   ],
+   "faehigkeiten": [
+    "Shadowshot: Moebius Quiver",
+    "Gambler's Dodge",
+    "Snare Bomb",
+    "Vortex Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Rick Kackis on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/void/rickkackis-busted-bow-dps",
+   "warum": "Per source: after the Monument of Triumph primary buff, Hierarchy of Needs does huge damage, and Moebius Quiver boosts the bow even more. Fortune's Favor overshields buff your weapons; invisibility keeps you safe.",
+   "datum": "Jul 2026"
+  },
+  {
+   "id": "mob-rest-phantom-punch",
+   "name": "Phantom Punch",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Nightstalker",
+   "exotics": [
+    "Khepri's Sting",
+    "Third Iteration"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "On the Prowl",
+    "Stylish Executioner"
+   ],
+   "fragmente": [
+    "Echo of Expulsion",
+    "Echo of Reprisal",
+    "Echo of Leeching",
+    "Echo of Harvest",
+    "Echo of Starvation"
+   ],
+   "faehigkeiten": [
+    "Shadowshot: Deadfall",
+    "Gambler's Dodge",
+    "Phantom Surge",
+    "Vortex Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "RestAssured on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/void/rest-phantom-punch",
+   "warum": "Khepri's Sting: killing a weakened enemy releases weakening smoke and refunds Void melee energy. Phantom Surge weakens and hits several enemies, so one kill brings it straight back.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-mrronits-phantom-surge",
+   "name": "Phantom Surge Nukes",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Nightstalker",
+   "exotics": [
+    "Radiant Dance Machines",
+    "Turncoat"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "On the Prowl",
+    "Stylish Executioner"
+   ],
+   "fragmente": [
+    "Echo of Cessation",
+    "Echo of Instability",
+    "Echo of Persistence",
+    "Echo of Starvation",
+    "Echo of Harvest"
+   ],
+   "faehigkeiten": [
+    "Shadowshot: Deadfall",
+    "Gambler's Dodge",
+    "Phantom Surge",
+    "Magnetic Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "MrRonit on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/void/mrronits-phantom-surge",
+   "warum": "Per source: the new Phantom Surge melee deals huge damage and hits multiple enemies; with Turncoat (Void hand cannon) and Radiant Dance Machines, primary kills give dodge energy back for more melee and invisibility.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-blur-phantom-surge",
+   "name": "Phantom Surge Cooks",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Nightstalker",
+   "exotics": [
+    "Graviton Forfeit"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "On the Prowl",
+    "Stylish Executioner"
+   ],
+   "fragmente": [
+    "Echo of Exchange",
+    "Echo of Expulsion",
+    "Echo of Harvest",
+    "Echo of Starvation",
+    "Echo of Undermining"
+   ],
+   "faehigkeiten": [
+    "Shadowshot: Deadfall",
+    "Gambler's Dodge",
+    "Phantom Surge",
+    "Magnetic Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Blur on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/void/blur-phantom-surge",
+   "warum": "Graviton Forfeit: invisibility lasts longer and speeds up grenade, melee and class ability, with a Void overshield at max stacks. Everything here makes Phantom Surge as strong as possible (per source).",
+   "datum": "Jun 2026",
+   "hinweis": "Mobalytics lists no melee; the source says to equip Phantom Surge."
+  },
+  {
+   "id": "mob-llamad2-void-hunter-dps",
+   "name": "Insane Void Hunter DPS",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Nightstalker",
+   "exotics": [
+    "Fortune's Favor",
+    "Witherhoard"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Stylish Executioner",
+    "Vanishing Step"
+   ],
+   "fragmente": [
+    "Echo of Undermining",
+    "Echo of Starvation",
+    "Echo of Dilation",
+    "Echo of Vigilance"
+   ],
+   "faehigkeiten": [
+    "Shadowshot: Moebius Quiver",
+    "Marksman's Dodge",
+    "Snare Bomb",
+    "Vortex Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "LlamaD2 on Mobalytics (Feb 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/void/llamad2-void-hunter-dps",
+   "warum": "Per source: Moebius Quiver plus a hot-swap rotation with the Envious Arsenal crossbow for clean, high boss damage; Fortune's Favor overshields buff weapon damage.",
+   "datum": "Feb 2026"
+  },
+  {
+   "id": "mob-plunder-strand-four-grenades",
+   "name": "Strand 4 Grenades",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Threadrunner",
+   "exotics": [
+    "Mothkeeper's Wraps",
+    "Barrow-Dyad"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Whirling Maelstrom",
+    "Widow's Silk"
+   ],
+   "fragmente": [
+    "Thread of Ascent",
+    "Thread of Continuity",
+    "Thread of Evolution",
+    "Thread of Generation",
+    "Thread of Rebirth"
+   ],
+   "faehigkeiten": [
+    "Silkstrike",
+    "Gambler's Dodge",
+    "Threaded Spike",
+    "Grapple"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/strand/plunder-strand-four-grenades",
+   "warum": "Widow's Silk gives Grapple an extra charge, and Mothkeeper's Wraps turns kills into moth cages you throw as your grenade: moths blind enemies or protect allies. Whirling Maelstrom and Barrow-Dyad add Strand damage in between.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-plunder-clone-gm",
+   "name": "Clone GM Hunter",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Prismatic Hunter",
+   "exotics": [
+    "Speedloader Slacks",
+    "Gjallarhorn"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Ascension",
+    "Threaded Specter"
+   ],
+   "fragmente": [
+    "Facet of Protection",
+    "Facet of Purpose",
+    "Facet of Ruin",
+    "Facet of Justice",
+    "Facet of Sacrifice"
+   ],
+   "faehigkeiten": [
+    "Silence and Squall",
+    "Marksman's Dodge",
+    "Withering Blade",
+    "Duskfield Grenade"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Plunder on Mobalytics (Jul 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/prismatic/plunder-clone-gm",
+   "warum": "Threaded Specter leaves a decoy clone that draws fire, and Speedloader Slacks makes every dodge reload your weapons and buff reload/handling for the team. Safe, steady play for Grandmasters.",
+   "datum": "Jul 2026"
+  },
+  {
+   "id": "mob-divide-prismatic-tether-dps",
+   "name": "Prismatic Tether DPS",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Prismatic Hunter",
+   "exotics": [
+    "Orpheus Rig",
+    "Collective Obligation"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Stylish Executioner",
+    "Winter's Shroud"
+   ],
+   "fragmente": [
+    "Facet of Dawn",
+    "Facet of Courage",
+    "Facet of Bravery",
+    "Facet of Protection"
+   ],
+   "faehigkeiten": [
+    "Shadowshot: Deadfall",
+    "Gambler's Dodge",
+    "Combination Blow",
+    "Grapple"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Divide on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/prismatic/divide-prismatic-tether-dps",
+   "warum": "Orpheus Rig: you get ability energy back for every enemy tethered by Deadfall, so a big tether on a pack refills your abilities.",
+   "datum": "Jun 2026"
+  },
+  {
+   "id": "mob-divide-hunter-prismatic-dps-god-mode",
+   "name": "Prismatic DPS God Mode",
+   "klasse": 1,
+   "aktivitaet": [],
+   "subclass": "Prismatic Hunter",
+   "exotics": [
+    "Liar's Handshake",
+    "Praxic Blade"
+   ],
+   "waffen": [],
+   "aspekte": [
+    "Stylish Executioner",
+    "Winter's Shroud"
+   ],
+   "fragmente": [
+    "Facet of Courage",
+    "Facet of Protection",
+    "Facet of Purpose",
+    "Facet of Ruin"
+   ],
+   "faehigkeiten": [
+    "Silkstrike",
+    "Gambler's Dodge",
+    "Combination Blow",
+    "Grapple"
+   ],
+   "stats": [],
+   "mods": [],
+   "artefaktPerks": [],
+   "plan": [],
+   "ziele": {},
+   "quelle": "Divide on Mobalytics (Jun 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/hunter/prismatic/divide-hunter-prismatic-dps-god-mode",
+   "warum": "Liar's Handshake: after your Arc melee (or getting hit by a melee) you get a huge healing counterpunch. Combination Blow stacks make the punches even stronger.",
+   "datum": "Jun 2026"
   }
  ],
  "neutral": [
