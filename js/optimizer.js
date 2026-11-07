@@ -17,9 +17,11 @@ let zustandO = lies('d2a.opt', { klasse: null, ziele: {}, bonus: {}, exotic: 0, 
 let ergebnisse = null;
 
 const statName = (h) => defs.stats?.[h]?.n;
+// Nur echte Rüstungs-Stats zählen; der Energiekosten-Wert im Mod wird ignoriert.
+const armorTeil = (d) => (d?.s || []).filter(([h, v]) => v > 0 && ARMOR_STATS.includes(statName(h)));
 const istStatMod = (p) => {
   const d = defs.items[p];
-  return Boolean(d && d.t === 19 && /^enhancements\./.test(d.pc || '') && d.s?.length === 1 && d.s[0][1] > 0 && / Mod$/.test(d.n || '') && !/\//.test(d.n));
+  return Boolean(d && d.t === 19 && /^enhancements\./.test(d.pc || '') && armorTeil(d).length === 1 && / Mod$/.test(d.n || '') && !/\//.test(d.n));
 };
 let modKarte = null;
 function statMods() {
@@ -27,8 +29,9 @@ function statMods() {
   modKarte = {};
   for (const [h, d] of Object.entries(defs.items)) {
     if (!istStatMod(h)) continue;
-    const n = statName(d.s[0][0]);
-    if (ARMOR_STATS.includes(n) && d.n === `${n} Mod` && (!modKarte[n] || modKarte[n].wert < d.s[0][1])) modKarte[n] = { plug: Number(h), wert: d.s[0][1], name: d.n, icon: d.i };
+    const [[sh, wert]] = armorTeil(d);
+    const n = statName(sh);
+    if (d.n === `${n} Mod` && (!modKarte[n] || modKarte[n].wert < wert)) modKarte[n] = { plug: Number(h), wert, name: d.n, icon: d.i };
   }
   return modKarte;
 }
@@ -39,7 +42,7 @@ function ruestung(profil, klasse) {
     let modSockel = -1;
     x.sockel.forEach((p, n) => {
       if (!istStatMod(p)) return;
-      for (const [h, v] of defs.items[p].s) { const s = statName(h); if (s in basis) basis[s] -= v; }
+      for (const [h, v] of armorTeil(defs.items[p])) basis[statName(h)] -= v;
       if (modSockel < 0) modSockel = n;
     });
     if (modSockel < 0) modSockel = x.sockel.findIndex((p) => /^enhancements\./.test(defs.items[p]?.pc || '') && /^Empty/.test(defs.items[p]?.n || ''));
@@ -52,7 +55,7 @@ function gruppen(liste, wunsch, proFach) {
   const wert = (i) => (wunsch.mods ? i.basis : i.st);
   return SLOTS.map((b) => {
     let w = liste.filter((i) => i.d.b === b);
-    if (wunsch.exotic) { const exoSlot = liste.find((i) => i.hash === wunsch.exotic)?.d.b; w = b === exoSlot ? w.filter((i) => i.hash === wunsch.exotic) : w.filter((i) => !i.exo); }
+    if (wunsch.exotic) { const ex = liste.find((i) => i.hash === wunsch.exotic); w = b === ex?.d.b ? w.filter((i) => i.d.n === ex.d.n) : w.filter((i) => !i.exo); }
     const nutzen = (i) => ARMOR_STATS.reduce((a, n, k) => a + (wert(i)[n] || 0) * (ziel[k] ? 2 : 1), 0);
     const wahl = new Set([...w].sort((a, b2) => nutzen(b2) - nutzen(a)).slice(0, proFach - ARMOR_STATS.length));
     for (const n of ARMOR_STATS) { const best = [...w].sort((a, b2) => (wert(b2)[n] || 0) - (wert(a)[n] || 0))[0]; if (best) wahl.add(best); }
@@ -123,8 +126,8 @@ export function zeigeOptimizer(haupt, zustand) {
   if (zustandO.klasse === null || !chars.some((c) => c.classType === zustandO.klasse)) zustandO.klasse = chars[0].classType;
   const zeichne = () => {
     const liste = ruestung(zustand.profil, zustandO.klasse);
-    const exotics = [...new Map(liste.filter((i) => i.exo).map((i) => [i.hash, i])).values()].sort((a, b) => a.d.n.localeCompare(b.d.n));
-    if (zustandO.exotic && !exotics.some((e) => e.hash === zustandO.exotic)) zustandO.exotic = 0;
+    const exotics = [...new Map(liste.filter((i) => i.exo).map((i) => [i.d.n, i])).values()].sort((a, b) => a.d.n.localeCompare(b.d.n));
+    if (zustandO.exotic && !liste.some((e) => e.hash === zustandO.exotic)) zustandO.exotic = 0;
     const r = rechne(liste, zustandO);
     ergebnisse = r.beste;
     speichere('d2a.opt', zustandO);
