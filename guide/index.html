@@ -5156,6 +5156,54 @@ const VGA=(function(){
  return{bg,S,base,finish};
 })();
 
+
+/* =================== VAULT OF GLASS: GORGON'S LABYRINTH =================== */
+// Not a real encounter: sneak through the maze. SCHEMATIC after the written guides (no map in text):
+// spawn at the bottom, exit on the left side; the most consistent route uses the big rocks on the left to pass over
+// the Gorgons. If a Gorgon sees you, the team wipes. Crouch, single jumps, don't shoot.
+const VGL=(function(){
+ const keys=['P1','P2','P3','P4','P5','P6'];
+ const SPAWN={x:640,y:410};
+ const ROUTE=[{x:640,y:400},{x:560,y:360},{x:470,y:330},{x:380,y:300},{x:300,y:260},{x:230,y:200},{x:160,y:140},{x:90,y:80}];
+ const ROCKS=[{x:470,y:310,w:70,h:40},{x:300,y:240,w:70,h:40},{x:160,y:120,w:70,h:40}];
+ const G=[{a:{x:420,y:200},b:{x:620,y:200},ph:0},{a:{x:250,y:380},b:{x:250,y:300},ph:.5},{a:{x:380,y:110},b:{x:560,y:110},ph:.25}];
+ const at=(i,k)=>{const r=G[i];const t=(Math.sin((k*2+r.ph)*Math.PI*2)+1)/2;return{x:r.a.x+(r.b.x-r.a.x)*t,y:r.a.y+(r.b.y-r.a.y)*t,dir:Math.cos((k*2+r.ph)*Math.PI*2)};};
+ const along=(q)=>{q=Math.max(0,Math.min(1,q));const n=ROUTE.length-1,f=q*n,i=Math.min(n-1,Math.floor(f)),t=f-i;return{x:ROUTE[i].x+(ROUTE[i+1].x-ROUTE[i].x)*t,y:ROUTE[i].y+(ROUTE[i+1].y-ROUTE[i].y)*t};};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/><rect x="40" y="40" width="720" height="380" rx="10" fill="#141225" stroke="#2f2a4a"/>`;
+  [[120,200,60,120],[330,160,40,90],[520,250,50,80],[600,60,40,90]].forEach(([x,y,w,h])=>o+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#0e0c1a" stroke="#2a2440"/>`);
+  ROCKS.forEach(r=>o+=`<rect x="${r.x-r.w/2}" y="${r.y-r.h/2}" width="${r.w}" height="${r.h}" rx="14" fill="#2a2440" stroke="${s.rocks?'#f6dc8e':'#3a3356'}" stroke-width="${s.rocks?2:1}"/>`);
+  if(s.route)o+=`<path d="M${ROUTE.map(p=>p.x+' '+p.y).join(' L')}" fill="none" stroke="#f6dc8e" stroke-width="2" stroke-dasharray="6 6" opacity="${s.route}"/>`;
+  o+=`<rect x="60" y="56" width="60" height="40" rx="6" fill="rgba(143,240,164,.12)" stroke="#8ff0a4"/><text x="90" y="110" text-anchor="middle" class="hud-t" style="fill:#8ff0a4">EXIT</text>`;
+  o+=`<text x="${SPAWN.x}" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN</text>`;return o;}
+ function gorg(s,k){return G.map((r,i)=>{const p=at(i,k);const ang=Math.abs(r.a.x-r.b.x)>1?(p.dir>0?0:180):(p.dir>0?90:-90);const alarm=s.alarm===i;
+  return{t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})"><path d="M0 0 L${Math.cos((ang-28)*Math.PI/180)*90} ${Math.sin((ang-28)*Math.PI/180)*90} A90 90 0 0 1 ${Math.cos((ang+28)*Math.PI/180)*90} ${Math.sin((ang+28)*Math.PI/180)*90} Z" fill="${alarm?'rgba(255,97,86,.35)':'rgba(246,220,142,.12)'}" stroke="${alarm?'#ff6156':'#f6dc8e'}" stroke-opacity=".5"/><circle r="10" fill="#2c2214" stroke="${alarm?'#ff6156':'#f6dc8e'}" stroke-width="2.4"/><circle r="3.5" fill="#ff6156"/></g>`};});}
+ function bg(g){g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';}
+ function base(){const s={p:{},route:0,rocks:0,alarm:null,units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,dead:{}};
+  keys.forEach((k,i)=>s.p[k]={x:SPAWN.x+(i-2.5)*12,y:SPAWN.y});return s;}
+ const S=[
+ // 1 layout
+ {d:18,f(k,s){s.route=seg(k,.5,.7);s.rocks=win(k,.25,.5)>0?1:0;
+   if(k>=.05&&k<.25)s.spot=G.map((r,i)=>({...at(i,now/40),r:24,o:win(k,.05,.25),w:true}));else if(k>=.25&&k<.5)s.spot=ROCKS.map(r=>({x:r.x,y:r.y,r:40,o:win(k,.25,.5),w:true}));else if(k>=.75)s.spot=[{x:90,y:76,r:40,o:win(k,.75,1.01),w:true}];
+   s.fx=k<.05?null:k<.25?{k:'fxLGorg',o:win(k,.05,.25),c:C.light}:k<.5?{k:'fxLRocks',o:win(k,.25,.5),c:C.light}:k<.75?{k:'fxLRoute',o:win(k,.5,.75),c:C.light}:{k:'fxLExit',o:win(k,.75,1.01),c:C.good};}},
+ // 2 sneak along the route, pausing while a Gorgon looks your way
+ {d:26,f(k,s){s.route=.5;
+   const stop=[[.18,.3],[.5,.62]];let q=k;stop.forEach(([a,b])=>{if(k>a)q-=Math.min(k,b)-a;});const prog=q/(1-.24);
+   keys.forEach((x,i)=>{s.p[x]=along(prog-i*.025);});
+   if(stop.some(([a,b])=>k>=a&&k<b))s.labels.push({x:s.p.P1.x+60,y:s.p.P1.y-24,k:'lWait',c:C.light,o:1});
+   s.cam=camK(k,[[0,520,320,1.3],[.4,380,260,1.3],[.8,200,160,1.3],[1,400,220,1]]);
+   s.fx=k<.18?{k:'fxL2Crouch',o:win(k,0,.18,.02),c:C.ally}:k<.3?{k:'fxL2Wait',o:win(k,.18,.3,.02),c:C.light}:k<.5?{k:'fxL2Rock',o:win(k,.3,.5,.02),c:C.ally}:k<.62?{k:'fxL2Wait',o:win(k,.5,.62,.02),c:C.light}:k<.92?{k:'fxL2On',o:win(k,.62,.92,.02),c:C.ally}:{k:'fxL2Done',o:win(k,.92,1,.02),c:C.good};}},
+ // 3 don't: spotted → wipe; double jump / shooting alerts them
+ {d:16,f(k,s){keys.forEach((x,i)=>s.p[x]=along(.3+i*.01));const p=s.p.P3;s.p.P3={x:p.x+40*seg(k,.1,.4),y:p.y-60*seg(k,.1,.4)};
+   if(k>=.4){s.alarm=0;}
+   if(k>=.6){keys.forEach(x=>s.dead[x]=1);if(k<.7)s.bursts.push({x:400,y:220,r:20+300*seg(k,.6,.7),c:C.danger,o:1-seg(k,.6,.7)});}
+   s.fx=k<.4?{k:'fxXJump',o:win(k,0,.4,.04),c:C.danger}:k<.6?{k:'fxXSeen',o:win(k,.4,.6,.04),c:C.danger}:{k:'fxXWipe',o:win(k,.6,1,.04),c:C.danger};}}
+ ];
+ function finish(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)},...gorg(s,now/40)];
+  const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q]}));
+  return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud:null,plus:'',pips:null};}
+ return{bg,S,base,finish};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -7133,6 +7181,47 @@ const RG_VGA=[
  {id:'relic',slots:['RH'],focus:[3,4],de:{name:'Relikt-Träger',steps:['Relikt halten, nicht zum Spaß ablegen.','Geblendete am Ausgang reinigen, Praetorians töten.','Time’s Vengeance: Super, Relikt-Schild vor Raketen senken.'],watch:['10 s Ablage-Grenze (laut einem Guide).']},en:{name:'Relic holder',steps:['Hold the relic, don’t drop it for fun.','Cleanse blinded players at the exit, kill Praetorians.','Time’s Vengeance: super, lower the shield before rockets.'],watch:['10 s drop limit (per one guide).']}},
  {id:'all',slots:['P2','P3','T1','T2','T3'],focus:[2,3,4],de:{name:'Alle anderen',steps:['Harpien töten, Atheon nicht beschießen.','Teleportiert? Welt ansagen, Orakel nach Ansage.','Draußen? Platte, Vorschau ansagen.','Time’s Vengeance: auf die Insel, Schaden, bei Detain weg.'],watch:['Wer ist drinnen, wer draußen?']},en:{name:'Everyone else',steps:['Kill Harpies, don’t shoot Atheon.','Teleported? Call the world, oracles as called.','Outside? Plate, call the preview.','Time’s Vengeance: onto the island, damage, move away with Detain.'],watch:['Who is inside, who is outside?']}}];
 
+const SV_VGL=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="20" y="16" width="380" height="176" rx="8" fill="#141225" stroke="#2f2a4a"/>${[[250,150],[160,112],[90,58]].map(([x,y])=>`<rect x="${x-18}" y="${y-10}" width="36" height="20" rx="8" fill="#2a2440" stroke="#f6dc8e"/>`).join('')}<path d="M340 186 L250 150 L160 112 L50 40" fill="none" stroke="#f6dc8e" stroke-dasharray="5 5"/><rect x="30" y="24" width="34" height="22" rx="4" fill="rgba(143,240,164,.12)" stroke="#8ff0a4"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="47" y="60" fill="#8ff0a4">{0}</text><text x="250" y="132" fill="#f6dc8e">{1}</text><text x="340" y="180" fill="#9c95b0">{2}</text></g></svg>`;
+const ENC_VGL={num:5,name:'Gorgon’s Labyrinth',eng:VGL,diags:[SV_VGL],order:['P1','P2','P3','P4','P5','P6'],
+ slots:[['P1','Vorne (führt)','Front (leads)'],['P2','Spieler 2','Player 2'],['P3','Spieler 3','Player 3'],['P4','Spieler 4','Player 4'],['P5','Spieler 5','Player 5'],['P6','Hinten','Back']],
+ de:{kicker:'Vault of Glass · Abschnitt 5 · Gorgon’s Labyrinth',
+  gear:{crit:['Nichts Besonderes, ihr sollt hier gar nicht kämpfen.'],top:['Hunter mit Rauchbombe (Unsichtbarkeit) für Stellen mit vielen Gorgonen.'],budget:['Wenig Ausrüstung? Spielt hier keine Rolle.']},
+  lede:'Kein echter Encounter, aber ein Wipe-Grund: Durch das Labyrinth schleichen, ohne dass euch eine Gorgone sieht. Sieht euch eine, ist es ein Wipe. Der Ausgang liegt, vom Spawn aus gesehen, auf der linken Seite. Am zuverlässigsten ist der Weg über die großen Felsen links, damit kommt ihr über die Gorgonen hinweg.',
+  sc:[['Aufbau','Von oben, schematisch nach den Guides (im Text gibt es keine Karte): unten der Spawn, links oben der Ausgang. Die Gorgonen laufen feste Runden. Die großen Felsen links sind euer Weg.'],
+   ['Durchschleichen','Ducken, nur einfach springen, nicht schießen. Der Vordermann führt, alle bleiben hintereinander. Schaut eine Gorgone in eure Richtung, wartet ihr, bis sie weiterläuft. Über die Felsen kommt ihr über die Gorgonen hinweg zum Ausgang. Hunter können an vollen Stellen ihre Rauchbombe nutzen.'],
+   ['Nicht machen','Doppelsprung oder Schüsse machen Gorgonen aufmerksam. Sieht euch eine, ist es ein Wipe. Gorgonen töten geht nur mit vielen Supers und Heavy und weckt oft die anderen, darum laut Guide besser nicht.']],
+  tip:{1:'Wer den Weg kennt, führt.',2:'Ducken, einfach springen, warten.',3:'Ruhig bleiben, kein Schuss.'},
+  m:{},
+  roles:[['Vorne','Kennt den Weg, sagt Stopp und Weiter an.','runner'],['Alle anderen','Hinterher, ducken, nicht schießen.','']],
+  rules:['Gesehen = Wipe.','Ausgang links, Weg über die großen Felsen.','Ducken, einfach springen, nicht schießen.'],
+  wipes:['Eine Gorgone sieht euch.'],
+  tips:['<b>Rauchbombe:</b> für die vollsten Stellen aufheben.','<b>Ansagen:</b> „Stopp“ und „Weiter“ vom Vordermann.'],
+  diags:[['Das Labyrinth','Spawn unten, Ausgang links oben, der Weg über die Felsen. Schematisch nach den Guides.',['Ausgang','Felsen','Spawn']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Stopp','Stop','Gorgone schaut her'],['Weiter','Go','Weg frei']],
+  L:{lWait:'warten …',fxLGorg:'Gorgonen laufen feste Runden',fxLRocks:'Die großen Felsen links',fxLRoute:'Euer Weg (schematisch)',fxLExit:'Ausgang links',
+   fxL2Crouch:'Ducken, hintereinander',fxL2Wait:'Gorgone schaut her → warten',fxL2Rock:'Über den Felsen',fxL2On:'Weiter Richtung Ausgang',fxL2Done:'Durch',
+   fxXJump:'Doppelsprung …',fxXSeen:'→ gesehen',fxXWipe:'→ Wipe'}},
+ en:{kicker:'Vault of Glass · Section 5 · Gorgon’s Labyrinth',
+  gear:{crit:['Nothing special, you’re not supposed to fight here.'],top:['Hunter with smoke bomb (invisibility) for spots with many Gorgons.'],budget:['Short on gear? Doesn’t matter here.']},
+  lede:'Not a real encounter, but a wipe reason: sneak through the maze without a Gorgon seeing you. If one sees you, it’s a wipe. The exit is on the left side, seen from the spawn. The most reliable route goes over the big rocks on the left, which takes you over the Gorgons.',
+  sc:[['Layout','From above, schematic after the guides (there’s no map in the text): the spawn at the bottom, the exit top left. The Gorgons walk fixed rounds. The big rocks on the left are your route.'],
+   ['Sneaking through','Crouch, single jumps only, don’t shoot. The front player leads, everyone stays in a line. When a Gorgon looks your way, wait until it moves on. The rocks take you over the Gorgons to the exit. Hunters can use their smoke bomb at crowded spots.'],
+   ['Don’t do this','Double jumps or shots alert Gorgons. If one sees you, it’s a wipe. Killing Gorgons only works with lots of supers and heavy and often wakes the others, so per the guide, better not.']],
+  tip:{1:'Whoever knows the route leads.',2:'Crouch, single jump, wait.',3:'Stay calm, no shots.'},
+  m:{},
+  roles:[['Front','Knows the route, calls stop and go.','runner'],['Everyone else','Follow, crouch, don’t shoot.','']],
+  rules:['Seen = wipe.','Exit on the left, route over the big rocks.','Crouch, single jump, don’t shoot.'],
+  wipes:['A Gorgon sees you.'],
+  tips:['<b>Smoke bomb:</b> save it for the most crowded spots.','<b>Calls:</b> “stop” and “go” from the front player.'],
+  diags:[['The labyrinth','Spawn at the bottom, exit top left, the route over the rocks. Schematic after the guides.',['Exit','Rocks','Spawn']]],
+  master:['Master variant not shown here.'],
+  calls:[['Stopp','Stop','Gorgon looks over'],['Weiter','Go','Path clear']],
+  L:{lWait:'wait …',fxLGorg:'Gorgons walk fixed rounds',fxLRocks:'The big rocks on the left',fxLRoute:'Your route (schematic)',fxLExit:'Exit on the left',
+   fxL2Crouch:'Crouch, in a line',fxL2Wait:'Gorgon looks over → wait',fxL2Rock:'Over the rock',fxL2On:'On towards the exit',fxL2Done:'Through',
+   fxXJump:'Double jump …',fxXSeen:'→ seen',fxXWipe:'→ wipe'}}};
+const RG_VGL=[{id:'all',slots:['P1','P2','P3','P4','P5','P6'],focus:[1,2,3],de:{name:'Alle',steps:['Hinter dem Vordermann bleiben.','Ducken, einfach springen.','Bei „Stopp“ stehen bleiben.'],watch:['Kein Schuss, kein Doppelsprung.']},en:{name:'Everyone',steps:['Stay behind the front player.','Crouch, single jump.','Stand still on “stop”.'],watch:['No shots, no double jumps.']}}];
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -7420,7 +7509,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:{num:5,name:'Gorgon’s Labyrinth',soon:true},vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -7582,7 +7671,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
