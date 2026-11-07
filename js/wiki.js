@@ -12,7 +12,7 @@ const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock', 3: 'Any class' };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const ORTE = ['EDZ', 'European Dead Zone', 'Cosmodrome', 'Nessus', 'Dreaming City', 'Moon', 'Europa', 'Throne World', 'Neomuna', 'Pale Heart', 'Kepler', 'Tangled Shore', 'Mars', 'Mercury', 'Titan', 'Io', 'Savathûn', 'Eternity', 'Tower', 'Leviathan'];
 const WEICH = new Set(['set', 'sets', 'armor', 'where', 'get', 'drop', 'drops', 'from', 'how', 'the', 'to', 'farm', 'find', 'is', 'a', 'of', 'in', 'what', 'does', 'gear']);
-const KATEGORIEN = [['ort', 'Destinations', '🪐'], ['set', 'Armor sets', '🛡'], ['exo', 'Exotics', '⭐'], ['akt', 'Raids & Dungeons', '⚔'], ['chal', 'Raid challenges', '🏆'], ['seal', 'Seals & triumphs', '🎖'], ['quelle', 'Collections by source', '📚']];
+const KATEGORIEN = [['ort', 'Destinations', '🪐'], ['set', 'Armor sets', '🛡'], ['exo', 'Exotics', '⭐'], ['akt', 'Raids & Dungeons', '⚔'], ['chal', 'Raid challenges', '🏆'], ['seal', 'Seals & triumphs', '🎖'], ['farm', 'Farm plan', '🌾'], ['quelle', 'Collections by source', '📚']];
 
 let eintraege = null;
 let setsFarm = {};
@@ -105,6 +105,34 @@ async function baue(zustand) {
       kurz: `${titelDa ? 'Title earned ✓' : `${done} / ${sl.k.length} triumphs done`}${sl.d ? ` · ${sl.d.split('. ')[0]}` : ''}`,
       mehr: `<div class="sealbar"><i style="width:${Math.round((done / sl.k.length) * 100)}%"></i></div>${sl.k.map((r) => { const rec = defs.rec?.[r]; const ok = fertig(r); return rec ? `<p class="${ok ? 'sok' : 'soffen'}">${ok ? '✓' : '○'} <b>${esc(rec.n)}</b>${rec.d ? ` – ${esc(rec.d)}` : ''}</p>` : ''; }).join('')}` });
   }
+  // Farm-Plan: was dir für die Community-Builds deiner Klassen fehlt, und wo es droppt.
+  try {
+    const builds = (await fetch('data/builds.json').then((r) => r.json())).builds.map((b) => ({ klasse: 2, ...b }));
+    const klassen = new Set(Object.values(zustand.profil.characters?.data || {}).map((c) => c.classType));
+    const proSet = new Map();
+    const exoFehlt = new Map();
+    for (const b of builds.filter((x) => klassen.has(x.klasse))) {
+      for (const e of b.exotics) if (!besitz.has(e)) exoFehlt.set(e, [...(exoFehlt.get(e) || []), b.name]);
+      for (const pl of b.plan || []) {
+        const hat = [...besitz.entries()].filter(([n]) => items.some(([, d]) => d.n === n && d.e && (defs.sets?.[d.e]?.n || '').toLowerCase().includes(pl.set.toLowerCase()))).reduce((a, [, v]) => a + v, 0);
+        if (hat < pl.stuecke) { const alt = proSet.get(pl.set); if (!alt || alt.braucht < pl.stuecke) proSet.set(pl.set, { braucht: pl.stuecke, hat, fuer: [...(alt?.fuer || []), b.name] }); }
+      }
+    }
+    for (const [set, x] of proSet) {
+      const farm = farmVon(set);
+      const teile = items.filter(([, d]) => d.e && (defs.sets?.[d.e]?.n || '').toLowerCase().includes(set.toLowerCase()));
+      const q = [...new Set(teile.map(([th, d]) => quelleVon(d, th)).filter(Boolean))];
+      liste.push({ typ: 'farm', titel: `${set} – ${x.braucht - x.hat} more piece${x.braucht - x.hat === 1 ? '' : 's'}`, icon: teile[0]?.[1].i || '', tags: `farm set ${set} ${farm?.ort || ''}`,
+        kurz: farm ? `${farm.farm}${farm.schnell ? ' · fast farm' : ''}.` : q[0] ? `Drops from: ${q[0]}.` : 'No confirmed drop source yet.',
+        mehr: `<p class="wm">You have ${x.hat}, the build needs ${x.braucht}. For: ${esc(x.fuer.join(', '))}.</p>` });
+    }
+    for (const [e, fuer] of exoFehlt) {
+      const d = items.find(([, x]) => x.n === e);
+      liste.push({ typ: 'farm', titel: `${e} (exotic)`, icon: d?.[1].i || '', tags: `farm exotic ${e}`,
+        kurz: d && quelleVon(d[1], d[0]) ? `Get it: ${quelleVon(d[1], d[0])}.` : 'Exotic engrams, Xûr, or the Monument to Lost Lights in the Tower.',
+        mehr: `<p class="wm">Needed for: ${esc(fuer.join(', '))}.</p>` });
+    }
+  } catch {}
   eintraege = liste;
   return liste;
 }
@@ -129,7 +157,7 @@ const ID = (e) => `${e.typ}:${e.titel}`;
 const zeile = (e, antwort = false) => {
   const auf = offen.has(ID(e));
   return `<article class="wz ${antwort ? 'antwort' : ''}" data-w="${esc(ID(e))}">
-    <div class="wz-kopf">${e.icon ? `<i style="background-image:url(${BILD}${e.icon})"></i>` : ''}<div><small>${esc({ set: 'Armor set', ort: 'Destination', exo: 'Exotic', waffe: 'Weapon', akt: 'Activity', chal: 'Raid challenge', quelle: 'Source', seal: 'Seal' }[e.typ])}</small><b>${esc(e.titel)}</b></div></div>
+    <div class="wz-kopf">${e.icon ? `<i style="background-image:url(${BILD}${e.icon})"></i>` : ''}<div><small>${esc({ set: 'Armor set', ort: 'Destination', exo: 'Exotic', waffe: 'Weapon', akt: 'Activity', chal: 'Raid challenge', quelle: 'Source', seal: 'Seal', farm: 'Farm' }[e.typ])}</small><b>${esc(e.titel)}</b></div></div>
     <p class="wz-kurz">${esc(e.kurz)}</p>
     ${e.mehr ? (auf ? `<div class="wz-mehr">${e.mehr}</div><button class="fk-klapp" data-wk="${esc(ID(e))}">Less ▴</button>` : `<button class="fk-klapp" data-wk="${esc(ID(e))}">More context ▾</button>`) : ''}</article>`;
 };
