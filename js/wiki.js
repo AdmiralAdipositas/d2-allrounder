@@ -1,194 +1,443 @@
-// Wiki: Suche mit kurzer, eindeutiger Antwort (aufklappbar für mehr) und Stöbern nach Kategorien.
-// Daten: Bungies Spieldaten (Quellen, Sets, Exotics, Aktivitäten), Farm-Orte und Raid-Challenges der App.
+// Wiki: sortiert nach Kategorien mit Seitennavigation, Detailseiten für Items, Sets, Raids/Dungeons und Orte,
+// mögliche Perks je Waffe, Seals mit Schritt-Zählern und ein Farm-Planer mit Eingabe und Vorschlägen.
+// Daten: Bungies Spieldaten (defs, Sammlungs-Quellen, Triumphe), data/loot.json (Loot je Begegnung, Quellen dort),
+// data/perks.json (Perk-Pools aus Bungies Plug-Sets), data/sets.json (Farm-Orte), DIM-Community-Daten.
 import { defs } from './defs.js';
 import { sammle } from './vault.js';
 import { CHALLENGES } from './challenges.js';
 import { empfehlung } from './rolls.js';
 import { quelle } from './quellen.js';
+import { guideId } from './guidelinks.js';
 import * as bungie from './bungie.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock', 3: 'Any class' };
+const SLOT = { 1498876634: 'Kinetic', 2465295065: 'Energy', 953998645: 'Power', 3448274439: 'Helmet', 3551918588: 'Arms', 14239492: 'Chest', 20886954: 'Legs', 1585787867: 'Class Item' };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-const ORTE = ['EDZ', 'European Dead Zone', 'Cosmodrome', 'Nessus', 'Dreaming City', 'Moon', 'Europa', 'Throne World', 'Neomuna', 'Pale Heart', 'Kepler', 'Tangled Shore', 'Mars', 'Mercury', 'Titan', 'Io', 'Savathûn', 'Eternity', 'Tower', 'Leviathan'];
-const WEICH = new Set(['set', 'sets', 'armor', 'where', 'get', 'drop', 'drops', 'from', 'how', 'the', 'to', 'farm', 'find', 'is', 'a', 'of', 'in', 'what', 'does', 'gear']);
-const KATEGORIEN = [['ort', 'Destinations', '🪐'], ['set', 'Armor sets', '🛡'], ['exo', 'Exotics', '⭐'], ['akt', 'Raids & Dungeons', '⚔'], ['chal', 'Raid challenges', '🏆'], ['seal', 'Seals & triumphs', '🎖'], ['farm', 'Farm plan', '🌾'], ['quelle', 'Collections by source', '📚']];
+const norm = (s) => String(s || '').replace(/[’']/g, "'").toLowerCase();
+const ORTE = ['EDZ', 'Cosmodrome', 'Nessus', 'Dreaming City', 'Moon', 'Europa', 'Throne World', 'Neomuna', 'Pale Heart', 'Kepler', 'Tangled Shore', 'Mars', 'Mercury', 'Titan', 'Io', 'Eternity', 'Tower'];
+const KATEGORIEN = [
+  ['exo', 'Exotics', '⭐'], ['waffe', 'Weapons', '🔫'], ['set', 'Armor sets', '🛡'], ['akt', 'Raids & dungeons', '⚔'],
+  ['ort', 'Destinations', '🪐'], ['seal', 'Seals', '🎖'], ['chal', 'Raid challenges', '🏆'], ['quelle', 'Collections', '📚'], ['farm', 'Farm planner', '🌾'],
+];
+// Begegnungen, die nicht in der Loot-Tabelle stehen (Challenge-Namen), ihrem Raid zuordnen.
+const ENC_EXTRA = { Dissipation: "Salvation's Edge", 'The Abyss': "Crota's End", 'The Bridge': "Crota's End", 'Ir Yut': "Crota's End", Crota: "Crota's End", 'Taniks': 'Deep Stone Crypt', Evade: 'Garden of Salvation', Summon: 'Garden of Salvation', Gatekeeper: 'Vault of Glass' };
 
-let eintraege = null;
-let setsFarm = {};
-const offen = new Set();
-let ansicht = { suche: '', kat: null };
-export function setzeWikiSuche(q) { ansicht = { suche: q, kat: null }; }
+let ix = null;
+let ansicht = { kat: null, seite: null, sub: 'alle', suche: '', farm: '' };
+export function setzeWikiSuche(q, art) {
+  if (art === 'farm') ansicht = { ...ansicht, kat: 'farm', seite: null, farm: q, suche: '' };
+  else ansicht = { ...ansicht, kat: null, seite: null, suche: q };
+}
 
-async function baue(zustand) {
-  if (eintraege) return eintraege;
-  setsFarm = (await fetch('data/sets.json').then((r) => r.json()).catch(() => ({ sets: {} }))).sets;
-  const besitz = new Map();
-  for (const x of sammle(zustand.profil)) besitz.set(x.d.n, (besitz.get(x.d.n) || 0) + 1);
-  const liste = [];
-  const items = Object.entries(defs.items).filter(([, d]) => [2, 3].includes(d.t) && d.i);
-  const quelleVon = (d, h) => quelle(h, d)?.text || '';
-  const vonText = (d, h) => { const q = quelle(h, d); return q ? ` <span class="wm">(${q.von})</span>` : ''; };
-  const farmVon = (name) => Object.entries(setsFarm).find(([n]) => name.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(name.toLowerCase()))?.[1];
-
-  // Rüstungssets
-  for (const [h, s] of Object.entries(defs.sets || {})) {
-    if (!s.n) continue;
-    const teile = items.filter(([, d]) => d.e === Number(h));
-    if (!teile.length) continue;
-    const farm = farmVon(s.n);
-    const quellen = [...new Set(teile.map(([th, d]) => quelleVon(d, th)).filter(Boolean))];
-    const hat = teile.reduce((a, [, d]) => a + (besitz.get(d.n) || 0), 0);
-    liste.push({ typ: 'set', titel: s.n, icon: teile[0][1].i, tags: `set armor ${farm?.ort || ''} ${quellen.join(' ')}`,
-      kurz: farm ? `${farm.farm}${farm.schnell ? ' · fast farm' : ''}.` : quellen[0] ? `Drops from: ${quellen[0]}.` : 'No confirmed drop source yet – see light.gg below.',
-      mehr: `${(s.p || []).map((p) => `<p><b>${p.c}-piece: ${esc(p.n)}</b> – ${esc(p.d)}</p>`).join('')}
-        ${quellen.length > 1 ? `<p class="wm">Also from: ${esc(quellen.slice(1).join(' · '))}</p>` : ''}
-        <p class="wm">You own ${hat} piece${hat === 1 ? '' : 's'}. Sources: ${farm ? 'farm guide (timesaver.gg), ' : ''}Bungie collections, DIM community data.</p>
-        <p><a href="https://www.light.gg/db/search/?q=${encodeURIComponent(s.n)}" target="_blank" rel="noopener">light.gg ↗</a></p>
-        <div class="wteile">${teile.slice(0, 15).map(([, d]) => `<span title="${esc(KLASSE[d.c])} · ${esc(d.k)}"><i style="background-image:url(${BILD}${d.i})"></i>${esc(d.n)}${besitz.get(d.n) ? ' ✓' : ''}</span>`).join('')}</div>` });
-  }
-  // Orte
-  for (const ort of ORTE) {
-    const re = new RegExp(`\\b${ort}\\b`, 'i');
-    const sets = Object.entries(setsFarm).filter(([, f]) => re.test(f.ort) || re.test(f.farm));
-    const waffen = items.filter(([wh, d]) => d.t === 3 && re.test(quelleVon(d, wh)));
-    if (!sets.length && !waffen.length) continue;
-    liste.push({ typ: 'ort', titel: ort, icon: '', tags: `destination planet ${ort}`,
-      kurz: `${sets.length ? `Armor: ${sets.map(([n]) => n).join(', ')}. ` : ''}${waffen.length ? `${waffen.length} weapons drop here.` : ''}`,
-      mehr: `${sets.map(([n, f]) => `<p><b>${esc(n)}</b> – ${esc(f.farm)}${f.schnell ? ' · fast farm' : ''}</p>`).join('')}
-        ${waffen.length ? `<div class="wteile">${[...new Map(waffen.map(([, d]) => [d.n, d])).values()].slice(0, 30).map((d) => `<span><i style="background-image:url(${BILD}${d.i})"></i>${esc(d.n)}${besitz.get(d.n) ? ' ✓' : ''}</span>`).join('')}</div>` : ''}` });
-  }
-  // Exotics und Waffen
-  const gesehen = new Set();
-  for (const [h, d] of items) {
-    if (gesehen.has(d.n)) continue;
-    if (d.q === 6) {
-      gesehen.add(d.n);
-      liste.push({ typ: 'exo', titel: d.n, icon: d.i, tags: `exotic ${d.k} ${KLASSE[d.c]} ${d.xp || ''} ${d.xd || ''}`,
-        kurz: `${KLASSE[d.c] !== 'Any class' ? `${KLASSE[d.c]} ` : ''}${d.k}. ${quelleVon(d, h) ? `Get it: ${quelleVon(d, h)}.` : 'Get it from exotic engrams, Xûr, or the Monument to Lost Lights in the Tower.'}`,
-        mehr: `${d.xd ? `<p><b>${esc(d.xp || 'Exotic perk')}</b> – ${esc(d.xd)}</p>` : ''}<p class="wm">Source:${vonText(d, h) || ' general exotic sources'}. </p><p class="wm">${besitz.get(d.n) ? `You own ${besitz.get(d.n)}.` : 'Not in your inventory.'}</p><p><a href="https://www.light.gg/db/items/${h}/" target="_blank" rel="noopener">light.gg ↗</a></p>` });
-    } else if (d.t === 3 && d.q === 5 && quelleVon(d, h)) {
-      gesehen.add(d.n);
-      const r = empfehlung(h);
-      liste.push({ typ: 'waffe', titel: d.n, icon: d.i, tags: `weapon ${d.k} ${quelleVon(d, h)}`, quelle: quelleVon(d, h),
-        kurz: `${d.k}. Get it: ${quelleVon(d, h)}.`,
-        mehr: `<p class="wm">Source:${vonText(d, h)}.</p><p class="wm">${besitz.get(d.n) ? `You own ${besitz.get(d.n)} cop${besitz.get(d.n) === 1 ? 'y' : 'ies'}.` : 'Not in your inventory.'}${r?.ge?.length ? ' Community PvE god roll known.' : ''}${r?.gv?.length ? ' PvP god roll known.' : ''}</p><p><a href="https://www.light.gg/db/items/${h}/" target="_blank" rel="noopener">light.gg ↗</a></p>` });
-    }
-  }
-  // Raids und Dungeons
-  const akt = new Map();
-  for (const a of Object.values(defs.akt || {})) { if (a.g === 'Portal') continue; const n = a.n.split(':')[0].trim(); if (!akt.has(n)) akt.set(n, a); }
-  for (const [n, a] of akt) {
-    const loot = [...new Map(items.filter(([lh, d]) => quelleVon(d, lh).toLowerCase().includes(n.toLowerCase())).map(([, d]) => [d.n, d])).values()];
-    liste.push({ typ: 'akt', titel: n, icon: a.i && !/missing/.test(a.i) ? a.i : '', tags: `${a.g} raid dungeon activity`,
-      kurz: `${a.g === 'Raids' ? 'Raid' : 'Dungeon'}. ${loot.length ? `${loot.length} items drop here.` : ''}`,
-      mehr: `${a.d ? `<p>${esc(a.d)}</p>` : ''}${loot.length ? `<div class="wteile">${loot.slice(0, 30).map((d) => `<span><i style="background-image:url(${BILD}${d.i})"></i>${esc(d.n)}${besitz.get(d.n) ? ' ✓' : ''}</span>`).join('')}</div>` : ''}` });
-  }
-  for (const [n, [enc, text]] of Object.entries(CHALLENGES)) liste.push({ typ: 'chal', titel: n, icon: '', tags: `challenge ${enc}`, kurz: `${enc}: ${text}`, mehr: '' });
-  // Sammlungen nach Quelle
-  const proQuelle = new Map();
-  for (const e of liste.filter((x) => x.typ === 'waffe')) proQuelle.set(e.quelle, [...(proQuelle.get(e.quelle) || []), e]);
-  for (const [q, ws] of proQuelle) liste.push({ typ: 'quelle', titel: q, icon: '', tags: `source collection ${q}`, kurz: `${ws.length} weapons.`, mehr: `<div class="wteile">${ws.map((w) => `<span><i style="background-image:url(${BILD}${w.icon})"></i>${esc(w.titel)}</span>`).join('')}</div>` });
-  // Seals mit Fortschritt (Triumph-Stand vom Konto, einmal geladen).
-  let stand = {};
+// ---------- Daten ----------
+async function json(u) { try { const r = await fetch(u, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch { return null; } }
+let perkDaten = null;
+const ladePerks = async () => (perkDaten ??= (await json('data/perks.json')) || { w: {} });
+let stand = null;
+async function ladeStand(zustand) {
+  if (stand) return stand;
+  stand = {};
   try {
     const k = zustand.konto;
     const r = await bungie.get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/?components=900`);
-    stand = { ...(r.profileRecords?.data?.records || {}) };
+    Object.assign(stand, r.profileRecords?.data?.records || {});
     for (const c of Object.values(r.characterRecords?.data || {})) for (const [h, v] of Object.entries(c.records || {})) if (!stand[h]) stand[h] = v;
   } catch {}
-  const fertig = (h) => { const x = stand[h]; return Boolean(x) && (x.state & 4) === 0; };
-  for (const [h, sl] of Object.entries(defs.seal || {})) {
-    const done = sl.k.filter(fertig).length;
-    const titelDa = fertig(sl.c);
-    liste.push({ typ: 'seal', titel: `${sl.n}${sl.t && sl.t !== sl.n ? ` · “${sl.t}”` : ''}`, icon: sl.i, tags: `seal title triumph ${sl.n} ${sl.t} ${sl.d}`,
-      kurz: `${titelDa ? 'Title earned ✓' : `${done} / ${sl.k.length} triumphs done`}${sl.d ? ` · ${sl.d.split('. ')[0]}` : ''}`,
-      mehr: `<div class="sealbar"><i style="width:${Math.round((done / sl.k.length) * 100)}%"></i></div>${sl.k.map((r) => { const rec = defs.rec?.[r]; const ok = fertig(r); return rec ? `<p class="${ok ? 'sok' : 'soffen'}">${ok ? '✓' : '○'} <b>${esc(rec.n)}</b>${rec.d ? ` – ${esc(rec.d)}` : ''}</p>` : ''; }).join('')}` });
-  }
-  // Farm-Plan: was dir für die Community-Builds deiner Klassen fehlt, und wo es droppt.
+  return stand;
+}
+let sektoren = null;
+async function ladeSektoren(zustand) {
+  if (sektoren) return sektoren;
+  sektoren = [];
   try {
-    const builds = (await fetch('data/builds.json').then((r) => r.json())).builds.map((b) => ({ klasse: 2, ...b }));
-    const klassen = new Set(Object.values(zustand.profil.characters?.data || {}).map((c) => c.classType));
-    const proSet = new Map();
-    const exoFehlt = new Map();
-    for (const b of builds.filter((x) => klassen.has(x.klasse))) {
-      for (const e of b.exotics) if (!besitz.has(e)) exoFehlt.set(e, [...(exoFehlt.get(e) || []), b.name]);
-      for (const pl of b.plan || []) {
-        const hat = [...besitz.entries()].filter(([n]) => items.some(([, d]) => d.n === n && d.e && (defs.sets?.[d.e]?.n || '').toLowerCase().includes(pl.set.toLowerCase()))).reduce((a, [, v]) => a + v, 0);
-        if (hat < pl.stuecke) { const alt = proSet.get(pl.set); if (!alt || alt.braucht < pl.stuecke) proSet.set(pl.set, { braucht: pl.stuecke, hat, fuer: [...(alt?.fuer || []), b.name] }); }
-      }
-    }
-    for (const [set, x] of proSet) {
-      const farm = farmVon(set);
-      const teile = items.filter(([, d]) => d.e && (defs.sets?.[d.e]?.n || '').toLowerCase().includes(set.toLowerCase()));
-      const q = [...new Set(teile.map(([th, d]) => quelleVon(d, th)).filter(Boolean))];
-      liste.push({ typ: 'farm', titel: `${set} – ${x.braucht - x.hat} more piece${x.braucht - x.hat === 1 ? '' : 's'}`, icon: teile[0]?.[1].i || '', tags: `farm set ${set} ${farm?.ort || ''}`,
-        kurz: farm ? `${farm.farm}${farm.schnell ? ' · fast farm' : ''}.` : q[0] ? `Drops from: ${q[0]}.` : 'No confirmed drop source yet.',
-        mehr: `<p class="wm">You have ${x.hat}, the build needs ${x.braucht}. For: ${esc(x.fuer.join(', '))}.</p>` });
-    }
-    for (const [e, fuer] of exoFehlt) {
-      const d = items.find(([, x]) => x.n === e);
-      liste.push({ typ: 'farm', titel: `${e} (exotic)`, icon: d?.[1].i || '', tags: `farm exotic ${e}`,
-        kurz: d && quelleVon(d[1], d[0]) ? `Get it: ${quelleVon(d[1], d[0])}.` : 'Exotic engrams, Xûr, or the Monument to Lost Lights in the Tower.',
-        mehr: `<p class="wm">Needed for: ${esc(fuer.join(', '))}.</p>` });
+    const k = zustand.konto;
+    const r = await bungie.get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/?components=204`);
+    const gesehen = new Set();
+    for (const c of Object.values(r.characterActivities?.data || {})) for (const a of c.availableActivities || []) {
+      const d = defs.akt?.[a.activityHash];
+      if (d?.g !== 'Lost Sectors') continue;
+      const n = d.n.split(':')[0].replace(/\s*\(.*\)$/, '').trim();
+      if (!gesehen.has(n)) { gesehen.add(n); sektoren.push({ n, o: d.o || '' }); }
     }
   } catch {}
-  eintraege = liste;
-  return liste;
+  return sektoren;
 }
 
-function suche(liste, text) {
-  const roh = text.toLowerCase().split(/\s+/).filter(Boolean);
-  const hart = roh.filter((w) => !WEICH.has(w));
-  const worte = hart.length ? hart : roh;
-  const treffer = [];
-  for (const e of liste) {
-    const t = e.titel.toLowerCase(); const g = `${t} ${e.tags.toLowerCase()}`;
-    if (!worte.every((w) => g.includes(w))) continue;
-    let s = worte.reduce((a, w) => a + (t.includes(w) ? 3 : 1), 0) + (t === text.toLowerCase() ? 10 : 0);
-    if (roh.some((w) => /^sets?$|armor/.test(w)) && e.typ === 'set') s += 4;
-    if (e.typ === 'waffe') s -= 1;
-    treffer.push({ e, s });
+function sourceGruppe(q, loot) {
+  const t = norm(q);
+  for (const [n, a] of Object.entries(loot)) if (t.includes(norm(n))) return a.art === 'Raid' ? 'Raids' : 'Dungeons';
+  if (/raid/.test(t)) return 'Raids';
+  if (/dungeon/.test(t)) return 'Dungeons';
+  if (/crucible|trials|iron banner|osiris|shaxx|competitive/.test(t)) return 'Crucible & Trials';
+  if (/gambit|drifter/.test(t)) return 'Gambit';
+  if (/nightfall|vanguard|strike|zavala|portal|ops|grandmaster/.test(t)) return 'Portal & Vanguard';
+  if (/season|episode|artifact|event|solstice|dawning|festival|guardian games|bright/.test(t)) return 'Seasons, episodes & events';
+  if (/xûr|xur|banshee|ada-1|saint|vendor|eververse|monument/.test(t)) return 'Vendors';
+  if (ORTE.some((o) => t.includes(o.toLowerCase())) || /campaign|lost sector|exotic mission|quest/.test(t)) return 'Destinations & quests';
+  return 'Other';
+}
+
+async function baue(zustand) {
+  if (ix) return ix;
+  const [setsFarm, lootRoh] = await Promise.all([json('data/sets.json'), json('data/loot.json')]);
+  const loot = lootRoh?.akt || {};
+  const besitz = new Map();
+  for (const x of zustand.alleItems || sammle(zustand.profil)) besitz.set(x.d.n, (besitz.get(x.d.n) || 0) + 1);
+  // Pro Name nur ein Eintrag: bevorzugt die Version mit Quelle (Sammlungen) und Perk-Pool.
+  const proName = new Map();
+  for (const [h, d] of Object.entries(defs.items)) {
+    if (![2, 3].includes(d.t) || !d.i || d.q < 5) continue;
+    const q = quelle(h, d);
+    const wert = (q ? 2 : 0) + (d.qu ? 1 : 0);
+    const alt = proName.get(`${d.t}:${d.n}:${d.c}`);
+    if (!alt || wert > alt.wert || (wert === alt.wert && Number(h) > Number(alt.h))) proName.set(`${d.t}:${d.n}:${d.c}`, { h, d, q: q?.text || '', von: q?.von || '', wert });
   }
-  return treffer.sort((a, b) => b.s - a.s).map((x) => x.e);
+  const alle = [...proName.values()];
+  // Loot-Fundorte: Name → [{ akt, enc }]
+  const fundorte = new Map();
+  for (const [akt, a] of Object.entries(loot)) {
+    for (const [enc, waffen] of a.enc) for (const w of waffen) if (!/^any /.test(w)) fundorte.set(w, [...(fundorte.get(w) || []), { akt, enc }]);
+    for (const w of a.pool || []) if (!fundorte.has(w)) fundorte.set(w, [{ akt, enc: 'any encounter' }]);
+  }
+  const exos = alle.filter((x) => x.d.q === 6);
+  const waffen = alle.filter((x) => x.d.t === 3 && x.d.q === 5 && (x.q || fundorte.has(x.d.n)));
+  // Sets mit ihren Teilen und Fundort.
+  const sets = [];
+  for (const [h, s] of Object.entries(defs.sets || {})) {
+    if (!s.n) continue;
+    const teile = alle.filter((x) => x.d.e === Number(h));
+    if (!teile.length) continue;
+    const farm = Object.entries(setsFarm?.sets || {}).find(([n]) => norm(s.n).includes(norm(n)) || norm(n).includes(norm(s.n)))?.[1];
+    const quellen = [...new Set(teile.map((t) => t.q).filter(Boolean))];
+    const akt = Object.keys(loot).find((n) => quellen.some((q) => norm(q).includes(norm(n))));
+    sets.push({ h, s, teile, farm, quellen, akt, gruppe: akt ? (loot[akt].art === 'Raid' ? 'Raids' : 'Dungeons') : sourceGruppe(quellen[0] || farm?.ort || '', loot) });
+  }
+  const akts = Object.entries(loot).map(([n, a]) => {
+    const def = Object.entries(defs.akt || {}).find(([, d]) => norm(d.n).startsWith(norm(n)));
+    const set = sets.filter((x) => x.akt === n);
+    return { n, a, icon: def?.[1].i && !/missing/.test(def[1].i) ? def[1].i : '', d: def?.[1].d || '', set };
+  });
+  const encRaid = (enc) => {
+    for (const x of akts) if (x.a.enc.some(([e]) => norm(e).startsWith(norm(enc).split(/[ (]/)[0]))) return x.n;
+    return Object.entries(ENC_EXTRA).find(([k]) => norm(enc).startsWith(norm(k)))?.[1] || 'Other';
+  };
+  const chals = Object.entries(CHALLENGES).map(([n, [enc, text]]) => ({ n, enc, text, raid: encRaid(enc) })).filter((c, i, l) => l.findIndex((y) => y.text === c.text && y.enc === c.enc) === i);
+  ix = { loot, besitz, alle, exos, waffen, sets, akts, chals, fundorte, setsFarm: setsFarm?.sets || {} };
+  return ix;
 }
 
-const ID = (e) => `${e.typ}:${e.titel}`;
-const zeile = (e, antwort = false) => {
-  const auf = offen.has(ID(e));
-  return `<article class="wz ${antwort ? 'antwort' : ''}" data-w="${esc(ID(e))}">
-    <div class="wz-kopf">${e.icon ? `<i style="background-image:url(${BILD}${e.icon})"></i>` : ''}<div><small>${esc({ set: 'Armor set', ort: 'Destination', exo: 'Exotic', waffe: 'Weapon', akt: 'Activity', chal: 'Raid challenge', quelle: 'Source', seal: 'Seal', farm: 'Farm' }[e.typ])}</small><b>${esc(e.titel)}</b></div></div>
-    <p class="wz-kurz">${esc(e.kurz)}</p>
-    ${e.mehr ? (auf ? `<div class="wz-mehr">${e.mehr}</div><button class="fk-klapp" data-wk="${esc(ID(e))}">Less ▴</button>` : `<button class="fk-klapp" data-wk="${esc(ID(e))}">More context ▾</button>`) : ''}</article>`;
+// ---------- Bausteine ----------
+const ic = (h, d, gross = false) => `<i class="wic ${d.q === 6 ? 'exo' : ''} ${gross ? 'gross' : ''}" data-ih="${h}" style="background-image:url(${BILD}${d.i})"></i>`;
+const kachel = (x, besitz) => `<button class="wkachel" data-seite="item:${x.h}">${ic(x.h, x.d)}<span><b>${esc(x.d.n)}</b><small>${esc([x.d.k, x.d.c !== 3 && x.d.t === 2 ? KLASSE[x.d.c] : ''].filter(Boolean).join(' · '))}</small></span>${besitz.get(x.d.n) ? '<em class="hat" title="In your inventory">✓</em>' : ''}</button>`;
+const gruppiert = (liste, key, reihe) => {
+  const g = new Map();
+  for (const x of liste) { const k = key(x); g.set(k, [...(g.get(k) || []), x]); }
+  const keys = [...g.keys()].sort((a, b) => (reihe ? reihe.indexOf(a) - reihe.indexOf(b) : 0) || a.localeCompare(b));
+  return keys.map((k) => [k, g.get(k)]);
 };
+const abschnitt = (titel, n, inhalt, id = '') => `<section class="wabs" ${id ? `id="${id}"` : ''}><h3>${esc(titel)} <small>${n}</small></h3>${inhalt}</section>`;
+const subnav = (werte, aktiv) => `<div class="wsub" role="tablist">${werte.map(([k, t]) => `<button class="chip" data-sub="${esc(k)}" aria-pressed="${k === aktiv}">${esc(t)}</button>`).join('')}</div>`;
+const sprung = (abschnitte) => abschnitte.length > 3 ? `<nav class="wsprung">${abschnitte.map(([t]) => `<a href="#" data-zu="w-${esc(t.replace(/\W/g, ''))}">${esc(t)}</a>`).join('')}</nav>` : '';
+const guideKnopf = (enc, raid, text = 'Guide ↗') => { const id = guideId(enc, raid); return id ? `<button class="chip guide-link" data-guide="${id}" title="Open this encounter in the raid guide">${text}</button>` : ''; };
 
+// ---------- Kategorie-Ansichten ----------
+function zeigeKat(k, x) {
+  const { besitz } = x;
+  if (k === 'exo') {
+    const sub = ansicht.sub;
+    const liste = x.exos.filter((e) => sub === 'alle' || (sub === 'waffen' ? e.d.t === 3 : e.d.t === 2 && String(e.d.c) === sub));
+    const subs = [['alle', 'All'], ['waffen', 'Weapons'], ['0', 'Titan'], ['1', 'Hunter'], ['2', 'Warlock']];
+    const gr = gruppiert(liste, (e) => (e.d.t === 3 ? `${SLOT[e.d.b] || 'Weapon'} weapons` : `${KLASSE[e.d.c]} · ${SLOT[e.d.b] || 'Armor'}`), [
+      'Kinetic weapons', 'Energy weapons', 'Power weapons', ...['Titan', 'Hunter', 'Warlock', 'Any class'].flatMap((c) => ['Helmet', 'Arms', 'Chest', 'Legs', 'Class Item'].map((s) => `${c} · ${s}`))]);
+    return `${subnav(subs, sub)}${sprung(gr)}${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid">${l.sort((a, b) => a.d.n.localeCompare(b.d.n)).map((e) => kachel(e, besitz)).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
+  }
+  if (k === 'waffe') {
+    const sub = ansicht.sub === 'alle' ? 'quelle' : ansicht.sub;
+    const gr = sub === 'typ' ? gruppiert(x.waffen, (w) => w.d.k) : gruppiert(x.waffen, (w) => sourceGruppe(w.q || x.fundorte.get(w.d.n)?.[0]?.akt || '', x.loot));
+    return `${subnav([['quelle', 'By source'], ['typ', 'By weapon type']], sub)}<p class="leer klein">${x.waffen.length} legendary weapons with a confirmed source. Hover an icon for details, click a weapon for perks and where it drops.</p>${sprung(gr)}
+      ${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid">${l.sort((a, b) => a.d.n.localeCompare(b.d.n)).map((w) => kachel(w, besitz)).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
+  }
+  if (k === 'set') {
+    const gr = gruppiert(x.sets, (s) => s.gruppe, ['Raids', 'Dungeons', 'Portal & Vanguard', 'Destinations & quests', 'Crucible & Trials', 'Gambit', 'Seasons, episodes & events', 'Vendors', 'Other']);
+    return `${sprung(gr)}${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid breit">${l.sort((a, b) => a.s.n.localeCompare(b.s.n)).map((s) => `<button class="wkachel set" data-seite="set:${s.h}">${s.teile[0] ? ic(s.teile[0].h, s.teile[0].d) : ''}<span><b>${esc(s.s.n)}</b><small>${esc(s.s.p.map((p) => `${p.c}× ${p.n}`).join(' · '))}</small><small class="wq">${esc(s.akt || s.farm?.farm || s.quellen[0] || 'Source unknown')}</small></span></button>`).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
+  }
+  if (k === 'akt') {
+    const gr = gruppiert(x.akts, (a) => (a.a.art === 'Raid' ? 'Raids' : 'Dungeons'), ['Raids', 'Dungeons']);
+    return gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid breit">${l.map((a) => `<button class="wkachel akt" data-seite="akt:${esc(a.n)}">${a.icon ? `<i class="wic" style="background-image:url(${BILD}${a.icon})"></i>` : ''}<span><b>${esc(a.n)}</b><small>${a.a.enc.length} encounter${a.a.enc.length === 1 ? '' : 's'}${a.a.exo ? ` · exotic: ${esc(a.a.exo[0])}` : ''}</small></span></button>`).join('')}</div>`)).join('');
+  }
+  if (k === 'ort') {
+    const orte = ORTE.map((o) => {
+      const re = new RegExp(`\\b${o}\\b`, 'i');
+      return { o, w: x.waffen.filter((w) => re.test(w.q)), s: x.sets.filter((s) => re.test(s.farm?.ort || '') || re.test(s.farm?.farm || '') || s.quellen.some((q) => re.test(q))) };
+    }).filter((z) => z.w.length || z.s.length);
+    return `<div class="wgrid breit">${orte.map((z) => `<button class="wkachel" data-seite="ort:${esc(z.o)}"><span class="wemo">🪐</span><span><b>${esc(z.o)}</b><small>${z.s.length} armor set${z.s.length === 1 ? '' : 's'} · ${z.w.length} weapons</small></span></button>`).join('')}</div>`;
+  }
+  if (k === 'chal') {
+    const gr = gruppiert(x.chals, (c) => c.raid);
+    return `<p class="leer klein">Bungie only says “A challenge awaits…”, so these short texts come from community guides (kyberscorner.com). The weekly active challenge is in the side panel.</p>${gr.map(([t, l]) => abschnitt(t, l.length, l.map((c) => `<div class="wchal"><div><b>${esc(c.n)}</b><small>${esc(c.enc)}</small><p>${esc(c.text)}</p></div>${guideKnopf(c.enc, c.raid === 'Other' ? null : c.raid, 'Guide & cheat sheet ↗')}</div>`).join(''))).join('')}`;
+  }
+  if (k === 'quelle') {
+    const proQ = gruppiert(x.waffen.filter((w) => w.q), (w) => w.q);
+    const gr = gruppiert(proQ, ([q]) => sourceGruppe(q, x.loot), ['Raids', 'Dungeons', 'Portal & Vanguard', 'Destinations & quests', 'Crucible & Trials', 'Gambit', 'Seasons, episodes & events', 'Vendors', 'Other']);
+    return `<p class="leer klein">Every legendary weapon, sorted by where Bungie says it comes from. Open a source to see its collection; ✓ = you own it.</p>${sprung(gr)}${gr.map(([t, l]) => abschnitt(t, l.length, l.map(([q, ws]) => `<details class="wquelle"><summary><b>${esc(q)}</b><small>${ws.filter((w) => besitz.get(w.d.n)).length} / ${ws.length} owned</small></summary><div class="wgrid">${ws.map((w) => kachel(w, besitz)).join('')}</div></details>`).join(''), `w-${t.replace(/\W/g, '')}`)).join('')}`;
+  }
+  return '';
+}
+
+// ---------- Seals ----------
+async function zeigeSeals(x, zustand) {
+  const st = await ladeStand(zustand);
+  const fertig = (h) => { const r = st[h]; return Boolean(r) && (r.state & 4) === 0; };
+  // Gleicher Titel kommt mehrfach vor (alte Saison-Versionen, Legacy). Eine Karte je Titel, Versionen darunter.
+  const proTitel = new Map();
+  for (const [h, sl] of Object.entries(defs.seal || {})) {
+    const k = `${sl.t || sl.n}`;
+    proTitel.set(k, [...(proTitel.get(k) || []), { h, ...sl }]);
+  }
+  const karten = [...proTitel].map(([titel, vs]) => {
+    const alt = (v) => /legacy/i.test(v.pn || '') || /season (of|1\d|\d)/i.test(v.d);
+    vs.sort((a, b) => alt(a) - alt(b) || b.k.filter(fertig).length - a.k.filter(fertig).length);
+    return { titel, v: vs[0], andere: vs.slice(1), alt: alt(vs[0]) };
+  });
+  const schritt = (r) => {
+    const s = st[r]; const rec = defs.rec?.[r]; if (!rec) return '';
+    const obj = s?.objectives || s?.intervalObjectives || [];
+    const ok = fertig(r);
+    let zahl = '';
+    if (obj.length === 1 && obj[0].completionValue > 1) zahl = `${Math.min(obj[0].progress || 0, obj[0].completionValue)}/${obj[0].completionValue}`;
+    else if (obj.length > 1) zahl = `${obj.filter((o) => o.complete).length}/${obj.length}`;
+    const anteil = obj.length === 1 ? Math.min(1, (obj[0].progress || 0) / (obj[0].completionValue || 1)) : obj.length ? obj.filter((o) => o.complete).length / obj.length : ok ? 1 : 0;
+    return `<div class="sschritt ${ok ? 'ok' : ''}"><span class="sh">${ok ? '✓' : '○'}</span><div><b>${esc(rec.n)}</b>${rec.d ? `<small>${esc(rec.d)}</small>` : ''}${!ok && zahl ? `<div class="sbar2"><i style="width:${Math.round(anteil * 100)}%"></i></div>` : ''}</div>${zahl ? `<em>${ok ? '' : zahl}</em>` : ''}</div>`;
+  };
+  const karte = ({ titel, v, andere }) => {
+    const done = v.k.filter(fertig).length;
+    const da = fertig(v.c);
+    const vergoldet = v.g && fertig(v.g);
+    return `<details class="wseal ${da ? 'da' : ''}"><summary>${v.i ? `<i class="wic" style="background-image:url(${BILD}${v.i})"></i>` : ''}<span><b>${esc(titel)}</b><small>${esc(v.n !== titel ? v.n : 'Seal')}${da ? ' · title earned' : ''}${vergoldet ? ' · gilded this season' : ''}</small><span class="sealbar"><i style="width:${Math.round((done / v.k.length) * 100)}%"></i></span></span><em>${done}/${v.k.length}</em></summary>
+      ${v.d ? `<p class="leer klein">${esc(v.d.split('\n')[0])}</p>` : ''}${v.k.map(schritt).join('')}
+      ${andere.length ? `<p class="wm">Also exists as ${andere.length} older version${andere.length === 1 ? '' : 's'} (e.g. per season) – those are no longer earnable and are hidden here.</p>` : ''}</details>`;
+  };
+  const jetzt = karten.filter((k) => !k.alt), alt = karten.filter((k) => k.alt);
+  return `<p class="leer klein">One card per title. Counters like 2/6 show the steps of a triumph, the bar fills as you go. Progress is read live from your account.</p>
+    ${abschnitt('Current seals', jetzt.length, jetzt.sort((a, b) => a.titel.localeCompare(b.titel)).map(karte).join(''))}
+    ${alt.length ? `<details class="wquelle"><summary><b>Legacy seals</b><small>${alt.length} · no longer earnable</small></summary>${alt.map(karte).join('')}</details>` : ''}`;
+}
+
+// ---------- Detailseiten ----------
+function woDropt(name, x) {
+  const f = x.fundorte.get(name);
+  if (!f) return '';
+  return f.map(({ akt, enc }) => `<div class="wfund"><span>⚔</span><div><b>${esc(enc)}</b><small>${esc(akt)} · ${esc(x.loot[akt].art)}</small></div>${guideKnopf(enc, akt)}<button class="chip" data-seite="akt:${esc(akt)}">Loot table</button></div>`).join('');
+}
+
+async function seiteItem(h, x) {
+  const d = defs.items[h];
+  if (!d) return '<p class="leer">Not found.</p>';
+  const q = quelle(h, d);
+  const set = d.e ? defs.sets?.[d.e] : null;
+  let perks = '';
+  if (d.t === 3) {
+    const pd = await ladePerks();
+    const gleich = Object.entries(defs.items).filter(([, y]) => y.t === 3 && y.n === d.n).map(([hh]) => hh);
+    const ph = gleich.find((hh) => pd.w[hh]) || h;
+    const spalten = pd.w[ph] || [];
+    const emp = empfehlung(ph) || gleich.map(empfehlung).find(Boolean);
+    const god = new Set([...(emp?.ge?.[0] || []), ...(emp?.gv?.[0] || [])]); // nur die Top-Kombination je Modus
+    perks = spalten.length ? `<h3>Possible perks</h3><p class="leer klein">Every perk that can roll in each column (from Bungie's game data). <span class="legende"><span><i class="rt rt-pve"></i> PvE pick</span><span><i class="rt rt-pvp"></i> PvP pick</span><span><i class="rt rt-god"></i> god roll perk</span></span></p>
+      <div class="wperks">${spalten.map((sp) => `<div class="wpcol"><small>${esc(defs.items[sp[0]]?.k || '')}</small>${sp.map((p) => { const pd2 = defs.items[p]; if (!pd2) return ''; const rt = emp ? `${emp.e?.includes(p) ? 'rt-pve' : ''} ${emp.v?.includes(p) ? 'rt-pvp' : ''} ${god.has(p) ? 'rt-god' : ''}` : ''; return `<div class="wperk" data-ih="${p}" data-ik tabindex="0"><i class="pl ${rt}" style="background-image:url(${BILD}${pd2.i})"></i><span>${esc(pd2.n)}</span></div>`; }).join('')}</div>`).join('')}</div>`
+      : '<p class="leer klein">This weapon has fixed perks or no perk data yet.</p>';
+  }
+  const fund = woDropt(d.n, x);
+  const allgemein = d.q === 6 && d.t === 2 && !q ? '<p>Exotic armor: exotic engrams, Legend/Master Lost Sectors played solo (the exotic armor reward rotates), Xûr, or the Monument to Lost Lights in the Tower.</p>' : '';
+  return `<div class="wseite-kopf">${ic(h, d, true)}<div><h2>${esc(d.n)}</h2><small>${esc([d.k, d.t === 2 ? KLASSE[d.c] : SLOT[d.b], d.q === 6 ? 'Exotic' : 'Legendary'].filter(Boolean).join(' · '))}</small>${x.besitz.get(d.n) ? `<small class="hat">✓ You own ${x.besitz.get(d.n)}</small>` : ''}</div></div>
+    ${d.xd ? `<p class="tt"><b class="tgold">${esc(d.xp || 'Exotic perk')}</b> ${esc(d.xd)}</p>` : ''}
+    <h3>Where it drops</h3>${fund}${q ? `<p class="wm">${esc(q.text)} <span>(${esc(q.von)})</span></p>` : ''}${allgemein}${!fund && !q && !allgemein ? '<p class="leer">No confirmed source.</p>' : ''}
+    <div class="wlinks"><button class="chip" data-farm="${esc(d.n)}">🌾 Farm plan</button><a class="chip" href="https://www.light.gg/db/items/${h}/" target="_blank" rel="noopener">light.gg ↗</a>${set ? `<button class="chip" data-seite="set:${d.e}">Set: ${esc(set.n)}</button>` : ''}</div>
+    ${set ? `<h3>Set bonus</h3><div class="tset"><b>${esc(set.n)}</b>${set.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}${perks}`;
+}
+
+function seiteSet(h, x) {
+  const s = x.sets.find((y) => String(y.h) === String(h));
+  if (!s) return '<p class="leer">Not found.</p>';
+  const a = s.akt ? x.loot[s.akt] : null;
+  const proKlasse = gruppiert(s.teile, (t) => KLASSE[t.d.c]);
+  return `<div class="wseite-kopf">${s.teile[0] ? ic(s.teile[0].h, s.teile[0].d, true) : ''}<div><h2>${esc(s.s.n)}</h2><small>Armor set · ${esc(s.gruppe)}</small></div></div>
+    <div class="tset">${s.s.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>
+    <h3>Where it drops</h3>
+    ${a ? `<p>${esc(s.akt)} – armor by encounter:</p>${a.enc.filter(([, , r]) => r.length).map(([enc, , r]) => `<div class="wfund"><span>🛡</span><div><b>${esc(enc)}</b><small>${esc(r.join(', '))}</small></div>${guideKnopf(enc, s.akt)}</div>`).join('')}` : ''}
+    ${s.farm ? `<p><b>${esc(s.farm.farm)}</b>${s.farm.schnell ? ' · fast farm' : ''}</p>` : ''}${s.quellen.length ? `<p class="wm">${esc(s.quellen.join(' · '))}</p>` : ''}
+    <div class="wlinks"><button class="chip" data-farm="${esc(s.s.n)}">🌾 Farm plan</button><a class="chip" href="https://www.light.gg/db/search/?q=${encodeURIComponent(s.s.n)}" target="_blank" rel="noopener">light.gg ↗</a></div>
+    ${proKlasse.map(([k, l]) => abschnitt(k, l.length, `<div class="wgrid">${l.sort((p, q) => Object.keys(SLOT).indexOf(String(p.d.b)) - Object.keys(SLOT).indexOf(String(q.d.b))).map((t) => kachel(t, x.besitz)).join('')}</div>`)).join('')}`;
+}
+
+function seiteAkt(n, x) {
+  const a = x.akts.find((y) => y.n === n);
+  if (!a) return '<p class="leer">Not found.</p>';
+  const waffeIc = (w) => { const y = x.alle.find((z) => z.d.t === 3 && z.d.n === w); return y ? `<button class="wmini" data-seite="item:${y.h}">${ic(y.h, y.d)}<span>${esc(w)}</span></button>` : `<span class="wmini"><span>${esc(w)}</span></span>`; };
+  const chals = x.chals.filter((c) => c.raid === n);
+  return `<div class="wseite-kopf">${a.icon ? `<i class="wic gross" style="background-image:url(${BILD}${a.icon})"></i>` : ''}<div><h2>${esc(n)}</h2><small>${esc(a.a.art)}${a.set.length ? ` · armor: ${esc(a.set.map((s) => s.s.n).join(', '))}` : ''}</small></div>${guideKnopf(n, n, 'Open raid guide ↗')}</div>
+    ${a.d ? `<p class="leer">${esc(a.d)}</p>` : ''}${a.a.frei ? `<p class="wm">${esc(a.a.frei)}</p>` : ''}${a.a.alleText ? `<p class="wm">${esc(a.a.alleText)}</p>` : ''}
+    ${a.a.exo ? `<div class="wfund exo"><span>⭐</span><div><b>${esc(a.a.exo[0])}</b><small>${esc(a.a.exo[1])}</small></div></div>` : ''}
+    <h3>Loot by encounter</h3>${a.a.enc.map(([enc, ws, r]) => `<div class="wenc"><div class="wenc-kopf"><b>${esc(enc)}</b>${guideKnopf(enc, n)}</div><div class="wenc-loot">${ws.map((w) => (/^any /.test(w) ? `<span class="wmini"><span>${esc(w)}</span></span>` : waffeIc(w))).join('')}</div>${r.length ? `<small>Armor: ${esc(r.join(', '))}</small>` : ''}
+      ${chals.filter((c, i, l) => norm(enc).startsWith(norm(c.enc).split(/[ (]/)[0]) && l.findIndex((y) => y.text === c.text) === i).map((c) => `<p class="wchal-k">🏆 <b>${esc(c.n)}</b> – ${esc(c.text)}</p>`).join('')}</div>`).join('')}
+    ${a.a.pool ? `<h3>Full pool</h3><div class="wenc-loot">${a.a.pool.map(waffeIc).join('')}</div>` : ''}
+    <p class="wm">Loot table source: ${esc(a.a.q)} (checked ${esc('Nov 2026')}). Tell me if something changed in-game.</p>`;
+}
+
+function seiteOrt(o, x) {
+  const re = new RegExp(`\\b${o}\\b`, 'i');
+  const ws = x.waffen.filter((w) => re.test(w.q));
+  const ss = x.sets.filter((s) => re.test(s.farm?.ort || '') || re.test(s.farm?.farm || '') || s.quellen.some((q) => re.test(q)));
+  return `<div class="wseite-kopf"><span class="wemo gross">🪐</span><div><h2>${esc(o)}</h2><small>Destination</small></div></div>
+    ${ss.length ? abschnitt('Armor sets', ss.length, ss.map((s) => `<button class="wkachel set" data-seite="set:${s.h}">${s.teile[0] ? ic(s.teile[0].h, s.teile[0].d) : ''}<span><b>${esc(s.s.n)}</b><small>${esc(s.farm?.farm || s.quellen[0] || '')}</small></span></button>`).join('')) : ''}
+    ${ws.length ? abschnitt('Weapons', ws.length, `<div class="wgrid">${ws.map((w) => kachel(w, x.besitz)).join('')}</div>`) : ''}`;
+}
+
+// ---------- Farm-Planer ----------
+function ziele(x) {
+  return [...x.alle.filter((y) => y.d.t === 3 ? y.q || x.fundorte.has(y.d.n) : y.d.q === 6).map((y) => ({ n: y.d.n, typ: y.d.q === 6 ? 'Exotic' : y.d.k, h: y.h, d: y.d })),
+    ...x.sets.map((s) => ({ n: s.s.n, typ: 'Armor set', set: s, d: s.teile[0]?.d, h: s.teile[0]?.h }))];
+}
+async function farmKarte(ziel, x, zustand, rotation) {
+  const istSet = Boolean(ziel.set);
+  const teile = [];
+  const aktName = istSet ? ziel.set.akt : x.fundorte.get(ziel.n)?.[0]?.akt;
+  const a = aktName ? x.loot[aktName] : null;
+  const feat = rotation?.wochen?.find((w, i, l) => new Date(w.ab) <= new Date() && (!l[i + 1] || new Date(l[i + 1].ab) > new Date()));
+  const featured = aktName && feat && [...feat.raids, ...feat.dungeons].some((n) => norm(n) === norm(aktName));
+  if (a) {
+    const encs = istSet ? a.enc.filter(([, , r]) => r.length) : a.enc.filter(([, ws]) => ws.includes(ziel.n));
+    teile.push(`<div class="fschritt"><b>1 · Go to ${esc(aktName)}</b><p>${istSet ? 'Armor pieces drop at these encounters:' : `Drops at ${encs.length > 1 ? 'these encounters' : 'this encounter'}:`}</p>${(encs.length ? encs : a.enc).map(([enc, , r]) => `<div class="wfund"><span>⚔</span><div><b>${esc(enc)}</b>${istSet ? `<small>${esc(r.join(', '))}</small>` : ''}</div>${guideKnopf(enc, aktName)}</div>`).join('')}</div>`);
+    teile.push(`<div class="fschritt"><b>2 · How often</b><p>${a.art === 'Raid'
+      ? featured ? 'Featured raid this week: every clear can drop loot, so you can farm it.' : 'Each encounter drops loot once per character per week (three characters = three tries). Extra copies: Spoils of Conquest at the final chest.'
+      : featured ? 'Featured dungeon this week: farm freely.' : 'Dungeon loot drops on every clear; checkpoints let you repeat a single encounter.'}${ziel.d?.q === 6 ? ' The exotic is a random drop from the final boss (dungeon exotics: one chance per character per week on newer dungeons).' : ''}</p></div>`);
+  } else if (ziel.set?.farm) {
+    teile.push(`<div class="fschritt"><b>1 · Where</b><p>${esc(ziel.set.farm.farm)}${ziel.set.farm.schnell ? ' · fast farm' : ''}</p></div>`);
+  } else {
+    const q = ziel.h ? quelle(ziel.h, ziel.d) : null;
+    teile.push(`<div class="fschritt"><b>1 · Where</b><p>${q ? esc(q.text) : 'No confirmed source.'}</p></div>`);
+    if (ziel.d?.q === 6 && ziel.d.t === 2) {
+      const ls = await ladeSektoren(zustand);
+      teile.push(`<div class="fschritt"><b>2 · Exotic armor</b><p>Play a Legend or Master Lost Sector solo; the exotic armor slot reward rotates. Also: exotic engrams, Xûr, Monument to Lost Lights.</p>${ls.length ? `<p>Lost Sectors open right now:</p><div class="wlinks">${ls.map((l) => `<span class="chip">${esc(l.n)}${l.o ? ` · ${esc(l.o)}` : ''}</span>`).join('')}</div>` : '<p class="wm">Today\'s Lost Sectors are shown here once Bungie lists them for your characters.</p>'}</div>`);
+    }
+  }
+  return `<article class="farmkarte"><div class="wseite-kopf">${ziel.h && ziel.d ? ic(ziel.h, ziel.d, true) : ''}<div><h2>${esc(ziel.n)}</h2><small>${esc(ziel.typ)}${featured ? ' · <span class="gold">featured this week</span>' : ''}${x.besitz.get(ziel.n) ? ` · you own ${x.besitz.get(ziel.n)}` : ''}</small></div></div>${teile.join('')}
+    <div class="wlinks">${istSet ? `<button class="chip" data-seite="set:${ziel.set.h}">Set in the wiki</button>` : ziel.h ? `<button class="chip" data-seite="item:${ziel.h}">In the wiki${ziel.d?.t === 3 ? ' · perks' : ''}</button>` : ''}${aktName ? `<button class="chip" data-seite="akt:${esc(aktName)}">Loot table ${esc(aktName)}</button>` : ''}</div></article>`;
+}
+let rotationCache;
+async function zeigeFarm(x, zustand) {
+  const rotation = rotationCache ??= await json('data/rotation.json');
+  const liste = ziele(x);
+  const z = ansicht.farm ? liste.find((y) => norm(y.n) === norm(ansicht.farm)) || liste.find((y) => norm(y.n).includes(norm(ansicht.farm))) : null;
+  // Ideen: was dir für Community-Builds deiner Klassen fehlt.
+  let ideen = '';
+  try {
+    const builds = (await json('data/builds.json'))?.builds || [];
+    const klassen = new Set(Object.values(zustand.profil.characters?.data || {}).map((c) => c.classType));
+    const fehlt = [...new Set(builds.filter((b) => klassen.has(b.klasse ?? 2)).flatMap((b) => b.exotics))].filter((e) => !x.besitz.has(e)).slice(0, 12);
+    if (fehlt.length) ideen = `<h3>Ideas: exotics from popular builds you don't have</h3><div class="wlinks">${fehlt.map((e) => `<button class="chip" data-farm="${esc(e)}">${esc(e)}</button>`).join('')}</div>`;
+  } catch {}
+  return `<div class="farmsuche"><input id="farmIn" type="search" autocomplete="off" placeholder="What do you want to farm? e.g. Fatebringer, Kentarch 3, Gjallarhorn…" value="${esc(ansicht.farm)}"><div id="farmVor" class="vorschlag" hidden></div></div>
+    ${z ? await farmKarte(z, x, zustand, rotation) : ansicht.farm ? '<p class="leer">Nothing found. Try another name.</p>' : '<p class="leer klein">Type a weapon, exotic or armor set. You get the exact encounter, how often it drops, whether it is featured this week, and jump links to the guide and the wiki.</p>'}
+    ${ideen}`;
+}
+
+// ---------- Suche ----------
+function sucheAlle(x, text) {
+  const w = norm(text).split(/\s+/).filter((t) => t && !['where', 'does', 'drop', 'the', 'get', 'how', 'to', 'from'].includes(t));
+  if (!w.length) return [];
+  const kand = [
+    ...x.exos.map((e) => ({ t: e.d.n, art: 'Exotic', seite: `item:${e.h}`, h: e.h, d: e.d, extra: `${e.d.k} ${e.d.xp || ''}` })),
+    ...x.waffen.map((e) => ({ t: e.d.n, art: e.d.k, seite: `item:${e.h}`, h: e.h, d: e.d, extra: e.q })),
+    ...x.sets.map((s) => ({ t: s.s.n, art: 'Armor set', seite: `set:${s.h}`, h: s.teile[0]?.h, d: s.teile[0]?.d, extra: `${s.akt || ''} ${s.farm?.ort || ''}` })),
+    ...x.akts.map((a) => ({ t: a.n, art: a.a.art, seite: `akt:${a.n}`, extra: a.a.enc.map((e) => e[0]).join(' ') })),
+    ...ORTE.map((o) => ({ t: o, art: 'Destination', seite: `ort:${o}`, extra: 'planet' })),
+    ...x.chals.map((c) => ({ t: c.n, art: 'Raid challenge', seite: null, kat: 'chal', extra: `${c.enc} ${c.raid}` })),
+  ];
+  return kand.map((k) => { const tt = norm(k.t); const g = `${tt} ${norm(k.extra)}`; if (!w.every((v) => g.includes(v))) return null; return { k, s: w.reduce((a, v) => a + (tt.startsWith(v) ? 4 : tt.includes(v) ? 3 : 1), 0) + (tt === norm(text) ? 10 : 0) }; })
+    .filter(Boolean).sort((a, b) => b.s - a.s).map((y) => y.k);
+}
+const treffer = (k) => `<button class="wkachel" ${k.seite ? `data-seite="${esc(k.seite)}"` : `data-kat="${k.kat}"`}>${k.h && k.d ? ic(k.h, k.d) : '<span class="wemo">📄</span>'}<span><b>${esc(k.t)}</b><small>${esc(k.art)}</small></span></button>`;
+
+// ---------- Rahmen ----------
 export async function zeigeWiki(el, zustand) {
   el.innerHTML = '<h1>Wiki</h1><p class="leer">Building the index…</p>';
-  const liste = await baue(zustand);
-  const zeichne = () => {
-    let inhalt;
-    if (ansicht.suche) {
-      const t = suche(liste, ansicht.suche);
-      inhalt = t.length ? `${zeile(t[0], true)}${t.length > 1 ? `<h3 class="wh">More results (${t.length - 1})</h3>${t.slice(1, 40).map((e) => zeile(e)).join('')}` : ''}` : '<p class="leer">Nothing found. Try another word, e.g. a planet, a set or a weapon name.</p>';
-    } else if (ansicht.kat) {
-      const t = liste.filter((e) => e.typ === ansicht.kat).sort((a, b) => a.titel.localeCompare(b.titel));
-      inhalt = `<button class="chip" data-zurueck>← All categories</button><h2 class="wh">${esc(KATEGORIEN.find((k) => k[0] === ansicht.kat)[1])} <small>${t.length}</small></h2>${t.map((e) => zeile(e)).join('')}`;
-    } else {
-      inhalt = `<div class="wkat">${KATEGORIEN.map(([k, n, ic]) => `<button data-kat="${k}"><span>${ic}</span><b>${n}</b><small>${liste.filter((e) => e.typ === k).length}</small></button>`).join('')}</div>
-        <p class="leer klein">Try: “europa set”, “where does Gjallarhorn drop”, “Last Wish”, “freeze”, “Nessus”.</p>`;
+  const x = await baue(zustand);
+  el.innerHTML = `<div class="kopf"><h1>Wiki</h1><div class="wsuchbox"><input id="wsuche" type="search" autocomplete="off" placeholder="Search weapons, exotics, sets, raids, planets…" value="${esc(ansicht.suche)}"><div id="wVor" class="vorschlag" hidden></div></div></div>
+    <div class="wlayout"><nav class="wnav" aria-label="Wiki sections"><button data-kat="" class="${!ansicht.kat && !ansicht.suche ? 'an' : ''}"><span>🏠</span>Start</button>${KATEGORIEN.map(([k, n, e]) => `<button data-kat="${k}" class="${ansicht.kat === k ? 'an' : ''}"><span>${e}</span>${n}</button>`).join('')}</nav><div id="wInhalt" class="winhalt"></div></div>`;
+  const box = el.querySelector('#wInhalt');
+  const zeichne = async () => {
+    el.querySelectorAll('.wnav button').forEach((b) => b.classList.toggle('an', (b.dataset.kat || null) === (ansicht.kat || null) && !ansicht.suche));
+    let html = '';
+    if (ansicht.seite) {
+      const [art, ...r] = ansicht.seite.split(':'); const key = r.join(':');
+      const zurueck = `<button class="chip" data-zurueck>← ${esc(KATEGORIEN.find((k) => k[0] === ansicht.kat)?.[1] || (ansicht.suche ? 'Results' : 'Start'))}</button>`;
+      html = zurueck + (art === 'item' ? await seiteItem(key, x) : art === 'set' ? seiteSet(key, x) : art === 'akt' ? seiteAkt(key, x) : seiteOrt(key, x));
+    } else if (ansicht.suche) {
+      const t = sucheAlle(x, ansicht.suche);
+      html = t.length ? `<h2 class="wh">Results <small>${t.length}</small></h2><div class="wgrid breit">${t.slice(0, 60).map(treffer).join('')}</div>` : '<p class="leer">Nothing found. Try a weapon, set, raid or planet name.</p>';
+    } else if (ansicht.kat === 'seal') html = `<h2 class="wh">Seals</h2>${await zeigeSeals(x, zustand)}`;
+    else if (ansicht.kat === 'farm') html = `<h2 class="wh">Farm planner</h2>${await zeigeFarm(x, zustand)}`;
+    else if (ansicht.kat) html = `<h2 class="wh">${esc(KATEGORIEN.find((k) => k[0] === ansicht.kat)[1])}</h2>${zeigeKat(ansicht.kat, x)}`;
+    else {
+      html = `<div class="wkat">${KATEGORIEN.map(([k, n, e]) => `<button data-kat="${k}"><span>${e}</span><b>${n}</b><small>${{ exo: x.exos.length, waffe: x.waffen.length, set: x.sets.length, akt: x.akts.length, ort: ORTE.length, seal: Object.keys(defs.seal || {}).length, chal: x.chals.length, quelle: new Set(x.waffen.map((w) => w.q)).size, farm: '' }[k]}</small></button>`).join('')}</div>
+        <p class="leer klein">Tip: hover any icon in the app for details, click it for jump links. Try the farm planner for “where exactly does it drop”.</p>`;
     }
-    el.querySelector('#wInhalt').innerHTML = inhalt;
+    box.innerHTML = html;
+    if (ansicht.kat === 'farm' && !ansicht.seite) verbindeFarm();
   };
-  el.innerHTML = `<div class="kopf"><h1>Wiki</h1><input id="wsuche" type="search" placeholder="Ask: europa set, where does Gjallarhorn drop…" value="${esc(ansicht.suche)}"></div><div id="wInhalt"></div>`;
-  zeichne();
+  // Vorschläge unter einem Eingabefeld (Pfeiltasten + Enter).
+  const vorschlaege = (inp, vor, liste, waehle) => {
+    let k = -1, aktuell = [];
+    const zeig = () => {
+      const q = norm(inp.value.trim());
+      aktuell = q ? liste().filter((y) => norm(y.n).includes(q)).sort((a, b) => norm(b.n).startsWith(q) - norm(a.n).startsWith(q) || a.n.localeCompare(b.n)).slice(0, 8) : [];
+      k = -1;
+      vor.hidden = !aktuell.length;
+      vor.innerHTML = aktuell.map((y, i) => `<button data-vi="${i}">${y.h && y.d ? `<i class="wic klein" style="background-image:url(${BILD}${y.d.i})"></i>` : ''}<span>${esc(y.n)}</span><small>${esc(y.typ)}</small></button>`).join('');
+    };
+    inp.addEventListener('input', zeig);
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); k = Math.max(0, Math.min(aktuell.length - 1, k + (e.key === 'ArrowDown' ? 1 : -1))); vor.querySelectorAll('button').forEach((b, i) => b.classList.toggle('an', i === k)); }
+      if (e.key === 'Enter') { vor.hidden = true; waehle(aktuell[k >= 0 ? k : 0] || { n: inp.value.trim() }); }
+      if (e.key === 'Escape') vor.hidden = true;
+    });
+    vor.addEventListener('pointerdown', (e) => { const b = e.target.closest('[data-vi]'); if (b) { e.preventDefault(); vor.hidden = true; waehle(aktuell[Number(b.dataset.vi)]); } });
+    inp.addEventListener('blur', () => setTimeout(() => { vor.hidden = true; }, 150));
+  };
+  const alleZiele = ziele(x);
+  const verbindeFarm = () => {
+    const inp = box.querySelector('#farmIn');
+    vorschlaege(inp, box.querySelector('#farmVor'), () => alleZiele, (y) => { ansicht.farm = y?.n || ''; zeichne(); });
+  };
+  const suchListe = [...alleZiele, ...x.akts.map((a) => ({ n: a.n, typ: a.a.art, akt: a })), ...ORTE.map((o) => ({ n: o, typ: 'Destination', ort: o }))];
   const f = el.querySelector('#wsuche');
+  vorschlaege(f, el.querySelector('#wVor'), () => suchListe, (y) => {
+    if (y.akt) ansicht = { ...ansicht, seite: `akt:${y.n}`, suche: '' };
+    else if (y.ort) ansicht = { ...ansicht, seite: `ort:${y.n}`, suche: '' };
+    else if (y.set) ansicht = { ...ansicht, seite: `set:${y.set.h}`, suche: '' };
+    else if (y.h) ansicht = { ...ansicht, seite: `item:${y.h}`, suche: '' };
+    else ansicht = { ...ansicht, seite: null, suche: y.n };
+    f.value = ansicht.suche; zeichne();
+  });
   let t;
-  f.oninput = () => { clearTimeout(t); t = setTimeout(() => { ansicht.suche = f.value.trim(); zeichne(); }, 180); };
+  f.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { ansicht.suche = f.value.trim(); ansicht.seite = null; if (ansicht.suche) ansicht.kat = null; zeichne(); }, 250); });
+  await zeichne();
+
   el.onclick = (e) => {
     const k = e.target.closest('[data-kat]');
-    if (k) { ansicht.kat = k.dataset.kat; return zeichne(); }
-    if (e.target.closest('[data-zurueck]')) { ansicht.kat = null; return zeichne(); }
-    const w = e.target.closest('[data-wk]');
-    if (w) { const id = w.dataset.wk; if (offen.has(id)) offen.delete(id); else offen.add(id); const a = el.querySelector(`.wz[data-w="${CSS.escape(id)}"]`); const ein = liste.find((x) => ID(x) === id); a.outerHTML = zeile(ein, a.classList.contains('antwort')); }
+    if (k) { ansicht = { ...ansicht, kat: k.dataset.kat || null, seite: null, sub: 'alle', suche: '' }; f.value = ''; scrollTo({ top: 0 }); return zeichne(); }
+    const s = e.target.closest('[data-seite]');
+    if (s) { ansicht.seite = s.dataset.seite; scrollTo({ top: 0 }); return zeichne(); }
+    if (e.target.closest('[data-zurueck]')) { ansicht.seite = null; return zeichne(); }
+    const sub = e.target.closest('[data-sub]');
+    if (sub) { ansicht.sub = sub.dataset.sub; return zeichne(); }
+    const fa = e.target.closest('[data-farm]');
+    if (fa) { ansicht = { ...ansicht, kat: 'farm', seite: null, farm: fa.dataset.farm, suche: '' }; f.value = ''; return zeichne(); }
+    const g = e.target.closest('[data-guide]');
+    if (g) { import('./app.js').then((m) => m.springeGuide(g.dataset.guide)); return; }
+    const zu = e.target.closest('[data-zu]');
+    if (zu) { e.preventDefault(); el.querySelector(`#${zu.dataset.zu}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   };
 }

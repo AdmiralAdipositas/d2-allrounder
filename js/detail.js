@@ -28,6 +28,7 @@ function fenster() {
 
 export function oeffneDetail(it, zustand, neuZeichnen) {
   if (!it) return;
+  it.m = it.m || {};
   const d = fenster();
   const k = zustand.konto;
   const chars = Object.values(zustand.profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
@@ -56,7 +57,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
   const knopf = (sp, h) => {
     const p = defs.items[h];
     const tipp = '';
-    const god = emp && [...(emp.ge || []), ...(emp.gv || [])].some((k) => k.includes(h));
+    const god = emp && [emp.ge?.[0] || [], emp.gv?.[0] || []].some((k) => k.includes(h));
     const rt = emp ? `${emp.e?.includes(h) ? 'rt-pve' : ''} ${emp.v?.includes(h) ? 'rt-pvp' : ''} ${god ? 'rt-god' : ''}` : '';
     return `<button class="pl ${rt} ${h === sp.aktiv ? 'an' : ''} ${wahl?.h === h && wahl?.s === sp.s ? 'wahl' : ''}" data-s="${sp.s}" data-h="${h}" title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})">${tipp}</button>`;
   };

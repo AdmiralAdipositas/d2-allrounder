@@ -84,7 +84,7 @@ function anreichern(b, besitz) {
   }
   return b;
 }
-const waffeHtml = (x, besitz) => `<span class="wf ${besitz.has(x.n) ? 'hat' : ''}" title="${esc(x.k)} · community PvE pick${x.qu ? ` · ${esc(x.qu)}` : ''}"><i style="background-image:url(${BILD}${x.i})"></i>${esc(x.n)}${besitz.has(x.n) ? ' ✓' : ''}${x.d0 && x.d0 !== 1 ? `<em class="gr el${x.d0}">●</em>` : ''}</span>`;
+const waffeHtml = (x, besitz) => `<span class="wf ${besitz.has(x.n) ? 'hat' : ''}"><i ${x.hash ? `data-ih="${x.hash}"` : ''} style="background-image:url(${BILD}${x.i})"></i>${esc(x.n)}${besitz.has(x.n) ? ' ✓' : ''}${x.d0 && x.d0 !== 1 ? `<em class="gr el${x.d0}">●</em>` : ''}</span>`;
 
 function karte(b, besitz, besitzSets, sets) {
   anreichern(b, besitz);
@@ -99,17 +99,17 @@ function karte(b, besitz, besitzSets, sets) {
       <div class="fk-kopf"><div><h2>${esc(b.name)}</h2><small>${KLASSE[b.klasse]}${b.subclass ? ` · ${esc(b.subclass)}` : ''}${b.aktivitaet?.length && !b.idee ? ` · ${esc(b.aktivitaet.join(', '))}` : ''}</small></div>
         <div class="fk-tags">${els.map((e) => `<span class="eltag el-${e.toLowerCase()}">${e}</span>`).join('')}${b.idee ? '<span class="tag" title="Auto-built from Bungie game data, not tested by players">Idea · auto-built</span>' : '<span class="tag gold" title="Tested build from a community guide">Community · tested</span>'}<span class="tag ${fehlt.length ? '' : 'gut'}">${fehlt.length ? `${fehlt.length} missing` : 'Ready'}</span></div></div>
       <p class="fk-warum">${esc(kurz)}</p>
-      <div class="fk-vorschau">${(b.plan || [])[0] ? `<span>🛡 ${esc(b.plan[0].set)} <em>${besitzSets(b.plan[0].set)} owned</em></span>` : ''}${b.empf?.exotic ? `<span><i style="background-image:url(${BILD}${b.empf.exotic.i})"></i>${esc(b.empf.exotic.n)}${besitz.has(b.empf.exotic.n) ? ' ✓' : ''}</span>` : ''}</div>
+      <div class="fk-vorschau">${(b.plan || [])[0] ? `<span>🛡 ${esc(b.plan[0].set)} <em>${besitzSets(b.plan[0].set)} owned</em></span>` : ''}${b.empf?.exotic ? `<span><i data-ih="${b.empf.exotic.hash}" style="background-image:url(${BILD}${b.empf.exotic.i})"></i>${esc(b.empf.exotic.n)}${besitz.has(b.empf.exotic.n) ? ' ✓' : ''}</span>` : ''}</div>
       <button class="fk-klapp" data-klapp="${esc(b.id)}" aria-expanded="${auf}">${auf ? 'Less ▴' : 'Details ▾'}</button>
       ${auf ? `<div class="fk-mehr">
-        <h3>Exotics</h3>${b.exotics.map((e) => { const d = finde(e); const hat = besitz.has(e); return `<div class="fz ${hat ? 'hat' : 'fehlt'}">${d?.i ? `<i style="background-image:url(${BILD}${d.i})"></i>` : ''}<span>${esc(e)}</span><em>${hat ? 'owned' : 'missing'}</em>${hat ? '' : blip(e, quelleText(d))}${d?.xd && !b.idee ? `<small>${esc(d.xp || '')}: ${esc(d.xd)}</small>` : ''}</div>`; }).join('')}
+        <h3>Exotics</h3>${b.exotics.map((e) => { const d = finde(e); const hat = besitz.has(e); return `<div class="fz ${hat ? 'hat' : 'fehlt'}">${d?.i ? `<i data-ih="${d.hash}" style="background-image:url(${BILD}${d.i})"></i>` : ''}<span>${esc(e)}</span><em>${hat ? 'owned' : 'missing'}</em>${hat ? '' : blip(e, quelleText(d))}${d?.xd && !b.idee ? `<small>${esc(d.xp || '')}: ${esc(d.xd)}</small>` : ''}</div>`; }).join('')}
         ${(b.plan || []).length ? `<h3>Armor set</h3>${b.plan.map((p) => { const info = Object.entries(sets).find(([n]) => p.set.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(p.set.toLowerCase()))?.[1]; const n = besitzSets(p.set); return `<div class="fz ${n >= p.stuecke ? 'hat' : 'fehlt'}"><span><b>${esc(p.set)}</b> · ${p.stuecke} pieces</span><em>${n} owned</em>${blip(`${p.set}: where to farm`, info ? `${info.farm}${info.schnell ? ' · fast farm' : ''}` : 'Drop source not in the list yet.')}<small>${esc(p.grund)}</small></div>`; }).join('')}` : ''}
         ${b.subclass ? `<h3>Subclass</h3><p class="fliste">${esc(b.subclass)}</p>` : ''}
         ${b.faehigkeiten?.length ? `<h3>Super & abilities</h3><p class="fliste">${esc(b.faehigkeiten.join(' · '))}</p>` : ''}
         ${b.aspekte?.length ? `<h3>Aspects</h3><p class="fliste">${esc(b.aspekte.join(' · '))}</p><h3>Fragments</h3><p class="fliste">${esc(b.fragmente.join(' · '))}</p>` : ''}
         ${b.erklaerung?.length ? `<h3>Why these pieces</h3>${b.erklaerung.map((x) => `<p class="fliste klein2">${esc(x)}</p>`).join('')}` : ''}
         <h3>Weapons</h3>
-        ${b.empf?.exotic ? `<div class="fz ${besitz.has(b.empf.exotic.n) ? 'hat' : 'fehlt'}"><i style="background-image:url(${BILD}${b.empf.exotic.i})"></i><span><b>${esc(b.empf.exotic.n)}</b> (exotic)</span><em>${besitz.has(b.empf.exotic.n) ? 'owned' : 'missing'}</em>${besitz.has(b.empf.exotic.n) ? '' : blip(b.empf.exotic.n, quelleText(b.empf.exotic))}${b.empf.exotic.xd ? `<small>${esc(b.empf.exotic.xp || '')}: ${esc(b.empf.exotic.xd)}</small>` : ''}</div>` : ''}
+        ${b.empf?.exotic ? `<div class="fz ${besitz.has(b.empf.exotic.n) ? 'hat' : 'fehlt'}"><i data-ih="${b.empf.exotic.hash}" style="background-image:url(${BILD}${b.empf.exotic.i})"></i><span><b>${esc(b.empf.exotic.n)}</b> (exotic)</span><em>${besitz.has(b.empf.exotic.n) ? 'owned' : 'missing'}</em>${besitz.has(b.empf.exotic.n) ? '' : blip(b.empf.exotic.n, quelleText(b.empf.exotic))}${b.empf.exotic.xd ? `<small>${esc(b.empf.exotic.xp || '')}: ${esc(b.empf.exotic.xd)}</small>` : ''}</div>` : ''}
         ${Object.entries(b.empf?.legendaries || {}).map(([slot, l]) => l.length ? `<div class="wslot"><small>${slot[0].toUpperCase() + slot.slice(1)}</small>${l.map((x) => waffeHtml(x, besitz)).join('')}</div>` : '').join('')}
         ${b.waffen?.length ? `<p class="fliste klein2">Build note: ${esc(b.waffen.join(' · '))}</p>` : ''}
         <h3>Armor mods</h3><p class="fliste">${esc(b.modNamen.join(' · '))}</p>

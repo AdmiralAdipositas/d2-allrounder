@@ -48,7 +48,7 @@ async function lade(zustand) {
     for (const w of uw?.weapons || []) {
       const it = defs.items[w.referenceId];
       if (!it?.n) continue;
-      const e = waffen.get(it.n) || { name: it.n, icon: it.i, kills: 0, praez: 0, exotic: it.q === 6 };
+      const e = waffen.get(it.n) || { h: w.referenceId, name: it.n, icon: it.i, kills: 0, praez: 0, exotic: it.q === 6 };
       e.kills += wert(w.values, 'uniqueWeaponKills');
       e.praez += wert(w.values, 'uniqueWeaponPrecisionKills');
       waffen.set(it.n, e);
@@ -97,5 +97,5 @@ export async function zeigeStats(haupt, zustand) {
       <div class="tage">${d.tage.map((t) => { const h = t.s / 3600; const lbl = `${new Date(t.tag).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'short' })}: ${h ? `${h.toFixed(1)} h` : 'not played'}`; return `<div tabindex="0" data-h="${lbl}" aria-label="${lbl}"><em>${h >= 0.1 ? h.toFixed(1) : ''}</em><i style="height:${(t.s / maxTag) * 100}%"></i><small>${t.kurz}</small></div>`; }).join('')}</div></section>
     <div class="zwei">${tabelle('Raids', d.raids)}${tabelle('Dungeons', d.dungeons)}</div>
     <div class="zwei"><section class="karte"><h3>Kills by weapon type</h3>${d.typen.map((t) => `<div class="tbar"><span>${esc(t.name)}</span><i><b style="width:${(t.kills / maxTyp) * 100}%"></b></i><em>${zahl(t.kills)}</em></div>`).join('')}</section>
-      <section class="karte"><h3>Top weapons</h3><div class="twaffen">${d.waffen.map((w) => `<div class="tw ${w.exotic ? 'exo' : ''}"><i style="background-image:url(${BILD}${w.icon})"></i><div><b>${esc(w.name)}</b><small>${zahl(w.kills)} kills · ${Math.round((w.praez / Math.max(1, w.kills)) * 100)}% precision</small></div></div>`).join('')}</div></section></div>`;
+      <section class="karte"><h3>Top weapons</h3><div class="twaffen">${d.waffen.map((w) => `<div class="tw ${w.exotic ? 'exo' : ''}"><i data-ih="${w.h}" style="background-image:url(${BILD}${w.icon})"></i><div><b>${esc(w.name)}</b><small>${zahl(w.kills)} kills · ${Math.round((w.praez / Math.max(1, w.kills)) * 100)}% precision</small></div></div>`).join('')}</div></section></div>`;
 }

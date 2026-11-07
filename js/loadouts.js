@@ -60,7 +60,7 @@ export function zeigeLoadouts(haupt, zustand) {
         return `<article class="lo ${leer ? 'leer-slot' : ''}">
           <div class="lo-kopf"><i class="lo-icon" style="background-image:url(${BILD}${defs.lo?.i?.[l.iconHash] || ''}),url(${BILD}${defs.lo?.f?.[l.colorHash] || ''})"></i><b>${leer ? `Empty slot ${i + 1}` : esc(name)}</b><small>#${i + 1}</small>${leer ? '' : `<button class="lo-edit" data-edit="${i}" title="Change name, icon and color" aria-label="Edit">✎</button>`}</div>
           ${bearbeite?.i === i ? editor() : ''}
-          <div class="lo-items">${items.map((x) => { const d = defs.items[hashes.get(x.itemInstanceId)]; return d ? `<i title="${esc(d.n)}" class="${d.q === 6 ? 'exo' : ''}" style="background-image:url(${BILD}${d.i})"></i>` : '<i class="fehlt" title="Item no longer exists"></i>'; }).join('')}</div>
+          <div class="lo-items">${items.map((x) => { const d = defs.items[hashes.get(x.itemInstanceId)]; return d ? `<i data-ih="${hashes.get(x.itemInstanceId)}" class="${d.q === 6 ? 'exo' : ''}" style="background-image:url(${BILD}${d.i})"></i>` : '<i class="fehlt" title="Item no longer exists"></i>'; }).join('')}</div>
           <div class="lo-knoepfe">${leer ? '' : `<button class="haupt-knopf" data-equip="${i}" ${laeuft ? 'disabled' : ''}>Equip</button>`}
             <button data-snap="${i}" ${laeuft ? 'disabled' : ''}>${bestaetigen === i ? 'Click again to overwrite' : 'Save current gear here'}</button>
  ${leer ? '' : `<button data-teilen="${i}" ${laeuft ? 'disabled' : ''}>Share</button>`}

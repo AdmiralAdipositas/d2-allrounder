@@ -15,12 +15,14 @@ import { zeigeKonto } from './konto.js';
 import { zeigeWiki, setzeWikiSuche } from './wiki.js';
 import { zeigeSymbole } from './symbole.js';
 import { zeigeSquad } from './squad.js';
+import { setzeNav } from './info.js';
+import { sammle } from './vault.js';
 
 const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
 const haupt = $('#haupt');
 const panel = $('#panel');
-export const zustand = { konto: null, profil: null, tab: 'vault', neuLaden: async () => {
+export const zustand = { konto: null, profil: null, tab: 'vault', neuLaden: async () => { zustand.alleItems = null;
   meldung('Loading from Bungie…');
   try { await ladeProfil(); TABS[zustand.tab](); meldung('Up to date.'); } catch (e) { meldung(e.message, true); }
 } };
@@ -68,14 +70,23 @@ const ANSICHTEN = {
   wiki: ['Wiki', (el) => zeigeWiki(el, zustand)],
   squad: ['Squad check', (el) => zeigeSquad(el, zustand)],
   guide: ['Raid Guide', (el) => {
+    const ziel = zustand.guideZiel; zustand.guideZiel = null;
+    if (ziel) { try { localStorage.setItem('d2a.guideTeil', 'briefing'); } catch {} }
     const teil = (() => { try { return localStorage.getItem('d2a.guideTeil') || 'briefing'; } catch { return 'briefing'; } })();
     el.innerHTML = `<div class="guide-kopf"><button class="chip" data-gteil="briefing" aria-pressed="${teil === 'briefing'}">🎬 Briefing</button><button class="chip" data-gteil="symbole" aria-pressed="${teil === 'symbole'}">🔣 Symbols & callouts</button><button class="chip" data-panelart="squad">👥 Squad check</button></div><div id="gInhalt"></div>`;
     const inhalt = el.querySelector('#gInhalt');
     if (teil === 'symbole') zeigeSymbole(inhalt);
-    else inhalt.innerHTML = '<iframe class="guide" src="guide/index.html" title="Raid briefing"></iframe><p class="leer klein">Your raid and dungeon briefing with animations, roles, challenges and callouts (DE/EN). <a href="guide/index.html" target="_blank" rel="noopener">Open full screen ↗</a></p>';
+    else inhalt.innerHTML = `<iframe class="guide" src="guide/index.html${ziel ? `#${ziel}` : ''}" title="Raid briefing"></iframe><p class="leer klein">Your raid and dungeon briefing with animations, roles, challenges and callouts (DE/EN). <a href="guide/index.html" target="_blank" rel="noopener">Open full screen ↗</a></p>`;
     el.querySelectorAll('[data-gteil]').forEach((b) => { b.onclick = () => { try { localStorage.setItem('d2a.guideTeil', b.dataset.gteil); } catch {} ANSICHTEN.guide[1](el); }; });
   }],
 };
+// Sprünge aus Info-Karten: Wiki (Suche oder Farm-Planer) und Raid Guide (Begegnung).
+setzeNav({
+  wiki: (q, art) => { setzeWikiSuche(q, art); wechsle('wiki'); },
+  guide: (id) => { zustand.guideZiel = id; wechsle('guide'); },
+  items: () => zustand.alleItems || (zustand.profil ? (zustand.alleItems = sammle(zustand.profil)) : []),
+});
+export const springeGuide = (id) => { zustand.guideZiel = id; wechsle('guide'); };
 const TABS = Object.fromEntries(['vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
 
@@ -106,7 +117,7 @@ panel.addEventListener('pointerover', (e) => {
   t.style.left = `${Math.max(8, r.left - b.width - 8)}px`; t.style.top = `${Math.min(r.top, innerHeight - b.height - 8)}px`;
 });
 haupt.addEventListener('click', (e) => { const p = e.target.closest('[data-panelart]'); if (p) oeffnePanel(p.dataset.panelart); });
-panel.addEventListener('click', (e) => { const g = e.target.closest('[data-geh]'); if (g) wechsle(g.dataset.geh); });
+panel.addEventListener('click', (e) => { const g = e.target.closest('[data-geh]'); if (g) wechsle(g.dataset.geh); const gd = e.target.closest('[data-guide]'); if (gd) springeGuide(gd.dataset.guide); });
 panel.addEventListener('click', (e) => { const w = e.target.closest('[data-wiki]'); if (w) { setzeWikiSuche(w.dataset.wiki); wechsle('wiki'); } });
 panel.addEventListener('pointerout', (e) => { if (e.target.closest('[data-tn]')) $('#tipp').hidden = true; });
 

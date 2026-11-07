@@ -40,9 +40,9 @@ function karte(x) {
   const stats = ruestung ? ARMOR_STATS.map((n) => roh.find((s) => s.n === n) || { n, v: 0 }) : roh.filter((s) => s.v);
   const summe = ruestung ? stats.reduce((a, s) => a + s.v, 0) : 0;
   const max = ruestung ? 45 : 100;
-  const kosten = (sale.costs || []).map((c) => `${c.quantity}${defs.items[c.itemHash]?.i ? ` <i class="muenze" style="background-image:url(${BILD}${defs.items[c.itemHash].i})"></i>` : ''}`).join(' ');
+  const kosten = (sale.costs || []).map((c) => `${c.quantity}${defs.items[c.itemHash]?.i ? ` <i class="muenze" data-ih="${c.itemHash}" style="background-image:url(${BILD}${defs.items[c.itemHash].i})"></i>` : ''}`).join(' ');
   return `<article class="xk ${d.q === 6 ? 'exo' : ''}">
-    <div class="xk-kopf"><i class="ic ${d.q === 6 ? 'exotic' : ''} ${d.t === 3 ? `el-${d.d0}` : ''}" style="background-image:url(${BILD}${d.i})"></i>
+    <div class="xk-kopf"><i data-ih="${sale.itemHash}" class="ic ${d.q === 6 ? 'exotic' : ''} ${d.t === 3 ? `el-${d.d0}` : ''}" style="background-image:url(${BILD}${d.i})"></i>
       <div><b>${esc(d.n)}</b><small>${esc(d.k)}</small></div><span class="kosten">${kosten}</span></div>
     ${spalten.length ? `<div class="xk-perks">${spalten.map((sp) => `<div class="xcol"><small>${esc(sp.art)}</small>${(sp.plugs.length > 8 ? [sp.aktiv] : sp.plugs).map((h) => `<i class="xp ${h === sp.aktiv ? 'an' : ''}" data-h="${h}" style="background-image:url(${BILD}${defs.items[h].i})"></i>`).join('')}${sp.plugs.length > 8 ? `<small>+${sp.plugs.length - 1}</small>` : ''}</div>`).join('')}</div>` : ''}
     ${stats.length ? `<table class="xstats">${stats.map((s) => `<tr><th>${esc(s.n)}</th><td><i><b style="width:${Math.min(100, (s.v / max) * 100)}%"></b></i></td><td>${s.v}</td></tr>`).join('')}

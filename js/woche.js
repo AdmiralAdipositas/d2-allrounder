@@ -1,4 +1,5 @@
 // "This week": Raids, Dungeons und Portal von Bungie, mit Featured, Loot-Stufe, Challenges und Modifiern.
+import { guideId } from './guidelinks.js';
 import * as bungie from './bungie.js';
 import { defs } from './defs.js';
 import { CHALLENGES as LISTE } from './challenges.js';
@@ -85,9 +86,9 @@ async function lade(zustand) {
 function karte(e) {
   return `<article class="akt ${e.featured ? 'feat' : ''}">
     <div class="akt-kopf">${e.icon ? `<i style="background-image:url(${BILD}${e.icon})"></i>` : ''}<b>${esc(e.name)}</b>
-      ${e.featured ? '<span class="tag gold">Featured</span>' : ''}${IM_GUIDE.some((n) => e.name.startsWith(n)) ? '<button class="tag guide-link" data-geh="guide" title="Open the raid guide">Guide ↗</button>' : ''}${e.tier ? `<span class="tag">Tier ${e.tier}</span>` : ''}</div>
+      ${e.featured ? '<span class="tag gold">Featured</span>' : ''}${guideId(e.name.split(':')[0].trim()) ? `<button class="tag guide-link" data-guide="${guideId(e.name.split(':')[0].trim())}" title="Open the raid guide">Guide ↗</button>` : ''}${e.tier ? `<span class="tag">Tier ${e.tier}</span>` : ''}</div>
     ${e.stufen.length ? `<small>${esc(e.stufen.join(' · '))}</small>` : ''}
-    ${e.challenges.length ? `<div class="chals">${e.challenges.map((c) => `<p class="chal">${c.enc ? `<em>${esc(c.enc)}</em>` : ''}<b>${esc(c.n)}</b>${c.d ? `<span>${esc(c.d)}</span>` : ''}</p>`).join('')}</div>` : ''}
+    ${e.challenges.length ? `<div class="chals">${e.challenges.map((c) => `<p class="chal">${c.enc ? `<em>${esc(c.enc)}${guideId(c.enc, e.name.split(':')[0].trim()) ? ` <button class="mini-link" data-guide="${guideId(c.enc, e.name.split(':')[0].trim())}">guide ↗</button>` : ''}</em>` : ''}<b>${esc(c.n)}</b>${c.d ? `<span>${esc(c.d)}</span>` : ''}</p>`).join('')}</div>` : ''}
     ${e.mods.length ? `<div class="mods">${e.mods.slice(0, 12).map((m) => `<span class="modz" data-tn="${esc(m.n)}" data-td="${esc(m.d)}"><i style="background-image:url(${BILD}${m.i})"></i><span class="modt"><b>${esc(m.n)}</b><small>${esc(String(m.d || '').split(/(?<=\.)\s/)[0])}</small></span></span>`).join('')}</div>` : ''}
   </article>`;
 }
@@ -111,7 +112,7 @@ export async function zeigeWoche(panel, zustand, xur) {
   }).catch(() => {});
   try {
     const g = await lade(zustand);
-    panel.querySelector('#wInhalt').innerHTML = ['Raids', 'Dungeons', 'Portal'].filter((n) => g[n]?.length)
+    panel.querySelector('#wInhalt').innerHTML = ['Raids', 'Dungeons', 'Lost Sectors', 'Portal'].filter((n) => g[n]?.length)
       .map((n) => `<h3>${n}</h3>${g[n].map(karte).join('')}`).join('') || '<p class="leer">Bungie sent no activities.</p>';
   } catch (e) {
     panel.querySelector('#wInhalt').innerHTML = `<p class="leer">${esc(e.message)}</p>`;

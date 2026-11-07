@@ -37,7 +37,7 @@ function karte(name, p) {
   const champs = new Set(waffen.map((x) => champion(x.i.itemHash, (sockel[x.i.itemInstanceId]?.sockets || []).map((s) => s.plugHash).filter(Boolean), inst[x.i.itemInstanceId]?.breakerType)).filter(Boolean).map((ch) => CHAMP_NAME[ch.n] || ch.n));
   return `<article class="sq"><div class="sq-kopf"><b>${esc(name)}</b><small>${KLASSE[c.classType]} · ${c.light} · last played ${new Date(c.dateLastPlayed).toLocaleDateString()}</small><button class="chip" data-weg="${esc(name)}" title="Remove">✕</button></div>
     <div class="sq-zeile">${sub ? `<span class="sq-sub" title="${esc(sub.d.n)}"><i style="background-image:url(${BILD}${sub.d.i})"></i>${esc(sub.d.n)}</span>` : ''}</div>
-    <div class="sq-zeile">${waffen.map((x) => `<i class="sq-ic ${x.d.q === 6 ? 'exo' : ''}" title="${esc(x.d.n)}" style="background-image:url(${BILD}${x.d.i})"></i>`).join('')}${exo.filter((x) => x.d.t === 2).map((x) => `<i class="sq-ic exo" title="${esc(x.d.n)}" style="background-image:url(${BILD}${x.d.i})"></i>`).join('')}</div>
+    <div class="sq-zeile">${waffen.map((x) => `<i class="sq-ic ${x.d.q === 6 ? 'exo' : ''}" data-ih="${x.i.itemHash}" style="background-image:url(${BILD}${x.d.i})"></i>`).join('')}${exo.filter((x) => x.d.t === 2).map((x) => `<i class="sq-ic exo" data-ih="${x.i.itemHash}" style="background-image:url(${BILD}${x.d.i})"></i>`).join('')}</div>
     <div class="sq-champs">${['Barrier', 'Overload', 'Unstoppable'].map((n) => `<span class="${champs.has(n) ? 'hat' : 'fehlt'}">${champs.has(n) ? '✓' : '✕'} ${n}</span>`).join('')}</div></article>`;
 }
 
