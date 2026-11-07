@@ -78,9 +78,8 @@ export const PUTZ_REGELN = [
   ['god', 'Keep every god roll', 'Any copy that matches a community PvE or PvP god roll stays, not only the best one.'],
   ['gut', 'Keep good rolls', 'Copies with at least a decent community roll stay.'],
   ['mw', 'Keep crafted & masterworked', 'Crafted, enhanced or masterworked copies cost resources, so they stay.'],
-  ['neu', 'Keep copies from the last 7 days', 'Fresh drops stay until you had time to look at them (needs the item to be newer than your last visit).'],
 ];
-export let putzRegeln = (() => { try { return { exo: true, god: true, gut: false, mw: true, neu: false, ...JSON.parse(localStorage.getItem('d2a.putz') || '{}') }; } catch { return { exo: true, god: true, mw: true }; } })();
+export let putzRegeln = (() => { try { return { exo: true, god: true, gut: false, mw: true, ...JSON.parse(localStorage.getItem('d2a.putz') || '{}') }; } catch { return { exo: true, god: true, mw: true }; } })();
 export function setzePutz(k, v) { putzRegeln = { ...putzRegeln, [k]: v }; try { localStorage.setItem('d2a.putz', JSON.stringify(putzRegeln)); } catch {} }
 
 // Behalten: in Loadouts, angelegt, gesperrt, laut Schaltern geschützt, oder die beste Kopie (PvE und PvP getrennt).
@@ -140,6 +139,17 @@ function passt(x) {
   return suche.split(/\s+/).every((w) => `${x.d.n} ${x.d.k} ${plugNamen} ${Object.values(x.m).join(' ')}`.toLowerCase().includes(w));
 }
 
+// Sortierung und Gruppierung je Nutzer merken.
+const SORT = {
+  power: ['Power / total', (p, q) => (q.d.q === 6) - (p.d.q === 6) || (q.st?.Total || q.power) - (p.st?.Total || p.power) || p.d.n.localeCompare(q.d.n)],
+  name: ['Name', (p, q) => p.d.n.localeCompare(q.d.n) || q.power - p.power],
+  roll: ['Best rolls first', (p, q) => rang(q) - rang(p) || p.d.n.localeCompare(q.d.n)],
+  neu: ['Newest first', (p, q) => (BigInt(q.id) > BigInt(p.id) ? 1 : -1)],
+};
+const rang = (x) => (/god/.test(x.m?.roll || '') ? 3 : /good/.test(x.m?.roll || '') ? 2 : 0) + (x.d.q === 6 ? 0.5 : 0) + (x.st?.Total || 0) / 1000;
+const ansicht = (() => { try { return { sort: 'power', typ: false, ...JSON.parse(localStorage.getItem('d2a.ansicht') || '{}') }; } catch { return { sort: 'power', typ: false }; } })();
+const merkeAnsicht = () => { try { localStorage.setItem('d2a.ansicht', JSON.stringify(ansicht)); } catch {} };
+
 const zuRaw = (() => { try { return JSON.parse(localStorage.getItem('d2a.zu') || '[]'); } catch { return []; } })();
 const zu = new Set(zuRaw);
 
@@ -156,35 +166,55 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   aufraeumen(alle, profil);
   zustand.alleItems = alle;
 
-  haupt.innerHTML = `<div class="kopf"><h1>${istWaffe ? 'Weapons' : 'Armor'}</h1><input id="suche" type="search" placeholder="Search name, perk, frame…" aria-label="Search" value="${esc(suche)}">
-    <button id="neu" class="chip" title="Reload from Bungie">↻ Refresh</button>${(() => { const n = (profil.profileInventory?.data?.items || []).filter((i) => i.bucketHash === 138197802).length; return `<span class="chip tresorzahl ${n > 1250 ? 'voll' : ''}" title="Vault space (1,300 since Monument of Triumph, update 9.7.0)">🗄 ${n} / 1300</span>`; })()}${zustand.postZahl?.() ? `<button id="zurPost" class="chip postchip">📬 Postmaster ${zustand.postZahl()}</button>` : ''}<span class="platz"></span><div class="chips" role="group" aria-label="Class" ${istWaffe ? 'hidden' : ''}>
+  const tresorItems = (profil.profileInventory?.data?.items || []).filter((i) => i.bucketHash === 138197802);
+  const tz = { alle: tresorItems.length, w: 0, r: 0 };
+  for (const i of tresorItems) { const d = defs.items[i.itemHash]; if (d?.t === 3) tz.w += 1; else if (d?.t === 2) tz.r += 1; }
+  const KISTEN = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/><rect x="8" y="5" width="8" height="7" rx="1"/><path d="M6 16h2M16 16h2M11 8h2"/></svg>';
+  haupt.innerHTML = `<div class="kopf vkopf"><h1>${istWaffe ? 'Weapons' : 'Armor'}</h1><input id="suche" type="search" placeholder="Search name, perk, frame, type…" aria-label="Search" value="${esc(suche)}">
+    <label class="vsort">Sort <select id="sortierung">${Object.entries(SORT).map(([k, [t]]) => `<option value="${k}" ${k === ansicht.sort ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+    <button class="chip" id="gruppieren" aria-pressed="${ansicht.typ}" title="Group each slot by ${istWaffe ? 'weapon type' : 'armor set'}">${istWaffe ? 'By type' : 'By set'}</button>
+    <details class="tresorbox"><summary class="chip tresorzahl ${tz.alle > 1250 ? 'voll' : ''}" title="Vault space">${KISTEN}<b>${tz.alle}</b>/1300</summary><div class="tpop"><b>Vault space</b><p>${tz.alle} of 1,300 vault slots used${tz.alle > 1250 ? ' – almost full, new drops will go to the Postmaster' : ''}. The vault is shared by all three characters; items on a character or in the Postmaster don't count.</p><div class="tbar"><i style="width:${(tz.w / 13).toFixed(1)}%" class="w"></i><i style="width:${(tz.r / 13).toFixed(1)}%" class="r"></i><i style="width:${((tz.alle - tz.w - tz.r) / 13).toFixed(1)}%" class="s"></i></div><small><i class="w"></i>Weapons ${tz.w} <i class="r"></i>Armor ${tz.r} <i class="s"></i>Other ${tz.alle - tz.w - tz.r}</small><small>Limit 1,300 since update 9.7.0 (Monument of Triumph).</small></div></details>
+    ${zustand.postZahl?.() ? `<button id="zurPost" class="chip postchip" title="Items waiting at the Postmaster">📬 ${zustand.postZahl()}</button>` : ''}<button id="neu" class="chip ikon" title="Reload inventory from Bungie" aria-label="Refresh">↻</button>
+    <div class="chips" role="group" aria-label="Class" ${istWaffe ? 'hidden' : ''}>
     ${chars.map((c) => `<button class="chip" data-klasse="${c.classType}" aria-pressed="${c.classType === klasse}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}
-    </div></div><div id="filter" class="filter"></div>${istWaffe ? '' : `<div class="statmin" aria-label="Minimum stats">${[...ARMOR_STATS, 'Total'].map((n) => `<label>${n}<select data-stat="${n}">${(n === 'Total' ? [0, 60, 65, 70, 75, 80, 85, 90] : [0, 5, 10, 15, 20, 25, 30, 35]).map((v) => `<option value="${v}" ${Number(statMin[n] || 0) === v ? 'selected' : ''}>${v ? `${v}+` : 'any'}</option>`).join('')}</select></label>`).join('')}</div>`}<div id="reihen"></div>`;
+    </div></div><div id="filter" class="filter"></div><div id="aktivF" class="aktivf"></div>${istWaffe ? '' : `<div class="statmin" aria-label="Minimum stats">${[...ARMOR_STATS, 'Total'].map((n) => `<label>${n}<select data-stat="${n}">${(n === 'Total' ? [0, 60, 65, 70, 75, 80, 85, 90] : [0, 5, 10, 15, 20, 25, 30, 35]).map((v) => `<option value="${v}" ${Number(statMin[n] || 0) === v ? 'selected' : ''}>${v ? `${v}+` : 'any'}</option>`).join('')}</select></label>`).join('')}</div>`}<nav id="sprung" class="sprung" aria-label="Jump to slot"></nav><div id="reihen"></div>`;
   const fBox = haupt.querySelector('#filter');
   const rBox = haupt.querySelector('#reihen');
-  const offen = new Set(JSON.parse((() => { try { return localStorage.getItem('d2a.offen'); } catch { return null; } })() || '[]'));
+  const offen = new Set();
 
   const zeichneFilter = (sichtbar) => {
-    const aktiv = Object.values(filter).flat().length;
     fBox.innerHTML = GRUPPEN.map(([g, titel]) => {
       const zaehl = {};
       for (const x of sichtbar) if (x.m[g]) zaehl[x.m[g]] = (zaehl[x.m[g]] || 0) + 1;
       const werte = Object.keys(zaehl).sort((a, b) => zaehl[b] - zaehl[a] || a.localeCompare(b));
-      if (!werte.length) return '';
+      const regeln = g === 'putz' && istWaffe;
+      if (!werte.length && !regeln) return '';
       const gewaehlt = filter[g] || [];
-      return `<details data-gruppe="${g}" ${offen.has(g) ? 'open' : ''}><summary>${titel}${gewaehlt.length ? ` <b>${gewaehlt.length}</b>` : ''}</summary><div class="chips">
-        ${werte.map((w) => `<button class="chip" data-g="${g}" data-w="${esc(w)}" aria-pressed="${gewaehlt.includes(w)}">${esc(w)} <small>${zaehl[w]}</small></button>`).join('')}</div></details>`;
-    }).join('') + (aktiv ? '<button id="leeren" class="chip">Clear filters</button>' : '') + (offen.has('putz') && istWaffe ? `<div class="putzregeln"><b>Clean-up rules</b><small>Only duplicates get a red “dismantle” mark. Hover a weapon to see why it stays or goes.</small>${PUTZ_REGELN.filter(([k]) => k !== 'neu').map(([k, t, e]) => `<label class="haken" title="${esc(e)}"><input type="checkbox" data-putz="${k}" ${putzRegeln[k] ? 'checked' : ''}> ${t}</label>`).join('')}<small>Always kept: equipped, locked, in an in-game loadout, the best copy (and best PvP copy), infusion fuel.</small></div>` : '');
+      return `<details data-gruppe="${g}" ${offen.has(g) ? 'open' : ''}><summary>${titel}${gewaehlt.length ? ` <b>${gewaehlt.length}</b>` : ''}</summary><div class="fpop"><div class="chips">
+        ${werte.map((w) => `<button class="chip" data-g="${g}" data-w="${esc(w)}" aria-pressed="${gewaehlt.includes(w)}">${esc(w)} <small>${zaehl[w]}</small></button>`).join('') || '<small class="leer">No duplicates to clean up.</small>'}</div>
+        ${regeln ? `<div class="putzregeln"><b>Clean-up rules</b><small>Only duplicates of the same weapon can get a red “dismantle” mark. Hover a weapon to see why it stays or goes.</small>${PUTZ_REGELN.filter(([k]) => k !== 'neu').map(([k, t, e]) => `<label class="haken" title="${esc(e)}"><input type="checkbox" data-putz="${k}" ${putzRegeln[k] ? 'checked' : ''}> ${t}</label>`).join('')}<small>Always kept: equipped, locked, in an in-game loadout, the best copy and the best PvP copy, infusion fuel.</small></div>` : ''}</div></details>`;
+    }).join('');
+    const aktiv = Object.entries(filter).flatMap(([g, l]) => l.map((w) => [g, w]));
+    haupt.querySelector('#aktivF').innerHTML = aktiv.length ? `${aktiv.map(([g, w]) => `<button class="chip an" data-g="${g}" data-w="${esc(w)}" title="Remove filter">${esc(w)} ✕</button>`).join('')}<button id="leeren" class="chip">Clear all</button>` : '';
   };
   const zeichne = () => {
     const klassenItems = alle.filter((x) => (istWaffe ? WAFFE.has(x.d.b) : !WAFFE.has(x.d.b) && (x.d.c === klasse || x.d.c === 3)));
     zeichneFilter(klassenItems);
     const sichtbar = klassenItems.filter(passt);
-    const reihen = SLOTS.map(([b, name]) => {
-      const st = sichtbar.filter((x) => x.d.b === b).sort((p, q) => (q.d.q === 6) - (p.d.q === 6) || (q.st?.Total || q.power) - (p.st?.Total || p.power) || p.d.n.localeCompare(q.d.n));
-      if (!st.length) return '';
+    const sortiere = SORT[ansicht.sort]?.[1] || SORT.power[1];
+    const teile = SLOTS.map(([b, name]) => [b, name, sichtbar.filter((x) => x.d.b === b).sort(sortiere)]).filter(([, , st]) => st.length);
+    haupt.querySelector('#sprung').innerHTML = teile.length > 1 ? teile.map(([, name, st]) => `<button class="chip" data-spring="${name}">${name} <small>${st.length}</small></button>`).join('') : '';
+    const reihen = teile.map(([, name, st]) => {
       const offenR = !zu.has(name);
-      return `<section class="reihe ${offenR ? '' : 'zu'}"><h3><button class="klapp" data-reihe="${name}" aria-expanded="${offenR}">${offenR ? '▾' : '▸'} ${name} <small>${st.length}</small></button></h3>${offenR ? `<div class="raster">${st.map(kachel).join('')}</div>` : ''}</section>`;
+      let inhalt = '';
+      if (offenR) {
+        if (ansicht.typ) {
+          const g = new Map();
+          for (const x of st) { const k = istWaffe ? x.d.k : x.d.q === 6 ? 'Exotic' : x.m.set || 'No set'; g.set(k, [...(g.get(k) || []), x]); }
+          inhalt = `<div class="tgruppen">${[...g].sort((a, b) => (a[0] === 'Exotic' ? -1 : b[0] === 'Exotic' ? 1 : b[1].length - a[1].length)).map(([k, l]) => `<div class="tgr"><small>${esc(k)} <b>${l.length}</b></small><div class="raster">${l.map(kachel).join('')}</div></div>`).join('')}</div>`;
+        } else inhalt = `<div class="raster">${st.map(kachel).join('')}</div>`;
+      }
+      return `<section class="reihe ${offenR ? '' : 'zu'}" id="slot-${name.replace(/\s/g, '')}"><h3><button class="klapp" data-reihe="${name}" aria-expanded="${offenR}">${offenR ? '▾' : '▸'} ${name} <small>${st.length}</small></button></h3>${inhalt}</section>`;
     }).join('');
     rBox.innerHTML = reihen || '<p class="leer">Nothing matches these filters.</p>';
     haupt.querySelectorAll('[data-klasse]').forEach((c) => c.setAttribute('aria-pressed', Number(c.dataset.klasse) === klasse));
@@ -197,10 +227,12 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   fBox.addEventListener('toggle', (e) => {
     const g = e.target.dataset?.gruppe;
     if (!g) return;
-    if (e.target.open) offen.add(g); else offen.delete(g);
-    try { localStorage.setItem('d2a.offen', JSON.stringify([...offen])); } catch {}
-    if (g === 'putz') zeichne();
+    if (e.target.open) { offen.clear(); offen.add(g); fBox.querySelectorAll('details[open]').forEach((d) => d !== e.target && (d.open = false)); } else offen.delete(g);
   }, true);
+  haupt.querySelector('#sortierung').onchange = (e) => { ansicht.sort = e.target.value; merkeAnsicht(); zeichne(); };
+  // Popups schließen, wenn außerhalb geklickt wird.
+  const zuKlick = (e) => { if (!haupt.isConnected) return document.removeEventListener('pointerdown', zuKlick); if (!e.target.closest('.filter details,.tresorbox')) { haupt.querySelectorAll('.filter details[open],.tresorbox[open]').forEach((d) => { d.open = false; }); offen.clear(); } };
+  document.addEventListener('pointerdown', zuKlick);
   haupt.onclick = (e) => {
     const c = e.target.closest('[data-klasse]');
     if (c) { klasse = Number(c.dataset.klasse); return zeichne(); }
@@ -213,6 +245,9 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
       return zeichne();
     }
     if (e.target.id === 'leeren') { filter = {}; merke(); return zeichne(); }
+    if (e.target.closest('#gruppieren')) { ansicht.typ = !ansicht.typ; merkeAnsicht(); e.target.closest('#gruppieren').setAttribute('aria-pressed', ansicht.typ); return zeichne(); }
+    const sp = e.target.closest('[data-spring]');
+    if (sp) { const n = sp.dataset.spring; if (zu.has(n)) { zu.delete(n); zeichne(); } return haupt.querySelector(`#slot-${n.replace(/\s/g, '')}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     if (e.target.id === 'neu') return zustand.neuLaden();
     if (e.target.closest('#zurPost')) return zustand.oeffnePanel?.('post');
     const r = e.target.closest('[data-reihe]');

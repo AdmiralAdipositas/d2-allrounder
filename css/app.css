@@ -438,3 +438,25 @@ body.ziehe{user-select:none;cursor:ew-resize}
 .tage div:first-child:hover::after,.tage div:first-child:focus::after{left:0;transform:none}.tage div:last-child:hover::after,.tage div:last-child:focus::after{left:auto;right:0;transform:none}
 .legende>span{white-space:nowrap;display:inline-flex;align-items:center;gap:4px;margin-right:8px}.legende>small{flex-basis:100%;opacity:.7}
 .cgruppen{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.lo-wahl:first-of-type{max-height:none}
+
+/* P2: Weapons/Armor – Werkzeugleiste, Filter-Popups, Sprungleiste, Typ-Gruppen, Tresor-Anzeige */
+.vkopf{gap:10px}.vkopf h1{margin-right:6px}
+.vkopf #suche{flex:1 1 220px;min-width:160px}
+.vsort{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--matt)}.vsort select{padding:5px 8px}
+.chip.ikon{padding:5px 10px;font-size:1rem;line-height:1}
+.tresorbox{position:relative}.tresorbox summary{list-style:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer}.tresorbox summary::-webkit-details-marker{display:none}
+.tresorzahl svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}.tresorzahl b{color:var(--text)}
+.tpop,.fpop{position:absolute;top:calc(100% + 6px);left:0;z-index:20;min-width:260px;max-width:min(420px,calc(100vw - 24px));background:#120e2c;border:1px solid var(--linie);border-radius:12px;padding:12px 14px;box-shadow:0 12px 30px #0009;display:flex;flex-direction:column;gap:8px}
+.tresorbox .tpop{left:auto;right:0}.tpop p{margin:0;font-size:.82rem;color:#cfc9ee}.tpop small{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.75rem;color:var(--matt)}
+.tbar{display:flex;height:8px;border-radius:4px;background:#0b0920;overflow:hidden}.tbar i,.tpop small i{display:block}
+.tpop small i{width:9px;height:9px;border-radius:2px}
+.tpop .w{background:var(--gold)}.tpop .r{background:var(--arc)}.tpop .s{background:var(--violett,#9b7bff)}
+.filter details{position:relative}.filter details[open]{flex-basis:auto;padding-bottom:0;border-color:var(--gold)}
+.filter details .fpop .chips{padding:0}.filter .fpop{width:max-content}
+.filter .putzregeln{margin:0}
+.aktivf{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}.aktivf:empty{display:none}.aktivf .chip.an{border-color:var(--gold);color:var(--gold)}
+.sprung{position:sticky;top:0;z-index:10;display:flex;gap:6px;flex-wrap:wrap;padding:8px 0;margin-bottom:4px;background:linear-gradient(180deg,var(--bg) 70%,transparent)}.sprung:empty{display:none}
+.sprung .chip{padding:3px 10px;font-size:.78rem}
+.tgruppen{display:flex;flex-wrap:wrap;gap:10px 18px}.tgr{display:flex;flex-direction:column;gap:4px}
+.tgr>small{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--matt)}.tgr>small b{color:var(--text);font-weight:600}
+@media(max-width:760px){.vsort{flex:1}.tpop,.fpop{position:fixed;left:12px!important;right:12px!important;top:auto;bottom:72px;max-width:none;width:auto!important}}
