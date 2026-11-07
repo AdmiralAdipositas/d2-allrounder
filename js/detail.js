@@ -7,6 +7,12 @@ import { empfehlung } from './rolls.js';
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+let proPc = null;
+function alleMit(pc) {
+  if (!proPc) { proPc = new Map(); for (const [h, d] of Object.entries(defs.items)) if (d.t === 19 && d.pc && d.i && d.n && !/deprecated/i.test(d.k || '') && !/^Empty/.test(d.n)) proPc.set(d.pc, [...(proPc.get(d.pc) || []), Number(h)]); }
+  const gesehen = new Set();
+  return (proPc.get(pc) || []).filter((h) => { const n = defs.items[h].n; if (gesehen.has(n)) return false; gesehen.add(n); return true; });
+}
 export const plugOk = (h) => { const p = defs.items[h]; return p && p.n && p.i && !NEBENSACHE.test(p.pc || '') && !/^Empty|Default (Shader|Ornament)/.test(p.n); };
 
 let dlg = null;
@@ -81,7 +87,11 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
   bungie.item(k, it.id).then((r) => {
     const moegl = r.reusablePlugs?.data?.plugs || {};
     spalten = (r.sockets?.data?.sockets || []).map((s, i) => {
-      const plugs = [...new Set([s.plugHash, ...(moegl[i] || []).map((p) => p.plugItemHash)])].filter(plugOk);
+      let liste = (moegl[i] || []).map((p) => p.plugItemHash);
+      const pc = defs.items[s.plugHash]?.pc || '';
+      // Mods und Subclass-Teile: Bungie liefert hier keine Auswahl, also alle passenden aus den Spieldaten.
+      if (!liste.length && /^enhancements\.v2_|\.(aspects|fragments|supers|grenades|melee|class_abilities|movement)$/.test(pc)) liste = alleMit(pc);
+      const plugs = [...new Set([s.plugHash, ...liste])].filter(plugOk);
       return { s: i, aktiv: s.plugHash, art: defs.items[s.plugHash]?.k || '', plugs };
     }).filter((sp) => sp.plugs.length && sp.art !== 'Combat Flair');
     stats = Object.values(r.stats?.data?.stats || {}).map((s) => ({ n: defs.stats?.[s.statHash]?.n, v: s.value })).filter((s) => s.n && s.v)

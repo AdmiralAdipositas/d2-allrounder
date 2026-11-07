@@ -4,6 +4,7 @@ import * as bungie from './bungie.js';
 import { defs } from './defs.js';
 import { sammle, merkeAenderung, ARMOR_STATS } from './vault.js';
 import { meldung } from './app.js';
+import { SUBCLASS } from './generator.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -31,7 +32,7 @@ function statMods() {
     if (!istStatMod(h)) continue;
     const [[sh, wert]] = armorTeil(d);
     const n = statName(sh);
-    if (d.n === `${n} Mod` && (!modKarte[n] || modKarte[n].wert < wert)) modKarte[n] = { plug: Number(h), wert, name: d.n, icon: d.i };
+    if (d.n === `${n} Mod` && d.pc === 'enhancements.v2_general' && (!modKarte[n] || modKarte[n].wert < wert)) modKarte[n] = { plug: Number(h), wert, name: d.n, icon: d.i, pc: d.pc };
   }
   return modKarte;
 }
@@ -45,7 +46,8 @@ function ruestung(profil, klasse) {
       for (const [h, v] of armorTeil(defs.items[p])) basis[statName(h)] -= v;
       if (modSockel < 0) modSockel = n;
     });
-    if (modSockel < 0) modSockel = x.sockel.findIndex((p) => /^enhancements\./.test(defs.items[p]?.pc || '') && /^Empty/.test(defs.items[p]?.n || ''));
+    // Stat-Mods passen nur in den allgemeinen Mod-Sockel (Armor 3.0: enhancements.v2_general).
+    modSockel = x.sockel.findIndex((p) => defs.items[p]?.pc === 'enhancements.v2_general');
     return { ...x, basis, modSockel, exo: x.d.q === 6, set: x.d.e ? defs.sets?.[x.d.e] : null };
   });
 }
@@ -294,20 +296,22 @@ async function baueBuild(bd, zustand, cid, probleme) {
     await bungie.ausruesten(k, { id: sub.itemInstanceId }, cid);
     const r = await bungie.item(k, sub.itemInstanceId);
     const sockel = r.sockets?.data?.sockets || [];
-    const moegl = r.reusablePlugs?.data?.plugs || {};
+    const typVon = (pc) => (pc || '').split('.').pop();
+    const kl = ['titan', 'hunter', 'warlock'][defs.items[sub.itemHash].c];
+    const el = Object.entries(SUBCLASS[kl] || {}).find(([, n]) => n === bd.subclass)?.[0];
     const belegt = new Set();
     // Reihenfolge wichtig: Aspekte bestimmen, wie viele Fragment-Plätze frei sind.
     for (const name of [...bd.faehigkeiten, ...bd.aspekte, ...bd.fragmente]) {
-      let ziel = null;
-      for (let i = 0; i < sockel.length && !ziel; i++) {
-        if (belegt.has(i)) continue;
-        const opt = [sockel[i].plugHash, ...(moegl[i] || []).map((p) => p.plugItemHash)].find((h) => defs.items[h]?.n === name);
-        if (opt) ziel = { i, h: opt };
-      }
-      if (!ziel) { probleme.push(`${name}: no free slot or not unlocked.`); continue; }
-      belegt.add(ziel.i);
-      if (sockel[ziel.i].plugHash === ziel.h) continue;
-      try { await bungie.plugSetzen(k, { id: sub.itemInstanceId }, cid, ziel.i, ziel.h); } catch (e) { probleme.push(`${name}: ${e.message}`); }
+      const kandidaten = Object.entries(defs.items).filter(([, d]) => d.t === 19 && d.n === name && new RegExp(`^(${kl}|shared)\\.${el}\\.`).test(d.pc || ''));
+      if (!kandidaten.length) { probleme.push(`${name}: not found for ${bd.subclass}.`); continue; }
+      const [ph, pd] = kandidaten[0];
+      const typ = typVon(pd.pc);
+      const i = sockel.findIndex((so, n) => !belegt.has(n) && typVon(defs.items[so.plugHash]?.pc) === typ);
+      if (i < 0) { probleme.push(`${name}: no free ${typ} slot.`); continue; }
+      belegt.add(i);
+      if (sockel[i].plugHash === Number(ph)) continue;
+      meldung(`Setting ${name}…`);
+      try { await bungie.plugSetzen(k, { id: sub.itemInstanceId }, cid, i, Number(ph)); } catch (e) { probleme.push(`${name}: ${e.message}`); }
     }
   } catch (e) { probleme.push(e.message); }
 }
