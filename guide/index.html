@@ -228,6 +228,22 @@ body:not(.is-master) .master-only{display:none!important}
 .sq-btn.ghost{background:transparent;color:var(--muted);font-weight:500}
 .sq-btn:disabled{opacity:.5;cursor:default}
 .sq-btn[hidden]{display:none}
+.hbtn{border:1px solid var(--line);background:var(--panel-2);color:var(--fg);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}.hbtn:hover{border-color:var(--champ)}.hbtn[hidden]{display:none}
+.sprung{position:sticky;top:var(--kopfh,0px);z-index:19;display:flex;gap:6px;overflow-x:auto;padding:8px 0;margin:4px 0 6px;background:linear-gradient(180deg,var(--bg,#0d0b14) 75%,transparent);scrollbar-width:none}
+.sprung a{flex:none;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;text-decoration:none;color:var(--fg);background:linear-gradient(135deg,#2a2140,#1b1827);border:1px solid var(--line)}
+.sprung a:hover{border-color:var(--champ);color:#fff}.sprung a.hot{background:linear-gradient(135deg,#6b4bd6,#3a2a7a);border-color:#9b7bff;color:#fff;box-shadow:0 0 12px #9b7bff55}
+.symb{margin-top:10px;border:1px solid #3a2a7a;background:#120e22;border-radius:10px;max-width:900px;scroll-margin-top:60px}
+.symb>summary{cursor:pointer;list-style:none;padding:8px 12px;font-family:var(--font-display);font-weight:600;font-size:14px;color:#c9b8ff;display:flex;gap:8px;align-items:center}
+.symb>summary::before{content:"▸";font-size:11px}.symb[open]>summary::before{content:"▾"}
+#symbB{padding:0 12px 12px;font-size:14px}#symbB p{margin:4px 0 8px;color:var(--muted)}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.sfam{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#ffffff06}.sfam h4{margin:0 0 6px;font-size:13px;color:#c9b8ff}
+.sz{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:2px 0;border-top:1px solid #ffffff0d}.sz span{color:var(--muted)}
+.sbild{position:relative;margin:8px 0}.sbild img{max-width:100%;border-radius:8px;border:1px solid var(--line);display:block}
+.quelle{position:relative;display:inline-block;margin-left:6px}.quelle>summary{list-style:none;cursor:pointer;width:18px;height:18px;border-radius:50%;border:1px solid var(--line);font-size:11px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}
+.quelle>div{position:absolute;z-index:30;right:0;top:22px;width:260px;background:#1b1827;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--fg);box-shadow:0 8px 20px #000a}.quelle a{color:#c9b8ff}
+.sform{display:inline-flex;gap:4px;align-items:center}.sform svg{width:22px;height:22px;fill:none;stroke:#c9b8ff;stroke-width:2.2}
+#arena,#sheetTitle,#gearTitle,#calloutRows,#srcTitle,#chal,#roster,#symb{scroll-margin-top:calc(var(--kopfh,0px) + 60px)}
 .chal{margin-top:10px;border:1px solid #4a3a1e;background:#16110a;border-radius:10px;max-width:720px}
 .chal>summary{cursor:pointer;list-style:none;padding:8px 12px;font-family:var(--font-display);font-weight:600;font-size:14px;color:#ffcf8a;display:flex;gap:8px;align-items:center}
 .chal>summary::before{content:"▸";color:var(--champ);font-size:11px}.chal[open]>summary::before{content:"▾"}
@@ -261,6 +277,7 @@ body:not(.is-master) .master-only{display:none!important}
 .rp-opt{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);cursor:pointer}
 .player.pres .legend,.player.pres .rp-opt{display:none}
 .rotate-hint{display:none}
+@media (max-width:760px){header.top{position:relative}.sprung{top:0}}
 @media (orientation:portrait) and (max-width:760px){.player.pres .rotate-hint{display:flex;position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:3;align-items:center;gap:8px;background:#1b1827ee;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;color:var(--fg);white-space:nowrap}
  .player.pres .rotate-hint.gone{display:none}.player.pres .stage svg{height:auto;width:100%}}
 </style>
@@ -275,6 +292,8 @@ body:not(.is-master) .master-only{display:none!important}
         <button type="button" id="btn-de" data-lang="de" aria-pressed="true">DE</button>
         <button type="button" id="btn-en" data-lang="en" aria-pressed="false">EN</button>
       </div>
+      <button type="button" class="hbtn" id="btnSquad" title="Squad check: who has which champion mods and exotics" hidden>👥 Squad</button>
+      <a class="hbtn" id="btnFull" href="index.html" target="_blank" rel="noopener" title="Open full screen" hidden>⛶</a>
       <div class="seg mode" role="group" aria-label="Modus / Difficulty">
         <button type="button" id="btn-normal" data-mode="normal" aria-pressed="true">Normal</button>
         <button type="button" id="btn-master" data-mode="master" aria-pressed="false">Master</button>
@@ -285,6 +304,7 @@ body:not(.is-master) .master-only{display:none!important}
 
   <nav class="acts" aria-label="Raid" id="acts"></nav>
   <nav class="enc-tabs" aria-label="Encounter" id="tabs"></nav>
+  <nav class="sprung" id="sprung" aria-label="Jump to"></nav>
   <details class="xtra" id="xtra" hidden><summary><span id="xtraT"></span><span class="sum-meta" id="xtraM"></span></summary><div class="xgrid" id="xtraB"></div></details>
 
   <section>
@@ -293,6 +313,7 @@ body:not(.is-master) .master-only{display:none!important}
       <div class="h2row"><h2 id="encName"></h2><span class="master-flag master-only" id="masterFlag">Master</span></div>
       <p class="lede" id="lede"></p>
       <details class="chal" id="chal" hidden><summary><span id="chalT"></span></summary><div id="chalB"></div></details>
+      <details class="symb" id="symb" hidden open><summary><span id="symbT"></span></summary><div id="symbB"></div></details>
       <div class="sq-enc" id="sqEnc"><button type="button" class="sq-btn" id="sqGot" aria-pressed="false">✓ Verstanden</button></div>
     </div>
 
@@ -7141,6 +7162,7 @@ const XTRA={
    ['Master','“Ignited Light”: all five challenges on Master.']]}};
 function renderXtra(){if(typeof document.querySelector!=='function')return;const $$=id=>document.getElementById(id);
  const ch=CHAL[encId],cb=$$('chal');cb.hidden=!ch;if(ch){$$('chalT').textContent='Challenge: '+ch.n;const pl=(CHALP[encId]||{})[lang]||[];$$('chalB').innerHTML=`<p>${esc(ch[lang]||ch.de)}</p>`+(pl.length?`<i>${lang==='de'?'So spielt ihr ihn':'How to play it'}</i><ul>${pl.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'');}
+ renderSymb();renderSprung();
  const xs=(XTRA[actId]||{})[lang];const xb=$$('xtra');xb.hidden=!xs;if(xs){$$('xtraT').textContent=lang==='de'?'Extras · '+ACT[actId].name:'Extras · '+ACT[actId].name;
   $$('xtraM').textContent=xs.map(r=>r[0]).join(' · ');
   $$('xtraB').innerHTML=xs.map(r=>`<div class="xr"><b>${esc(r[0])}</b><span>${esc(r[1])}</span></div>`).join('');}}
@@ -7196,6 +7218,41 @@ function renderRole(){const $=id=>document.getElementById(id);const e=ENC[encId]
 /* =================== UI =================== */
 const $=id=>document.getElementById(id);
 const chipsEl=$('chips');
+
+const $g=id=>document.getElementById(id);
+addEventListener('hashchange',()=>location.reload());
+const kopfH=()=>{const h=document.querySelector('header.top');if(h)document.documentElement.style.setProperty('--kopfh',(innerWidth>760?h.offsetHeight:0)+'px');};addEventListener('resize',kopfH);setTimeout(kopfH,0);
+// Symbole & Callouts direkt in der Begegnung (statt eigener Seite). Bilder: Screenshots aus der Community, Quelle in der ⓘ-Blase.
+const SYMB={
+ vault:{t:{de:'Symbole & Callouts (Vault)',en:'Symbols & callouts (Vault)'},
+  p:{de:'Jeder Bildschirm (Fels, Baum, Eingang) zeigt drei Symbole. Ruft das mittlere aus. Liegt das passende Symbol rechts → Antumbra-Reinigung, links → Penumbra.',en:'Each screen (Rock, Tree, Entrance) shows three symbols. Call out the middle one. Match on the right → Antumbra cleanse, on the left → Penumbra.'},
+  bild:{src:'https://images.steamusercontent.com/ugc/1836906957898089585/D24A657ADD0AB48E5D0BF3F9D0EC2B4F5151F7D4/',alt:'Last Wish Vault symbol key',q:'Symbol key from a community Last Wish guide on Steam (Kav), based on FalloutPlay’s Last Wish video. Game imagery © Bungie.',u:'https://steamcommunity.com/sharedfiles/filedetails/?id=2726215607'},
+  fam:[['🐟 Fish',[['Fish Left','Fisch links'],['69 Fish','69-Fisch'],['Down Fish','Fisch unten'],['Up Fish','Fisch oben']]],['🐍 Snake',[['Infinity Snake','Unendlich-Schlange'],['8 Snake','8-Schlange'],['Down Snake','Schlange unten'],['Cloud Snake','Wolken-Schlange']]],['🐉 Dragon',[['Dragon Fire Left','Drache Feuer links'],['Dragon Fire Right','Drache Feuer rechts'],['Spear Dragon','Speer-Drache'],['Dead Dragon','Toter Drache']]],['🦅 Bird',[['Diving Bird','Stürzender Vogel'],['Flying Bird Left','Fliegender Vogel links'],['Bird on Branch','Vogel auf Ast'],['Standing Bird','Stehender Vogel']]]]},
+ verity:{t:{de:'Formen & Callouts (Verity)',en:'Shapes & callouts (Verity)'},
+  p:{de:'Zwei 2D-Formen einer Statue ergeben eine 3D-Form. Kreis, Quadrat, Dreieck.',en:'Two 2D shapes held by a statue make one 3D shape. Circle, square, triangle.'},
+  formen:[['circle','circle','Sphere','Kugel'],['square','square','Cube','Würfel'],['triangle','triangle','Pyramid','Pyramide'],['circle','square','Cylinder','Zylinder'],['circle','triangle','Cone','Kegel'],['square','triangle','Prism','Prisma']]}
+};
+const FORM2D={circle:'<circle cx="16" cy="16" r="11"/>',square:'<rect x="5" y="5" width="22" height="22"/>',triangle:'<path d="M16 4 L28 27 H4 Z"/>'};
+function renderSymb(){
+ const S=SYMB[encId],el=$g('symb');el.hidden=!S;if(!S)return;
+ $g('symbT').textContent='🔣 '+S.t[lang];
+ const L=lang==='de';
+ let h=`<p>${esc(S.p[lang])}</p>`;
+ if(S.bild)h+=`<figure class="sbild"><img src="${S.bild.src}" alt="${esc(S.bild.alt)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').hidden=true"><figcaption style="font-size:12px;color:var(--muted)">${L?'Symbol-Übersicht':'Symbol key'}<details class="quelle"><summary aria-label="Source">i</summary><div>${esc(S.bild.q)} <a href="${S.bild.u}" target="_blank" rel="noopener">${L?'Quelle':'Source'} ↗</a></div></details></figcaption></figure>`;
+ if(S.fam)h+=`<div class="sgrid">${S.fam.map(([f,l])=>`<div class="sfam"><h4>${f}</h4>${l.map(([en,de])=>`<div class="sz"><b>${esc(L?de:en)}</b><span>${esc(L?en:de)}</span></div>`).join('')}</div>`).join('')}</div>`;
+ if(S.formen)h+=`<div class="sgrid">${S.formen.map(([a,b,en,de])=>`<div class="sfam"><div class="sz"><span class="sform"><svg viewBox="0 0 32 32">${FORM2D[a]}</svg>+<svg viewBox="0 0 32 32">${FORM2D[b]}</svg></span><b>${esc(L?de:en)}</b><span>${esc(L?en:de)}</span></div></div>`).join('')}</div>`;
+ $g('symbB').innerHTML=h;
+}
+function renderSprung(){
+ const L=lang==='de',z=[];
+ if(SYMB[encId])z.push(['symb','🔣 '+(L?'Symbole':'Symbols'),1]);
+ if(CHAL[encId])z.push(['chal','🏆 Challenge',0]);
+ z.push(['arena','🎬 '+(L?'Animation':'Animation'),0],['sheetTitle','📋 '+(L?'Spickzettel':'Cheat sheet'),0],['gearTitle','🎒 '+(L?'Ausrüstung':'Loadout'),0],['calloutRows','📣 Callouts',0],['srcTitle','🔗 '+(L?'Quellen':'Sources'),0]);
+ $g('sprung').innerHTML=z.map(([id,t,hot])=>`<a href="#" data-zu="${id}" class="${hot?'hot':''}">${t}</a>`).join('');
+}
+document.addEventListener('click',e=>{const a=e.target.closest('#sprung [data-zu]');if(!a)return;e.preventDefault();const z=$g(a.dataset.zu);if(!z)return;if(z.tagName==='DETAILS')z.open=true;z.scrollIntoView({behavior:'smooth',block:'start'});});
+// In der App eingebettet: Squad-Check öffnet das Seitenpanel der App, Vollbild-Link anzeigen.
+if(window.parent!==window){const sq=$g('btnSquad'),fu=$g('btnFull');if(sq){sq.hidden=false;sq.onclick=()=>window.parent.postMessage({d2a:'squad'},location.origin);}if(fu)fu.hidden=false;}
 function buildActs(){const n=$('acts');n.innerHTML='';let lastK='';Object.keys(ACT).forEach(a=>{const A=ACT[a];const kd=A.kind||'raid';if(kd!==lastK){lastK=kd;const lb=document.createElement('span');lb.className='acts-lab';lb.textContent=kd==='dungeon'?'Dungeons':'Raids';n.appendChild(lb);}const b=document.createElement('button');b.type='button';b.className='act';b.setAttribute('aria-pressed',a===actId);b.textContent=A.name;
  if(A.soon){b.disabled=true;const sp=document.createElement('span');sp.className='soon';sp.textContent=' · '+ui('soon');b.appendChild(sp);}
  else b.onclick=()=>{if(a===actId)return;actId=a;encId=ACT[a].encs.find(id=>!ENC[id].soon);cur=0;el_t=0;playing=!reduce;hold=false;eng().bg(BG);fillText();};n.appendChild(b);});}

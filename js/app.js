@@ -13,7 +13,6 @@ import { zeigeXur, xurDa } from './xur.js';
 import { zeigePost, postAnzahl } from './post.js';
 import { zeigeKonto } from './konto.js';
 import { zeigeWiki, setzeWikiSuche } from './wiki.js';
-import { zeigeSymbole } from './symbole.js';
 import { zeigeSquad } from './squad.js';
 import { setzeNav } from './info.js';
 import { sammle } from './vault.js';
@@ -70,14 +69,9 @@ const ANSICHTEN = {
   wiki: ['Wiki', (el) => zeigeWiki(el, zustand)],
   squad: ['Squad check', (el) => zeigeSquad(el, zustand)],
   guide: ['Raid Guide', (el) => {
+    // Der Guide bringt alles selbst mit: Raid-/Encounter-Wahl, Sprungleiste, Symbole in der Begegnung, Squad-Knopf.
     const ziel = zustand.guideZiel; zustand.guideZiel = null;
-    if (ziel) { try { localStorage.setItem('d2a.guideTeil', 'briefing'); } catch {} }
-    const teil = (() => { try { return localStorage.getItem('d2a.guideTeil') || 'briefing'; } catch { return 'briefing'; } })();
-    el.innerHTML = `<div class="guide-kopf"><button class="chip" data-gteil="briefing" aria-pressed="${teil === 'briefing'}">🎬 Briefing</button><button class="chip" data-gteil="symbole" aria-pressed="${teil === 'symbole'}">🔣 Symbols & callouts</button><button class="chip" data-panelart="squad">👥 Squad check</button></div><div id="gInhalt"></div>`;
-    const inhalt = el.querySelector('#gInhalt');
-    if (teil === 'symbole') zeigeSymbole(inhalt);
-    else inhalt.innerHTML = `<iframe class="guide" src="guide/index.html${ziel ? `#${ziel}` : ''}" title="Raid briefing"></iframe><p class="leer klein">Your raid and dungeon briefing with animations, roles, challenges and callouts (DE/EN). <a href="guide/index.html" target="_blank" rel="noopener">Open full screen ↗</a></p>`;
-    el.querySelectorAll('[data-gteil]').forEach((b) => { b.onclick = () => { try { localStorage.setItem('d2a.guideTeil', b.dataset.gteil); } catch {} ANSICHTEN.guide[1](el); }; });
+    el.innerHTML = `<iframe class="guide" src="guide/index.html${ziel ? `#${ziel}` : ''}" title="Raid briefing"></iframe>`;
   }],
 };
 // Sprünge aus Info-Karten: Wiki (Suche oder Farm-Planer) und Raid Guide (Begegnung).
@@ -117,6 +111,7 @@ panel.addEventListener('pointerover', (e) => {
   t.style.left = `${Math.max(8, r.left - b.width - 8)}px`; t.style.top = `${Math.min(r.top, innerHeight - b.height - 8)}px`;
 });
 haupt.addEventListener('click', (e) => { const p = e.target.closest('[data-panelart]'); if (p) oeffnePanel(p.dataset.panelart); });
+addEventListener('message', (e) => { if (e.origin === location.origin && e.data?.d2a === 'squad') oeffnePanel('squad'); });
 panel.addEventListener('click', (e) => { const g = e.target.closest('[data-geh]'); if (g) wechsle(g.dataset.geh); const gd = e.target.closest('[data-guide]'); if (gd) springeGuide(gd.dataset.guide); });
 panel.addEventListener('click', (e) => { const w = e.target.closest('[data-wiki]'); if (w) { setzeWikiSuche(w.dataset.wiki); wechsle('wiki'); } });
 panel.addEventListener('pointerout', (e) => { if (e.target.closest('[data-tn]')) $('#tipp').hidden = true; });

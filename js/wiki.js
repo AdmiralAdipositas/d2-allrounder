@@ -8,6 +8,7 @@ import { CHALLENGES } from './challenges.js';
 import { empfehlung } from './rolls.js';
 import { quelle } from './quellen.js';
 import { guideId } from './guidelinks.js';
+import { VOW, VOW_DE } from './symbole.js';
 import * as bungie from './bungie.js';
 
 const BILD = 'https://www.bungie.net';
@@ -277,10 +278,13 @@ function seiteAkt(n, x) {
   const waffeIc = (w) => { const y = x.alle.find((z) => z.d.t === 3 && z.d.n === w); return y ? `<button class="wmini" data-seite="item:${y.h}">${ic(y.h, y.d)}<span>${esc(w)}</span></button>` : `<span class="wmini"><span>${esc(w)}</span></span>`; };
   const chals = x.chals.filter((c) => c.raid === n);
   return `<div class="wseite-kopf">${a.icon ? `<i class="wic gross" style="background-image:url(${BILD}${a.icon})"></i>` : ''}<div><h2>${esc(n)}</h2><small>${esc(a.a.art)}${a.set.length ? ` · armor: ${esc(a.set.map((s) => s.s.n).join(', '))}` : ''}</small></div>${guideKnopf(n, n, 'Open raid guide ↗')}</div>
-    ${a.d ? `<p class="leer">${esc(a.d)}</p>` : ''}${a.a.frei ? `<p class="wm">${esc(a.a.frei)}</p>` : ''}${a.a.alleText ? `<p class="wm">${esc(a.a.alleText)}</p>` : ''}
+    ${n === 'Vow of the Disciple' ? '<div class="wlinks"><a href="#" class="chip an" data-zu="symbole">🔣 Symbols & callouts</a></div>' : ''}${a.d ? `<p class="leer">${esc(a.d)}</p>` : ''}${a.a.frei ? `<p class="wm">${esc(a.a.frei)}</p>` : ''}${a.a.alleText ? `<p class="wm">${esc(a.a.alleText)}</p>` : ''}
     ${a.a.exo ? `<div class="wfund exo"><span>⭐</span><div><b>${esc(a.a.exo[0])}</b><small>${esc(a.a.exo[1])}</small></div></div>` : ''}
     <h3>Loot by encounter</h3>${a.a.enc.map(([enc, ws, r]) => `<div class="wenc"><div class="wenc-kopf"><b>${esc(enc)}</b>${guideKnopf(enc, n)}</div><div class="wenc-loot">${ws.map((w) => (/^any /.test(w) ? `<span class="wmini"><span>${esc(w)}</span></span>` : waffeIc(w))).join('')}</div>${r.length ? `<small>Armor: ${esc(r.join(', '))}</small>` : ''}
       ${chals.filter((c, i, l) => norm(enc).startsWith(norm(c.enc).split(/[ (]/)[0]) && l.findIndex((y) => y.text === c.text) === i).map((c) => `<p class="wchal-k">🏆 <b>${esc(c.n)}</b> – ${esc(c.text)}</p>`).join('')}</div>`).join('')}
+    ${n === 'Vow of the Disciple' ? `<h3 id="symbole">Symbols & callouts</h3><p class="leer klein">27 glyphs, used in Acquisition, Caretaker and Exhibition. Call them by their English name; German helps in voice chat.</p>
+      <figure class="symbild"><img src="https://www.destinypedia.com/images/e/e4/VotD_Glyphs.jpg" alt="All Vow of the Disciple glyphs" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').hidden=true"><figcaption>All glyphs in the raid <details class="qblase"><summary aria-label="Source">i</summary><div>In-game screenshot hosted on Destinypedia (fair-use screenshot, game imagery © Bungie). <a href="https://www.destinypedia.com/File:VotD_Glyphs.jpg" target="_blank" rel="noopener">Source ↗</a></div></details></figcaption></figure>
+      <div class="symliste">${VOW.map((v) => `<span><b>${esc(v)}</b><small>${esc(VOW_DE[v])}</small></span>`).join('')}</div>` : ''}
     ${a.a.pool ? `<h3>Full pool</h3><div class="wenc-loot">${a.a.pool.map(waffeIc).join('')}</div>` : ''}
     <p class="wm">Loot table source: ${esc(a.a.q)} (checked ${esc('Nov 2026')}). Tell me if something changed in-game.</p>`;
 }
