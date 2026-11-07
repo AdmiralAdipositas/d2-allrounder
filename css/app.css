@@ -247,3 +247,10 @@ button:disabled{opacity:.45;cursor:progress}
 .xur-box[open]>summary{margin-bottom:8px}.xur-inhalt .xg{font-size:.95rem;margin:10px 0 6px}
 .post-kopf{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.post-kopf small{color:var(--matt)}
 .pk{padding:0}.postchip{border-color:var(--warn);color:#ffb3a8}
+/* Jede Ansicht eine eigene Akzentfarbe, damit die Symbole sich klar unterscheiden. */
+#rail [data-tab=vault]{--ak:var(--solar)}#rail [data-tab=armor]{--ak:var(--arc)}#rail [data-tab=loadouts]{--ak:var(--strand)}
+#rail [data-tab=optimizer]{--ak:var(--void)}#rail [data-tab=finder]{--ak:var(--gold)}#rail [data-tab=stats]{--ak:#ff6fae}#rail [data-panel]{--ak:#9fd8ff}
+#rail button[data-tab] svg,#rail button[data-panel] svg{color:var(--ak);opacity:.75}
+#rail button:hover svg,#rail button.an svg,#rail button.panel-an svg{opacity:1;filter:drop-shadow(0 0 4px color-mix(in srgb,var(--ak) 60%,transparent))}
+#rail button.an{box-shadow:inset 3px 0 0 var(--ak);background:linear-gradient(90deg,color-mix(in srgb,var(--ak) 22%,transparent),transparent)}
+@media(max-width:760px){#rail button.an{box-shadow:inset 0 -3px 0 var(--ak)}}
