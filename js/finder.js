@@ -2,6 +2,7 @@
 // endlos scrollbar, Karten auf- und zuklappbar, Filter für Klasse, Element, Besitz und Nischen-Suche.
 import { defs } from './defs.js';
 import { sammle } from './vault.js';
+import { baueIdee, elementeAus } from './generator.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -43,7 +44,7 @@ const elementVon = (text) => {
   return els.length ? els : [];
 };
 
-// Eine Karte je Exotic-Rüstung, die nicht schon in einem kuratierten Build steckt.
+// Eine komplette Build-Idee je Exotic-Rüstung, die nicht schon in einem Community-Build steckt.
 function ideen(kuratiert) {
   const schon = new Set(kuratiert.flatMap((b) => b.exotics));
   const gesehen = new Set();
@@ -51,12 +52,20 @@ function ideen(kuratiert) {
   for (const [h, d] of Object.entries(defs.items)) {
     if (d.t !== 2 || d.q !== 6 || d.c > 2 || !d.xd || gesehen.has(d.n) || schon.has(d.n)) continue;
     gesehen.add(d.n);
-    const stats = STAT_WORT.filter(([, re]) => re.test(d.xd)).map(([n]) => n).slice(0, 3);
-    liste.push({ id: `idee-${h}`, idee: true, klasse: d.c, name: `${d.n} build`, exotics: [d.n], subclass: '', elemente: elementVon(d.xd), aktivitaet: ['Idea'],
-      warum: d.xp ? `${d.xp}: ${d.xd}` : d.xd, stats: stats.length ? stats : ['Weapons'], aspekte: [], fragmente: [], plan: [], quelle: 'Bungie item text', link: `https://www.light.gg/db/items/${h}/` });
+    liste.push(baueIdee(h, d));
   }
   return liste.sort((a, b) => a.name.localeCompare(b.name));
 }
+
+// Viele Quellen zum selben Exotic, damit man Auswahl hat.
+const quellen = (name) => [
+  ['light.gg', `https://www.light.gg/db/search/?q=${encodeURIComponent(name)}`],
+  ['Mobalytics', `https://mobalytics.gg/destiny-2/builds?search=${encodeURIComponent(name)}`],
+  ['Blueberries', `https://www.blueberries.gg/?s=${encodeURIComponent(name)}`],
+  ['D2 Gunsmith', `https://d2gunsmith.com/`],
+  ['YouTube', `https://www.youtube.com/results?search_query=${encodeURIComponent(`destiny 2 ${name} build`)}`],
+  ['Reddit', `https://www.reddit.com/r/DestinyTheGame/search/?q=${encodeURIComponent(`${name} build`)}`],
+];
 
 const blip = (titel, text) => `<span class="blip" tabindex="0" data-tn="${esc(titel)}" data-td="${esc(text)}">i</span>`;
 const quelleText = (d) => (!d ? 'Not in the game data.' : d.qu || (d.q === 6 ? 'Exotic engrams, Xûr, or the Monument to Lost Lights in the Tower.' : 'Source unknown.'));
@@ -77,11 +86,16 @@ function karte(b, besitz, besitzSets, sets) {
       ${auf ? `<div class="fk-mehr">
         <h3>Exotics</h3>${b.exotics.map((e) => { const d = finde(e); const hat = besitz.has(e); return `<div class="fz ${hat ? 'hat' : 'fehlt'}">${d?.i ? `<i style="background-image:url(${BILD}${d.i})"></i>` : ''}<span>${esc(e)}</span><em>${hat ? 'owned' : 'missing'}</em>${hat ? '' : blip(e, quelleText(d))}${d?.xd && !b.idee ? `<small>${esc(d.xp || '')}: ${esc(d.xd)}</small>` : ''}</div>`; }).join('')}
         ${(b.plan || []).length ? `<h3>Armor set</h3>${b.plan.map((p) => { const info = Object.entries(sets).find(([n]) => p.set.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(p.set.toLowerCase()))?.[1]; const n = besitzSets(p.set); return `<div class="fz ${n >= p.stuecke ? 'hat' : 'fehlt'}"><span><b>${esc(p.set)}</b> · ${p.stuecke} pieces</span><em>${n} owned</em>${blip(`${p.set}: where to farm`, info ? `${info.farm}${info.schnell ? ' · fast farm' : ''}` : 'Drop source not in the list yet.')}<small>${esc(p.grund)}</small></div>`; }).join('')}` : ''}
-        ${b.aspekte?.length ? `<h3>Aspects & fragments</h3><p class="fliste">${esc([...b.aspekte, ...b.fragmente].join(' · '))}</p>` : ''}
-        ${b.faehigkeiten?.length ? `<h3>Abilities</h3><p class="fliste">${esc(b.faehigkeiten.join(' · '))}</p>` : ''}
+        ${b.subclass ? `<h3>Subclass</h3><p class="fliste">${esc(b.subclass)}</p>` : ''}
+        ${b.faehigkeiten?.length ? `<h3>Super & abilities</h3><p class="fliste">${esc(b.faehigkeiten.join(' · '))}</p>` : ''}
+        ${b.aspekte?.length ? `<h3>Aspects</h3><p class="fliste">${esc(b.aspekte.join(' · '))}</p><h3>Fragments</h3><p class="fliste">${esc(b.fragmente.join(' · '))}</p>` : ''}
+        ${b.erklaerung?.length ? `<h3>Why these pieces</h3>${b.erklaerung.map((x) => `<p class="fliste klein2">${esc(x)}</p>`).join('')}` : ''}
+        ${b.waffen?.length ? `<h3>Weapons</h3><p class="fliste">${esc(b.waffen.join(' · '))}</p>` : ''}
         ${b.mods?.length ? `<h3>Mods</h3><p class="fliste">${esc(b.mods.join(' · '))}</p>` : ''}
         <h3>Stat focus</h3><p class="fliste">${esc(b.stats.join(' › '))}</p>
-        <div class="fb-fuss"><button class="haupt-knopf" data-opt="${esc(b.id)}">Optimize armor</button>${b.link ? `<a href="${esc(b.link)}" target="_blank" rel="noopener">${esc(b.idee ? 'light.gg' : b.quelle || 'Source')} ↗</a>` : ''}</div></div>` : ''}
+        <p class="fquelle">Source: ${b.link ? `<a href="${esc(b.link)}" target="_blank" rel="noopener">${esc(b.quelle || 'Source')} ↗</a>` : esc(b.quelle || '')}</p>
+        <h3>More builds with ${esc(b.exotics[0])}</h3><div class="fquellen">${quellen(b.exotics[0]).map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n} ↗</a>`).join('')}</div>
+        <div class="fb-fuss"><button class="haupt-knopf" data-opt="${esc(b.id)}">Build it: pick armor & equip all</button></div></div>` : ''}
     </div></article>`;
 }
 
@@ -165,7 +179,8 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
       const b = liste.find((x) => x.id === o.dataset.opt);
       const exo = items.find((x) => x.d.t === 2 && x.d.q === 6 && b.exotics.includes(x.d.n));
       const ziele = Object.fromEntries(b.stats.slice(0, 2).map((s, i) => [s, i ? 100 : 150]));
-      oeffneOptimizer({ klasse: wahl.klasse, exotic: exo?.hash || 0, ziele: b.ziele && Object.keys(b.ziele).length ? b.ziele : ziele });
+      oeffneOptimizer({ klasse: wahl.klasse, exotic: exo?.hash || 0, ziele: b.ziele && Object.keys(b.ziele).length ? b.ziele : ziele,
+        build: { name: b.name, subclass: b.subclass, aspekte: b.aspekte || [], fragmente: b.fragmente || [], faehigkeiten: b.faehigkeiten || [], exotics: b.exotics } });
     }
   };
   haupt.onpointerover = (e) => {

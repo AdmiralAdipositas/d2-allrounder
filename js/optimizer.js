@@ -122,7 +122,7 @@ function setBoni(items) {
 }
 
 // Von außen (Build Finder) mit Exotic und Zielen öffnen.
-export function setzeOptimizer(werte) { zustandO = { ...zustandO, ...werte, ziele: { ...werte.ziele } }; speichere('d2a.opt', zustandO); }
+export function setzeOptimizer(werte) { zustandO = { ...zustandO, build: null, ...werte, ziele: { ...werte.ziele } }; speichere('d2a.opt', zustandO); }
 
 export function zeigeOptimizer(haupt, zustand) {
   const chars = Object.values(zustand.profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
@@ -135,7 +135,14 @@ export function zeigeOptimizer(haupt, zustand) {
     ergebnisse = r.beste;
     speichere('d2a.opt', zustandO);
     const mods = statMods();
-    haupt.innerHTML = `<div class="kopf"><h1>Optimizer</h1><span class="platz"></span><div class="chips">${chars.map((c) => `<button class="chip" data-kl="${c.classType}" aria-pressed="${c.classType === zustandO.klasse}">${KLASSE[c.classType]}</button>`).join('')}</div></div>
+    const bd = zustandO.build;
+    const charJetzt = chars.find((c) => c.characterId && c.classType === zustandO.klasse);
+    const slots = zustand.profil.characterLoadouts?.data?.[charJetzt?.characterId]?.loadouts || [];
+    const slotWahl = `<label class="slotwahl">Save as in-game loadout <select id="slot"><option value="-1">Don't save</option>${slots.map((l, i) => `<option value="${i}" ${String(i) === String(zustandO.slot) ? 'selected' : ''}>Slot ${i + 1}${(l.items || []).some((x) => x.itemInstanceId && x.itemInstanceId !== '0') ? ` · ${esc(defs.lo?.n?.[l.nameHash] || 'used')} (overwrite)` : ' · empty'}</option>`).join('')}</select></label>
+      <label class="haken"><input type="checkbox" id="leeren" ${zustandO.leeren ? 'checked' : ''}> Clear slot first</label>`;
+    const banner = bd ? `<div class="build-banner"><div><small>Building</small><b>${esc(bd.name)}</b><span>${esc([bd.subclass, ...bd.faehigkeiten, ...bd.aspekte, ...bd.fragmente].filter(Boolean).join(' · '))}</span></div>
+      <div class="bb-rechts">${slotWahl}<button class="chip" id="ohneBuild" title="Only armor">✕ Armor only</button></div></div>` : '';
+    haupt.innerHTML = `${banner}<div class="kopf"><h1>Optimizer</h1><span class="platz"></span><div class="chips">${chars.map((c) => `<button class="chip" data-kl="${c.classType}" aria-pressed="${c.classType === zustandO.klasse}">${KLASSE[c.classType]}</button>`).join('')}</div></div>
     <div class="optgrid"><section class="karte"><div class="optleiste">
       <label>Exotic <select id="exo"><option value="0">Any</option>${exotics.map((e) => `<option value="${e.hash}" ${e.hash === zustandO.exotic ? 'selected' : ''}>${esc(e.d.n)}</option>`).join('')}</select></label>
       <label class="haken"><input type="checkbox" id="mitMods" ${zustandO.mods ? 'checked' : ''}> Use stat mods</label>
@@ -155,7 +162,7 @@ export function zeigeOptimizer(haupt, zustand) {
       <div class="kwerte">${ARMOR_STATS.map((n, j) => `<span><small>${n}</small><b>${b.werte[j]}</b></span>`).join('')}</div>
       ${b.modsJeStat.some(Boolean) ? `<small class="kmods">Mods: ${ARMOR_STATS.map((n, j) => (b.modsJeStat[j] ? `${b.modsJeStat[j]}× ${n}` : '')).filter(Boolean).join(', ')}</small>` : ''}
       ${setBoni(b.items).map((p) => `<small class="kset">${esc(p.set)} (${p.c}): ${esc(p.n)}</small>`).join('')}
-      <button class="haupt-knopf" data-equip="${k}">Equip on ${KLASSE[zustandO.klasse]}</button></article>`).join('') || '<p class="leer">No combination reaches these minimums. Lower one of them.</p>'}</section></div>`;
+      <button class="haupt-knopf" data-equip="${k}">${bd ? 'Equip full build' : 'Equip on'} ${KLASSE[zustandO.klasse]}</button></article>`).join('') || '<p class="leer">No combination reaches these minimums. Lower one of them.</p>'}</section></div>`;
   };
   zeichne();
 
@@ -163,6 +170,7 @@ export function zeigeOptimizer(haupt, zustand) {
     const kl = e.target.closest('[data-kl]');
     if (kl) { zustandO.klasse = Number(kl.dataset.kl); return zeichne(); }
     if (e.target.id === 'reset') { zustandO.ziele = {}; return zeichne(); }
+    if (e.target.closest('#ohneBuild')) { zustandO.build = null; return zeichne(); }
     const leiste = e.target.closest('.sleiste');
     if (leiste) {
       const r = leiste.getBoundingClientRect();
@@ -176,6 +184,8 @@ export function zeigeOptimizer(haupt, zustand) {
   haupt.onchange = (e) => {
     if (e.target.id === 'exo') zustandO.exotic = Number(e.target.value);
     if (e.target.id === 'mitMods') zustandO.mods = e.target.checked;
+    if (e.target.id === 'slot') { zustandO.slot = Number(e.target.value); speichere('d2a.opt', zustandO); return; }
+    if (e.target.id === 'leeren') { zustandO.leeren = e.target.checked; speichere('d2a.opt', zustandO); return; }
     if (e.target.dataset.bonus) zustandO.bonus[e.target.dataset.bonus] = Number(e.target.value) || 0;
     zeichne();
   };
@@ -207,7 +217,62 @@ async function ausruesten(b, zustand, char, knopf) {
       try { await bungie.plugSetzen(k, it, cid, it.modSockel, mods[n].plug); } catch (e) { meldung(`${mods[n].name} on ${it.d.n}: ${e.message}`, true); }
     }
     for (const it of b.items) merkeAenderung(it.id, { ort: cid, angelegt: true });
-    meldung('Armor set equipped.');
+    const bd = zustandO.build;
+    const probleme = [];
+    if (bd) await baueBuild(bd, zustand, cid, probleme);
+    const slot = bd ? Number(zustandO.slot ?? -1) : -1;
+    if (slot >= 0) {
+      const lo = zustand.profil.characterLoadouts?.data?.[cid]?.loadouts?.[slot] || {};
+      const erst = (o) => Number(Object.keys(o || {}).find((h) => o[h]) || 0);
+      meldung(`Saving to in-game slot ${slot + 1}…`);
+      if (zustandO.leeren) await bungie.post('/Destiny2/Actions/Loadouts/ClearLoadout/', { loadoutIndex: slot, characterId: cid, membershipType: k.membershipType }).catch((e) => probleme.push(e.message));
+      await bungie.post('/Destiny2/Actions/Loadouts/SnapshotLoadout/', { loadoutIndex: slot, characterId: cid, membershipType: k.membershipType, nameHash: lo.nameHash || erst(defs.lo?.n), iconHash: lo.iconHash || erst(defs.lo?.i), colorHash: lo.colorHash || erst(defs.lo?.f) }).catch((e) => probleme.push(e.message));
+    }
+    meldung(probleme.length ? `Done, with ${probleme.length} problem(s): ${probleme.slice(0, 2).join(' · ')}` : bd ? `${bd.name} equipped${slot >= 0 ? ` and saved to slot ${slot + 1}` : ''}.` : 'Armor set equipped.', probleme.length > 0);
   } catch (e) { meldung(e.message, true); }
   knopf.disabled = false;
+}
+
+// Exotic-Waffe, Subclass, Super, Fähigkeiten, Aspekte und Fragmente des Builds anlegen.
+async function baueBuild(bd, zustand, cid, probleme) {
+  const k = zustand.konto;
+  const profil = zustand.profil;
+  // Exotic-Waffen des Builds holen und ausrüsten.
+  for (const name of bd.exotics || []) {
+    const w = sammle(profil).find((x) => x.d.t === 3 && x.d.n === name);
+    if (!w) continue;
+    try {
+      meldung(`Equipping ${name}…`);
+      let ort = w.ort;
+      if (ort.startsWith('post:')) { ort = ort.slice(5); await bungie.abholen(k, w, ort); }
+      if (ort !== cid) { if (ort !== 'tresor') { if (w.angelegt) throw new Error(`${name} is equipped on another character.`); await bungie.verschiebe(k, w, ort, true); } await bungie.verschiebe(k, w, cid, false); }
+      await bungie.ausruesten(k, w, cid);
+      merkeAenderung(w.id, { ort: cid, angelegt: true });
+    } catch (e) { probleme.push(e.message); }
+  }
+  if (!bd.subclass) return;
+  const alle = [...(profil.characterInventories?.data?.[cid]?.items || []), ...(profil.characterEquipment?.data?.[cid]?.items || [])];
+  const sub = alle.find((i) => defs.items[i.itemHash]?.t === 16 && defs.items[i.itemHash].n === bd.subclass);
+  if (!sub) { probleme.push(`Subclass ${bd.subclass} not found on this character.`); return; }
+  try {
+    meldung(`Switching to ${bd.subclass}…`);
+    await bungie.ausruesten(k, { id: sub.itemInstanceId }, cid);
+    const r = await bungie.item(k, sub.itemInstanceId);
+    const sockel = r.sockets?.data?.sockets || [];
+    const moegl = r.reusablePlugs?.data?.plugs || {};
+    const belegt = new Set();
+    // Reihenfolge wichtig: Aspekte bestimmen, wie viele Fragment-Plätze frei sind.
+    for (const name of [...bd.faehigkeiten, ...bd.aspekte, ...bd.fragmente]) {
+      let ziel = null;
+      for (let i = 0; i < sockel.length && !ziel; i++) {
+        if (belegt.has(i)) continue;
+        const opt = [sockel[i].plugHash, ...(moegl[i] || []).map((p) => p.plugItemHash)].find((h) => defs.items[h]?.n === name);
+        if (opt) ziel = { i, h: opt };
+      }
+      if (!ziel) { probleme.push(`${name}: no free slot or not unlocked.`); continue; }
+      belegt.add(ziel.i);
+      if (sockel[ziel.i].plugHash === ziel.h) continue;
+      try { await bungie.plugSetzen(k, { id: sub.itemInstanceId }, cid, ziel.i, ziel.h); } catch (e) { probleme.push(`${name}: ${e.message}`); }
+    }
+  } catch (e) { probleme.push(e.message); }
 }

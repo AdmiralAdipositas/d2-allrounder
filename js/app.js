@@ -11,6 +11,7 @@ import { zeigeStats } from './stats.js';
 import { zeigeXur, xurDa } from './xur.js';
 import { zeigePost, postAnzahl } from './post.js';
 import { zeigeKonto } from './konto.js';
+import { zeigeWiki } from './wiki.js';
 
 const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
@@ -46,8 +47,9 @@ const ANSICHTEN = {
   optimizer: ['Optimizer', (el) => zeigeOptimizer(el, zustand)],
   finder: ['Build Finder', (el) => zeigeFinder(el, zustand, (w) => { setzeOptimizer(w); wechsle('optimizer'); })],
   stats: ['Stats', (el) => zeigeStats(el, zustand)],
+  wiki: ['Wiki', (el) => zeigeWiki(el, zustand)],
 };
-const TABS = Object.fromEntries(['vault', 'armor', 'loadouts', 'optimizer', 'finder', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
+const TABS = Object.fromEntries(['vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
 
 function wechsle(tab) {
