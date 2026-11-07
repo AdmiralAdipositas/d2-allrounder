@@ -385,3 +385,5 @@ button:disabled{opacity:.45;cursor:progress}
 .symtab td{padding:6px 8px;border-top:1px solid #241e4d;vertical-align:middle}.symtab tbody tr:nth-child(odd){background:#ffffff05}
 .form{width:26px;height:26px;fill:none;stroke:var(--gold);stroke-width:2.2;vertical-align:middle}
 .sym a{color:var(--arc)}
+.sealbar{height:8px;background:#ffffff10;border-radius:4px;overflow:hidden;margin:6px 0 10px}.sealbar i{display:block;height:100%;background:linear-gradient(90deg,var(--violett),var(--gold))}
+.sok{color:var(--gut)!important}.soffen{color:#cfc9ee}

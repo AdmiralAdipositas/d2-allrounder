@@ -5,13 +5,14 @@ import { sammle } from './vault.js';
 import { CHALLENGES } from './challenges.js';
 import { empfehlung } from './rolls.js';
 import { quelle } from './quellen.js';
+import * as bungie from './bungie.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock', 3: 'Any class' };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const ORTE = ['EDZ', 'European Dead Zone', 'Cosmodrome', 'Nessus', 'Dreaming City', 'Moon', 'Europa', 'Throne World', 'Neomuna', 'Pale Heart', 'Kepler', 'Tangled Shore', 'Mars', 'Mercury', 'Titan', 'Io', 'Savathûn', 'Eternity', 'Tower', 'Leviathan'];
 const WEICH = new Set(['set', 'sets', 'armor', 'where', 'get', 'drop', 'drops', 'from', 'how', 'the', 'to', 'farm', 'find', 'is', 'a', 'of', 'in', 'what', 'does', 'gear']);
-const KATEGORIEN = [['ort', 'Destinations', '🪐'], ['set', 'Armor sets', '🛡'], ['exo', 'Exotics', '⭐'], ['akt', 'Raids & Dungeons', '⚔'], ['chal', 'Raid challenges', '🏆'], ['quelle', 'Collections by source', '📚']];
+const KATEGORIEN = [['ort', 'Destinations', '🪐'], ['set', 'Armor sets', '🛡'], ['exo', 'Exotics', '⭐'], ['akt', 'Raids & Dungeons', '⚔'], ['chal', 'Raid challenges', '🏆'], ['seal', 'Seals & triumphs', '🎖'], ['quelle', 'Collections by source', '📚']];
 
 let eintraege = null;
 let setsFarm = {};
@@ -88,6 +89,22 @@ async function baue(zustand) {
   const proQuelle = new Map();
   for (const e of liste.filter((x) => x.typ === 'waffe')) proQuelle.set(e.quelle, [...(proQuelle.get(e.quelle) || []), e]);
   for (const [q, ws] of proQuelle) liste.push({ typ: 'quelle', titel: q, icon: '', tags: `source collection ${q}`, kurz: `${ws.length} weapons.`, mehr: `<div class="wteile">${ws.map((w) => `<span><i style="background-image:url(${BILD}${w.icon})"></i>${esc(w.titel)}</span>`).join('')}</div>` });
+  // Seals mit Fortschritt (Triumph-Stand vom Konto, einmal geladen).
+  let stand = {};
+  try {
+    const k = zustand.konto;
+    const r = await bungie.get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/?components=900`);
+    stand = { ...(r.profileRecords?.data?.records || {}) };
+    for (const c of Object.values(r.characterRecords?.data || {})) for (const [h, v] of Object.entries(c.records || {})) if (!stand[h]) stand[h] = v;
+  } catch {}
+  const fertig = (h) => { const x = stand[h]; return Boolean(x) && (x.state & 4) === 0; };
+  for (const [h, sl] of Object.entries(defs.seal || {})) {
+    const done = sl.k.filter(fertig).length;
+    const titelDa = fertig(sl.c);
+    liste.push({ typ: 'seal', titel: `${sl.n}${sl.t && sl.t !== sl.n ? ` · “${sl.t}”` : ''}`, icon: sl.i, tags: `seal title triumph ${sl.n} ${sl.t} ${sl.d}`,
+      kurz: `${titelDa ? 'Title earned ✓' : `${done} / ${sl.k.length} triumphs done`}${sl.d ? ` · ${sl.d.split('. ')[0]}` : ''}`,
+      mehr: `<div class="sealbar"><i style="width:${Math.round((done / sl.k.length) * 100)}%"></i></div>${sl.k.map((r) => { const rec = defs.rec?.[r]; const ok = fertig(r); return rec ? `<p class="${ok ? 'sok' : 'soffen'}">${ok ? '✓' : '○'} <b>${esc(rec.n)}</b>${rec.d ? ` – ${esc(rec.d)}` : ''}</p>` : ''; }).join('')}` });
+  }
   eintraege = liste;
   return liste;
 }
@@ -112,7 +129,7 @@ const ID = (e) => `${e.typ}:${e.titel}`;
 const zeile = (e, antwort = false) => {
   const auf = offen.has(ID(e));
   return `<article class="wz ${antwort ? 'antwort' : ''}" data-w="${esc(ID(e))}">
-    <div class="wz-kopf">${e.icon ? `<i style="background-image:url(${BILD}${e.icon})"></i>` : ''}<div><small>${esc({ set: 'Armor set', ort: 'Destination', exo: 'Exotic', waffe: 'Weapon', akt: 'Activity', chal: 'Raid challenge', quelle: 'Source' }[e.typ])}</small><b>${esc(e.titel)}</b></div></div>
+    <div class="wz-kopf">${e.icon ? `<i style="background-image:url(${BILD}${e.icon})"></i>` : ''}<div><small>${esc({ set: 'Armor set', ort: 'Destination', exo: 'Exotic', waffe: 'Weapon', akt: 'Activity', chal: 'Raid challenge', quelle: 'Source', seal: 'Seal' }[e.typ])}</small><b>${esc(e.titel)}</b></div></div>
     <p class="wz-kurz">${esc(e.kurz)}</p>
     ${e.mehr ? (auf ? `<div class="wz-mehr">${e.mehr}</div><button class="fk-klapp" data-wk="${esc(ID(e))}">Less ▴</button>` : `<button class="fk-klapp" data-wk="${esc(ID(e))}">More context ▾</button>`) : ''}</article>`;
 };
