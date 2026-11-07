@@ -6476,6 +6476,154 @@ const DUC=(function(){
  return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
 })();
 
+
+/* =================== DUNGEONS batch 3: Spire, Ghosts, Warlord's Ruin, Vesper's Host, Sundered Doctrine =================== */
+const dgSw=(p,on)=>`<rect x="${p.x-8}" y="${p.y-8}" width="16" height="16" rx="3" fill="${on?'#f6dc8e':'#1e1a12'}" stroke="#f6dc8e"/>`;
+// Spire: Arctrician from a Minotaur (30 s, +5 s per switch). Akelous: power four circuits → fuel rods → break red eyes → crit.
+const SPA=(function(){
+ const B={x:400,y:110};const SW=[{x:180,y:200},{x:260,y:300},{x:540,y:300},{x:620,y:200}];
+ const floor=dgRoom('#12140e','#3a4a2a',s=>SW.map((p,i)=>dgSw(p,(s.on||[]).includes(i))).join(''));
+ const base=dgBase(DG3,DGPOS,{on:[]});
+ const S=[
+ {d:22,f(k,s){s.units.push({t:'harpy',x:B.x,y:B.y});const M={x:300,y:200};if(k<.2){s.units.push({t:'mino',x:M.x,y:M.y,hp:1-seg(k,.02,.18)*.97});DG3.forEach((q,j)=>dgFire(s,k,q,M,j));}
+   s.tag.P1=k>=.2?'ARC':null;s.hud=k>=.2?{t:'lArcT',v:30-(k-.2)*30+Math.floor(seg(k,.25,.9)*4)*5}:null;s.on=SW.map((_,i)=>i).filter(i=>k>=.3+i*.15);
+   const t=Math.min(3,Math.floor(seg(k,.25,.9)*4));if(k>=.2){s.p.P1=mv(s.p.P1,{x:SW[t].x+20,y:SW[t].y+20},.1);dgFire(s,k,'P1',SW[t],0,'#f6dc8e');}
+   s.fx=k<.2?{k:'fxS1Mino',o:win(k,0,.2,.02),c:C.ally}:{k:'fxS1Sw',o:win(k,.2,1,.02),c:'#f6dc8e'};}},
+ {d:18,f(k,s){s.on=[0,1,2,3];s.units.push({t:'vmind',x:B.x,y:B.y,small:1,eyes:k<.4?['t','i','o'].slice(0,3-Math.floor(seg(k,.05,.4)*3)):null,hp:k>=.4?1-seg(k,.4,.95)*.3:null});
+   DG3.forEach((q,j)=>{s.p[q]=mv(DGPOS[q],{x:340+j*60,y:270},seg(k,0,.1));dgFire(s,k,q,B,j);});
+   s.fx=k<.4?{k:'fxS2Eyes',o:win(k,0,.4,.02),c:'#ff6156'}:{k:'fxS2Dmg',o:win(k,.4,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+const SPP=(function(){
+ const B={x:400,y:120};const RED=[0,1,2,3,4].map(i=>({x:200+i*100,y:330}));
+ const floor=dgRoom('#12140e','#3a4a2a',s=>RED.map(p=>`<rect x="${p.x-8}" y="${p.y-8}" width="16" height="16" rx="3" fill="${s.red?'#ff6156':'#2a1414'}" stroke="#ff6156"/>`).join('')+`<rect x="300" y="200" width="200" height="10" fill="${s.door?'#3a4a2a':'#ff6156'}" opacity=".7"/>`);
+ const base=dgBase(DG3,DGPOS,{red:false,door:false});
+ const S=[
+ {d:22,f(k,s){s.units.push({t:'vwyv',x:B.x,y:B.y,hp:k>=.5?1-seg(k,.5,.95)*.3:null});
+   if(k<.3){s.red=k>=.15;DG3.forEach((q,j)=>{s.p[q]=mv(DGPOS[q],{x:RED[j*2].x,y:RED[j*2].y+30},seg(k,0,.12));if(k>=.12)dgFire(s,k,q,RED[j*2],j,'#ff6156');});}
+   if(k>=.3&&k<.5)s.labels.push({x:400,y:250,k:'lMelt',c:C.danger,o:1});s.door=k>=.45;
+   if(k>=.5){s.hud={t:'lShieldT',v:Math.max(0,20-(k-.5)*40)};DG3.forEach((q,j)=>dgFire(s,k,q,B,j));}
+   s.fx=k<.3?{k:'fxP1Red',o:win(k,0,.3,.02),c:'#ff6156'}:k<.5?{k:'fxP1Melt',o:win(k,.3,.5,.02),c:C.danger}:{k:'fxP1Dmg',o:win(k,.5,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+// Ghosts of the Deep: Deepsight from an illusion (20 s) shows correct symbols; Vestige of Light from a Lightbearer's Ghost → imbue the right statue.
+const GDE=(function(){
+ const B={x:400,y:140};const ST=[{x:200,y:300},{x:600,y:300},{x:400,y:380}];
+ const floor=dgRoom('#0c1214','#2a4a4a',s=>ST.map((p,i)=>`<rect x="${p.x-12}" y="${p.y-18}" width="24" height="36" rx="4" fill="${(s.imb||[]).includes(i)?'rgba(246,220,142,.4)':'#0e1618'}" stroke="#f6dc8e"/>`).join('')+`<circle cx="400" cy="250" r="${s.pool?30:0}" fill="rgba(127,227,255,.3)"/>`);
+ const base=dgBase(DG3,DGPOS,{imb:[],pool:false});
+ const S=[
+ {d:24,f(k,s){s.units.push({t:'ogre',x:B.x,y:B.y});s.imb=[0,1,2].filter(i=>k>=.3+i*.18);
+   DG3.forEach((q,j)=>{s.tag[q]=k<.3+j*.18?'VESTIGE':null;s.p[q]=mv(DGPOS[q],{x:ST[j].x,y:ST[j].y-34},seg(k,.05,.3+j*.18));});
+   if(k>=.84){s.pool=true;}s.fx=k<.84?{k:'fxE1Imb',o:win(k,0,.84,.02),c:'#f6dc8e'}:{k:'fxE1Pool',o:win(k,.84,1,.02),c:'#7fe3ff'};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+const GDS=(function(){
+ const B={x:400,y:110};const LOC=[{x:200,y:250,n:'Heart'},{x:600,y:250},{x:400,y:350}];
+ const floor=dgRoom('#0c1214','#2a4a4a',s=>LOC.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="30" fill="${(s.act||[]).includes(i)?'rgba(127,227,255,.15)':'none'}" stroke="#7fe3ff" stroke-dasharray="4 4"/>${p.n?`<text x="${p.x}" y="${p.y+46}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#7fe3ff">HEART</text>`:''}`).join(''));
+ const base=dgBase(DG3,DGPOS,{act:[]});
+ const S=[
+ {d:24,f(k,s){s.units.push({t:'hwiz',x:B.x,y:B.y});s.act=[0,1,2];const order=[1,2,0];const i=Math.min(2,Math.floor(k*3));const L0=LOC[order[i]];const ph=(k*3)%1;
+   s.units.push({t:'hk',x:L0.x,y:L0.y-10,hp:1-seg(ph,.2,.8)*.97});DG3.forEach((q,j)=>{s.p[q]=mv(s.p[q],{x:L0.x-25+j*25,y:L0.y+30},.1);if(ph>=.2&&ph<.8)dgFire(s,k,q,{x:L0.x,y:L0.y-10},j);});
+   s.labels.push({x:L0.x,y:L0.y-50,k:i<2?'lVorlog':'lHeartLast',c:'#7fe3ff',o:1});
+   s.fx={k:'fxS1Vorlog',o:win(k,0,1,.02),c:'#7fe3ff'};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+// Warlord's Ruin: cages + Imminent Wish (30 s), totems; Biting Cold (10 = dead, torches clear); Hex Vengeful Corruption.
+const WRR=(function(){
+ const B={x:400,y:120};const T=[{x:220,y:260},{x:580,y:260}];
+ const floor=dgRoom('#121214','#3a3a4a',s=>T.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="36" fill="${(s.cap||[]).includes(i)?'rgba(143,240,164,.2)':'none'}" stroke="#8ff0a4" stroke-dasharray="5 4"/>`).join('')+(s.cage?DG3.map((q,j)=>`<rect x="${300+j*100-22}" y="${330-22}" width="44" height="44" fill="none" stroke="#a982f5" stroke-width="2"/>`).join(''):''));
+ const base=dgBase(DG3,DGPOS,{cap:[],cage:false});
+ const S=[
+ {d:24,f(k,s){s.units.push({t:'hk',x:B.x,y:B.y,big:1,hp:k>=.7?1-seg(k,.7,.95)*.3:null});s.hud={t:'lWishT',v:Math.max(0,30-k*35)};s.cage=k<.3;
+   DG3.forEach((q,j)=>{s.p[q]=k<.3?{x:300+j*100,y:330}:mv({x:300+j*100,y:330},j<2?T[j]:{x:400,y:250},seg(k,.3,.45));if(k<.3){const e={x:300+j*100+(j-1)*10,y:290};s.units.push({t:'tknight',x:e.x,y:e.y-10});dgFire(s,k,q,e,j);}if(k>=.7)dgFire(s,k,q,B,j);});
+   s.cap=[0,1].filter(i=>k>=.6);s.fx=k<.3?{k:'fxR1Cage',o:win(k,0,.3,.02),c:'#a982f5'}:k<.7?{k:'fxR1Totem',o:win(k,.3,.7,.02),c:C.good}:{k:'fxR1Dmg',o:win(k,.7,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+const WRL=(function(){
+ const TOR=[{x:140,y:80},{x:660,y:80},{x:140,y:380},{x:660,y:380}];const B={x:400,y:200};
+ const floor=dgRoom('#101418','#3a4a5a',s=>TOR.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="10" fill="#ff9a3c"/><circle cx="${p.x}" cy="${p.y}" r="40" fill="rgba(255,154,60,.08)"/>`).join(''));
+ const base=dgBase(DG3,DGPOS,{});
+ const S=[
+ {d:20,f(k,s){s.units.push({t:'boss',x:B.x,y:B.y});s.stkC='#7fe3ff';DG3.forEach((q,j)=>{const n=j===0&&k>=.4?Math.max(0,8-Math.floor((k-.4)*30)):Math.min(9,2+Math.floor(k*9));s.stk[q]=n;s.stkWarn={...(s.stkWarn||{}),[q]:n>=8};});
+   if(k>=.4)s.p.P1=mv(DGPOS.P1,{x:TOR[2].x+20,y:TOR[2].y-20},seg(k,.3,.4));s.labels.push({x:TOR[2].x+40,y:TOR[2].y-50,k:'lTorch',c:'#ff9a3c',o:win(k,.35,1,.02)});
+   s.fx=k<.4?{k:'fxL1Cold',o:win(k,0,.4,.02),c:'#7fe3ff'}:{k:'fxL1Torch',o:win(k,.4,1,.02),c:'#ff9a3c'};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+const WRH=(function(){
+ const B={x:400,y:110};
+ const floor=dgRoom('#121214','#3a3a4a',s=>'');
+ const base=dgBase(DG3,DGPOS,{});
+ const S=[
+ {d:20,f(k,s){s.units.push({t:'hk',x:B.x,y:B.y,big:1});DG3.forEach((q,j)=>{const W={x:250+j*150,y:230};s.units.push({t:'scorn',x:W.x,y:W.y});s.tag[q]=k<.6?'HEX':null;s.p[q]=mv(DGPOS[q],{x:W.x,y:W.y+30},seg(k,.1,.4));if(k>=.4&&k<.5)s.bursts.push({...W,r:10+20*seg(k,.4,.5),c:'#a982f5',o:1-seg(k,.4,.5)});});
+   s.fx=k<.6?{k:'fxH1Hex',o:win(k,0,.6,.02),c:'#a982f5'}:{k:'fxH1Floor',o:win(k,.6,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+// Vesper's Host: Viral Scanner/Operator/Suppressor; radiation 10 = dead; buff timer expires = holder dies.
+const VHA=(function(){
+ const TERM=[{x:200,y:150},{x:600,y:150}];const DEP={x:400,y:340};
+ const floor=dgRoom('#0e1016','#2a3a5a',s=>TERM.map((p,i)=>`<rect x="${p.x-14}" y="${p.y-11}" width="28" height="22" rx="4" fill="#211c33" stroke="${(s.hit||[]).includes(i)?'#8ff0a4':'#f6dc8e'}" stroke-width="2"/>`).join('')+`<rect x="${DEP.x-16}" y="${DEP.y-12}" width="32" height="24" rx="4" fill="#211c33" stroke="#8ff0a4"/>`);
+ const base=dgBase(DG3,DGPOS,{hit:[]});
+ const S=[
+ {d:22,f(k,s){s.tag={P1:'SCAN',P2:'OPER'};if(k<.15)s.labels.push({x:TERM[1].x,y:TERM[1].y-30,k:'lTerm',c:'#f6dc8e',o:1});
+   s.p.P2=mv(DGPOS.P2,{x:520,y:200},seg(k,.1,.25));if(k>=.25&&k<.35)s.shots.push({a:s.p.P2,q:'P2',b:TERM[1],c:'#ff6156'});s.hit=k>=.35?[1]:[];
+   if(k>=.4){s.p.P3=mv(DGPOS.P3,{x:TERM[1].x,y:TERM[1].y+30},seg(k,.4,.5));if(k>=.5){s.orb.P3='#8ff0a4';s.stk.P3=Math.min(9,1+Math.floor((k-.5)*16));s.stkC='#8ff0a4';s.p.P3=mv({x:TERM[1].x,y:TERM[1].y+30},{x:DEP.x+20,y:DEP.y-20},seg(k,.5,.85));}}
+   if(k>=.88)s.orb.P3=null;s.fx=k<.25?{k:'fxA1Scan',o:win(k,0,.25,.02),c:'#f6dc8e'}:k<.4?{k:'fxA1Op',o:win(k,.25,.4,.02),c:'#ff6156'}:{k:'fxA1Core',o:win(k,.4,1,.02),c:'#8ff0a4'};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+const VHR=(function(){
+ const B={x:400,y:150};
+ const floor=dgRoom('#0e1016','#2a3a5a',s=>'');
+ const base=dgBase(DG3,DGPOS,{});
+ const S=[
+ {d:20,f(k,s){s.tag={P1:'SUPP',P2:'OPER'};s.units.push({t:'fserv',x:B.x,y:B.y,hp:k>=.5?1-seg(k,.5,.95)*.3:null});
+   s.p.P1=mv(DGPOS.P1,{x:B.x-40,y:B.y+60},seg(k,0,.2));if(k>=.2&&k<.4){const c={x:B.x-20,y:B.y+40};s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${c.x}" cy="${c.y}" r="10" fill="none" stroke="#59b8ff" stroke-width="2" stroke-dasharray="3 2"/>`});s.labels.push({x:c.x,y:c.y+30,k:'lClone',c:'#59b8ff',o:1});if(k>=.32)s.shots.push({a:s.p.P1,q:'P1',b:c,c:'#59b8ff'});}
+   if(k>=.5)DG3.forEach((q,j)=>dgFire(s,k,q,B,j));s.fx=k<.4?{k:'fxR1Clone',o:win(k,0,.4,.02),c:'#59b8ff'}:{k:'fxR1Dmg',o:win(k,.4,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+const VHP=(function(){
+ const CP=[{x:250,y:150},{x:400,y:120},{x:550,y:150}];
+ const floor=dgRoom('#0e1016','#2a3a5a',s=>'');
+ const base=dgBase(DG3,DGPOS,{});
+ const S=[
+ {d:20,f(k,s){s.hud={t:'lPurgeT',v:Math.max(0,45-k*40)};CP.forEach((p,i)=>{if(i===1&&k>=.6)return;s.units.push({t:'atraks',x:p.x,y:p.y,glow:i===1&&k>=.2,hp:i===1&&k>=.3?1-seg(k,.3,.58)*.97:null});s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${p.x}" cy="${p.y}" r="34" fill="rgba(143,240,164,.08)" stroke="#8ff0a4" stroke-dasharray="3 3"/>`});});
+   if(k>=.3&&k<.6)DG3.forEach((q,j)=>dgFire(s,k,q,CP[1],j));if(k>=.6&&k<.7)s.adds.push(dscCore({x:400,y:140}));
+   s.fx=k<.3?{k:'fxP1Copy',o:win(k,0,.3,.02),c:'#f6dc8e'}:k<.6?{k:'fxP1Kill',o:win(k,.3,.6,.02),c:C.ally}:{k:'fxP1Core',o:win(k,.6,1,.02),c:'#8ff0a4'};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+// Sundered Doctrine
+const SDZ=(function(){
+ const WH=[0,1,2,3].map(i=>({x:220+i*120,y:300}));const SY=['Kill','Stop','Stop','Stop'];
+ const floor=dgRoom('#14100e','#4a3a2a',s=>WH.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="26" fill="#120e0c" stroke="#f6dc8e" stroke-width="2"/><text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="10" font-weight="700" fill="${SY[i]==='Kill'?'#ff6156':'#f6dc8e'}">${(s.read||0)>i?SY[i].toUpperCase():'?'}</text>`).join(''));
+ const base=dgBase(DG3,DGPOS,{read:0});
+ const S=[
+ {d:22,f(k,s){[0,1,2,3].forEach(i=>s.units.push({t:'wizard',x:220+i*120,y:110}));s.read=Math.min(4,Math.floor(seg(k,.1,.7)*4.4));
+   if(k>=.75)DG3.forEach((q,j)=>dgFire(s,k,q,{x:220+j*120,y:110},j));
+   s.fx=k<.75?{k:'fxZ1Read',o:win(k,0,.75,.02),c:'#f6dc8e'}:{k:'fxZ1Dmg',o:win(k,.75,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+const SDK=(function(){
+ const B={x:400,y:200};const PIL=[{x:220,y:300},{x:580,y:300}];
+ const floor=dgRoom('#14100e','#4a3a2a',s=>PIL.map(p=>`<rect x="${p.x-16}" y="${p.y-16}" width="32" height="32" rx="4" fill="#2a2414" stroke="#9c95b0"/>`).join('')+(s.fire?`<rect x="110" y="30" width="580" height="390" rx="14" fill="rgba(255,120,40,${.1+.08*Math.sin(now*6)})"/>`:''));
+ const base=dgBase(DG3,DGPOS,{fire:false});
+ const S=[
+ {d:22,f(k,s){s.fire=k>=.15&&k<.6;s.units.push({t:'hk',x:B.x,y:B.y,big:1,hp:k>=.6?1-seg(k,.6,.95)*.3:null});
+   DG3.forEach((q,j)=>{const P=PIL[j%2];s.p[q]=k<.6?mv(DGPOS[q],{x:P.x+(j===2?20:0),y:P.y+30},seg(k,.05,.15)):mv({x:P.x,y:P.y+30},{x:340+j*60,y:300},seg(k,.6,.7));if(k>=.65)dgFire(s,k,q,B,j);});
+   s.fx=k<.15?{k:'fxK1Wheel',o:win(k,0,.15,.02),c:'#f6dc8e'}:k<.6?{k:'fxK1Hide',o:win(k,.15,.6,.02),c:'#ff9a3c'}:{k:'fxK1Dmg',o:win(k,.6,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -9336,6 +9484,71 @@ const RG_GAA=RG_DG(['Shank + Vandal.','~65 Engramme.','Schaden.'],['Shank + Vand
 const RG_DUG=RG_DG(['Psion, Banner.','Ablegen.','Schaden, Timer.'],['Psion, standard.','Deposit.','Damage, timer.']);
 const RG_DUC=RG_DG(['Richtiger Bearer.','Glocke beim Ankommen.','Schaden.'],['Right bearer.','Bell on arrival.','Damage.']);
 
+const dgE=(num,name,eng,k,de,en,sc,L)=>dgEnc(num,name,eng,
+ {kicker:k,lede:de[0]+' Schematisch.',sc:sc.de,tip:{1:de[1]},roles:[['Alle',de[2],'']],rules:de[3],wipes:de[4],tips:de[5]||[],calls:[['Los','Go','']],L:L.de},
+ {kicker:k,lede:en[0]+' Schematic.',sc:sc.en,tip:{1:en[1]},roles:[['Everyone',en[2],'']],rules:en[3],wipes:en[4],tips:en[5]||[],calls:[['Los','Go','']],L:L.en});
+const ENC_SPA=dgE(1,'Akelous, the Siren’s Current',SPA,'Spire of the Watcher · Akelous',
+ ['Vorher Ascend the Spire: Vex-Minotaurus töten gibt „Arctrician“ (30 s), jeder Schalter +5 s; Schalter schalten Kreise und den Aufzug. Akelous ist nur über Brennstäbe verwundbar: Minotaurus für Arctrician, vier Kreise mit je etwa sechs Schaltern (gelben Kabeln folgen) aktivieren. Dann die roten Augen zerstören, kritischer Punkt frei, mittlerer Abstand halten (sonst glüht er rot und die Phase endet früh). Danach explodiert die Harpyie, vorher in die Laufwege springen.','Gelben Kabeln folgen.','Arctrician, Schalter, Augen, Schaden.',['Arctrician 30 s, +5 s pro Schalter.'],['In der Quelle keine Wipe-Bedingung.'],['<b>Exotic:</b> Hierarchy of Needs (Bogen), Details nicht geprüft.']],
+ ['First Ascend the Spire: killing the Vex Minotaur gives “Arctrician” (30 s), every switch +5 s; switches power circuits and the lift. Akelous only takes damage via fuel rods: Minotaur for Arctrician, activate four circuits with about six switches each (follow the yellow cables). Then destroy the red eyes, crit spot open, keep a medium distance (or he glows red and the phase ends early). Afterwards the Harpy explodes, drop into the walkways first.','Follow the yellow cables.','Arctrician, switches, eyes, damage.',['Arctrician 30 s, +5 s per switch.'],['No wipe condition in the source.'],['<b>Exotic:</b> Hierarchy of Needs (bow), details not checked.']],
+ {de:[['Schalter','Minotaurus → Arctrician, Schalter der Kreise.'],['Schaden','Rote Augen, dann der kritische Punkt.']],en:[['Switches','Minotaur → Arctrician, circuit switches.'],['Damage','Red eyes, then the crit spot.']]},
+ {de:{lArcT:'ARCTRICIAN',fxS1Mino:'Minotaurus → Arctrician',fxS1Sw:'Schalter: +5 s je Schalter',fxS2Eyes:'Rote Augen zerstören',fxS2Dmg:'Schaden, mittlerer Abstand'},en:{lArcT:'ARCTRICIAN',fxS1Mino:'Minotaur → Arctrician',fxS1Sw:'Switches: +5 s each',fxS2Eyes:'Destroy the red eyes',fxS2Dmg:'Damage, medium distance'}});
+const ENC_SPP=dgE(2,'Persys, Primordial Ruin',SPP,'Spire of the Watcher · Persys',
+ ['Zwei Hydras töten → zwei Minotauren → Arctrician. Die fünf Schalter mit roten Kabeln innerhalb von 5 Sekunden schießen (Schutztür). Zwei Kreise mit je etwa fünf Schaltern laden; dann beginnt eine Kernschmelze: Kammer verlassen, Buff erneuern, rote Schalter wieder schießen, Tür zu, Schild weg. Schaden, bis der Schild nach 15–20 Sekunden zurückkommt.','Rote Schalter gleichzeitig.','Hydras, Schalter, Schaden.',['5 rote Schalter in 5 s.','Schild nach 15–20 s zurück.'],['In der Quelle keine Wipe-Bedingung.']],
+ ['Kill two Hydras → two Minotaurs → Arctrician. Shoot the five red-cable switches within 5 seconds (blast door). Charge two circuits with about five switches each; then a meltdown starts: leave the chamber, refresh the buff, shoot the red switches again, door closed, shield down. Damage until the shield returns after 15–20 seconds.','Red switches together.','Hydras, switches, damage.',['5 red switches in 5 s.','Shield back after 15–20 s.'],['No wipe condition in the source.']],
+ {de:[['Ablauf','Rote Schalter, Kreise, Kernschmelze, rote Schalter, Schaden.']],en:[['Flow','Red switches, circuits, meltdown, red switches, damage.']]},
+ {de:{lMelt:'Kernschmelze: raus!',lShieldT:'SCHILD',fxP1Red:'Fünf rote Schalter in 5 s',fxP1Melt:'Kernschmelze: Kammer verlassen',fxP1Dmg:'Schaden bis der Schild zurückkommt'},en:{lMelt:'Meltdown: get out!',lShieldT:'SHIELD',fxP1Red:'Five red switches in 5 s',fxP1Melt:'Meltdown: leave the chamber',fxP1Dmg:'Damage until the shield returns'}});
+const ENC_GDE=dgE(1,'Ecthar, the Shield of Savathun',GDE,'Ghosts of the Deep · Ecthar',
+ ['Deepsight von einer Illusion (20 s) zeigt die richtigen Symbole; „Vestige of Light“ vom Geist eines Lightbearers muss in die richtige Statue (falsch = der Spieler stirbt, alles zurück). Ecthar: Acolytes, Knights und den Keeper-Ogre töten, Illusion zeigt drei leuchtende von acht Runen; unter Wasser die passenden berühren. Drei Lightbearer-Wizards, drei Statuen (linke Treppe, rechte Treppe, hinten Mitte). Dann Wellkeeper-Knight, in seinen Pool, Schaden.','Statuen-Reihenfolge ansagen.','Runen, Vestige, Statuen, Pool.',['Falsche Statue = tot + Reset.'],['Falsche Statue.'],['<b>Laut Guide:</b> Well of Radiance fast Pflicht, Raketen im engen Raum schlecht.']],
+ ['Deepsight from an illusion (20 s) shows the right symbols; “Vestige of Light” from a Lightbearer’s Ghost goes into the right statue (wrong = that player dies, everything resets). Ecthar: kill Acolytes, Knights and the Keeper Ogre, the illusion shows three lit runes out of eight; touch the matching ones underwater. Three Lightbearer Wizards, three statues (left stairs, right stairs, back middle). Then the Wellkeeper Knight, step into its pool, damage.','Call the statue order.','Runes, vestige, statues, pool.',['Wrong statue = dead + reset.'],['Wrong statue.'],['<b>Per the guide:</b> Well of Radiance nearly mandatory, rockets bad in the tight space.']],
+ {de:[['Statuen','Vestige in die drei Statuen, dann Pool.']],en:[['Statues','Vestige into the three statues, then the pool.']]},
+ {de:{fxE1Imb:'Vestige in die richtige Statue',fxE1Pool:'Wellkeeper-Pool: Schaden'},en:{fxE1Imb:'Vestige into the right statue',fxE1Pool:'Wellkeeper pool: damage'}});
+const ENC_GDS=dgE(2,'Simmumah ur-Nokru',GDS,'Ghosts of the Deep · Simmumah',
+ ['Geist zerdrücken, Illusion: Deepsight zeigt drei aktive Orte, das Herz ist immer dabei und kommt zuletzt. An jedem Ort auf dem leuchtenden Boden Vorlog töten; danach Linse, Hive-Symbol, Rune. In der Wasserkammer Lightbearer + Geist töten (Vestige 60 s, läuft er ab: tot), passenden Ort aufladen. Dreimal, dann Schaden im Pool, Schild herunterschießen.','Herz zuletzt.','Orte, Vorlog, Vestige, Schaden.',['Vestige 60 s.'],['Vestige läuft ab.'],['<b>Laut Guide:</b> Arc-Resistenz-Mods und Well of Radiance helfen.']],
+ ['Crush the Ghost, illusion: Deepsight shows three active locations, the Heart is always one of them and comes last. At each location kill Vorlog on the glowing ground; then lens, Hive symbol, rune. In the water chamber kill a Lightbearer + Ghost (Vestige 60 s, if it runs out: dead), imbue the matching location. Three times, then damage in the pool, shoot the shield down.','Heart last.','Locations, Vorlog, vestige, damage.',['Vestige 60 s.'],['Vestige runs out.'],['<b>Per the guide:</b> Arc resistance mods and Well of Radiance help.']],
+ {de:[['Orte','Vorlog an den Orten, Herz zuletzt.']],en:[['Locations','Vorlog at each location, Heart last.']]},
+ {de:{fxS1Vorlog:'Vorlog an jedem Ort, Herz zuletzt',lVorlog:'Vorlog',lHeartLast:'Herz (zuletzt)'},en:{fxS1Vorlog:'Vorlog at each location, Heart last',lVorlog:'Vorlog',lHeartLast:'Heart (last)'}});
+const ENC_WRR=dgE(1,'Rathil, First Broken Knight',WRR,'Warlord’s Ruin · Rathil',
+ ['Rathil setzt ein Totem und sperrt jeden in einen Käfig. „Imminent Wish“: 30 Sekunden. Die drei Taken-Augen um den eigenen Käfig töten, dann im Ring des Totems stehen und es einnehmen. Zwei Totems pro Schadensphase, beide in der Zeit = maximale Schadenszeit.','Erst Augen, dann Totem.','Käfig, Totem, Schaden.',['Imminent Wish 30 s.'],['In der Quelle nicht beschrieben.']],
+ ['Rathil places a totem and traps everyone in a cage. “Imminent Wish”: 30 seconds. Kill the three Taken eyes around your cage, then stand in the totem’s ring and capture it. Two totems per damage phase, both in time = maximum damage time.','Eyes first, then the totem.','Cage, totem, damage.',['Imminent Wish 30 s.'],['Not described in the source.']],
+ {de:[['Käfig + Totem','Augen, Totem einnehmen, Schaden.']],en:[['Cage + totem','Eyes, capture the totem, damage.']]},
+ {de:{lWishT:'IMMINENT WISH',fxR1Cage:'Augen um den Käfig töten',fxR1Totem:'Totems einnehmen',fxR1Dmg:'Schaden'},en:{lWishT:'IMMINENT WISH',fxR1Cage:'Kill the eyes around your cage',fxR1Totem:'Capture the totems',fxR1Dmg:'Damage'}});
+const ENC_WRL=dgE(2,'Locus of Wailing Grief',WRL,'Warlord’s Ruin · Locus',
+ ['Zwei Scorn-Knights (Malaris, Vrysiks), je einer pro Spieler; jeder setzt ein Totem, dann den Knight töten. „Biting Cold“: bei 9 verlangsamt, bei 10 eingefroren und tot; an den Fackeln am Rand „Shelter from the Storm“ holen, das löscht die Stapel. Totems vor Ablauf von Imminent Wish einnehmen, Solar-Orbs ablegen (einer pro Platte), mit vier startet der Schaden: gemeinsam auf eine Platte, im Ring geschützt Schaden, Platten durchrotieren.','An die Fackel!','Knights, Totems, Orbs, Platten.',['Biting Cold 10 = tot.'],['Biting Cold 10.']],
+ ['Two Scorn Knights (Malaris, Vrysiks), one per player; each places a totem, then kill the Knight. “Biting Cold”: slowed at 9, frozen and dead at 10; get “Shelter from the Storm” at the torches on the edges, which clears the stacks. Capture the totems before Imminent Wish ends, deposit Solar orbs (one per plate), four start damage: group on a plate, sheltered in the ring, damage, rotate plates.','To the torch!','Knights, totems, orbs, plates.',['Biting Cold 10 = dead.'],['Biting Cold 10.']],
+ {de:[['Kälte','Stapel an der Fackel löschen.']],en:[['Cold','Clear stacks at the torch.']]},
+ {de:{lTorch:'Fackel: Kälte weg',fxL1Cold:'Biting Cold steigt',fxL1Torch:'An die Fackel'},en:{lTorch:'torch: cold gone',fxL1Cold:'Biting Cold rises',fxL1Torch:'To the torch'}});
+const ENC_WRH=dgE(3,'Hefnd’s Vengeance',WRH,'Warlord’s Ruin · Hefnd',
+ ['Taken-Wizards töten, dann die Augen um Hefnd; Blights auf der Plattform brechen. Sechs Augen → Nymeks und Sirloks (Totems wie beim Locus). Vengeful Hex Drinkers: je einer pro Spieler, jeder hat „Hex Vengeful Corruption“ und muss einen eigenen Wraith nahkampfen; läuft der Debuff ab, stirbt der Träger. Genug Schaden: Hefnd springt ein Stockwerk weiter. Oben drei Platten, Augen brechen verlängert. Final Stand oben im Turm.','Eigenen Wraith schlagen.','Augen, Totems, Hex, Schaden.',['Hex-Debuff läuft ab = tot.'],['Hex Vengeful Corruption läuft ab.']],
+ ['Kill the Taken Wizards, then the eyes around Hefnd; break Blights on your platform. Six eyes → Nymeks and Sirloks (totems as with the Locus). Vengeful Hex Drinkers: one per player, everyone has “Hex Vengeful Corruption” and must melee their own Wraith; if the debuff runs out, the holder dies. Enough damage: Hefnd moves up a floor. On top three plates, breaking eyes extends. Final stand on top of the tower.','Melee your own Wraith.','Eyes, totems, hex, damage.',['Hex debuff runs out = dead.'],['Hex Vengeful Corruption runs out.']],
+ {de:[['Hex','Jeder schlägt seinen eigenen Wraith.']],en:[['Hex','Everyone melees their own Wraith.']]},
+ {de:{fxH1Hex:'Eigenen Wraith nahkampfen',fxH1Floor:'Schaden, dann nächstes Stockwerk'},en:{fxH1Hex:'Melee your own Wraith',fxH1Floor:'Damage, then the next floor'}});
+const ENC_VHA=dgE(1,'Activation',VHA,'Vesper’s Host · Activation',
+ ['Viral Scanner und Viral Operator. Fallen und Machine-Priest-Assistenten töten, Barriere fällt. Der Scanner findet die Terminals, der Operator schießt sie, ein Kern erscheint. Kern in den Hauptraum tragen (Strahlung, 10 = tot), nach dem Brig ablegen. Drei Räume, der letzte Brig ist ein Boss.','Scanner sagt, Operator schießt.','Scanner, Operator, Kern.',['Buff-Timer abgelaufen = tot.','Strahlung 10 = tot.'],['Buff-Timer abgelaufen.','Strahlung 10.']],
+ ['Viral Scanner and Viral Operator. Kill Fallen and Machine Priest assistants, the barrier drops. The Scanner finds the terminals, the Operator shoots them, a core appears. Carry the core to the main room (radiation, 10 = dead), deposit after killing the Brig. Three rooms, the last Brig is a boss.','Scanner calls, Operator shoots.','Scanner, Operator, core.',['Buff timer runs out = dead.','Radiation 10 = dead.'],['Buff timer runs out.','Radiation 10.']],
+ {de:[['Kern','Terminal, Kern, ablegen.']],en:[['Core','Terminal, core, deposit.']]},
+ {de:{lTerm:'Terminal',fxA1Scan:'Scanner findet das Terminal',fxA1Op:'Operator schießt es',fxA1Core:'Kern tragen, Strahlung steigt'},en:{lTerm:'terminal',fxA1Scan:'Scanner finds the terminal',fxA1Op:'Operator shoots it',fxA1Core:'Carry the core, radiation rises'}});
+const ENC_VHR=dgE(2,'Raneiks Unified',VHR,'Vesper’s Host · Raneiks',
+ ['Viral Suppressor erzeugt einen Klon der eigenen Granate; ihn zu zerbrechen betäubt Raneiks. Operator schießt Paneele nach den Zahlen der markierten Servitors (falsches Panel = Operator tot). Nach dem vierten Panel kommt Raneiks: Granate in seiner Nähe, Klon zerbrechen, er zerfällt in Servitors, kurzes Schadensfenster.','Granaten-Klon zerbrechen.','Suppressor, Operator, Schaden.',['Falsches Panel = Operator tot.'],['Raneiks’ Strahl-Timer bei null.','Falsches Panel.']],
+ ['The Viral Suppressor creates a clone of your grenade; breaking it stuns Raneiks. The Operator shoots panels by the numbers on the marked Servitors (wrong panel = Operator dies). After the fourth panel Raneiks comes back: grenade near him, break the clone, he splits into Servitors, short damage window.','Break the grenade clone.','Suppressor, Operator, damage.',['Wrong panel = Operator dies.'],['Raneiks’ beam timer at zero.','Wrong panel.']],
+ {de:[['Stun','Granate, Klon zerbrechen, Schaden.']],en:[['Stun','Grenade, break the clone, damage.']]},
+ {de:{lClone:'Klon',fxR1Clone:'Granaten-Klon zerbrechen',fxR1Dmg:'Schaden'},en:{lClone:'clone',fxR1Clone:'Break the grenade clone',fxR1Dmg:'Damage'}});
+const ENC_VHP=dgE(3,'Corrupted Puppeteer',VHP,'Vesper’s Host · Puppeteer',
+ ['Kopien mit Strahlungsfeldern, der Suppressor nimmt ihre Schilde. Scanner und Operator finden und schießen die richtigen Säulen/Paneele. „Sector Purge Cooldown“ 45 Sekunden: bei null brennt der Raum, also vorher die richtige Kopie töten, die lässt einen Kern fallen. Wird die Bossin immun, Kern ablegen. Wiederholen.','Richtige Kopie vor dem Purge.','Kopien, Kern, Schaden.',['Sector Purge 45 s.'],['Sector Purge bei null.'],['<b>Contest:</b> Vesper’s Host war der erste Dungeon mit Contest Mode.']],
+ ['Copies with radiation fields, the Suppressor removes their shields. Scanner and Operator find and shoot the right pillars/panels. “Sector Purge Cooldown” 45 seconds: at zero the room burns, so kill the right copy first, it drops a core. When she goes immune, deposit the core. Repeat.','Right copy before the purge.','Copies, core, damage.',['Sector Purge 45 s.'],['Sector Purge at zero.'],['<b>Contest:</b> Vesper’s Host was the first dungeon with Contest Mode.']],
+ {de:[['Kopie','Richtige Kopie töten, Kern ablegen.']],en:[['Copy','Kill the right copy, deposit the core.']]},
+ {de:{lPurgeT:'SECTOR PURGE',fxP1Copy:'Scanner: die richtige Kopie',fxP1Kill:'Kopie töten',fxP1Core:'Kern ablegen'},en:{lPurgeT:'SECTOR PURGE',fxP1Copy:'Scanner: the right copy',fxP1Kill:'Kill the copy',fxP1Core:'Deposit the core'}});
+const ENC_SDZ=dgE(1,'Zoetic Lockset',SDZ,'Sundered Doctrine · Zoetic Lockset',
+ ['Vier Shrieker-Bosse mit gemeinsamer Lebensleiste, vier Räder mit Symbolen. Die Shrieker lesen die Räder von links nach rechts. Knowledge: Wizards/Knights + Resonanz; Hive: zwei Boss-Ogres; Commune: Bienen im Schaden; Stop: keine Spawns; Kill: Schadensphase (je weiter links, desto länger). Ideal: Kill, Stop, Stop, Stop. Ein unbeaufsichtigtes Rad dreht sich weiter.','Kill, Stop, Stop, Stop.','Räder stellen, Schaden.',['Kill links = längster Schaden.'],['In der Quelle nicht beschrieben.']],
+ ['Four Shrieker bosses with a shared health bar, four wheels with symbols. The Shriekers read the wheels left to right. Knowledge: Wizards/Knights + resonance; Hive: two boss Ogres; Commune: bees during damage; Stop: no spawns; Kill: damage phase (the further left, the longer). Ideal: Kill, Stop, Stop, Stop. An unattended wheel keeps turning.','Kill, Stop, Stop, Stop.','Set the wheels, damage.',['Kill on the left = longest damage.'],['Not described in the source.']],
+ {de:[['Räder','Kill, Stop, Stop, Stop einstellen.']],en:[['Wheels','Set Kill, Stop, Stop, Stop.']]},
+ {de:{fxZ1Read:'Shrieker lesen links nach rechts',fxZ1Dmg:'Kill: Schaden'},en:{fxZ1Read:'Shriekers read left to right',fxZ1Dmg:'Kill: damage'}});
+const ENC_SDK=dgE(2,'Kerrev, the Erased',SDK,'Sundered Doctrine · Kerrev',
+ ['Ein Rad zeigt eine Wahrheit und eine Lüge (die Quelle ist hier uneinheitlich; ihr Beispiel: Symbole der Lüge erleuchten, Wahrheit verdunkeln). Symbole liegen in Räumen (Hauptraum, unten, links, rechts); Weaver töten gibt „Unwritten Empowerment“ zum Brechen der Cruxe. Rad benutzen startet den Schaden: hinter einer Säule verstecken, Feuer zerstört langsam Kerrevs Schild; danach Schaden.','Hinter die Säule.','Symbole, Rad, Säule, Schaden.',['Nicht zu nah (er hält einen fest).'],['Draußen im Feuer stehen.'],['<b>Unsicher:</b> Wahrheit/Lüge-Regel ist in der Quelle widersprüchlich, vor dem Versuch prüfen.']],
+ ['A wheel shows a truth and a lie (the source is inconsistent here; its example: light the lie’s symbols, darken the truth). Symbols sit in rooms (main, below, left, right); killing Weavers gives “Unwritten Empowerment” for breaking the cruxes. Using the wheel starts damage: hide behind a pillar, fire slowly destroys Kerrev’s shield; then damage.','Behind the pillar.','Symbols, wheel, pillar, damage.',['Not too close (he suspends you).'],['Standing in the fire.'],['<b>Unclear:</b> the truth/lie rule is contradictory in the source, check before trying.']],
+ {de:[['Feuer','Hinter die Säulen, dann Schaden.']],en:[['Fire','Behind the pillars, then damage.']]},
+ {de:{fxK1Wheel:'Rad: Wahrheit und Lüge',fxK1Hide:'Hinter die Säule, Feuer zerstört den Schild',fxK1Dmg:'Schaden'},en:{fxK1Wheel:'Wheel: truth and lie',fxK1Hide:'Behind the pillar, fire breaks the shield',fxK1Dmg:'Damage'}});
+const RG_D3=RG_DG(['Mechanik nach Ansage.','Schaden.'],['Mechanic as called.','Damage.']);
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -9623,7 +9836,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,ceabyss:ENC_CEA,cebridge:ENC_CEB,ceiryut:ENC_CEI,cecrota:ENC_CEC,dpiat:ENC_DPI,dpagr:ENC_DPA,dpepo:ENC_DPE,dpkor:ENC_DPK,stvorg:ENC_STV,stdul:ENC_STD,phnecro:ENC_PHN,phcham:ENC_PHC,phzul:ENC_PHZ,prphal:ENC_PRP,prhex:ENC_PRH,prkell:ENC_PRK,gaphry:ENC_GAP,gaserv:ENC_GAS,gaavar:ENC_GAA,dugahl:ENC_DUG,ducaia:ENC_DUC,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,ceabyss:ENC_CEA,cebridge:ENC_CEB,ceiryut:ENC_CEI,cecrota:ENC_CEC,dpiat:ENC_DPI,dpagr:ENC_DPA,dpepo:ENC_DPE,dpkor:ENC_DPK,stvorg:ENC_STV,stdul:ENC_STD,phnecro:ENC_PHN,phcham:ENC_PHC,phzul:ENC_PHZ,prphal:ENC_PRP,prhex:ENC_PRH,prkell:ENC_PRK,gaphry:ENC_GAP,gaserv:ENC_GAS,gaavar:ENC_GAA,dugahl:ENC_DUG,ducaia:ENC_DUC,spaak:ENC_SPA,sppers:ENC_SPP,gdecth:ENC_GDE,gdsimm:ENC_GDS,wrrath:ENC_WRR,wrloc:ENC_WRL,wrhef:ENC_WRH,vhact:ENC_VHA,vhran:ENC_VHR,vhpup:ENC_VHP,sdzoe:ENC_SDZ,sdker:ENC_SDK,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -9694,6 +9907,11 @@ const ACT={
  pr:{name:'Prophecy',kind:'dungeon',encs:['prphal','prhex','prkell'],src:[['Yardbarker – Prophecy 2026 dungeon guide','https://www.yardbarker.com/video_games/articles/destiny_2_prophecy_2026_dungeon_guide/s1_17456_43893741']]},
  ga:{name:'Grasp of Avarice',kind:'dungeon',encs:['gaphry','gaserv','gaavar'],src:[['Yardbarker – Grasp of Avarice 2026 dungeon guide','https://www.yardbarker.com/video_games/articles/destiny_2_grasp_of_avarice_2026_dungeon_guide/s1_17456_43915044']]},
  du:{name:'Duality',kind:'dungeon',encs:['dugahl','ducaia'],src:[['Yardbarker – Duality 2026 dungeon guide','https://www.yardbarker.com/video_games/articles/destiny_2_duality_2026_dungeon_guide/s1_17456_43921043']]},
+ sw:{name:'Spire of the Watcher',kind:'dungeon',encs:['spaak','sppers'],src:[['TheGamer – Spire of the Watcher walkthrough','https://www.thegamer.com/destiny-2-spire-of-the-watcher-dungeon-encounters-walkthrough/']]},
+ gd:{name:'Ghosts of the Deep',kind:'dungeon',encs:['gdecth','gdsimm'],src:[['Shacknews – Ghosts of the Deep dungeon guide','https://www.shacknews.com/article/135676/ghosts-of-the-deep-dungeon-guide-destiny-2']]},
+ wr:{name:'Warlord’s Ruin',kind:'dungeon',encs:['wrrath','wrloc','wrhef'],src:[['Yardbarker – Warlord’s Ruin 2026 dungeon guide','https://www.yardbarker.com/entertainment/articles/destiny_2_warlords_ruin_2026_dungeon_guide/s1_17456_43932817']]},
+ vh:{name:'Vesper’s Host',kind:'dungeon',encs:['vhact','vhran','vhpup'],src:[['Yardbarker – Vesper’s Host 2026 dungeon guide','https://www.yardbarker.com/entertainment/articles/destiny_2_vespers_host_2026_dungeon_guide/s1_17456_43934762']]},
+ sd:{name:'Sundered Doctrine',kind:'dungeon',encs:['sdzoe','sdker'],src:[['Yardbarker – Sundered Doctrine 2026 dungeon guide','https://www.yardbarker.com/entertainment/articles/destiny_2_sundered_doctrine_2026_dungeon_guide/s1_17456_43934794']]},
  eq:{name:'Equilibrium',kind:'dungeon',encs:['eqharv','eqharrow','eqsere'],src:[['Destinypedia – Equilibrium','https://www.destinypedia.com/Equilibrium'],['Shacknews – Equilibrium dungeon guide','https://www.shacknews.com/article/147168/how-to-complete-the-equilibrium-dungeon-in-destiny-2'],['Vaexil – Equilibrium field guide (PDF)','https://destiny2.vaexil.tv/downloads/guides/dungeons/equilibrium/equilibrium-complete-guide.pdf'],['Grindout – Equilibrium guide','https://grindout.com/destiny-2/guides/equilibrium-guide'],['The Game Post – Equilibrium dungeon guide','https://thegamepost.com/destiny-2-equilibrium-dungeon-guide/'],['ProGameTalk – Equilibrium walkthrough','https://progametalk.com/destiny-2/equilibrium-dungeon-walkthrough/'],['Kyber’s Corner – Equilibrium','https://kyberscorner.com/destiny-2-equilibrium-dungeon/'],['Total Apex Gaming – Harrow guide','https://totalapexgaming.com/action/equilibrium-harrow-guide/']]}};
 const actOf=id=>Object.keys(ACT).find(a=>ACT[a].encs.includes(id))||'ron';
 
@@ -9795,7 +10013,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.ceabyss=RG_CEA;RG.cebridge=RG_CEB;RG.ceiryut=RG_CEI;RG.cecrota=RG_CEC;RG.dpiat=RG_DPI;RG.dpagr=RG_DPA;RG.dpepo=RG_DPE;RG.dpkor=RG_DPK;RG.stvorg=RG_STV;RG.stdul=RG_STD;RG.phnecro=RG_PHN;RG.phcham=RG_PHC;RG.phzul=RG_PHZ;RG.prphal=RG_PRP;RG.prhex=RG_PRH;RG.prkell=RG_PRK;RG.gaphry=RG_GAP;RG.gaserv=RG_GAS;RG.gaavar=RG_GAA;RG.dugahl=RG_DUG;RG.ducaia=RG_DUC;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.ceabyss=RG_CEA;RG.cebridge=RG_CEB;RG.ceiryut=RG_CEI;RG.cecrota=RG_CEC;RG.dpiat=RG_DPI;RG.dpagr=RG_DPA;RG.dpepo=RG_DPE;RG.dpkor=RG_DPK;RG.stvorg=RG_STV;RG.stdul=RG_STD;RG.phnecro=RG_PHN;RG.phcham=RG_PHC;RG.phzul=RG_PHZ;RG.prphal=RG_PRP;RG.prhex=RG_PRH;RG.prkell=RG_PRK;RG.gaphry=RG_GAP;RG.gaserv=RG_GAS;RG.gaavar=RG_GAA;RG.dugahl=RG_DUG;RG.ducaia=RG_DUC;RG.spaak=RG_D3;RG.sppers=RG_D3;RG.gdecth=RG_D3;RG.gdsimm=RG_D3;RG.wrrath=RG_D3;RG.wrloc=RG_D3;RG.wrhef=RG_D3;RG.vhact=RG_D3;RG.vhran=RG_D3;RG.vhpup=RG_D3;RG.sdzoe=RG_D3;RG.sdker=RG_D3;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
@@ -9947,6 +10165,11 @@ const CHAL={
  verity:{n:'Varied Geometry',de:'Derselbe 3D-Schlüssel darf nicht wiederholt werden. Die Guides beschreiben es unterschiedlich: nicht zweimal hintereinander, oder erst wieder, wenn alle sechs Formen dran waren.',en:'The same 3D key may not be repeated. Guides describe it differently: not twice in a row, or only again once all six shapes have been used.'},
  zenith:{n:'Coordinated Efforts',de:'Alle sechs Knöpfe innerhalb weniger Sekunden nach dem ersten zerstören. Dafür sammeln alle sechs vorher Glyphbreaker und schießen dann gleichzeitig.',en:'Break all six buttons within a few seconds of the first. So all six collect Glyphbreaker first, then shoot together.'}};
 const XTRA={
+ sw:{de:[['Hinweis','Exotic und Truhen nennt die Quelle nicht, bzw. nicht geprüft.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],en:[['Note','The source doesn’t cover exotics or chests, or they weren’t checked.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
+ gd:{de:[['Hinweis','Exotic und Truhen nennt die Quelle nicht, bzw. nicht geprüft.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],en:[['Note','The source doesn’t cover exotics or chests, or they weren’t checked.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
+ wr:{de:[['Hinweis','Exotic und Truhen nennt die Quelle nicht, bzw. nicht geprüft.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],en:[['Note','The source doesn’t cover exotics or chests, or they weren’t checked.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
+ vh:{de:[['Hinweis','Exotic und Truhen nennt die Quelle nicht, bzw. nicht geprüft.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],en:[['Note','The source doesn’t cover exotics or chests, or they weren’t checked.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
+ sd:{de:[['Hinweis','Die Quelle beschreibt nur Zoetic Lockset und Kerrev; ein weiterer Encounter fehlt hier. Exotic und Truhen nicht geprüft.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],en:[['Note','The source doesn’t cover exotics or chests, or they weren’t checked.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
  pr:{de:[['Hinweis','Exotic und Truhen nennt die Quelle nicht.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset (vierter Loot-Refresh für Prophecy).']],en:[['Note','The source doesn’t cover exotics or chests.'],['2026','Since June 9, 2026 tiered loot and its own armor set (fourth loot refresh for Prophecy).']]},
  ga:{de:[['Hinweis','Exotic und Truhen nennt die Quelle nicht.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],en:[['Note','The source doesn’t cover exotics or chests.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
  du:{de:[['Hinweis','Exotic und Truhen nennt die Quelle nicht.'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],en:[['Note','The source doesn’t cover exotics or chests.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
