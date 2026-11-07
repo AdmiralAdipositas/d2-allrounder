@@ -503,7 +503,7 @@ function plateS(x,y,st,col,op,num,dis){if(op<=0)return'';const D=col==='D',c=D?C
  s+=`<text x="${x}" y="${y+28}" text-anchor="middle" class="pnum">${num}</text></g>`;return s;}
 function lblS(x,y,txt,c,o=1,cls='lbl'){return `<text x="${x}" y="${y}" text-anchor="middle" class="${cls}" fill="${c}" opacity="${o}">${esc(txt)}</text>`;}
 let HF=0;function hpBar(x,y,w,h,hp,gh){hp=hp==null?1:hp;gh=gh==null?hp:Math.max(gh,hp);return (HF>0?`<rect x="${x-1.5}" y="${y-1.5}" width="${w+3}" height="${h+3}" rx="${h/2+1.5}" fill="none" stroke="#fff" stroke-width="1.2" opacity="${HF}"/>`:'')+`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="#3a2a2a"/><rect x="${x}" y="${y}" width="${w*gh}" height="${h}" rx="${h/2}" fill="#ffe9c2" opacity=".85"/><rect x="${x}" y="${y}" width="${w*hp}" height="${h}" rx="${h/2}" fill="${C.enemy}"/>`+(HF>0?`<rect x="${x+w*hp}" y="${y}" width="${Math.max(2,w*(gh-hp))}" height="${h}" fill="#fff" opacity="${HF*.9}"/>`:'');}
-const ENEMY={scorn:1,tknight:1,caretaker:1,rhulk:1,vmind:1,angel:1,fserv:1,atraks:1,taniks:1,nap:1,behe:1,leg:1,lack:1,harrow:1,sere:1,bshadow:1,vgob:1,vhob:1,vpra:1,vcyc:1,vwyv:1,vfan:1,witness:1,zhand:1,scorp:1,rhand:1,incend:1,herald:1,hblight:1,mino:1,subj:1,harpy:1,rface:1,riven:1,rheart:1,mknight:1,morgeth:1,dart:1,shuro:1,kalli:1,daughter:1,oryx:1,shade:1,golg:1,warpriest:1,knightO:1,taken:1,knightY:1,psion:1,torm:1,champ:1,cent:1,colossus:1,boss:1,nez:1,thrall:1,wizard:1,knight:1,ogre:1};
+const ENEMY={hk:1,hwiz:1,iryut:1,crota:1,oversoul:1,scorn:1,tknight:1,caretaker:1,rhulk:1,vmind:1,angel:1,fserv:1,atraks:1,taniks:1,nap:1,behe:1,leg:1,lack:1,harrow:1,sere:1,bshadow:1,vgob:1,vhob:1,vpra:1,vcyc:1,vwyv:1,vfan:1,witness:1,zhand:1,scorp:1,rhand:1,incend:1,herald:1,hblight:1,mino:1,subj:1,harpy:1,rface:1,riven:1,rheart:1,mknight:1,morgeth:1,dart:1,shuro:1,kalli:1,daughter:1,oryx:1,shade:1,golg:1,warpriest:1,knightO:1,taken:1,knightY:1,psion:1,torm:1,champ:1,cent:1,colossus:1,boss:1,nez:1,thrall:1,wizard:1,knight:1,ogre:1};
 function fxPre(u,o){if(!ENEMY[u.t])return'';let s=`<ellipse cx="${u.x}" cy="${u.y+(u.t==='boss'||u.t==='nez'?34:16)}" rx="${u.t==='boss'||u.t==='nez'?34:14}" ry="${u.t==='boss'||u.t==='nez'?8:4}" fill="#000" opacity="${.35*o}"/>`;
  if(o<1&&o>0&&!REDUCE){const q=1-o;s+=`<circle cx="${u.x}" cy="${u.y}" r="${16+26*q}" fill="rgba(20,8,36,${.55*q})" stroke="#6d4bd1" stroke-width="2" opacity="${q}"/>`;
   for(let i=0;i<8;i++){const a=i*0.785+now*1.5,rr=10+30*q+((i*7)%5);const px=u.x+Math.cos(a)*rr,py=u.y+Math.sin(a)*rr*.6-q*14-(i%3)*3;s+=`<circle cx="${px}" cy="${py}" r="${1.6+(i%3)*.6}" fill="${i%2?'#a982f5':'#2c1d4d'}" opacity="${q}"/>`;}}
@@ -819,6 +819,11 @@ function unitS(u,L){const o=u.o==null?1:u.o;if(o<=0)return'';const sc=u.sc==null
   case'tknight':s+=(u.sh?`<circle r="${19+1.5*Math.sin(now*6)}" fill="rgba(255,255,255,.1)" stroke="#ffffff" stroke-width="2"/>`:'')+`<path d="M0 -14 L11 -2 L8 13 L-8 13 L-11 -2 Z" fill="#14101e" stroke="#a982f5" stroke-width="2"/><circle cy="-5" r="2.8" fill="#e7dbff"/>`+(u.hp!=null?hpBar(-18,20,36,5,u.hp,u.gh):'');break;
   case'caretaker':s+=`<g opacity="${u.down?.75:1}" transform="rotate(${u.down?90:0})"><rect x="-22" y="-30" width="44" height="60" rx="12" fill="#1a1426" stroke="#c9b6ff" stroke-width="2.4"/><circle cy="-14" r="8" fill="${u.face?'#f6dc8e':'#4a3d6b'}" stroke="#fff" stroke-width="${u.face?2:0}"/><rect x="-12" y="8" width="24" height="16" rx="3" fill="${u.back?'#ff9a3c':'#2a2440'}"/></g>`+(u.hp!=null?hpBar(-30,40,60,6,u.hp,u.gh):'');break;
   case'rhulk':s+=(u.beam?`<line x1="0" y1="0" x2="${u.beam.x-u.x}" y2="${u.beam.y-u.y}" stroke="#ff6156" stroke-width="6" opacity=".55"/>`:'')+`<path d="M0 -24 L14 -8 L11 20 L-11 20 L-14 -8 Z" fill="#14101e" stroke="#a982f5" stroke-width="2.4"/><circle cy="-10" r="3.4" fill="#f6dc8e"/>`+(u.glaive?`<path d="M18 -26 L32 26" stroke="#f6dc8e" stroke-width="3"/>`:`<path d="M18 -26 L32 26" stroke="#6b5a9a" stroke-width="2"/>`)+(u.weak!=null?Array.from({length:u.weak},(_,i)=>`<circle cx="${-15+i*10}" cy="30" r="3.5" fill="#f6dc8e"/>`).join(''):'')+(u.kick?`<circle r="${34}" fill="none" stroke="#a982f5" stroke-width="3"/>`:'')+(u.hp!=null?hpBar(-34,40,68,6,u.hp,u.gh):'');break;
+  case'hk':{const sc=u.big?1.4:1;s+=`<g transform="scale(${sc})"><rect x="-11" y="-13" width="22" height="26" rx="4" fill="#15151c" stroke="#e8e8f4" stroke-width="2.4"/><path d="M-6 -4 H6" stroke="#e8e8f4" stroke-width="2"/></g>`+(u.hp!=null?hpBar(-18,18*sc+4,36,5,u.hp,u.gh):'');break;}
+  case'hwiz':s+=`<path d="M0 -14 L10 6 L0 12 L-10 6 Z" fill="#2a1630" stroke="${C.enemy}" stroke-width="2.4"/><circle cy="-2" r="3" fill="#ffd84a"/>`+(u.hp!=null?hpBar(-16,18,32,4,u.hp,u.gh):'');break;
+  case'iryut':s+=(u.sh?`<circle r="${30+2*Math.sin(now*5)}" fill="rgba(126,224,138,.12)" stroke="#7ee08a" stroke-width="2.4"/>`:'')+`<path d="M0 -22 L16 8 L0 18 L-16 8 Z" fill="#2a1630" stroke="#c79bff" stroke-width="2.6"/><circle cy="-4" r="4" fill="#ffd84a"/>`+(u.hp!=null?hpBar(-34,36,68,6,u.hp,u.gh)+`<line x1="${-34+68*(u.notch||0)}" y1="34" x2="${-34+68*(u.notch||0)}" y2="44" stroke="#fff" stroke-width="2"/>`:'');break;
+  case'crota':s+=(u.sh?`<circle r="${42+2*Math.sin(now*5)}" fill="rgba(126,224,138,.1)" stroke="#7ee08a" stroke-width="2.6"/>`:'')+`<rect x="-24" y="-30" width="48" height="60" rx="10" fill="#15151c" stroke="#e8e8f4" stroke-width="2.6"/><path d="M-12 -12 H12" stroke="#7ee08a" stroke-width="3"/><path d="M26 -30 L40 30" stroke="#7ee08a" stroke-width="3"/>`+(u.hp!=null?hpBar(-40,42,80,6,u.hp,u.gh):'');break;
+  case'oversoul':s+=`<g opacity="${u.o==null?1:u.o}"><circle r="${20+3*Math.sin(now*4)}" fill="rgba(126,224,138,.2)" stroke="#7ee08a" stroke-width="2.4"/><circle r="6" fill="#7ee08a"/></g>`;break;
   case'vfan':s+=`<circle r="7" fill="#2c2214" stroke="#ffffff" stroke-width="1.8"/><circle r="${3+1.2*Math.sin(now*12)}" fill="#ffffff"/>`;break;
   case'nap':s+=`<path d="M0 -12 L9 8 L0 4 L-9 8 Z" fill="#1a1426" stroke="#e7dbff" stroke-width="2"/><circle cy="-3" r="2.4" fill="#a982f5"/>`+(u.sh?`<circle r="17" fill="rgba(169,130,245,.12)" stroke="#e7dbff" stroke-width="2" stroke-dasharray="4 3" stroke-dashoffset="${-now*8}"/>`:'')+(u.ch>0?`<circle r="${14+26*u.ch}" fill="rgba(169,130,245,${.08+.12*u.ch})" stroke="#ffffff" stroke-width="${1+1.5*u.ch}" opacity="${.5+.5*Math.sin(now*14)}"/>`:'')+(u.hp!=null?hpBar(-18,16,36,4,u.hp,u.gh):'');break;
   case'behe':s+=`<g transform="rotate(${u.rot||0})"><rect x="-18" y="-13" width="36" height="26" rx="5" fill="#3a2414" stroke="${u.big?'#ffcf4a':C.enemy}" stroke-width="2.6"/><path d="M4 0 H26" stroke="${u.big?'#ffcf4a':C.enemy}" stroke-width="5" stroke-linecap="round"/><circle r="5" fill="${u.big?'#ffcf4a':C.enemy}"/></g>`+(u.hp!=null?hpBar(-22,20,44,5,u.hp,u.gh):'');break;
@@ -5903,6 +5908,173 @@ const VWR=(function(){
  return{bg:vowBg,S,base,finish:vowFinish(keys,floor)};
 })();
 
+
+/* =================== CROTA'S END (shared) =================== */
+// Chalice: holder charges in quarters; full = Engulfed in Light (10 s), someone takes it → the former holder is
+// Enlightened. Using Enlightened = Drained of Light (45 s). Drawn: cup icon with charge, gold halo = Enlightened,
+// small sword icon for sword holders.
+function ceFinish(keys,floor){return function(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)}];
+  s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));
+  keys.forEach(q=>{if(s.dead[q])return;const p=s.p[q];
+   if(s.enl[q])units.push({t:'raw',x:0,y:0,svg:`<circle cx="${p.x}" cy="${p.y}" r="13" fill="none" stroke="#fff4c2" stroke-width="2" opacity="${.6+.4*Math.sin(now*6)}"/>`});
+   if(s.cup[q]!=null){const c=s.cup[q];units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y-24})"><path d="M-7 -6 H7 L5 3 Q0 7 -5 3 Z" fill="#2a2414" stroke="${c>=4?'#ff6156':'#f6dc8e'}" stroke-width="1.8"/><rect x="-1" y="4" width="2" height="4" fill="#f6dc8e"/>${[0,1,2,3].map(i=>`<rect x="${-9+i*5}" y="-12" width="4" height="3" fill="${i<c?'#f6dc8e':'#3a3356'}"/>`).join('')}</g>`});}
+   if(s.sword[q])units.push({t:'raw',x:0,y:0,svg:`<path d="M${p.x+12} ${p.y+14} L${p.x+24} ${p.y-6}" stroke="#7ee08a" stroke-width="3"/>`});
+   if(s.dw[q]!=null)units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x+15} ${p.y+14})"><rect x="-9" y="-6" width="18" height="12" rx="3" fill="${s.dw[q]>=8?'#ff6156':'#2a2440'}" stroke="#7ee08a"/><text y="3.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" font-weight="700" fill="#e9fbe9">${s.dw[q]}</text></g>`});});
+  const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q],o:s.fade[q]==null?1:s.fade[q]}));
+  const hud=s.hud?{t:L(s.hud.t),v:fmt(s.hud.v),hi:false,paused:false,low:s.hud.v<15}:null;
+  return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud,plus:'',pips:s.pips?{at:[624,8],label:L(s.pips.lk)+' '+s.pips.done+'/'+s.pips.n,n:s.pips.n,done:s.pips.done}:null};};}
+function ceBase(keys,POS,extra){return function(){const s=Object.assign({p:{},enl:{},cup:{},sword:{},dw:{},units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{},fade:{}},extra||{});
+  keys.forEach(k=>s.p[k]={...POS[k]});return s;};}
+const ceFire=(s,k,key,b,i)=>{if(s.busy[key]||s.dead[key])return;s.busy[key]=1;if(Math.floor(k*70+(i||0))%2)s.shots.push({a:s.p[key],q:key,b,c:C.ally});};
+const ceBg=g=>{g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';};
+// Chalice pass helper: holder A charges to 4, B takes it, A becomes Enlightened.
+function cePass(s,k,a,b,t0,t1){if(k<t0)return;const t=seg(k,t0,t1);if(t<.8){s.cup[a]=Math.min(4,Math.floor(t/.8*4)+1);}else{s.cup[a]=null;s.enl[a]=1;s.cup[b]=1;}if(t>=.7&&t<.8)s.labels.push({x:s.p[a].x,y:s.p[a].y-42,k:'lEngulf',c:'#ff6156',o:1});}
+
+/* =================== CROTA: THE ABYSS =================== */
+// SCHEMATIC: a dark path with lamp sets; each set ends at a podium (Preservation Node) that unlocks the next set.
+// Engulfed in Darkness: 60 s, reset by lighting a lamp or depositing the Chalice. Weight of Darkness slows (not lethal),
+// standing at a lit lamp removes it. Lamps explode about 15 s after lighting.
+const CEA=(function(){
+ const keys=['P1','P2','P3','P4','P5','P6'];
+ const LAMP=[{x:180,y:340},{x:300,y:290},{x:420,y:250},{x:540,y:200},{x:640,y:140}];const POD={x:700,y:80};
+ const POS={P1:{x:120,y:400},P2:{x:140,y:410},P3:{x:100,y:410},P4:{x:160,y:420},P5:{x:80,y:420},P6:{x:120,y:425}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#060509"/><path d="M80 420 Q300 330 420 250 T720 70" fill="none" stroke="#15121d" stroke-width="90" stroke-linecap="round"/>`;
+  LAMP.forEach((p,i)=>{const lit=(s.lit||[]).includes(i),boom=(s.boom||[]).includes(i);o+=`${lit?`<circle cx="${p.x}" cy="${p.y}" r="70" fill="rgba(246,220,142,.08)"/>`:''}<circle cx="${p.x}" cy="${p.y}" r="9" fill="${boom?'#3a2414':lit?'#f6dc8e':'#2a2440'}" stroke="${lit?'#fff4c2':'#4a4370'}" stroke-width="2"/>`;});
+  o+=`<rect x="${POD.x-14}" y="${POD.y-10}" width="28" height="20" rx="4" fill="#211c33" stroke="${s.pod?'#f6dc8e':'#4a4370'}" stroke-width="2"/><text x="${POD.x}" y="${POD.y-18}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#9c95b0">NODE</text>`;
+  o+=`<text x="120" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">START · schematic</text>`;return o;}
+ const base=ceBase(keys,POS,{lit:[],boom:[],pod:false});
+ const S=[
+ // 1 chalice basics
+ {d:22,f(k,s){s.cup.P1=null;cePass(s,k,'P1','P2',.05,.6);if(k>=.6)s.enl.P1=1;
+   if(k>=.6&&k<.9)s.labels.push({x:s.p.P1.x+40,y:s.p.P1.y-40,k:'lEnl',c:'#fff4c2',o:1});
+   s.fx=k<.4?{k:'fxA1Charge',o:win(k,0,.4,.02),c:'#f6dc8e'}:k<.6?{k:'fxA1Take',o:win(k,.4,.6,.02),c:'#ff6156'}:{k:'fxA1Enl',o:win(k,.6,1,.02),c:'#fff4c2'};}},
+ // 2 light lamps along the path, timer resets, weight drops at lit lamps
+ {d:28,f(k,s){s.hud={t:'lDarkT',v:60-((k*3)%1)*30};const step=Math.min(4,Math.floor(k*5));s.lit=[];s.boom=[];
+   LAMP.forEach((p,i)=>{if(i<=step&&k>=i*.2+.06)s.lit.push(i);if(k>=i*.2+.18&&i<step)s.boom.push(i);});
+   keys.forEach((q,j)=>{const L=LAMP[step];s.p[q]=mv(s.p[q],{x:L.x-30+j*10,y:L.y+30},.06);s.dw[q]=k%.2<.08?Math.min(9,4+j%3):Math.max(0,4+j%3-3);});
+   s.enl.P1=k%.2<.06;s.cup.P2=1+Math.floor((k%.2)*15);
+   if(k%.2>=.14)s.labels.push({x:LAMP[step].x,y:LAMP[step].y-30,k:'lBoom',c:C.danger,o:1});
+   s.fx=k<.5?{k:'fxA2Lamp',o:win(k,0,.5,.02),c:'#f6dc8e'}:{k:'fxA2Move',o:win(k,.5,1,.02),c:C.danger};}},
+ // 3 deposit at the node: timer reset, next set opens
+ {d:16,f(k,s){s.lit=[0,1,2,3,4];s.boom=[0,1,2,3];keys.forEach((q,j)=>s.p[q]={x:600+j*16,y:110+(j%2)*20});s.cup.P3=k<.4?2:null;s.p.P3=mv({x:640,y:120},{x:POD.x-24,y:POD.y+10},seg(k,0,.35));s.pod=k>=.4;
+   if(k>=.4&&k<.48)s.bursts.push({...POD,r:10+40*seg(k,.4,.48),c:'#f6dc8e',o:1-seg(k,.4,.48)});s.hud={t:'lDarkT',v:k<.4?18-k*20:60};
+   s.fx=k<.4?{k:'fxA3Dep',o:win(k,0,.4,.02),c:'#f6dc8e'}:{k:'fxA3Next',o:win(k,.4,1,.02),c:C.good};}}
+ ];
+ return{bg:ceBg,S,base,finish:ceFinish(keys,floor)};
+})();
+
+/* =================== CROTA: THE BRIDGE =================== */
+// SCHEMATIC: plate in the middle builds the bridge with Enlightened; while someone is on the plate, one player
+// must stand under each totem (else wipe). Swordbearer drops a sword only Enlightened can pick up; only Chalice or
+// sword holders can cross. Crossing with a sword spawns a Gatekeeper (sword damage only). Repeat until all six over.
+const CEB=(function(){
+ const keys=['P1','P2','P3','P4','P5','P6'];
+ const PLATE={x:400,y:360},TOT=[{x:250,y:380},{x:550,y:380}],BR={x0:400,y0:320,y1:120},FAR={x:400,y:80};
+ const POS={P1:{x:400,y:360},P2:{x:250,y:395},P3:{x:550,y:395},P4:{x:330,y:400},P5:{x:470,y:400},P6:{x:400,y:410}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#060509"/><rect x="150" y="320" width="500" height="110" rx="10" fill="#15121d" stroke="#2f2a4a"/><rect x="250" y="20" width="300" height="100" rx="10" fill="#15121d" stroke="#2f2a4a"/>`;
+  o+=`<rect x="380" y="${BR.y1}" width="40" height="${BR.y0-BR.y1}" fill="rgba(126,224,138,${.1+.5*(s.build||0)})" stroke="#7ee08a" stroke-dasharray="5 4" opacity="${.3+.7*(s.build||0)}"/>`;
+  o+=`<circle cx="${PLATE.x}" cy="${PLATE.y}" r="22" fill="${s.plateOn?'rgba(246,220,142,.25)':'none'}" stroke="#f6dc8e" stroke-width="2"/>`;
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">START · schematic</text><text x="400" y="36" text-anchor="middle" class="hud-t" style="fill:#5f587a">FAR SIDE</text>`;return o;}
+ const base=ceBase(keys,POS,{build:0,plateOn:false});
+ const tot=(s,warn)=>TOT.forEach(p=>s.units.push({t:'totem',x:p.x,y:p.y-40,warn}));
+ const S=[
+ // 1 plate + totems
+ {d:20,f(k,s){tot(s,k>=.3&&k<.6);s.plateOn=k>=.2;s.build=seg(k,.2,1)*.5;s.enl.P1=1;
+   if(k>=.3&&k<.6){s.p.P2={x:420,y:395};s.labels.push({x:250,y:300,k:'lTotemEmpty',c:C.danger,o:1});}else s.p.P2=POS.P2;
+   if(k<.3)s.spot=TOT.map(p=>({...p,r:40,o:win(k,0,.3),w:true}));
+   s.fx=k<.3?{k:'fxB1Tot',o:win(k,0,.3,.02),c:C.danger}:k<.6?{k:'fxB1Wipe',o:win(k,.3,.6,.02),c:C.danger}:{k:'fxB1Build',o:win(k,.6,1,.02),c:'#7ee08a'};}},
+ // 2 swordbearer → sword (Enlightened only) → cross → Gatekeeper → kill with the sword
+ {d:26,f(k,s){tot(s,false);s.plateOn=true;s.build=.8;s.enl.P4=k<.25;
+   const SB={x:200,y:340};if(k<.2){s.units.push({t:'hk',x:SB.x,y:SB.y,hp:1-seg(k,.02,.18)*.97,lb:'lSB',lc:C.enemy,ly:-24});['P5','P6'].forEach((q,i)=>ceFire(s,k,q,SB,i));}
+   if(k>=.2&&k<.26)s.adds.push({t:'raw',x:0,y:0,svg:`<path d="M${SB.x-8} ${SB.y+10} L${SB.x+8} ${SB.y-10}" stroke="#7ee08a" stroke-width="3"/>`});
+   s.p.P4=k<.2?POS.P4:k<.26?mv(POS.P4,SB,seg(k,.2,.26)):k<.5?mv(SB,{x:400,y:120},seg(k,.3,.5)):{x:400,y:110};s.sword.P4=k>=.26;
+   if(k>=.5){const G={x:460,y:70};s.units.push({t:'hk',x:G.x,y:G.y,big:1,hp:k>=.6?1-seg(k,.6,.92)*.97:1,lb:'lGK',lc:C.enemy,ly:-30});if(k>=.6&&k<.92){s.p.P4=mv({x:400,y:110},{x:G.x-26,y:G.y+10},.5);s.adds.push({t:'raw',x:0,y:0,svg:`<path d="M${s.p.P4.x} ${s.p.P4.y} L${G.x} ${G.y}" stroke="#7ee08a" stroke-width="2" opacity="${Math.sin(now*20)>0?1:.2}"/>`});}}
+   s.fx=k<.2?{k:'fxB2SB',o:win(k,0,.2,.02),c:C.enemy}:k<.3?{k:'fxB2Pick',o:win(k,.2,.3,.02),c:'#fff4c2'}:k<.5?{k:'fxB2Cross',o:win(k,.3,.5,.02),c:'#7ee08a'}:{k:'fxB2GK',o:win(k,.5,1,.02),c:'#7ee08a'};}},
+ // 3 everyone over: chalice carriers + swords cross, far side takes over
+ {d:20,f(k,s){tot(s,false);s.build=1;s.plateOn=k<.7;
+   keys.forEach((q,i)=>{const t={x:330+i*28,y:70+(i%2)*20};s.p[q]=k<.1+i*.12?POS[q]:mv(POS[q],t,seg(k,.1+i*.12,.22+i*.12));if(k>=.1+i*.12&&k<.22+i*.12)s.cup[q]=1;});
+   s.pips={lk:'lOverLbl',n:6,done:Math.min(6,Math.floor(seg(k,.1,.94)*6.6))};
+   s.fx=k<.85?{k:'fxB3Cross',o:win(k,0,.85,.02),c:'#7ee08a'}:{k:'fxB3Done',o:win(k,.85,1,.02),c:C.good};}}
+ ];
+ return{bg:ceBg,S,base,finish:ceFinish(keys,floor)};
+})();
+
+/* =================== CROTA: IR YUT, THE DEATHSINGER =================== */
+// SCHEMATIC: Ir Yut in the middle (shielded), seven wizard spots (TL/TR/BL/BR towers, middle left/middle/right).
+// Wizards sit behind green barriers, only Enlightened can pass. Each kill removes part of her shield: 3, then 4, then 5.
+// Dark Liturgy starts after a wizard dies (or after ~3 min): reach the notch in her health bar or wipe.
+const CEI=(function(){
+ const keys=['E1','E2','E3','SC','DP','P6'];
+ const IY={x:400,y:120};const POD={x:400,y:400};
+ const SPOTS={TL:{x:150,y:70},TR:{x:650,y:70},BL:{x:150,y:330},BR:{x:650,y:330},ML:{x:230,y:210},MM:{x:400,y:230},MR:{x:570,y:210}};
+ const POS={E1:{x:340,y:360},E2:{x:400,y:350},E3:{x:460,y:360},SC:{x:400,y:300},DP:{x:420,y:395},P6:{x:360,y:395}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#060509"/><rect x="100" y="30" width="600" height="390" rx="12" fill="#15121d" stroke="#2f2a4a"/>`;
+  Object.entries(SPOTS).forEach(([n,p])=>{o+=`<rect x="${p.x-30}" y="${p.y-22}" width="60" height="44" rx="6" fill="none" stroke="${s.bar?'#7ee08a':'#3a3356'}" stroke-width="${s.bar?2:1}" stroke-dasharray="4 3"/><text x="${p.x}" y="${p.y+36}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#9c95b0">${n}</text>`;});
+  o+=`<rect x="${POD.x-14}" y="${POD.y-10}" width="28" height="20" rx="4" fill="#211c33" stroke="#f6dc8e"/>`;
+  o+=`<text x="700" y="436" text-anchor="end" class="hud-t" style="fill:#5f587a">SPAWN · schematic</text>`;return o;}
+ const base=ceBase(keys,POS,{bar:true});
+ const iy=(s,o)=>s.units.push(Object.assign({t:'iryut',x:IY.x,y:IY.y},o||{}));
+ const S=[
+ // 1 layout
+ {d:18,f(k,s){iy(s,{sh:1});const o1=win(k,0,.5),o2=win(k,.5,1.01);if(k<.5)s.spot=Object.values(SPOTS).map(p=>({...p,r:30,o:o1,w:true}));else s.spot=[{...IY,r:50,o:o2,w:true}];
+   s.fx=k<.5?{k:'fxI1Spots',o:o1,c:'#7ee08a'}:{k:'fxI1Shield',o:o2,c:C.enemy};}},
+ // 2 scout calls, three Enlightened go through the barrier and kill the wizard; the deposit player banks the chalice
+ {d:26,f(k,s){iy(s,{sh:1});const W=SPOTS.TR;['E1','E2','E3'].forEach(q=>s.enl[q]=k<.6);s.cup.DP=k<.3?3:null;
+   if(k<.2)s.labels.push({x:s.p.SC.x,y:s.p.SC.y-34,k:'lCallTR',c:C.light,o:win(k,.02,.2,.02)});
+   if(k<.7)s.units.push({t:'hwiz',x:W.x,y:W.y,hp:k>=.36?1-seg(k,.36,.66)*.97:null});
+   ['E1','E2','E3'].forEach((q,i)=>{s.p[q]=k<.24?POS[q]:mv(POS[q],{x:W.x-50+i*25,y:W.y+50},seg(k,.24,.36));if(k>=.36&&k<.66)ceFire(s,k,q,W,i);});
+   if(k>=.24&&k<.32){s.p.DP=mv(POS.DP,{x:POD.x+20,y:POD.y},seg(k,.24,.3));}
+   if(k>=.7)s.labels.push({x:400,y:60,k:'lLiturgy',c:C.danger,o:win(k,.7,1,.02)});
+   s.hud=k>=.7?{t:'lLitT',v:Math.max(0,60-(k-.7)*60)}:null;
+   s.pips={lk:'lWizLbl',n:3,done:k<.66?0:1};
+   s.fx=k<.24?{k:'fxI2Scout',o:win(k,0,.24,.02),c:C.light}:k<.66?{k:'fxI2Kill',o:win(k,.24,.66,.02),c:'#fff4c2'}:{k:'fxI2Lit',o:win(k,.66,1,.02),c:C.danger};}},
+ // 3 three wizards dead → shield down → damage to the notch; Expunge for burst
+ {d:20,f(k,s){iy(s,{sh:0,hp:1-seg(k,.1,.9)*.33,notch:.67});s.pips={lk:'lWizLbl',n:3,done:3};s.hud={t:'lLitT',v:Math.max(0,40-k*35)};
+   keys.forEach((q,i)=>{s.p[q]=mv(POS[q],{x:300+i*40,y:250+(i%2)*30},seg(k,0,.1));if(k>=.1)ceFire(s,k,q,IY,i);});
+   if(k>=.4&&k<.48){s.bursts.push({...IY,r:10+40*seg(k,.4,.48),c:'#fff4c2',o:1-seg(k,.4,.48)});s.labels.push({x:s.p.E1.x,y:s.p.E1.y-30,k:'lExpunge',c:'#fff4c2',o:1});}
+   s.fx=k<.9?{k:'fxI3Dmg',o:win(k,0,.9,.02),c:C.ally}:{k:'fxI3Next',o:win(k,.9,1,.02),c:'#ece8f4'};}}
+ ];
+ return{bg:ceBg,S,base,finish:ceFinish(keys,floor)};
+})();
+
+/* =================== CROTA, SON OF ORYX =================== */
+// SCHEMATIC: Crota in the middle, light beams for passing the Chalice (only possible inside a beam). Tower Knights die →
+// Swordbearers at the middle door → swords (Enlightened only) break the shield (2–3 swords). Damage; Oversoul appears,
+// wipes after 30 s unless an Enlightened player breaks it (ends the phase). Three phases to final stand.
+const CEC=(function(){
+ const keys=['S1','S2','OV','DP','P5','P6'];
+ const CR={x:400,y:150};const BEAM=[{x:250,y:300},{x:550,y:300}];const DOOR={x:400,y:410};
+ const POS={S1:{x:320,y:330},S2:{x:480,y:330},OV:{x:400,y:320},DP:{x:260,y:300},P5:{x:540,y:300},P6:{x:400,y:370}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#060509"/><circle cx="400" cy="230" r="210" fill="#15121d" stroke="#2f2a4a"/>`;
+  BEAM.forEach((p,i)=>{if(s.beam===i||s.beam==null)o+=`<circle cx="${p.x}" cy="${p.y}" r="26" fill="rgba(255,244,194,${s.beam===i?.25:.08})" stroke="#fff4c2" stroke-opacity="${s.beam===i?.9:.3}"/>`;});
+  o+=`<rect x="${DOOR.x-30}" y="${DOOR.y-8}" width="60" height="16" rx="4" fill="#211c33" stroke="#4a4370"/>`;
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">MIDDLE DOOR · schematic</text>`;return o;}
+ const base=ceBase(keys,POS,{beam:null});
+ const cr=(s,o)=>s.units.push(Object.assign({t:'crota',x:CR.x,y:CR.y},o||{}));
+ const S=[
+ // 1 chalice only inside a beam
+ {d:20,f(k,s){cr(s,{sh:1});s.beam=0;const B=BEAM[0];s.p.DP=mv(POS.DP,{x:B.x-10,y:B.y},seg(k,0,.15));s.p.S1=mv(POS.S1,{x:B.x+12,y:B.y},seg(k,0,.15));
+   s.cup.DP=k<.6?Math.min(4,1+Math.floor(k*6)):null;if(k>=.6){s.cup.S1=1;s.enl.DP=1;}
+   if(k<.3)s.labels.push({x:B.x,y:B.y-44,k:'lBeam',c:'#fff4c2',o:win(k,.05,.3,.02)});
+   s.fx=k<.6?{k:'fxC1Beam',o:win(k,0,.6,.02),c:'#fff4c2'}:{k:'fxC1Moves',o:win(k,.6,1,.02),c:'#fff4c2'};}},
+ // 2 tower knights → swordbearers → swords → shield
+ {d:26,f(k,s){const shield=k<.7;cr(s,{sh:shield?1:0});['S1','S2','OV'].forEach(q=>s.enl[q]=k<.5);
+   const SB=[{x:370,y:400},{x:430,y:400}];if(k<.3)SB.forEach((p,i)=>{s.units.push({t:'hk',x:p.x,y:p.y,hp:1-seg(k,.05,.28)*.97,lb:i?null:'lSB',lc:C.enemy,ly:-24});['P5','P6'].forEach((q,j)=>ceFire(s,k,q,p,i+j));});
+   ['S1','S2'].forEach((q,i)=>{s.p[q]=k<.3?POS[q]:k<.38?mv(POS[q],SB[i],seg(k,.3,.38)):mv(SB[i],{x:CR.x-30+i*60,y:CR.y+60},seg(k,.4,.55));s.sword[q]=k>=.38&&k<.7;if(k>=.55&&k<.7)s.adds.push({t:'raw',x:0,y:0,svg:`<path d="M${s.p[q].x} ${s.p[q].y} L${CR.x} ${CR.y+20}" stroke="#7ee08a" stroke-width="2" opacity="${Math.sin(now*20+i)>0?1:.2}"/>`});});
+   if(k>=.48&&k<.6)s.shots.push({a:s.p.OV,q:'OV',b:CR,c:'#c9b6ff'});
+   if(k>=.7&&k<.78)s.bursts.push({...CR,r:20+60*seg(k,.7,.78),c:'#7ee08a',o:1-seg(k,.7,.78)});
+   s.fx=k<.3?{k:'fxC2SB',o:win(k,0,.3,.02),c:C.enemy}:k<.55?{k:'fxC2Sword',o:win(k,.3,.55,.02),c:'#7ee08a'}:k<.7?{k:'fxC2Hit',o:win(k,.55,.7,.02),c:'#7ee08a'}:{k:'fxC2Down',o:win(k,.7,1,.02),c:C.good};}},
+ // 3 damage + Oversoul (30 s), Enlightened breaks it at the end
+ {d:26,f(k,s){cr(s,{sh:0,hp:1-seg(k,.05,.8)*.3});s.enl.OV=k<.86;const O={x:400,y:60};
+   keys.forEach((q,i)=>{s.p[q]=mv(POS[q],{x:300+i*40,y:280+(i%2)*25},seg(k,0,.05));if(k>=.05&&k<.8&&q!=='OV')ceFire(s,k,q,CR,i);});
+   if(k>=.15){s.units.push({t:'oversoul',x:O.x,y:O.y,o:k<.9?1:1-seg(k,.9,.96)});s.hud={t:'lOverT',v:Math.max(0,30-(k-.15)*40)};}
+   if(k>=.8&&k<.9){s.shots.push({a:s.p.OV,q:'OV',b:O,c:'#fff4c2'});s.labels.push({x:s.p.OV.x,y:s.p.OV.y-30,k:'lBreak',c:'#fff4c2',o:1});}
+   if(k>=.88&&k<.94)s.bursts.push({...O,r:10+50*seg(k,.88,.94),c:'#fff4c2',o:1-seg(k,.88,.94)});
+   s.fx=k<.15?{k:'fxC3Dmg',o:win(k,0,.15,.02),c:C.ally}:k<.8?{k:'fxC3Over',o:win(k,.15,.8,.02),c:C.danger}:{k:'fxC3Break',o:win(k,.8,1,.02),c:'#fff4c2'};}}
+ ];
+ return{bg:ceBg,S,base,finish:ceFinish(keys,floor)};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -8473,6 +8645,89 @@ const RG_VWR=[{id:'rd',slots:['RD'],focus:[2],de:{name:'Leser',steps:['Glyphkeep
  {id:'dk',slots:['D1','D2'],focus:[2,3],de:{name:'Dunker',steps:['Mit Leeching in den Strahl.','Säule bzw. Ecke ablegen.'],watch:['Nie ohne Leeching in den Strahl.']},en:{name:'Dunkers',steps:['Into the beam with Leeching.','Deposit at the pillar or corner.'],watch:['Never into the beam without Leeching.']}},
  {id:'ad',slots:['AD'],focus:[3,4],de:{name:'Ad-Clear / Glaive',steps:['Glyphkeeper und Adds.','Rhulks Glaive schießen.'],watch:['Symbol klar ansagen.']},en:{name:'Ad clear / glaive',steps:['Glyphkeepers and adds.','Shoot Rhulk’s glaive.'],watch:['Call the symbol clearly.']}}];
 
+const SV_CEA=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect width="420" height="210" fill="#060509"/><path d="M30 190 Q150 150 210 110 T390 30" fill="none" stroke="#15121d" stroke-width="40" stroke-linecap="round"/>${[[90,170],[150,145],[210,115],[270,90],[330,62]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="6" fill="#f6dc8e"/>`).join('')}<rect x="370" y="24" width="20" height="14" rx="3" fill="#211c33" stroke="#f6dc8e"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="150" fill="#f6dc8e">{0}</text><text x="380" y="58" fill="#9c95b0">{1}</text></g></svg>`;
+const SV_CEB=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect width="420" height="210" fill="#060509"/><rect x="80" y="150" width="260" height="50" rx="6" fill="#15121d" stroke="#2f2a4a"/><rect x="130" y="10" width="160" height="50" rx="6" fill="#15121d" stroke="#2f2a4a"/><rect x="200" y="60" width="20" height="90" fill="rgba(126,224,138,.3)" stroke="#7ee08a" stroke-dasharray="4 3"/><circle cx="210" cy="172" r="10" fill="none" stroke="#f6dc8e"/>${[130,290].map(x=>`<rect x="${x-5}" y="150" width="10" height="24" fill="#2a1416" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="196" fill="#f6dc8e">{0}</text><text x="130" y="144" fill="#ff6156">{1}</text><text x="210" y="40" fill="#9c95b0">{2}</text></g></svg>`;
+const SV_CEI=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="40" y="10" width="340" height="190" rx="8" fill="#15121d" stroke="#2f2a4a"/>${[['TL',70,30],['TR',350,30],['BL',70,160],['BR',350,160],['ML',120,100],['MM',210,110],['MR',300,100]].map(([n,x,y])=>`<rect x="${x-18}" y="${y-12}" width="36" height="24" rx="4" fill="none" stroke="#7ee08a" stroke-dasharray="3 3"/><text x="${x}" y="${y+4}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#9c95b0">${n}</text>`).join('')}<path d="M210 40 L220 58 L210 66 L200 58 Z" fill="#2a1630" stroke="#c79bff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="84" fill="#c79bff">{0}</text></g></svg>`;
+const SV_CEC=`<svg viewBox="0 0 420 210" aria-hidden="true"><circle cx="210" cy="105" r="95" fill="#15121d" stroke="#2f2a4a"/><rect x="194" y="55" width="32" height="40" rx="6" fill="#15151c" stroke="#e8e8f4"/>${[[140,140],[280,140]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="14" fill="rgba(255,244,194,.2)" stroke="#fff4c2"/>`).join('')}<rect x="190" y="190" width="40" height="10" rx="3" fill="#211c33" stroke="#4a4370"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="140" y="170" fill="#fff4c2">{0}</text><text x="210" y="186" fill="#9c95b0">{1}</text></g></svg>`;
+const CE_CHAL_DE='Kelch: Der Träger lädt in Vierteln. Voll = „Engulfed in Light“, 10 Sekunden: jemand muss ihn übernehmen, sonst stirbt der Träger. Wer ihn abgibt, wird Enlightened. Benutzt man Enlightened, folgt „Drained of Light“ (45 Sekunden ohne Kelch).';
+const CE_CHAL_EN='Chalice: the holder charges in quarters. Full = “Engulfed in Light”, 10 seconds: someone must take it or the holder dies. Whoever hands it over becomes Enlightened. Using Enlightened gives “Drained of Light” (45 seconds without the Chalice).';
+const ENC_CEA={num:1,name:'The Abyss',eng:CEA,diags:[SV_CEA],order:['P1','P2','P3','P4','P5','P6'],
+ slots:[['P1','Spieler 1','Player 1'],['P2','Spieler 2','Player 2'],['P3','Spieler 3','Player 3'],['P4','Spieler 4','Player 4'],['P5','Spieler 5','Player 5'],['P6','Spieler 6','Player 6']],
+ de:{kicker:'Crota’s End · Encounter 1 · The Abyss',gear:{crit:['Mobilität, der Weg ist dunkel und gefährlich.'],top:['Ad-Clear für Thralls.'],budget:['Wenig Ausrüstung? Kelch-Rotation mitmachen reicht.']},
+  lede:CE_CHAL_DE+' Im Abyss: „Engulfed in Darkness“ läuft 60 Sekunden, bei null stirbt man. Eine Laterne mit Enlightened anzünden oder den Kelch an einem Node ablegen setzt den Timer zurück. „Weight of Darkness“ verlangsamt (nicht tödlich), an einer brennenden Laterne geht es weg. Laternen explodieren etwa 15 Sekunden nach dem Anzünden. Schematisch.',
+  sc:[['Kelch','Der Träger lädt den Kelch, voll = Engulfed in Light: jemand übernimmt, der alte Träger wird Enlightened.'],['Laternen','Mit Enlightened die nächste Laterne anzünden, Timer zurück, Gewicht weg. Weiter, bevor sie explodiert.'],['Node','Am Ende jedes Laternen-Satzes den Kelch am Node ablegen: Timer zurück, der nächste Satz geht an.']],
+  tip:{1:'Reihenfolge der Kelch-Weitergabe festlegen.',2:'Nie an einer Laterne stehen bleiben.',3:'Am Node ablegen.'},m:{},
+  roles:[['Alle','Kelch weitergeben, Laternen anzünden.','']],rules:['Darkness-Timer 60 s.','Laterne explodiert nach ~15 s.','Kelch voll: 10 s zum Übernehmen.'],wipes:['Engulfed in Darkness bei null.','Engulfed in Light nicht übernommen (der Träger stirbt).'],
+  tips:['<b>Challenge:</b> „Conservation of Energy“, siehe Challenge-Karte.'],diags:[['Der Weg','Laternen-Satz, am Ende der Node. Schematisch.',['Laternen','Node']]],master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Kelch voll','Chalice full','übernehmen'],['Laterne','Lamp','anzünden'],['Node','Node','ablegen']],
+  L:{lDarkT:'DARKNESS',lEngulf:'voll!',lEnl:'Enlightened',lBoom:'gleich explodiert sie',fxA1Charge:'Kelch lädt in Vierteln',fxA1Take:'Voll: in 10 s übernehmen',fxA1Enl:'Abgeber wird Enlightened',fxA2Lamp:'Laterne anzünden: Timer zurück',fxA2Move:'Weiter, bevor sie explodiert',fxA3Dep:'Kelch am Node ablegen',fxA3Next:'Nächster Satz Laternen'}},
+ en:{kicker:'Crota’s End · Encounter 1 · The Abyss',gear:{crit:['Mobility, the path is dark and dangerous.'],top:['Ad clear for Thralls.'],budget:['Short on gear? Joining the Chalice rotation is enough.']},
+  lede:CE_CHAL_EN+' In the Abyss: “Engulfed in Darkness” runs 60 seconds, at zero you die. Lighting a lamp with Enlightened or depositing the Chalice at a node resets it. “Weight of Darkness” slows you (not lethal) and drops at a lit lamp. Lamps explode about 15 seconds after lighting. Schematic.',
+  sc:[['Chalice','The holder charges the Chalice, full = Engulfed in Light: someone takes it, the old holder becomes Enlightened.'],['Lamps','Light the next lamp with Enlightened, timer reset, weight gone. Move on before it explodes.'],['Node','At the end of each lamp set deposit the Chalice at the node: timer reset, the next set lights up.']],
+  tip:{1:'Set the Chalice order.',2:'Never linger at a lamp.',3:'Deposit at the node.'},m:{},
+  roles:[['Everyone','Pass the Chalice, light lamps.','']],rules:['Darkness timer 60 s.','A lamp explodes after ~15 s.','Chalice full: 10 s to take it.'],wipes:['Engulfed in Darkness at zero.','Engulfed in Light not taken (the holder dies).'],
+  tips:['<b>Challenge:</b> “Conservation of Energy”, see the challenge card.'],diags:[['The path','A lamp set, the node at the end. Schematic.',['lamps','node']]],master:['Master variant not shown here.'],
+  calls:[['Kelch voll','Chalice full','take it'],['Laterne','Lamp','light it'],['Node','Node','deposit']],
+  L:{lDarkT:'DARKNESS',lEngulf:'full!',lEnl:'Enlightened',lBoom:'about to explode',fxA1Charge:'Chalice charges in quarters',fxA1Take:'Full: take it within 10 s',fxA1Enl:'The giver becomes Enlightened',fxA2Lamp:'Light a lamp: timer reset',fxA2Move:'Move on before it explodes',fxA3Dep:'Deposit at the node',fxA3Next:'Next lamp set'}}};
+const ENC_CEB={num:2,name:'The Bridge',eng:CEB,diags:[SV_CEB],order:['P1','P2','P3','P4','P5','P6'],
+ slots:[['P1','Platte','Plate'],['P2','Totem links','Totem left'],['P3','Totem rechts','Totem right'],['P4','Schwert','Sword'],['P5','Ad-Clear','Ad clear'],['P6','Ad-Clear','Ad clear']],
+ de:{kicker:'Crota’s End · Encounter 2 · The Bridge',gear:{crit:['Ad-Clear, Swordbearer schnell töten.'],top:['Für Contest/Master: viel Schwert-Schaden auf den Gatekeeper.'],budget:['Wenig Ausrüstung? Unter einem Totem stehen.']},
+  lede:'Mit Enlightened auf der Platte baut sich die Brücke. Solange jemand auf der Platte steht, muss unter jedem Totem ein Spieler stehen, sonst Wipe. Ein Swordbearer lässt ein Schwert fallen, das nur Enlightened aufheben kann. Über die Brücke dürfen nur Kelch- oder Schwertträger. Wer mit Schwert rüber geht, ruft einen Gatekeeper, den nur das Schwert verletzt. So wechseln alle sechs nacheinander rüber. Schematisch.',
+  sc:[['Platte und Totems','Platte mit Enlightened = Brücke baut sich. Unter jedem Totem muss jemand stehen, solange die Platte besetzt ist.'],['Schwert','Swordbearer töten, Enlightened hebt das Schwert auf, geht rüber, Gatekeeper mit dem Schwert töten.'],['Alle rüber','Kelch und Schwerter tragen die Leute rüber, die andere Seite übernimmt Platte und Totems.']],
+  tip:{1:'Totems nie leer.',2:'Schwert nicht liegen lassen (verschwindet).',3:'Ansagen, wer gerade auf der Platte ist.'},m:{},
+  roles:[['Platte','Enlightened auf der Platte.','runner'],['Totems','Darunter stehen.',''],['Schwert','Gatekeeper.','runner']],rules:['Nur Kelch- oder Schwertträger über die Brücke.','Gatekeeper nur mit Schwert.','Totems besetzt, solange die Platte läuft.'],wipes:['Totem leer, während jemand auf der Platte steht.'],
+  tips:['<b>Kelch:</b> bei 50 % tauschen, wenn man nicht Enlightened werden will (laut Guide).','<b>Challenge:</b> „Precarious Balance“.'],diags:[['Die Brücke','Platte, zwei Totems, Brücke zur anderen Seite. Schematisch.',['Platte','Totem','andere Seite']]],master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Platte an','Plate on','Totems!'],['Schwert unten','Sword down','Enlightened'],['Gatekeeper','Gatekeeper','Schwert']],
+  L:{lOverLbl:'DRÜBEN',lTotemEmpty:'Totem leer!',lSB:'Swordbearer',lGK:'Gatekeeper',fxB1Tot:'Unter jedes Totem',fxB1Wipe:'Totem leer + Platte besetzt = Wipe',fxB1Build:'Enlightened auf der Platte: Brücke baut sich',fxB2SB:'Swordbearer töten',fxB2Pick:'Nur Enlightened hebt das Schwert',fxB2Cross:'Mit Schwert über die Brücke',fxB2GK:'Gatekeeper nur mit dem Schwert',fxB3Cross:'Mit Kelch oder Schwert rüber',fxB3Done:'Alle drüben'}},
+ en:{kicker:'Crota’s End · Encounter 2 · The Bridge',gear:{crit:['Ad clear, kill Swordbearers fast.'],top:['For contest/master: lots of sword damage on the Gatekeeper.'],budget:['Short on gear? Stand under a totem.']},
+  lede:'With Enlightened on the plate the bridge builds. While someone is on the plate, a player must stand under each totem or the team wipes. A Swordbearer drops a sword only Enlightened can pick up. Only Chalice or sword holders may cross. Crossing with a sword spawns a Gatekeeper that only the sword can hurt. That way all six cross one after another. Schematic.',
+  sc:[['Plate and totems','Plate with Enlightened = the bridge builds. Someone must stand under each totem while the plate is occupied.'],['Sword','Kill the Swordbearer, Enlightened picks up the sword, crosses, kills the Gatekeeper with the sword.'],['Everyone over','Chalice and swords carry people across, the other side takes over plate and totems.']],
+  tip:{1:'Never leave a totem empty.',2:'Don’t leave the sword lying (it vanishes).',3:'Call who is on the plate.'},m:{},
+  roles:[['Plate','Enlightened on the plate.','runner'],['Totems','Stand under them.',''],['Sword','Gatekeeper.','runner']],rules:['Only Chalice or sword holders cross.','Gatekeeper only with the sword.','Totems manned while the plate runs.'],wipes:['A totem empty while someone is on the plate.'],
+  tips:['<b>Chalice:</b> swap at 50 % if you don’t want to become Enlightened (per the guide).','<b>Challenge:</b> “Precarious Balance”.'],diags:[['The bridge','Plate, two totems, the bridge to the far side. Schematic.',['plate','totem','far side']]],master:['Master variant not shown here.'],
+  calls:[['Platte an','Plate on','totems!'],['Schwert unten','Sword down','Enlightened'],['Gatekeeper','Gatekeeper','sword']],
+  L:{lOverLbl:'ACROSS',lTotemEmpty:'Totem empty!',lSB:'Swordbearer',lGK:'Gatekeeper',fxB1Tot:'Under every totem',fxB1Wipe:'Empty totem + plate on = wipe',fxB1Build:'Enlightened on the plate: bridge builds',fxB2SB:'Kill the Swordbearer',fxB2Pick:'Only Enlightened picks up the sword',fxB2Cross:'Cross with the sword',fxB2GK:'Gatekeeper only with the sword',fxB3Cross:'Cross with Chalice or sword',fxB3Done:'Everyone across'}}};
+const ENC_CEI={num:3,name:'Ir Yût, the Deathsinger',eng:CEI,diags:[SV_CEI],order:['E1','E2','E3','SC','DP','P6'],
+ slots:[['E1','Enlightened (Wizard)','Enlightened (wizard)'],['E2','Enlightened (Wizard)','Enlightened (wizard)'],['E3','Enlightened (Wizard)','Enlightened (wizard)'],['SC','Scout','Scout'],['DP','Ablage','Depositor'],['P6','Ad-Clear','Ad clear']],
+ de:{kicker:'Crota’s End · Encounter 3 · Ir Yût',gear:{crit:['Boss-Schaden, das Lied (Dark Liturgy) ist ein Zeitlimit.'],top:['Wish-Ender (Truesight) für den Scout; Day One: Divinity + Thunderlords.'],budget:['Wenig Ausrüstung? Ablage oder Ad-Clear.']},
+  lede:'Ir Yût ist geschildet. Wizards sitzen hinter grünen Barrieren an sieben möglichen Plätzen (TL, TR, BL, BR, ML, MM, MR), nur Enlightened kommt durch. Der Scout sucht den Wizard (Wish-Ender), drei Enlightened töten ihn, einer legt den Kelch am Podest ab. Pro Phase steigt die Zahl: 3, dann 4, dann 5 Wizards. Nach dem ersten toten Wizard (oder nach etwa 3 Minuten) beginnt die Dark Liturgy: bis zur Kerbe in ihrer Lebensleiste schaffen, sonst Wipe. Expunge (Enlightened) gibt Extra-Schaden. Schematisch.',
+  sc:[['Aufbau','Ir Yût in der Mitte, sieben Wizard-Plätze hinter Barrieren.'],['Wizard','Scout sagt den Platz an, drei Enlightened gehen durch die Barriere und töten ihn, die Ablage legt den Kelch ab. Danach startet das Lied.'],['Schaden','Genug Wizards tot: Schild weg, Schaden bis zur Kerbe. Expunge für Burst. Nächste Phase mit einem Wizard mehr.']],
+  tip:{1:'Platz-Namen vorher klären.',2:'Drei bereit an der Tür.',3:'Bis zur Kerbe.'},m:{},
+  roles:[['Enlightened','Wizards töten.','runner'],['Scout','Wizards finden, ansagen.','runner'],['Ablage','Kelch ablegen.','']],rules:['Nur Enlightened durch die Barriere.','Wizards: 3, 4, 5.','Dark Liturgy: Kerbe erreichen.'],wipes:['Dark Liturgy läuft ab, bevor die Kerbe erreicht ist.'],
+  tips:['<b>Challenge:</b> „Equal Vessels“: Kelch immer in derselben Reihenfolge rotieren.'],diags:[['Die Arena','Sieben Wizard-Plätze, Ir Yût in der Mitte. Schematisch.',['Ir Yût']]],master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Wizard TR','Wizard TR','Scout'],['Drei bereit','Three ready','Tür'],['Expunge','Expunge','Burst']],
+  L:{lLitT:'LITURGY',lWizLbl:'WIZARDS',lCallTR:'„Wizard TR!“',lLiturgy:'Dark Liturgy beginnt',lExpunge:'Expunge',fxI1Spots:'Sieben Wizard-Plätze',fxI1Shield:'Ir Yût ist geschildet',fxI2Scout:'Scout sagt den Platz an',fxI2Kill:'Drei Enlightened töten den Wizard',fxI2Lit:'Das Lied läuft',fxI3Dmg:'Schild weg: Schaden bis zur Kerbe',fxI3Next:'Nächste Phase: ein Wizard mehr'}},
+ en:{kicker:'Crota’s End · Encounter 3 · Ir Yût',gear:{crit:['Boss damage, the song (Dark Liturgy) is a time limit.'],top:['Wish-Ender (truesight) for the scout; Day One: Divinity + Thunderlords.'],budget:['Short on gear? Depositor or ad clear.']},
+  lede:'Ir Yût is shielded. Wizards sit behind green barriers at seven possible spots (TL, TR, BL, BR, ML, MM, MR), only Enlightened can pass. The scout finds the wizard (Wish-Ender), three Enlightened kill it, one deposits the Chalice at the podium. Each phase needs more: 3, then 4, then 5 wizards. After the first wizard dies (or after about 3 minutes) the Dark Liturgy starts: reach the notch in her health bar or wipe. Expunge (Enlightened) gives extra damage. Schematic.',
+  sc:[['Layout','Ir Yût in the middle, seven wizard spots behind barriers.'],['Wizard','The scout calls the spot, three Enlightened go through the barrier and kill it, the depositor banks the Chalice. Then the song starts.'],['Damage','Enough wizards dead: shield down, damage to the notch. Expunge for burst. Next phase with one more wizard.']],
+  tip:{1:'Agree on spot names.',2:'Three ready at the door.',3:'To the notch.'},m:{},
+  roles:[['Enlightened','Kill wizards.','runner'],['Scout','Find and call wizards.','runner'],['Depositor','Bank the Chalice.','']],rules:['Only Enlightened through the barrier.','Wizards: 3, 4, 5.','Dark Liturgy: reach the notch.'],wipes:['Dark Liturgy ends before the notch is reached.'],
+  tips:['<b>Challenge:</b> “Equal Vessels”: always rotate the Chalice in the same order.'],diags:[['The arena','Seven wizard spots, Ir Yût in the middle. Schematic.',['Ir Yût']]],master:['Master variant not shown here.'],
+  calls:[['Wizard TR','Wizard TR','scout'],['Drei bereit','Three ready','door'],['Expunge','Expunge','burst']],
+  L:{lLitT:'LITURGY',lWizLbl:'WIZARDS',lCallTR:'“Wizard TR!”',lLiturgy:'Dark Liturgy begins',lExpunge:'Expunge',fxI1Spots:'Seven wizard spots',fxI1Shield:'Ir Yût is shielded',fxI2Scout:'Scout calls the spot',fxI2Kill:'Three Enlightened kill the wizard',fxI2Lit:'The song is running',fxI3Dmg:'Shield down: damage to the notch',fxI3Next:'Next phase: one more wizard'}}};
+const ENC_CEC={num:4,name:'Crota, Son of Oryx',eng:CEC,diags:[SV_CEC],order:['S1','S2','OV','DP','P5','P6'],
+ slots:[['S1','Schwert','Sword'],['S2','Schwert','Sword'],['OV','Oversoul (Enlightened)','Oversoul (Enlightened)'],['DP','Ablage','Depositor'],['P5','Ad-Clear','Ad clear'],['P6','Ad-Clear','Ad clear']],
+ de:{kicker:'Crota’s End · Encounter 4 · Crota',gear:{crit:['Boss-Schaden in kurzen Fenstern.'],top:['Laut Guide: Lament, Well of Radiance, Burning Maul, Tractor Cannon.'],budget:['Wenig Ausrüstung? Ablage oder Ad-Clear.']},
+  lede:'Den Kelch kann man hier nur in einem Lichtstrahl weitergeben, der wandert nach jeder Nutzung. Knights in den Türmen töten → Swordbearer an der Mitteltür → Schwerter (nur Enlightened) brechen Crotas Schild (2–3 Schwerter). Dann Schaden. Jede Schadensphase ruft die Oversoul: nach 30 Sekunden Wipe, außer ein Enlightened zerstört sie, das beendet die Phase, also so spät wie möglich. Mindestens drei Phasen bis zum Final Stand. Schematisch.',
+  sc:[['Kelch im Licht','Weitergeben nur, wenn beide im Lichtstrahl stehen. Der Strahl wandert danach.'],['Schild','Turm-Knights töten, Swordbearer an der Mitteltür, Schwerter aufheben, Schild brechen. Tractor Cannon hilft.'],['Oversoul','Schaden, bis die Oversoul fast abgelaufen ist; dann zerstört sie der Enlightened.']],
+  tip:{1:'Strahl ansagen.',2:'Zwei Schwerter gleichzeitig.',3:'Oversoul erst spät.'},m:{},
+  roles:[['Schwerter','Schild brechen.','runner'],['Oversoul','Enlightened, Oversoul zerstören.','runner'],['Ablage / Ad-Clear','Kelch, Knights.','']],rules:['Kelch nur im Licht weitergeben.','Schild nur mit Schwertern.','Oversoul nach 30 s = Wipe.'],wipes:['Oversoul nicht zerstört.'],
+  tips:['<b>Final Stand:</b> Crota ist kurz unverwundbar, weglaufen, Heavy holen, dann Rest Schaden.','<b>Challenge:</b> „All For One“: drei Schwerter gleichzeitig auf den Schild.'],diags:[['Die Arena','Lichtstrahlen, Crota, Mitteltür. Schematisch.',['Lichtstrahl','Mitteltür']]],master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Strahl links','Beam left','Kelch'],['Schwerter','Swords','Schild'],['Oversoul jetzt','Oversoul now','Ende der Phase']],
+  L:{lOverT:'OVERSOUL',lBeam:'nur im Licht',lSB:'Swordbearer',lBreak:'zerstören',fxC1Beam:'Kelch nur im Lichtstrahl weitergeben',fxC1Moves:'Der Strahl wandert danach',fxC2SB:'Knights töten → Swordbearer',fxC2Sword:'Schwerter aufheben',fxC2Hit:'Schild mit Schwertern brechen',fxC2Down:'Schild weg',fxC3Dmg:'Schaden',fxC3Over:'Oversoul: 30 s',fxC3Break:'Enlightened zerstört sie spät'}},
+ en:{kicker:'Crota’s End · Encounter 4 · Crota',gear:{crit:['Boss damage in short windows.'],top:['Per the guide: Lament, Well of Radiance, Burning Maul, Tractor Cannon.'],budget:['Short on gear? Depositor or ad clear.']},
+  lede:'Here the Chalice can only be passed inside a light beam, which moves after each use. Kill the Knights in the towers → Swordbearers at the middle door → swords (Enlightened only) break Crota’s shield (2–3 swords). Then damage. Each damage phase summons the Oversoul: wipe after 30 seconds unless an Enlightened player destroys it, which ends the phase, so as late as possible. At least three phases to the final stand. Schematic.',
+  sc:[['Chalice in the light','Pass it only when both stand in the light beam. The beam moves afterwards.'],['Shield','Kill tower Knights, Swordbearers at the middle door, pick up swords, break the shield. Tractor Cannon helps.'],['Oversoul','Damage until the Oversoul is nearly done; then the Enlightened player destroys it.']],
+  tip:{1:'Call the beam.',2:'Two swords at once.',3:'Oversoul late.'},m:{},
+  roles:[['Swords','Break the shield.','runner'],['Oversoul','Enlightened, destroy the Oversoul.','runner'],['Depositor / ad clear','Chalice, Knights.','']],rules:['Pass the Chalice only in the light.','Shield only with swords.','Oversoul after 30 s = wipe.'],wipes:['Oversoul not destroyed.'],
+  tips:['<b>Final stand:</b> Crota is briefly invulnerable, run, grab heavy, then finish the damage.','<b>Challenge:</b> “All For One”: three swords hit the shield at once.'],diags:[['The arena','Light beams, Crota, middle door. Schematic.',['light beam','middle door']]],master:['Master variant not shown here.'],
+  calls:[['Strahl links','Beam left','Chalice'],['Schwerter','Swords','shield'],['Oversoul jetzt','Oversoul now','end of phase']],
+  L:{lOverT:'OVERSOUL',lBeam:'only in the light',lSB:'Swordbearer',lBreak:'destroy',fxC1Beam:'Pass the Chalice only in a light beam',fxC1Moves:'The beam moves afterwards',fxC2SB:'Kill Knights → Swordbearers',fxC2Sword:'Pick up swords',fxC2Hit:'Break the shield with swords',fxC2Down:'Shield down',fxC3Dmg:'Damage',fxC3Over:'Oversoul: 30 s',fxC3Break:'Enlightened destroys it late'}}};
+const RG_CEA=[{id:'all',slots:['P1','P2','P3','P4','P5','P6'],focus:[1,2,3],de:{name:'Alle',steps:['Kelch in fester Reihenfolge.','Enlightened → Laterne.','Am Node ablegen.'],watch:['Darkness-Timer.']},en:{name:'Everyone',steps:['Chalice in a fixed order.','Enlightened → lamp.','Deposit at the node.'],watch:['Darkness timer.']}}];
+const RG_CEB=[{id:'pl',slots:['P1'],focus:[1],de:{name:'Platte',steps:['Mit Enlightened auf die Platte.'],watch:['Totems besetzt?']},en:{name:'Plate',steps:['On the plate with Enlightened.'],watch:['Totems manned?']}},{id:'to',slots:['P2','P3'],focus:[1],de:{name:'Totems',steps:['Unter dem Totem stehen.'],watch:['Nie weggehen, solange die Platte läuft.']},en:{name:'Totems',steps:['Stand under the totem.'],watch:['Never leave while the plate runs.']}},{id:'sw',slots:['P4','P5','P6'],focus:[2,3],de:{name:'Schwert & Ad-Clear',steps:['Swordbearer töten.','Schwert, rüber, Gatekeeper.'],watch:['Schwert nicht liegen lassen.']},en:{name:'Sword & ad clear',steps:['Kill Swordbearers.','Sword, cross, Gatekeeper.'],watch:['Don’t leave the sword lying.']}}];
+const RG_CEI=[{id:'en',slots:['E1','E2','E3'],focus:[2,3],de:{name:'Enlightened',steps:['An der Tür warten.','Durch die Barriere, Wizard töten.'],watch:['Drained of Light.']},en:{name:'Enlightened',steps:['Wait at the door.','Through the barrier, kill the wizard.'],watch:['Drained of Light.']}},{id:'sc',slots:['SC','DP','P6'],focus:[2],de:{name:'Scout, Ablage, Ad-Clear',steps:['Wizard-Platz ansagen.','Kelch ablegen.'],watch:['Lied-Timer.']},en:{name:'Scout, depositor, ad clear',steps:['Call the wizard spot.','Deposit the Chalice.'],watch:['Song timer.']}}];
+const RG_CEC=[{id:'sw',slots:['S1','S2'],focus:[2],de:{name:'Schwerter',steps:['Schwert aufheben.','Schild gleichzeitig treffen.'],watch:['Enlightened nötig.']},en:{name:'Swords',steps:['Pick up a sword.','Hit the shield together.'],watch:['Needs Enlightened.']}},{id:'ov',slots:['OV'],focus:[3],de:{name:'Oversoul',steps:['Enlightened behalten.','Oversoul spät zerstören.'],watch:['30 Sekunden.']},en:{name:'Oversoul',steps:['Keep Enlightened.','Destroy the Oversoul late.'],watch:['30 seconds.']}},{id:'rest',slots:['DP','P5','P6'],focus:[1,2],de:{name:'Ablage & Ad-Clear',steps:['Kelch im Licht weitergeben.','Turm-Knights töten.'],watch:['Strahl wandert.']},en:{name:'Depositor & ad clear',steps:['Pass the Chalice in the light.','Kill tower Knights.'],watch:['The beam moves.']}}];
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -8760,7 +9015,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,ceabyss:ENC_CEA,cebridge:ENC_CEB,ceiryut:ENC_CEI,cecrota:ENC_CEC,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -8822,6 +9077,7 @@ const ACT={
  dsc:{name:'Deep Stone Crypt',encs:['dscsec','dscatr','dscrap','dsctan'],src:[['Shacknews – Deep Stone Crypt raid guide','https://shacknews.com/article/121651/deep-stone-crypt-raid-guide-destiny-2'],['Yardbarker – Deep Stone Crypt 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_deep_stone_crypt_2026_raid_guide/s1_17456_43911788'],['Kyber’s Corner – Deep Stone Crypt','https://kyberscorner.com/destiny2/deep-stone-crypt/'],['Destinypedia – Deep Stone Crypt (raid)','https://destinypedia.com/Deep_Stone_Crypt_(Raid)'],['Dot Esports – Of All Trades challenge','https://dotesports.com/destiny/news/how-to-complete-the-of-all-trades-rapture-challenge-in-destiny-2s-deep-stone-crypt-raid']]},
  gos:{name:'Garden of Salvation',encs:['gsevade','gssummon','gscons','gssanct'],src:[['Shacknews – Garden of Salvation raid guide','https://shacknews.com/article/114369/garden-of-salvation-raid-guide-destiny-2'],['Yardbarker – Garden of Salvation 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_garden_of_salvation_2026_raid_guide/s1_17456_43890120'],['Kyber’s Corner – Garden of Salvation','https://kyberscorner.com/destiny2/gardenofsalvation/'],['TheGamer – Enlightened title','https://www.thegamer.com/destiny-2-enlightened-title-triumphs-guide/'],['Destinypedia – Garden of Salvation','https://www.destinypedia.com/Garden_of_Salvation']]},
  vow:{name:'Vow of the Disciple',encs:['vwacq','vwcare','vwexh','vwrhulk'],src:[['Shacknews – Vow of the Disciple raid guide','https://shacknews.com/article/129163/vow-of-the-disciple-raid-guide-destiny-2'],['Yardbarker – Vow of the Disciple 2026 raid guide','https://www.yardbarker.com/entertainment/articles/destiny_2_vow_of_the_disciple_2026_raid_guide/s1_17456_43915072'],['DestinyTracker – Vow complete raid guide (Suttledge)','https://destinytracker.com/destiny-2/guides/vow-of-the-disciple-complete-raid-guide-by-suttledge-095cf690'],['Dot Esports – Vow glyphs and callouts','https://dotesports.com/destiny/guides/all-vow-of-the-disciple-glyphs-symbols-and-callouts-in-destiny-2'],['TheGamer – Vow weekly challenges','https://www.thegamer.com/destiny-2-vow-of-the-disciple-weekly-challenges-guide/'],['TheGamer – Disciple-Slayer title','https://www.thegamer.com/destiny-2-disciple-slayer-title-guide/'],['Shacknews – Rhulk extra chest symbols','https://shacknews.com/article/129266/vow-of-the-disciple-rhulk-extra-chest-symbol-locations-destiny-2']]},
+ ce:{name:'Crota’s End',encs:['ceabyss','cebridge','ceiryut','cecrota'],src:[['Shacknews – Crota’s End raid guide','https://shacknews.com/article/136793/crotas-end-raid-guide-destiny-2'],['Yardbarker – Crota’s End 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_crotas_end_2026_raid_guide/s1_17456_43929386'],['Destinypedia – Crota’s End','https://www.destinypedia.com/Crota%27s_End'],['The Game Post – Swordbearer title','https://thegamepost.com/destiny-2-swordbearer-title-guide/']]},
  se:{name:'Salvation’s Edge',encs:['substratum','dissipation','repository','verity','zenith'],src:[['Shacknews – Salvation’s Edge raid guide','https://www.shacknews.com/article/140025/salvations-edge-raid-guide-destiny-2'],['PCGamesN – Salvation’s Edge guide','https://www.pcgamesn.com/destiny-2/salvations-edge-guide'],['Professionalism.gg – Salvation’s Edge','https://professionalism.gg/raid-guides/salvations-edge'],['Backdash – Salvation’s Edge raid guide','https://www.thebackdash.com/destiny/destiny-2-salvations-edge-raid-guide'],['Sportskeeda – Substratum guide','https://sportskeeda.com/mmo/destiny-2-salvation-s-edge-raid-first-encounter-guide-substratum'],['Paracausality – Salvation’s Edge guide','https://www.paracausality.com/se_guide'],['Destiny 2 Wiki – Salvation’s Edge','https://d2.destinygamewiki.com/wiki/Salvation%27s_Edge'],['Destructoid – Substratum map','https://www.destructoid.com/destiny-2-salvations-edge-first-encounter-raid-guide/'],['Destinypedia – Salvation’s Edge','https://www.destinypedia.com/Salvation%27s_Edge'],['Destructoid – Verity map','https://www.destructoid.com/destiny-2-salvations-edge-fourth-encounter-raid-guide-verity/'],['Destructoid – Zenith','https://www.destructoid.com/destiny-2-salvations-edge-5th-encounter-raid-guide-zenith/']]}
 ,
  eq:{name:'Equilibrium',kind:'dungeon',encs:['eqharv','eqharrow','eqsere'],src:[['Destinypedia – Equilibrium','https://www.destinypedia.com/Equilibrium'],['Shacknews – Equilibrium dungeon guide','https://www.shacknews.com/article/147168/how-to-complete-the-equilibrium-dungeon-in-destiny-2'],['Vaexil – Equilibrium field guide (PDF)','https://destiny2.vaexil.tv/downloads/guides/dungeons/equilibrium/equilibrium-complete-guide.pdf'],['Grindout – Equilibrium guide','https://grindout.com/destiny-2/guides/equilibrium-guide'],['The Game Post – Equilibrium dungeon guide','https://thegamepost.com/destiny-2-equilibrium-dungeon-guide/'],['ProGameTalk – Equilibrium walkthrough','https://progametalk.com/destiny-2/equilibrium-dungeon-walkthrough/'],['Kyber’s Corner – Equilibrium','https://kyberscorner.com/destiny-2-equilibrium-dungeon/'],['Total Apex Gaming – Harrow guide','https://totalapexgaming.com/action/equilibrium-harrow-guide/']]}};
@@ -8925,7 +9181,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.ceabyss=RG_CEA;RG.cebridge=RG_CEB;RG.ceiryut=RG_CEI;RG.cecrota=RG_CEC;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
@@ -9033,6 +9289,10 @@ function render(){const E=eng(),sc=E.S[cur],k=cl(el_t/sc.d);const st=E.base();sc
 /* =================== CHALLENGES & EXTRAS =================== */
 // one challenge per encounter (shown at that encounter only) and a small extras card per raid
 const CHAL={
+ ceabyss:{n:'Conservation of Energy',de:'Eine Laterne darf nur angezündet werden, wenn der Kelch vorher direkt daneben abgelegt (preserved) wurde.',en:'A lamp may only be lit if the Chalice was preserved right next to it first.'},
+ cebridge:{n:'Precarious Balance',de:'Wer über die Brücke geht, muss das tun, während sie sich noch verformt.',en:'Whoever crosses must do so while the bridge is still deforming.'},
+ ceiryut:{n:'Equal Vessels',de:'Der Kelch muss immer in derselben Reihenfolge rotiert werden, auch in den Schadensphasen.',en:'The Chalice must always rotate in the same order, including during damage phases.'},
+ cecrota:{n:'All For One',de:'Drei Schwerter müssen Crotas Schild gleichzeitig treffen. Also drei Enlightened mit Schwert, zusammen zählen und zuschlagen.',en:'Three swords must hit Crota’s shield at the same time. So three Enlightened with swords, count down and strike together.'},
  vwacq:{n:'Swift Destruction',de:'Alle drei Unstoppable Abominations müssen kurz nacheinander sterben. Jeden kurz vor oder nach einer Obelisk-Runde stunnen und dann alle drei innerhalb weniger Sekunden töten; der Timer startet beim ersten Tod.',en:'All three Unstoppable Abominations must die in short succession. Stun each right before or after an obelisk round, then kill all three within a few seconds; the timer starts at the first death.'},
  vwcare:{n:'Base Information',de:'Läufer dürfen nur ein Symbol auf einmal tragen. Drei oder vier Läufer einteilen, die je ein Symbol pro Gang holen.',en:'Runners may carry only one symbol at a time. Assign three or four runners who grab one symbol per trip.'},
  vwexh:{n:'Defenses Down',de:'Jeder Spieler darf nur einen Taken Knight töten. Den Knight-Buff paarweise über die Räume rotieren, im ersten Raum den zweiten Knight auslassen.',en:'Each player may kill only one Taken Knight. Rotate the Knight buff between pairs across the rooms and skip the second Knight in the first room.'},
@@ -9073,6 +9333,14 @@ const CHAL={
  verity:{n:'Varied Geometry',de:'Derselbe 3D-Schlüssel darf nicht wiederholt werden. Die Guides beschreiben es unterschiedlich: nicht zweimal hintereinander, oder erst wieder, wenn alle sechs Formen dran waren.',en:'The same 3D key may not be repeated. Guides describe it differently: not twice in a row, or only again once all six shapes have been used.'},
  zenith:{n:'Coordinated Efforts',de:'Alle sechs Knöpfe innerhalb weniger Sekunden nach dem ersten zerstören. Dafür sammeln alle sechs vorher Glyphbreaker und schießen dann gleichzeitig.',en:'Break all six buttons within a few seconds of the first. So all six collect Glyphbreaker first, then shoot together.'}};
 const XTRA={
+ ce:{de:[['Titel','„Swordbearer“ (Raid-Triumphe inkl. Challenges).'],
+   ['Exotic','Necrochasm (Kinetic-Auto-Rifle), Zufallsdrop vom Endboss; mit Triumphen steigt die Chance (Details nicht geprüft).'],
+   ['Versteckte Truhe','Vor Ir Yût: zwei Enlightened töten die Shrieker hinter den Barrieren, der dritte Kelch-Träger legt am Podest ab, das öffnet den Zugang zur Truhe.'],
+   ['2026','Crota’s End ist der dritte und letzte neu aufgelegte Raid; seit dem 9. Juni 2026 gestufte Beute und ein eigenes Rüstungsset.']],
+  en:[['Title','“Swordbearer” (raid triumphs incl. challenges).'],
+   ['Exotic','Necrochasm (Kinetic auto rifle), random drop from the final boss; triumphs raise the chance (details not checked).'],
+   ['Hidden chest','Before Ir Yût: two Enlightened kill the Shriekers behind the barriers, the third Chalice holder deposits at the podium, which opens the way to the chest.'],
+   ['2026','Crota’s End is the third and last reprised raid; since June 9, 2026 tiered loot and its own armor set.']]},
  vow:{de:[['Titel','„Disciple-Slayer“: u. a. die Triumph-Challenges (On My Go, Handle With Care, Glyph To Glyph, Symmetrical Energy).'],
    ['Exotic','Collective Obligation (Void-Pulse-Rifle), Zufallsdrop bei Rhulk.'],
    ['Beute','Nach Rhulk lässt sich eine Waffe als garantierte Resonance-Waffe kaufen (laut DestinyTracker-Guide). Für eine Extra-Truhe bei Rhulk gibt es Symbole im Raid (Shacknews).'],
