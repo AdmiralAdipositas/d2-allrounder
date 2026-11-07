@@ -126,7 +126,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
       if (it.angelegt) throw new Error('This item is equipped. Equip something else in that slot first.');
       await bungie.verschiebe(k, it, ort, true); it.ort = 'tresor';
     }
-    if (ziel !== 'tresor') { await bungie.verschiebe(k, it, ziel, false); it.ort = ziel; }
+    if (ziel !== 'tresor') { const { zumCharakter } = await import('./vault.js'); await zumCharakter(zustand, it, ziel, new Set([it.id])); it.ort = ziel; }
   }
   const melde = (text, fehler) => import('./app.js').then((m) => m.meldung(text, fehler));
   async function fuehreAus(a, cid) {

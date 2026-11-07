@@ -2,7 +2,7 @@
 // die Leiste zeigt, was mit den anderen Mindestwerten noch erreichbar ist.
 import * as bungie from './bungie.js';
 import { defs } from './defs.js';
-import { sammle, merkeAenderung, ARMOR_STATS } from './vault.js';
+import { sammle, merkeAenderung, ARMOR_STATS, zumCharakter } from './vault.js';
 import { meldung } from './app.js';
 import { SUBCLASS } from './generator.js';
 import * as modplan from './mods.js';
@@ -365,7 +365,7 @@ async function ausruesten(b, zustand, char, knopf) {
       if (ort.startsWith('post:')) { ort = ort.slice(5); await bungie.abholen(k, it, ort); }
       if (ort !== cid) {
         if (ort !== 'tresor') { if (it.angelegt) throw new Error(`${it.d.n} is equipped on another character.`); await bungie.verschiebe(k, it, ort, true); }
-        await bungie.verschiebe(k, it, cid, false);
+        await zumCharakter(zustand, it, cid, new Set(b.items.map((x) => x.id)));
       }
       merkeAenderung(it.id, { ort: cid, angelegt: false });
     }
@@ -431,7 +431,7 @@ async function baueBuild(bd, zustand, cid, probleme) {
       meldung(`Equipping ${name}…`);
       let ort = w.ort;
       if (ort.startsWith('post:')) { ort = ort.slice(5); await bungie.abholen(k, w, ort); }
-      if (ort !== cid) { if (ort !== 'tresor') { if (w.angelegt) throw new Error(`${name} is equipped on another character.`); await bungie.verschiebe(k, w, ort, true); } await bungie.verschiebe(k, w, cid, false); }
+      if (ort !== cid) { if (ort !== 'tresor') { if (w.angelegt) throw new Error(`${name} is equipped on another character.`); await bungie.verschiebe(k, w, ort, true); } await zumCharakter(zustand, w, cid, new Set(ziele.map((x) => x.id))); }
       if (w.d.q === 6) await bungie.ausruesten(k, w, cid);
       merkeAenderung(w.id, { ort: cid, angelegt: true });
     } catch (e) { probleme.push(e.message); }

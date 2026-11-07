@@ -30,6 +30,28 @@ function armorStats(roh) {
 let statMin = (() => { try { return JSON.parse(localStorage.getItem('d2a.statmin') || '{}'); } catch { return {}; } })();
 
 // Alles aus dem Profil zu einer flachen Liste machen.
+// Bringt ein Item auf einen Charakter und macht vorher Platz: Ein Charakter hat pro Slot nur 9 freie Plätze
+// (plus das angelegte Teil). Ist der Slot voll, wandert das schwächste nicht angelegte, nicht gesperrte Teil,
+// das in keinem Ingame-Loadout steckt und nicht gerade gebraucht wird, in den Tresor.
+export async function zumCharakter(zustand, it, cid, brauchen = new Set()) {
+  const bungie = await import('./bungie.js');
+  const k = zustand.konto;
+  const alle = sammle(zustand.profil);
+  const imLoadout = new Set();
+  for (const c of Object.values(zustand.profil.characterLoadouts?.data || {})) for (const l of c.loadouts || []) for (const x of l.items || []) imLoadout.add(x.itemInstanceId);
+  const hier = alle.filter((x) => x.ort === cid && !x.angelegt && x.d.b === it.d.b && x.id !== it.id);
+  if (hier.length >= 9) {
+    const kand = hier.filter((x) => !brauchen.has(x.id)).sort((a, b) => (a.locked - b.locked) || (imLoadout.has(a.id) - imLoadout.has(b.id)) || (a.d.q === 6) - (b.d.q === 6) || a.power - b.power);
+    const weg = kand[0];
+    if (!weg) throw new Error(`No free ${it.d.k || 'slot'} space on this character. Move something to the vault first.`);
+    try { await bungie.verschiebe(k, weg, cid, true); } catch (e) { throw new Error(/no item slots/i.test(e.message) ? 'Your vault is full, so I could not make room on the character. Free up vault space first.' : e.message); }
+    merkeAenderung(weg.id, { ort: 'tresor', angelegt: false });
+    const { meldung } = await import('./app.js');
+    meldung(`Made room: ${weg.d.n} went to the vault.`);
+  }
+  await bungie.verschiebe(k, it, cid, false);
+}
+
 export function sammle(profil) {
   const inst = profil.itemComponents?.instances?.data || {};
   const statDaten = profil.itemComponents?.stats?.data || {};
