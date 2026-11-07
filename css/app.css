@@ -448,7 +448,7 @@ body.ziehe{user-select:none;cursor:ew-resize}
 .tresorzahl svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}.tresorzahl b{color:var(--text)}
 .tpop,.fpop{position:absolute;top:calc(100% + 6px);left:0;z-index:20;min-width:260px;max-width:min(420px,calc(100vw - 24px));background:#120e2c;border:1px solid var(--linie);border-radius:12px;padding:12px 14px;box-shadow:0 12px 30px #0009;display:flex;flex-direction:column;gap:8px}
 .tresorbox .tpop{left:auto;right:0}.tpop p{margin:0;font-size:.82rem;color:#cfc9ee}.tpop small{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.75rem;color:var(--matt)}
-.tbar{display:flex;height:8px;border-radius:4px;background:#0b0920;overflow:hidden}.tbar i,.tpop small i{display:block}
+.tzbar{display:flex;height:8px;border-radius:4px;background:#0b0920;overflow:hidden}.tzbar i,.tpop small i{display:block}
 .tpop small i{width:9px;height:9px;border-radius:2px}
 .tpop .w{background:var(--gold)}.tpop .r{background:var(--arc)}.tpop .s{background:var(--violett,#9b7bff)}
 .filter details{position:relative}.filter details[open]{flex-basis:auto;padding-bottom:0;border-color:var(--gold)}
