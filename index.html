@@ -37,6 +37,15 @@
 <aside id="panel" hidden aria-label="Side panel"></aside>
 <div id="tipp" hidden></div>
 <div id="meldung" role="status"></div>
+<script>
+// Während eines Updates kann der Server kurz alte und neue Dateien mischen. Dann einmal neu laden statt leer zu bleiben.
+addEventListener('error', (e) => {
+  if (!/SyntaxError|does not provide an export|Failed to fetch dynamically/.test(String(e.message))) return;
+  const n = Number(sessionStorage.getItem('d2a.modfix') || 0);
+  if (n < 3) { sessionStorage.setItem('d2a.modfix', String(n + 1)); setTimeout(() => location.reload(), 2500 * (n + 1)); }
+});
+setTimeout(() => sessionStorage.removeItem('d2a.modfix'), 60000);
+</script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>
