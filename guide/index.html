@@ -4966,6 +4966,196 @@ const VGT=(function(){
  return{bg,S,base,finish};
 })();
 
+
+/* =================== VAULT OF GLASS: GATEKEEPER =================== */
+// SCHEMATIC after the written guides: main room with the island in the middle (Gatekeepers + relic), sync plates
+// left and right, the left portal leads to Mars, the right one to Venus (drawn as rooms at the top corners).
+// Plate players keep the portals open, one player per world defends its conflux, the relic holder breaks
+// Praetorian shields and hands the relic on (Teleport Destabilized: 45 s, no second pass). At the end: conflux in
+// the middle, everyone defends, Wyverns, done.
+const VGG=(function(){
+ const keys=['PL','PR','WM','WV','RH','M2'];
+ const ISL={x:400,y:250};
+ const PLATE={L:{x:200,y:320},R:{x:600,y:320}};
+ const PORT={L:{x:130,y:200},R:{x:670,y:200}};
+ const ROOM={M:{x:150,y:85},V:{x:650,y:85}};
+ const EXIT={M:{x:215,y:110},V:{x:585,y:110}};
+ const CFX={M:{x:110,y:70},V:{x:690,y:70},X:{x:400,y:250}};
+ const SPAWN={x:400,y:420};
+ const POS={PL:{...PLATE.L},PR:{...PLATE.R},WM:{x:340,y:330},WV:{x:460,y:330},RH:{x:390,y:300},M2:{x:420,y:300}};
+ const IN={WM:{x:140,y:100},WV:{x:660,y:100}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/>`;
+  o+=`<rect x="80" y="170" width="640" height="240" rx="10" fill="#18152a" stroke="#2f2a4a"/><ellipse cx="${ISL.x}" cy="${ISL.y}" rx="70" ry="38" fill="#100d19" stroke="#3a3356"/>`;
+  [['M','#c4503a','MARS'],['V','#3fae7a','VENUS']].forEach(([w,c,n])=>{const r=ROOM[w];o+=`<rect x="${r.x-110}" y="${r.y-65}" width="220" height="120" rx="8" fill="#120f1c" stroke="${c}" stroke-opacity=".6"/><text x="${r.x}" y="${r.y+48}" text-anchor="middle" class="hud-t" style="fill:${c}">${n}</text>`;});
+  ['L','R'].forEach(sd=>{const p=PLATE[sd],q=PORT[sd],op=(s.port||{})[sd]||0,c=sd==='L'?'#c4503a':'#3fae7a';
+   o+=`<rect x="${p.x-20}" y="${p.y-9}" width="40" height="18" rx="4" fill="${op>.5?'rgba(246,220,142,.35)':'#231f36'}" stroke="#f6dc8e" stroke-width="1.6"/>`;
+   o+=`<ellipse cx="${q.x}" cy="${q.y}" rx="16" ry="26" fill="${op>.5?c:'#1a1726'}" fill-opacity="${.25+.35*op}" stroke="${c}" stroke-width="${1+2*op}"/>`;});
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN</text>`;
+  return o;}
+ function bg(g){g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';}
+ function base(){const s={p:{},port:{},relic:null,relicFloor:null,cf:{},orbs:[],units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{},fade:{},stab:{}};
+  keys.forEach(k=>s.p[k]={...POS[k]});return s;}
+ const fire=(s,k,key,b,i)=>{if(s.busy[key]||s.dead[key])return;s.busy[key]=1;if(Math.floor(k*70+(i||0))%2)s.shots.push({a:s.p[key],q:key,b,c:C.ally});};
+ // walk to a portal, fade, appear at the exit inside the world, walk on
+ function reise(s,k,q,from,sd,to,a,b){const w=sd==='L'?'M':'V',m=a+(b-a)*.45,n=a+(b-a)*.55;
+  if(k<m)s.p[q]=mv(from,PORT[sd],seg(k,a,m));else if(k<n){s.p[q]=k<(m+n)/2?{...PORT[sd]}:{...EXIT[w]};s.fade[q]=Math.abs(seg(k,m,n)*2-1);if(k<m+.02)s.bursts.push({...PORT[sd],r:8+18*seg(k,m,m+.02),c:'#ffffff',o:1-seg(k,m,m+.02)});}
+  else s.p[q]=mv(EXIT[w],to,seg(k,n,b));}
+ function cfx(s,w,a){if(a<=0)return;const p=CFX[w];s.adds.push({t:'raw',x:0,y:0,svg:`<g opacity="${a}"><path d="M${p.x} ${p.y-20} L${p.x+10} ${p.y} L${p.x} ${p.y+6} L${p.x-10} ${p.y} Z" fill="#2a2440" stroke="#ece8f4" stroke-width="2"/></g>`});}
+ const S=[
+ // 1 layout
+ {d:20,f(k,s){keys.forEach(q=>s.p[q]=mv(SPAWN,POS[q],seg(k,0,.12)));
+   const o1=win(k,.12,.36),o2=win(k,.36,.6),o3=win(k,.6,.82),o4=win(k,.82,1.01);
+   if(k>=.12&&k<.36)s.spot=[{...ISL,r:70,o:o1,w:true}];else if(k>=.36&&k<.6)s.spot=[{...PLATE.L,r:26,o:o2,w:true},{...PLATE.R,r:26,o:o2,w:true}];
+   else if(k>=.6&&k<.82)s.spot=[{...PORT.L,r:30,o:o3,w:true},{...PORT.R,r:30,o:o3,w:true}];else if(k>=.82)s.spot=[{...ROOM.M,r:60,o:o4,w:true},{...ROOM.V,r:60,o:o4,w:true}];
+   s.fx=k<.12?null:k<.36?{k:'fxGIsl',o:o1,c:C.light}:k<.6?{k:'fxGPlates',o:o2,c:C.light}:k<.82?{k:'fxGPorts',o:o3,c:C.light}:{k:'fxGRooms',o:o4,c:'#ece8f4'};}},
+ // 2 start: kill the Gatekeeper on the island, relic appears, plates open the portals, one player per world
+ {d:24,f(k,s){keys.forEach(q=>s.p[q]={...POS[q]});
+   if(k<.3){s.units.push({t:'vcyc',x:ISL.x,y:ISL.y-6,hp:1-seg(k,.04,.28)*.97,lb:'lGate',lc:C.enemy,ly:-26});keys.forEach((q,i)=>fire(s,k,q,ISL,i));}
+   if(k>=.28&&k<.32)s.bursts.push({...ISL,r:10+30*seg(k,.28,.32),c:'#fff',o:1-seg(k,.28,.32)});
+   if(k>=.32&&k<.42){s.relicFloor={...ISL};s.p.RH=mv(POS.RH,ISL,seg(k,.32,.42));}if(k>=.42){s.relic='RH';s.p.RH=mv(ISL,POS.RH,seg(k,.42,.5));}
+   s.port.L=seg(k,.44,.5);s.port.R=s.port.L;
+   if(k>=.5){reise(s,k,'WM',POS.WM,'L',IN.WM,.5,.82);reise(s,k,'WV',POS.WV,'R',IN.WV,.52,.84);}
+   cfx(s,'M',seg(k,.8,.86));cfx(s,'V',seg(k,.8,.86));
+   s.fx=k<.3?{k:'fxG2Kill',o:win(k,0,.3,.02),c:C.enemy}:k<.44?{k:'fxG2Relic',o:win(k,.3,.44,.02),c:C.light}:k<.5?{k:'fxG2Open',o:win(k,.44,.5,.01),c:C.light}:k<.86?{k:'fxG2Go',o:win(k,.5,.86,.02),c:'#ece8f4'}:{k:'fxG2Hold',o:win(k,.86,1,.02),c:C.ally};}},
+ // 3 Praetorian with a shield in Venus → relic holder goes in, breaks the shield, drops the relic, the Venus player takes it back out
+ {d:26,f(k,s){keys.forEach(q=>s.p[q]={...POS[q]});s.p.WM={...IN.WM};s.p.WV={...IN.WV};s.port={L:1,R:1};cfx(s,'M',1);cfx(s,'V',1);
+   const PR={x:700,y:120};if(k<.62){s.units.push({t:'vpra',x:PR.x,y:PR.y,hp:k<.5?1:1-seg(k,.5,.62)*.97});if(k<.42)s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${PR.x}" cy="${PR.y}" r="${20+2*Math.sin(now*6)}" fill="none" stroke="#f6dc8e" stroke-width="2.4" stroke-dasharray="5 4"/>`});}
+   if(k<.1)s.labels.push({x:PR.x-30,y:PR.y-34,k:'lPra',c:C.light,o:win(k,0,.1,.01)});
+   s.relic=k<.44?'RH':k<.5?null:'WV';
+   if(k<.42)reise(s,k,'RH',POS.RH,'R',{x:640,y:120},.06,.36);else s.p.RH={x:640,y:120};
+   if(k>=.36)s.stab.RH=1;
+   if(k>=.38&&k<.44){s.bursts.push({...PR,r:10+20*seg(k,.38,.44),c:C.light,o:1-seg(k,.38,.44)});}
+   if(k>=.44&&k<.5)s.relicFloor={x:650,y:125};
+   if(k>=.48)['RH','WV'].forEach((q,i)=>fire(s,k,q,PR,i));
+   if(k>=.62){const back={x:420,y:300};const q=seg(k,.62,1);if(k<.66)s.p.WV={x:660,y:110};else{const a=.66,b=.96,m=a+(b-a)*.45,n=a+(b-a)*.55;if(k<m)s.p.WV=mv(IN.WV,EXIT.V,seg(k,a,m));else if(k<n){s.p.WV=k<(m+n)/2?{...EXIT.V}:{...PORT.R};s.fade.WV=Math.abs(seg(k,m,n)*2-1);}else s.p.WV=mv(PORT.R,back,seg(k,n,b));}
+     s.labels.push({x:640,y:150,k:'lSwap',c:C.ally,o:win(k,.62,.9,.02)});}
+   s.cam=camK(k,[[0,400,220,1],[.06,560,160,1.5],[.9,560,160,1.5],[.98,400,220,1]]);
+   s.fx=k<.06?{k:'fxG3Call',o:win(k,0,.06,.01),c:C.light}:k<.38?{k:'fxG3In',o:win(k,.06,.38,.02),c:C.light}:k<.5?{k:'fxG3Break',o:win(k,.38,.5,.02),c:C.light}:k<.62?{k:'fxG3Kill',o:win(k,.5,.62,.02),c:C.ally}:{k:'fxG3Swap',o:win(k,.62,1,.02),c:C.ally};}},
+ // 4 meanwhile: plates under attack, a new Gatekeeper closes the portals until it dies
+ {d:22,f(k,s){keys.forEach(q=>s.p[q]={...POS[q]});s.p.WM={...IN.WM};s.p.RH={x:640,y:120};s.relic='WV';s.p.WV={x:420,y:300};cfx(s,'M',1);cfx(s,'V',1);
+   [[{x:100,y:400},'PL'],[{x:700,y:400},'PR']].forEach(([sp,q],i)=>{if(k<.4){const p=mv(sp,PLATE[q==='PL'?'L':'R'],seg(k,.04,.5)*.8);s.units.push({t:i?'mino':'vgob',x:p.x,y:p.y,hp:1-seg(k,.04,.38)*.97,lb:i?'lOver':'',lc:C.champ,ly:-22});fire(s,k,q,p,i);}});
+   const gk=k>=.44&&k<.86;s.port.L=gk?0:1;s.port.R=s.port.L;
+   if(gk){s.units.push({t:'vcyc',x:ISL.x,y:ISL.y-6,hp:1-seg(k,.5,.84)*.97,lb:'lGate',lc:C.enemy,ly:-26});['M2','WV','PL','PR'].forEach((q,i)=>fire(s,k,q,ISL,i));}
+   if(k>=.84&&k<.88)s.bursts.push({...ISL,r:10+30*seg(k,.84,.88),c:'#fff',o:1-seg(k,.84,.88)});
+   s.fx=k<.44?{k:'fxG4Plates',o:win(k,0,.44,.02),c:C.champ}:k<.86?{k:'fxG4Gate',o:win(k,.44,.86,.02),c:C.enemy}:{k:'fxG4Open',o:win(k,.86,1,.02),c:C.good};}},
+ // 5 end: conflux in the middle, everyone back, shielded Praetorians + Wyverns, done
+ {d:24,f(k,s){s.port={L:1-seg(k,0,.1),R:1-seg(k,0,.1)};s.relic='WV';
+   const ring=['PL','PR','WM','WV','RH','M2'].map((q,i)=>({q,p:{x:400+Math.cos(i/6*6.28)*110,y:250+Math.sin(i/6*6.28)*60}}));
+   ring.forEach(({q,p})=>{const st=q==='WM'?{...IN.WM}:q==='RH'?{x:640,y:120}:{...POS[q]};s.p[q]=k<.06?st:(q==='WM'||q==='RH')&&k<.3?(()=>{const w=q==='WM'?'M':'V',sd=q==='WM'?'L':'R';const a=.06,b=.3,m=a+(b-a)*.45,n=a+(b-a)*.55;if(k<m)return mv(st,EXIT[w],seg(k,a,m));if(k<n){s.fade[q]=Math.abs(seg(k,m,n)*2-1);return k<(m+n)/2?{...EXIT[w]}:{...PORT[sd]};}return mv(PORT[sd],p,seg(k,n,b));})():mv(st,p,seg(k,.06,.3));});
+   cfx(s,'X',seg(k,.04,.1));
+   ring.forEach(({q,p},i)=>{const a=.32+(i%3)*.08,b=a+.14;if(k>=a&&k<b){const sp={x:400+Math.cos(i/6*6.28)*330,y:250+Math.sin(i/6*6.28)*170};const e=mv(sp,ISL,seg(k,a,b+.1)*.8);s.units.push({t:'vgob',x:e.x,y:e.y});fire(s,k,q,e,i);}});
+   if(k>=.56&&k<.88)[0,1,2].forEach(i=>{const p={x:250+i*150,y:60+30*Math.sin(k*8+i)};s.units.push({t:'vwyv',x:p.x,y:p.y,hp:1-seg(k,.6,.86)*.97});fire(s,k,['PL','M2','PR'][i],p,i);});
+   if(k>=.9&&k<.96)s.bursts.push({...ISL,r:20+160*seg(k,.9,.96),c:C.good,o:1-seg(k,.9,.96)});
+   s.fx=k<.3?{k:'fxG5Back',o:win(k,0,.3,.02),c:'#ece8f4'}:k<.56?{k:'fxG5Hold',o:win(k,.3,.56,.02),c:C.ally}:k<.9?{k:'fxG5Wyv',o:win(k,.56,.9,.02),c:C.danger}:{k:'fxG5Done',o:win(k,.9,1,.02),c:C.good};}},
+ // 6 don't: plate lost → portal closes with a player inside; same relic holder twice through a portal
+ {d:20,f(k,s){keys.forEach(q=>s.p[q]={...POS[q]});s.p.WV={...IN.WV};
+   if(k<.5){const q=seg(k,0,.5);s.p.PR=mv(PLATE.R,{x:560,y:390},seg(q,.1,.4));s.port.L=1;s.port.R=q<.4?1:0;
+     s.fx=q<.45?{k:'fxXPlate',o:win(q,0,.45,.04),c:C.danger}:{k:'fxXPlate2',o:win(q,.45,1,.04),c:C.danger};return;}
+   const q=seg(k,.5,1);s.port={L:1,R:1};s.relic='RH';s.stab.RH=1;s.p.RH=mv(POS.RH,{x:PORT.R.x-30,y:PORT.R.y+10},seg(q,0,.5));
+   if(q>=.5)s.labels.push({x:PORT.R.x-60,y:PORT.R.y-40,k:'lStab',c:C.danger,o:win(q,.5,1,.04)});
+   s.fx=q<.5?{k:'fxXTwice',o:win(q,0,.5,.04),c:C.danger}:{k:'fxXTwice2',o:win(q,.5,1,.04),c:C.danger};}}
+ ];
+ function finish(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)}];
+  if(s.relicFloor)units.push({t:'raw',x:0,y:0,svg:`<rect x="${s.relicFloor.x-7}" y="${s.relicFloor.y-7}" width="14" height="14" rx="2" transform="rotate(45 ${s.relicFloor.x} ${s.relicFloor.y})" fill="#f6dc8e" stroke="#fffbe9" stroke-width="1.6"/>`});
+  s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));
+  if(s.relic&&!s.dead[s.relic]){const p=s.p[s.relic];units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y-20})"><rect x="-6" y="-6" width="12" height="12" rx="2" transform="rotate(45)" fill="#f6dc8e" stroke="#fffbe9" stroke-width="1.4"/></g>`});}
+  keys.forEach(q=>{if(!s.stab[q])return;const p=s.p[q];units.push({t:'raw',x:0,y:0,svg:`<circle cx="${p.x}" cy="${p.y}" r="12" fill="none" stroke="${C.danger}" stroke-width="1.4" stroke-dasharray="2 3"/>`});});
+  const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q],o:s.fade[q]==null?1:s.fade[q]}));
+  const hud=s.hud?{t:s.hud.t,v:fmt(s.hud.v),hi:false,paused:false,low:s.hud.v<4}:null;
+  return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud,plus:'',pips:null};}
+ return{bg,S,base,finish};
+})();
+
+
+/* =================== VAULT OF GLASS: ATHEON =================== */
+// SCHEMATIC after the written guides: throne room with Atheon at the top, the small island in the middle, plates
+// with portals left (Mars) and right (Venus). Harpies, then Atheon teleports three players into one world; the outside
+// team opens the matching portal and calls the oracle preview near Atheon; the inside team destroys them in order
+// (3 sets of 3). Relic holder cleanses the blinding effect and kills Praetorians near the exit. Time's Vengeance
+// (guides: 25–30 s) → everyone damages Atheon from the island; Imminent Detain; repeat.
+const VGA=(function(){
+ const keys=['RH','P2','P3','T1','T2','T3'];
+ const ATH={x:400,y:90};
+ const ISL={x:400,y:250};
+ const PLATE={L:{x:210,y:330},R:{x:590,y:330}};
+ const PORT={L:{x:110,y:240},R:{x:690,y:240}};
+ const ROOM={x:650,y:90};
+ const VO=[{x:590,y:60},{x:650,y:50},{x:710,y:60}];
+ const PRE=[{x:350,y:60},{x:400,y:45},{x:450,y:60}];
+ const SPAWN={x:400,y:420};
+ const POS={RH:{x:370,y:300},P2:{x:430,y:300},P3:{x:400,y:340},T1:{x:300,y:250},T2:{x:500,y:250},T3:{x:400,y:200}};
+ const IN={T1:{x:600,y:110},T2:{x:650,y:120},T3:{x:700,y:110}};
+ const DMG={RH:{x:380,y:262},P2:{x:420,y:262},P3:{x:400,y:276},T1:{x:362,y:244},T2:{x:438,y:244},T3:{x:400,y:236}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/>`;
+  o+=`<rect x="80" y="150" width="640" height="250" rx="10" fill="#18152a" stroke="#2f2a4a"/><rect x="300" y="40" width="200" height="110" rx="6" fill="#100d19" stroke="#2f2a4a"/>`;
+  o+=`<ellipse cx="${ISL.x}" cy="${ISL.y}" rx="62" ry="32" fill="#1e1a33" stroke="${s.vh?'#f6dc8e':'#3a3356'}" stroke-width="${s.vh?2.4:1}"/>`;
+  o+=`<rect x="${ROOM.x-110}" y="${ROOM.y-70}" width="220" height="120" rx="8" fill="#120f1c" stroke="#3fae7a" stroke-opacity=".6"/><text x="${ROOM.x}" y="${ROOM.y+44}" text-anchor="middle" class="hud-t" style="fill:#3fae7a">VENUS</text>`;
+  ['L','R'].forEach(sd=>{const p=PLATE[sd],q=PORT[sd],op=(s.port||{})[sd]||0,c=sd==='L'?'#c4503a':'#3fae7a';
+   o+=`<rect x="${p.x-20}" y="${p.y-9}" width="40" height="18" rx="4" fill="${op>.5?'rgba(246,220,142,.35)':'#231f36'}" stroke="#f6dc8e" stroke-width="1.6"/><ellipse cx="${q.x}" cy="${q.y}" rx="16" ry="26" fill="${op>.5?c:'#1a1726'}" fill-opacity="${.25+.35*op}" stroke="${c}" stroke-width="${1+2*op}"/>`;});
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN</text>`;return o;}
+ function ath(s){const sh=s.imm?`<circle r="${40+2*Math.sin(now*4)}" fill="none" stroke="#f6dc8e" stroke-width="2.2" stroke-dasharray="7 5"/>`:'';
+  return{t:'raw',x:0,y:0,svg:`<g transform="translate(${ATH.x} ${ATH.y})">${sh}<path d="M0 -30 L26 -4 L18 26 L-18 26 L-26 -4 Z" fill="#2c2214" stroke="#d9a441" stroke-width="2.8"/><circle cy="-4" r="7" fill="#ff6156"/>${hpBar(-40,34,80,6,s.hp==null?1:s.hp)}</g>`};}
+ const orb=(p,a,num,red)=>({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${a}"><circle r="${12+1.5*Math.sin(now*5)}" fill="${red?'rgba(255,97,86,.3)':'rgba(246,220,142,.35)'}" stroke="${red?'#ff6156':'#f6dc8e'}" stroke-width="2.2"/>${num?`<text y="-17" text-anchor="middle" class="hud-t" style="fill:#f6dc8e">${num}</text>`:''}</g>`});
+ function bg(g){g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';}
+ function base(){const s={p:{},port:{},imm:1,hp:1,vh:0,relic:'RH',blind:{},detain:null,orbs:[],units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{},fade:{}};
+  keys.forEach(k=>s.p[k]={...POS[k]});return s;}
+ const fire=(s,k,key,b,i)=>{if(s.busy[key]||s.dead[key]||s.detain===key)return;s.busy[key]=1;if(Math.floor(k*70+(i||0))%2)s.shots.push({a:s.p[key],q:key,b,c:C.ally});};
+ const harpies=(s,k,a,b)=>[0,1,2,3].forEach(i=>{const t0=a+i*(b-a)/5,t1=t0+(b-a)/4;if(k>=t0&&k<t1){const p={x:200+i*130,y:150+30*Math.sin(k*9+i)};s.units.push({t:'harpy',x:p.x,y:p.y});fire(s,k,keys[i%6],p,i);}});
+ // teleport the three T players into Venus (Atheon pulls them: shown as a white flash at both ends, then they stand inside)
+ const zieh=(s,k,a)=>{['T1','T2','T3'].forEach(q=>{if(k<a)s.p[q]={...POS[q]};else if(k<a+.06){s.fade[q]=Math.abs(seg(k,a,a+.06)*2-1);s.p[q]=k<a+.03?{...POS[q]}:{...IN[q]};if(k<a+.03)s.bursts.push({...POS[q],r:6+16*seg(k,a,a+.03),c:'#fff',o:1-seg(k,a,a+.03)});}else s.p[q]={...IN[q]};});};
+ const set3=(s,k,a,b,order)=>{const pv=(b-a)*.4;order.forEach((o,i)=>{[0,1].forEach(pass=>{const t0=a+pass*pv/2+i*pv/6,t1=t0+pv/6*.9;if(k>=t0&&k<t1)s.orbs.push(orb(PRE[o],win(k,t0,t1,.01),String(i+1),true));});
+   const d=a+pv+(b-a-pv)*(i+1)/3;if(k>=a+pv&&k<d){s.orbs.push(orb(VO[o],seg(k,a+pv,a+pv+.02),'',false));if(k>=d-(b-a-pv)/3*.7)fire(s,k,['T1','T2','T3'][o],VO[o],i);}else if(k>=d&&k<d+.03)s.bursts.push({...VO[o],r:6+18*seg(k,d,d+.03),c:C.light,o:1-seg(k,d,d+.03)});});};
+ const S=[
+ // 1 layout
+ {d:20,f(k,s){keys.forEach(q=>s.p[q]=mv(SPAWN,POS[q],seg(k,0,.12)));
+   const o1=win(k,.12,.36),o2=win(k,.36,.6),o3=win(k,.6,.82),o4=win(k,.82,1.01);
+   if(k>=.12&&k<.36)s.spot=[{...ATH,r:50,o:o1,w:true}];else if(k>=.36&&k<.6)s.spot=[{...ISL,r:62,o:o2,w:true}];else if(k>=.6&&k<.82)s.spot=[{...PLATE.L,r:26,o:o3,w:true},{...PLATE.R,r:26,o:o3,w:true}];else if(k>=.82)s.spot=[{x:ROOM.x,y:ROOM.y,r:60,o:o4,w:true}];
+   s.fx=k<.12?null:k<.36?{k:'fxAAth',o:o1,c:C.light}:k<.6?{k:'fxAIsl',o:o2,c:C.light}:k<.82?{k:'fxAPorts',o:o3,c:C.light}:{k:'fxAWorld',o:o4,c:'#ece8f4'};}},
+ // 2 harpies, don't shoot Atheon; three players are teleported
+ {d:22,f(k,s){harpies(s,k,.04,.6);zieh(s,k,.62);
+   if(k<.3)s.labels.push({x:ATH.x+80,y:ATH.y,k:'lImm',c:C.light,o:win(k,.04,.3,.02)});
+   s.cam=camK(k,[[0,400,220,1],[.6,520,180,1.15],[.95,520,180,1.15],[1,400,220,1]]);
+   s.fx=k<.32?{k:'fxA2Harp',o:win(k,0,.32,.02),c:C.ally}:k<.62?{k:'fxA2NoShoot',o:win(k,.32,.62,.02),c:C.light}:{k:'fxA2Tp',o:win(k,.62,1,.02),c:'#ffffff'};}},
+ // 3 outside: plate right opens the Venus portal; preview near Atheon twice, inside team destroys in order (3 sets)
+ {d:28,f(k,s){keys.forEach(q=>{if(q[0]==='T')s.p[q]={...IN[q]};});s.port.R=seg(k,.06,.12);
+   s.p.P2=mv(POS.P2,PLATE.R,seg(k,0,.1));s.p.P3=mv(POS.P3,{x:560,y:300},seg(k,0,.1));s.p.RH=mv(POS.RH,{x:660,y:270},seg(k,0,.12));
+   [[.14,.42,[2,0,1]],[.42,.7,[1,2,0]],[.7,.98,[0,1,2]]].forEach(([a,b,o])=>{if(k>=a&&k<b)set3(s,k,a,b,o);});
+   ['T1','T2','T3'].forEach(q=>s.blind[q]=k>=.14);
+   if(k>=.3&&k<.36){s.labels.push({x:ROOM.x,y:ROOM.y+64,k:'lBlind',c:'#ffffff',o:win(k,.3,.36,.01)});}
+   if(k>=.14)s.labels.push({x:PRE[1].x,y:PRE[1].y-30,k:'lPrev',c:C.danger,o:win(k,.14,.98,.02)});
+   s.fx=k<.14?{k:'fxA3Plate',o:win(k,0,.14,.02),c:C.light}:k<.42?{k:'fxA3Call',o:win(k,.14,.42,.02),c:C.light}:k<.7?{k:'fxA3Inside',o:win(k,.42,.7,.02),c:C.ally}:{k:'fxA3Last',o:win(k,.7,1,.02),c:C.ally};}},
+ // 4 Time's Vengeance: out through the portal, relic holder cleanses and kills the Praetorian on the way, everyone on the island, damage, Imminent Detain
+ {d:26,f(k,s){s.imm=k<.12?1:0;s.vh=k>=.08;s.port.R=1-seg(k,.4,.5);
+   ['T1','T2','T3'].forEach((q,i)=>{if(k<.1)s.p[q]={...IN[q]};else if(k<.18){s.fade[q]=Math.abs(seg(k,.1,.18)*2-1);s.p[q]=k<.14?{...IN[q]}:{...PORT.R};}else s.p[q]=mv(PORT.R,DMG[q],seg(k,.18,.32));s.blind[q]=k<.18;});
+   ['RH','P2','P3'].forEach(q=>s.p[q]=mv(q==='RH'?{x:660,y:270}:q==='P2'?PLATE.R:{x:560,y:300},DMG[q],seg(k,.12,.3)));
+   if(k>=.18&&k<.22)s.bursts.push({x:640,y:260,r:10+30*seg(k,.18,.22),c:C.light,o:1-seg(k,.18,.22)});
+   if(k>=.08&&k<.95)s.hud={t:'Time’s Vengeance',v:Math.max(0,28*(1-seg(k,.08,.95)))};
+   if(k>=.3){s.hp=1-seg(k,.3,.95)*.3;keys.forEach((q,i)=>fire(s,k,q,ATH,i));}
+   if(k>=.5&&k<.56)s.labels.push({x:DMG.T2.x+60,y:DMG.T2.y-30,k:'lImmD',c:C.danger,o:win(k,.5,.56,.01)});
+   if(k>=.54){const t=k<.6?mv(DMG.T2,{x:560,y:330},seg(k,.54,.6)):{x:560,y:330};s.p.T2=t;}
+   if(k>=.6&&k<.78){s.detain='T2';const p=s.p.T2;s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${p.x}" cy="${p.y}" r="${20+2*Math.sin(now*8)}" fill="rgba(255,122,92,.15)" stroke="${C.enemy}" stroke-width="2.6"/>`});fire(s,k,'P3',p,9);}
+   if(k>=.78&&k<.82)s.bursts.push({x:560,y:330,r:8+20*seg(k,.78,.82),c:C.enemy,o:1-seg(k,.78,.82)});
+   s.cam=camK(k,[[0,450,200,1.1],[.3,400,220,1],[1,400,220,1]]);
+   s.fx=k<.18?{k:'fxA4TV',o:win(k,0,.18,.02),c:C.light}:k<.3?{k:'fxA4Out',o:win(k,.18,.3,.02),c:C.light}:k<.5?{k:'fxA4Dmg',o:win(k,.3,.5,.02),c:C.ally}:k<.82?{k:'fxA4Det',o:win(k,.5,.82,.02),c:C.danger}:{k:'fxA4Repeat',o:win(k,.82,1,.02),c:C.ally};}},
+ // 5 don't: wrong oracle inside, detain next to the team
+ {d:20,f(k,s){keys.forEach(q=>{if(q[0]==='T')s.p[q]={...IN[q]};});s.port.R=1;s.p.P2={...PLATE.R};
+   if(k<.5){const q=seg(k,0,.5);s.orbs.push(orb(VO[0],1,'',false));s.orbs.push(orb(VO[2],1,'',false));s.orbs.push(orb(PRE[0],1,'1',true));s.orbs.push(orb(PRE[2],1,'2',true));if(q>.2&&q<.5)fire(s,k,'T3',VO[2],0);
+     if(q>=.5){keys.forEach(x=>s.dead[x]=1);if(q<.6)s.bursts.push({x:400,y:220,r:20+300*seg(q,.5,.6),c:C.danger,o:1-seg(q,.5,.6)});}
+     s.fx=q<.5?{k:'fxXWrong',o:win(q,0,.5,.04),c:C.danger}:{k:'fxXWrong2',o:win(q,.5,1,.04),c:C.danger};return;}
+   const q=seg(k,.5,1);s.imm=0;keys.forEach(x=>s.p[x]={...DMG[x]});s.detain='T1';const p=s.p.T1;
+   s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${p.x}" cy="${p.y}" r="${20+40*seg(q,.2,.5)}" fill="rgba(255,122,92,.15)" stroke="${C.enemy}" stroke-width="2.6"/>`});
+   if(q>=.5){['T3','RH'].forEach(x=>{const z=s.p[x];s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${z.x}" cy="${z.y}" r="14" fill="rgba(255,122,92,.2)" stroke="${C.enemy}" stroke-width="2"/>`});});s.labels.push({x:400,y:330,k:'lCaught',c:C.danger,o:win(q,.5,1,.04)});}
+   s.fx=q<.5?{k:'fxXDet',o:win(q,0,.5,.04),c:C.danger}:{k:'fxXDet2',o:win(q,.5,1,.04),c:C.danger};}}
+ ];
+ function finish(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)},ath(s)];s.orbs.forEach(u=>units.push(u));s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));
+  if(s.relic&&!s.dead[s.relic]){const p=s.p[s.relic];units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y-20})"><rect x="-6" y="-6" width="12" height="12" rx="2" transform="rotate(45)" fill="#f6dc8e" stroke="#fffbe9" stroke-width="1.4"/></g>`});}
+  keys.forEach(q=>{if(!s.blind[q]||s.dead[q])return;const p=s.p[q];units.push({t:'raw',x:0,y:0,svg:`<circle cx="${p.x}" cy="${p.y}" r="${13+1.5*Math.sin(now*6)}" fill="rgba(255,255,255,.1)" stroke="#ffffff" stroke-width="1.4" stroke-dasharray="2 3"/>`});});
+  const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q],o:s.fade[q]==null?null:s.fade[q]}));
+  const hud=s.hud?{t:s.hud.t,v:fmt(s.hud.v),hi:false,paused:false,low:s.hud.v<4}:null;
+  return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud,plus:'',pips:null};}
+ return{bg,S,base,finish};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -6832,6 +7022,117 @@ const RG_VGT=[
   de:{name:'Orakel / Adds + Schaden',steps:['Dein Orakel bzw. deine Adds.','Schild weg → Schaden auf die Schwachstelle.','Detain-Blase eines Mitspielers wegschießen.','Nach dem Sprung wieder auf Position.'],watch:['Sitzt jemand in der Blase?']},
   en:{name:'Oracle / adds + damage',steps:['Your oracle or your adds.','Shield down → damage the weak spot.','Shoot a teammate’s Detain bubble.','After the jump, back to your spot.'],watch:['Is someone in a bubble?']}}];
 
+const SV_VGG=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="40" y="86" width="340" height="108" rx="8" fill="#18152a" stroke="#2f2a4a"/><ellipse cx="210" cy="130" rx="40" ry="20" fill="#100d19" stroke="#3a3356"/><rect x="10" y="8" width="120" height="62" rx="6" fill="#120f1c" stroke="#c4503a"/><rect x="290" y="8" width="120" height="62" rx="6" fill="#120f1c" stroke="#3fae7a"/>${[[70,104,'#c4503a'],[350,104,'#3fae7a']].map(([x,y,c])=>`<ellipse cx="${x}" cy="${y}" rx="8" ry="13" fill="${c}" fill-opacity=".35" stroke="${c}"/>`).join('')}${[[105,168],[315,168]].map(([x,y])=>`<rect x="${x-14}" y="${y-6}" width="28" height="12" rx="3" fill="rgba(246,220,142,.3)" stroke="#f6dc8e"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="70" y="44" fill="#c4503a">{0}</text><text x="350" y="44" fill="#3fae7a">{1}</text><text x="210" y="134" fill="#9c95b0">{2}</text></g></svg>`;
+const ENC_VGG={num:6,name:'Gatekeeper',eng:VGG,diags:[SV_VGG],order:['PL','PR','WM','WV','RH','M2'],
+ slots:[['PL','Platte links (Mars)','Plate left (Mars)'],['PR','Platte rechts (Venus)','Plate right (Venus)'],['WM','Mars','Mars'],['WV','Venus','Venus'],['RH','Mitte + Relikt','Middle + relic'],['M2','Mitte','Middle']],
+ de:{kicker:'Vault of Glass · Encounter 6 · Gatekeeper · Venus & Mars',
+  gear:{crit:['Schaden für die Gatekeeper (Hydras), die müssen schnell fallen.','Etwas gegen Overload-Minotauren an den Platten.'],top:['Supers und Heavy für die Gatekeeper.','Aktuelle Meta-Waffen haben wir nicht geprüft.'],budget:['Wenig Ausrüstung? Eine Platte halten ist ein ruhiger, wichtiger Job.']},
+  lede:'Zuerst stirbt der Gatekeeper in der Mitte, dann liegt dort das Relikt. Auf den Sync-Platten links und rechts öffnen zwei Spieler die Portale: links geht es nach Mars, rechts nach Venus. In jeder Welt verteidigt ein Spieler einen Conflux. Erscheint in einer Welt ein Praetorian mit Schild, bringt der Relikt-Träger das Relikt hin, bricht den Schild und gibt das Relikt weiter. Neue Gatekeeper auf der Insel schließen die Portale, bis sie tot sind. Zum Schluss erscheint ein Conflux in der Mitte, alle verteidigen ihn.',
+  sc:[['Aufbau','Von oben, schematisch nach den Guides: Unten der Eingang, in der Mitte die Insel, auf der die Gatekeeper auftauchen und das Relikt liegt. Links und rechts je eine Sync-Platte mit Portal. Das linke führt nach Mars, das rechte nach Venus, oben als eigene Räume gezeichnet.'],
+   ['Start','Alle töten den Gatekeeper auf der Insel. Danach hebt ein Spieler aus der Mitte das Relikt auf. Die Platten-Spieler stellen sich auf ihre Platte, die Portale gehen auf. Je ein Spieler geht nach Mars und nach Venus und verteidigt dort den Conflux.'],
+   ['Praetorian mit Schild','Taucht in einer Welt ein Praetorian mit Schild auf, sagt der Spieler dort die Welt an. Der Relikt-Träger geht mit dem Relikt durchs Portal und bricht den Schild. Durchs Portal gehen gibt „Teleport Destabilized“ für 45 Sekunden: Mit dem Relikt kann man dann nicht nochmal durch. Darum lässt er das Relikt fallen, und der nächste trägt es. In unserer Animation tauschen Relikt-Träger und Venus-Spieler die Rollen.'],
+   ['Platten und Gatekeeper','Die Platten werden von Goblins und Overload-Minotauren angegriffen. Wer die Platte verliert, schließt das Portal. Ab und zu taucht auf der Insel ein neuer Gatekeeper auf und schließt die Portale, bis er tot ist. Supers und Heavy drauf. Ein Guide zählt insgesamt sechs Gatekeeper.'],
+   ['Finale','Nach genug Praetorians erscheint ein Conflux in der Mitte. Alle kommen zurück und verteidigen ihn. Der Relikt-Träger bricht weiter Praetorian-Schilde. Laut einem Guide kommen zum Ende drei Wyverns. Danach ist der Encounter geschafft.'],
+   ['Nicht machen','Erstens: Die Platte verlassen, während jemand in der Welt ist. Das Portal geht zu. Zweitens: Mit „Teleport Destabilized“ das Relikt nochmal durchs Portal tragen wollen. Drittens: Den Gatekeeper auf der Insel stehen lassen.']],
+  tip:{1:'Welt-Spieler sagt „Praetorian Venus“ oder „Mars“.',2:'Relikt nach jedem Durchgang fallen lassen und weitergeben.',3:'Platten nie verlassen.',4:'Gatekeeper auf der Insel sofort mit Supers.'},
+  m:{},
+  roles:[['Platte links / rechts','Platte halten, Goblins und Minotauren weg.',''],['Mars / Venus','In der Welt den Conflux halten, Praetorians ansagen.',''],['Mitte + Relikt','Relikt tragen, Schilde brechen, weitergeben.','runner'],['Mitte','Gatekeeper, Adds, nimmt das Relikt als Nächster.','']],
+  rules:['Links = Mars, rechts = Venus.','Platte gehalten = Portal offen.','Praetorian-Schild nur mit dem Relikt.','Teleport Destabilized: 45 s nicht nochmal mit dem Relikt durch.','Gatekeeper auf der Insel → Portale zu.'],
+  wipes:['Conflux in einer Welt fällt.','Platte verloren, Spieler sitzt in der Welt fest.'],
+  tips:['<b>Relikt-Kette:</b> vorher absprechen, wer als Nächster trägt.','<b>Finale:</b> alle in die Mitte, Wyverns zuerst.'],
+  diags:[['Gatekeeper','Insel in der Mitte, Platten mit Portalen links und rechts, Mars und Venus als eigene Räume. Schematisch nach den Guides.',['Mars','Venus','Insel']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Praetorian Venus','Praetorian Venus','Relikt rüber'],['Gatekeeper','Gatekeeper','Supers auf die Insel'],['Platte links','Plate left','Platte hilft']],
+  L:{lGate:'Gatekeeper',lPra:'Praetorian mit Schild',lSwap:'Relikt weiter → Rollen tauschen',lOver:'Overload',lStab:'Teleport Destabilized',
+   fxGIsl:'Die Insel: Gatekeeper + Relikt',fxGPlates:'Sync-Platten links und rechts',fxGPorts:'Links = Mars, rechts = Venus',fxGRooms:'Mars und Venus',
+   fxG2Kill:'Zuerst der Gatekeeper',fxG2Relic:'Relikt aufheben',fxG2Open:'Platten besetzt → Portale offen',fxG2Go:'Je einer nach Mars und Venus',fxG2Hold:'Dort den Conflux halten',
+   fxG3Call:'„Praetorian Venus!“',fxG3In:'Relikt-Träger geht rüber',fxG3Break:'Relikt bricht den Schild',fxG3Kill:'Praetorian töten',fxG3Swap:'Relikt fallen lassen, der Nächste trägt es zurück',
+   fxG4Plates:'Platten verteidigen',fxG4Gate:'Neuer Gatekeeper → Portale zu',fxG4Open:'Tot → Portale wieder offen',
+   fxG5Back:'Conflux in der Mitte, alle zurück',fxG5Hold:'Alle verteidigen',fxG5Wyv:'Zum Schluss Wyverns',fxG5Done:'Gatekeeper geschafft',
+   fxXPlate:'Platte rechts wird verlassen …',fxXPlate2:'→ Venus-Portal zu, der Spieler sitzt fest',fxXTwice:'Gleicher Träger will nochmal durch …',fxXTwice2:'→ Teleport Destabilized, geht nicht'}},
+ en:{kicker:'Vault of Glass · Encounter 6 · Gatekeeper · Venus & Mars',
+  gear:{crit:['Damage for the Gatekeepers (Hydras), they have to go down fast.','Something for Overload Minotaurs at the plates.'],top:['Supers and heavy for the Gatekeepers.','We haven’t checked the current meta weapons.'],budget:['Short on gear? Holding a plate is a calm, important job.']},
+  lede:'First the Gatekeeper in the middle dies, then the relic lies there. On the sync plates left and right two players open the portals: left leads to Mars, right to Venus. In each world one player defends a conflux. When a Praetorian with a shield appears in a world, the relic holder brings the relic there, breaks the shield and passes the relic on. New Gatekeepers on the island close the portals until they die. At the end a conflux appears in the middle and everyone defends it.',
+  sc:[['Layout','From above, schematic after the guides: the entrance at the bottom, the island in the middle where Gatekeepers appear and the relic lies. A sync plate with a portal on the left and on the right. The left one leads to Mars, the right one to Venus, drawn as their own rooms at the top.'],
+   ['Start','Everyone kills the Gatekeeper on the island. Then a middle player picks up the relic. The plate players step on their plates, the portals open. One player each goes to Mars and to Venus and defends the conflux there.'],
+   ['Praetorian with a shield','When a shielded Praetorian appears in a world, the player there calls the world. The relic holder takes the relic through the portal and breaks the shield. Going through a portal gives “Teleport Destabilized” for 45 seconds: you can’t go through again with the relic. So he drops the relic and the next player carries it. In our animation the relic holder and the Venus player swap roles.'],
+   ['Plates and Gatekeepers','Goblins and Overload Minotaurs attack the plates. Losing a plate closes its portal. Now and then a new Gatekeeper appears on the island and closes the portals until it dies. Supers and heavy on it. One guide counts six Gatekeepers in total.'],
+   ['Finale','After enough Praetorians a conflux appears in the middle. Everyone comes back and defends it. The relic holder keeps breaking Praetorian shields. According to one guide three Wyverns come at the end. Then the encounter is done.'],
+   ['Don’t do this','First: leaving the plate while someone is in the world. The portal closes. Second: trying to carry the relic through a portal again with “Teleport Destabilized”. Third: leaving the Gatekeeper on the island alive.']],
+  tip:{1:'World player calls “Praetorian Venus” or “Mars”.',2:'Drop the relic after every pass and hand it on.',3:'Never leave the plates.',4:'Gatekeeper on the island: supers right away.'},
+  m:{},
+  roles:[['Plate left / right','Hold the plate, Goblins and Minotaurs.',''],['Mars / Venus','Hold the conflux in the world, call Praetorians.',''],['Middle + relic','Carry the relic, break shields, hand it on.','runner'],['Middle','Gatekeepers, adds, takes the relic next.','']],
+  rules:['Left = Mars, right = Venus.','Plate held = portal open.','Praetorian shield only with the relic.','Teleport Destabilized: 45 s, not through again with the relic.','Gatekeeper on the island → portals closed.'],
+  wipes:['A conflux in a world falls.','Plate lost, player stuck in the world.'],
+  tips:['<b>Relic chain:</b> agree beforehand who carries next.','<b>Finale:</b> everyone to the middle, Wyverns first.'],
+  diags:[['Gatekeeper','Island in the middle, plates with portals left and right, Mars and Venus as their own rooms. Schematic after the guides.',['Mars','Venus','Island']]],
+  master:['Master variant not shown here.'],
+  calls:[['Praetorian Venus','Praetorian Venus','Relic over'],['Gatekeeper','Gatekeeper','Supers on the island'],['Platte links','Plate left','Plate needs help']],
+  L:{lGate:'Gatekeeper',lPra:'Praetorian with a shield',lSwap:'Relic on → swap roles',lOver:'Overload',lStab:'Teleport Destabilized',
+   fxGIsl:'The island: Gatekeeper + relic',fxGPlates:'Sync plates left and right',fxGPorts:'Left = Mars, right = Venus',fxGRooms:'Mars and Venus',
+   fxG2Kill:'The Gatekeeper first',fxG2Relic:'Pick up the relic',fxG2Open:'Plates held → portals open',fxG2Go:'One each to Mars and Venus',fxG2Hold:'Hold the conflux there',
+   fxG3Call:'“Praetorian Venus!”',fxG3In:'The relic holder goes over',fxG3Break:'The relic breaks the shield',fxG3Kill:'Kill the Praetorian',fxG3Swap:'Drop the relic, the next one carries it back',
+   fxG4Plates:'Defend the plates',fxG4Gate:'New Gatekeeper → portals closed',fxG4Open:'Dead → portals open again',
+   fxG5Back:'Conflux in the middle, everyone back',fxG5Hold:'Everyone defends',fxG5Wyv:'Wyverns at the end',fxG5Done:'Gatekeeper done',
+   fxXPlate:'The right plate is left …',fxXPlate2:'→ Venus portal closed, the player is stuck',fxXTwice:'Same holder wants to go through again …',fxXTwice2:'→ Teleport Destabilized, not possible'}}};
+const RG_VGG=[
+ {id:'plate',slots:['PL','PR'],focus:[2,4,6],de:{name:'Platte',steps:['Auf deine Platte, Portal offen halten.','Goblins und Overload-Minotauren weg.','Gatekeeper auf der Insel mit abschießen.'],watch:['Nie von der Platte gehen.']},en:{name:'Plate',steps:['Onto your plate, keep the portal open.','Goblins and Overload Minotaurs.','Help shoot the Gatekeeper on the island.'],watch:['Never step off the plate.']}},
+ {id:'world',slots:['WM','WV'],focus:[2,3,5],de:{name:'Welt',steps:['Durchs Portal, Conflux halten.','Praetorian mit Schild ansagen.','Ggf. Relikt übernehmen und zurücktragen.'],watch:['Opfer am Conflux.']},en:{name:'World',steps:['Through the portal, hold the conflux.','Call a shielded Praetorian.','Take the relic and carry it back if it’s your turn.'],watch:['Sacrifices at the conflux.']}},
+ {id:'mid',slots:['RH','M2'],focus:[2,3,4,5],de:{name:'Mitte + Relikt',steps:['Gatekeeper töten, Relikt aufheben.','Bei Ansage durchs Portal, Schild brechen.','Relikt fallen lassen, weitergeben.','Finale: Conflux in der Mitte.'],watch:['Teleport Destabilized beachten.']},en:{name:'Middle + relic',steps:['Kill the Gatekeeper, pick up the relic.','On a call go through, break the shield.','Drop the relic, hand it on.','Finale: conflux in the middle.'],watch:['Mind Teleport Destabilized.']}}];
+
+const SV_VGA=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="40" y="70" width="340" height="124" rx="8" fill="#18152a" stroke="#2f2a4a"/><rect x="160" y="14" width="100" height="56" rx="6" fill="#100d19" stroke="#2f2a4a"/><path d="M210 26 l12 12 l-4 14 h-16 l-4 -14 Z" fill="#2c2214" stroke="#d9a441"/><ellipse cx="210" cy="124" rx="32" ry="16" fill="#1e1a33" stroke="#f6dc8e"/>${[[60,120,'#c4503a'],[360,120,'#3fae7a']].map(([x,y,c])=>`<ellipse cx="${x}" cy="${y}" rx="8" ry="13" fill="${c}" fill-opacity=".35" stroke="${c}"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="84" fill="#f6dc8e">{0}</text><text x="210" y="150" fill="#ece8f4">{1}</text><text x="210" y="186" fill="#9c95b0">{2}</text></g></svg>`;
+const ENC_VGA={num:7,name:'Atheon',eng:VGA,diags:[SV_VGA],order:['RH','P2','P3','T1','T2','T3'],
+ slots:[['RH','Relikt-Träger','Relic holder'],['P2','Platte + Ansage','Plate + calls'],['P3','Ansage + Adds','Calls + adds'],['T1','Spieler 4','Player 4'],['T2','Spieler 5','Player 5'],['T3','Spieler 6','Player 6']],
+ de:{kicker:'Vault of Glass · Encounter 7 · Atheon, Time’s Conflux',
+  gear:{crit:['Viel Schaden für ein kurzes Fenster: Supers und schwere Waffen.','Präzise Waffe für die Orakel in der anderen Welt.'],top:['Boss-Supers wie Thundercrash oder Chaos Reach, laut einem Guide schafft man oft zwei.','Aktuelle Meta-Waffen haben wir nicht geprüft.'],budget:['Wenig Ausrüstung? Ansagen und Orakel sind hier genauso wichtig wie Schaden.']},
+  lede:'Atheon ist anfangs unverwundbar, ihr tötet die Harpien. Nach etwa einer Minute holt er drei zufällige Spieler nach Venus oder Mars. Die drei draußen stellen sich auf die passende Platte, das Portal geht auf. Neben Atheon zeigen sich rote Orakel als Vorschau, zweimal hintereinander. Draußen sagt man die Reihenfolge an, drinnen werden sie genau so zerstört: drei Sätze à drei. Danach gibt es „Time’s Vengeance“: alle raus, auf die Insel, Schaden auf Atheon. Das wiederholt sich, bis er fällt.',
+  sc:[['Aufbau','Von oben, schematisch nach den Guides: Atheon oben, in der Mitte die kleine Felsinsel für den Schaden. Links die Platte mit dem Mars-Portal, rechts die mit dem Venus-Portal. Die Animation zeigt eine Runde Venus, Mars läuft genauso.'],
+   ['Harpien und Teleport','Harpien kommen herein, die tötet ihr. Nicht auf Atheon schießen, er ist unverwundbar. Nach etwa einer Minute teleportiert er drei zufällige Spieler. Die sagen sofort an, wo sie sind: Venus oder Mars.'],
+   ['Orakel','Die drei draußen öffnen mit der passenden Platte das Portal. Neben Atheon zeigen sich drei rote Orakel als Vorschau, zweimal. Callouts z. B. links, Mitte, rechts, hinten links. Drinnen werden sie genau in dieser Reihenfolge zerstört. Drei Sätze à drei. Drinnen werden die Spieler langsam geblendet. Der Relikt-Träger reinigt das mit dem Relikt-Schild und tötet die Praetorians an den Stufen am Ausgang.'],
+   ['Time’s Vengeance','Nach dem letzten Orakel bekommt jeder „Time’s Vengeance“: Fähigkeiten laden schneller, Atheon nimmt Schaden. Die Guides nennen 25 bzw. 30 Sekunden. Alle schnell raus, auf die Insel, Schaden. Einer bekommt „Imminent Detain“: weg von der Gruppe springen, ein oder zwei schießen ihn frei. Danach die übrigen Harpien, und alles beginnt von vorn.'],
+   ['Nicht machen','Erstens: Ein falsches Orakel drinnen, das ist ein Wipe. Zweitens: Mit „Imminent Detain“ bei der Gruppe stehen bleiben. Drittens: Das Relikt zum Schießen ablegen und nicht innerhalb von 10 Sekunden wieder aufheben (laut einem Guide Wipe).']],
+  tip:{1:'Atheon am Anfang nicht beschießen.',2:'Teleportierte sagen sofort Venus oder Mars.',3:'Draußen ruft die Reihenfolge, drinnen schießt.',4:'Time’s Vengeance: sofort raus und auf die Insel.'},
+  m:{},
+  roles:[['Relikt-Träger','Reinigt die Blendung, tötet Praetorians am Ausgang, Relikt-Schild gegen Explosionen.','runner'],['Draußen','Platte für das richtige Portal, Orakel-Vorschau ansagen, Harpien.',''],['Drinnen (zufällig)','Orakel in der angesagten Reihenfolge zerstören.','']],
+  rules:['Am Anfang ist Atheon unverwundbar.','Drei zufällige Spieler → Venus oder Mars.','Vorschau neben Atheon, zweimal.','Drei Sätze à drei Orakel.','Time’s Vengeance → Schaden auf der Insel.'],
+  wipes:['Falsches oder zu spätes Orakel.','Relikt länger als 10 s am Boden (laut einem Guide).'],
+  tips:['<b>Supers:</b> Time’s Vengeance lädt schnell nach, oft gehen zwei.','<b>Relikt-Schild</b> blockt Explosionen, vor Raketen also wieder senken.'],
+  diags:[['Atheon','Atheon oben, die Insel in der Mitte, Platten mit Portalen links (Mars) und rechts (Venus). Schematisch nach den Guides.',['Atheon','Insel','Eingang']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Venus','Venus','Rechte Platte'],['Links, Mitte, rechts','Left, middle, right','Orakel-Reihenfolge'],['Detain','Detain','Weg von der Gruppe']],
+  L:{lImm:'unverwundbar',lBlind:'Blendung → Relikt reinigt',lPrev:'Vorschau neben Atheon',lImmD:'Imminent Detain',lCaught:'Blase trifft die Nachbarn mit',
+   fxAAth:'Atheon',fxAIsl:'Die Insel für den Schaden',fxAPorts:'Links Mars, rechts Venus',fxAWorld:'Hier: Venus',
+   fxA2Harp:'Harpien töten',fxA2NoShoot:'Atheon nicht beschießen',fxA2Tp:'Drei zufällige Spieler → Venus',
+   fxA3Plate:'Draußen: rechte Platte → Portal offen',fxA3Call:'Draußen sieht die Vorschau und ruft an',fxA3Inside:'Drinnen in genau der Reihenfolge',fxA3Last:'Drei Sätze à drei',
+   fxA4TV:'Time’s Vengeance',fxA4Out:'Raus, Relikt reinigt, alle auf die Insel',fxA4Dmg:'Alle Schaden auf Atheon',fxA4Det:'Detain: weg springen, freischießen',fxA4Repeat:'Dann von vorn, bis er fällt',
+   fxXWrong:'Drinnen das falsche Orakel …',fxXWrong2:'→ Wipe',fxXDet:'Mit Detain mitten in der Gruppe …',fxXDet2:'→ die Blase erwischt mehrere'}},
+ en:{kicker:'Vault of Glass · Encounter 7 · Atheon, Time’s Conflux',
+  gear:{crit:['Lots of damage for a short window: supers and heavy weapons.','A precise weapon for the oracles in the other world.'],top:['Boss supers like Thundercrash or Chaos Reach, according to one guide you often get two.','We haven’t checked the current meta weapons.'],budget:['Short on gear? Calls and oracles matter as much as damage here.']},
+  lede:'Atheon starts out invulnerable, you kill the Harpies. After about a minute he takes three random players to Venus or Mars. The three outside step on the matching plate, the portal opens. Red oracles preview next to Atheon, twice in a row. Outside calls the order, inside destroys them in exactly that order: three sets of three. Then comes “Time’s Vengeance”: everyone out, onto the island, damage Atheon. This repeats until he falls.',
+  sc:[['Layout','From above, schematic after the guides: Atheon at the top, the small rock island in the middle for damage. On the left the plate with the Mars portal, on the right the one with the Venus portal. The animation shows a Venus round, Mars works the same.'],
+   ['Harpies and teleport','Harpies come in, you kill them. Don’t shoot Atheon, he is invulnerable. After about a minute he teleports three random players. They call right away where they are: Venus or Mars.'],
+   ['Oracles','The three outside open the portal with the matching plate. Three red oracles preview next to Atheon, twice. Callouts e.g. left, middle, right, back left. Inside they are destroyed in exactly that order. Three sets of three. Inside, players slowly go blind. The relic holder cleanses that with the relic shield and kills the Praetorians on the stairs at the exit.'],
+   ['Time’s Vengeance','After the last oracle everyone gets “Time’s Vengeance”: abilities charge faster, Atheon takes damage. The guides say 25 or 30 seconds. Everyone out fast, onto the island, damage. One player gets “Imminent Detain”: jump away from the group, one or two shoot him free. Then the remaining Harpies, and it starts over.'],
+   ['Don’t do this','First: one wrong oracle inside, that’s a wipe. Second: staying with the group with “Imminent Detain”. Third: dropping the relic to shoot and not picking it up within 10 seconds (wipe according to one guide).']],
+  tip:{1:'Don’t shoot Atheon at the start.',2:'Teleported players call Venus or Mars right away.',3:'Outside calls the order, inside shoots.',4:'Time’s Vengeance: out and onto the island right away.'},
+  m:{},
+  roles:[['Relic holder','Cleanses the blinding, kills Praetorians at the exit, relic shield against explosions.','runner'],['Outside','Plate for the right portal, call the oracle preview, Harpies.',''],['Inside (random)','Destroy the oracles in the called order.','']],
+  rules:['Atheon is invulnerable at the start.','Three random players → Venus or Mars.','Preview next to Atheon, twice.','Three sets of three oracles.','Time’s Vengeance → damage from the island.'],
+  wipes:['Wrong or late oracle.','Relic on the floor longer than 10 s (per one guide).'],
+  tips:['<b>Supers:</b> Time’s Vengeance recharges fast, often two go off.','<b>Relic shield</b> blocks explosions, lower it before rockets.'],
+  diags:[['Atheon','Atheon at the top, the island in the middle, plates with portals left (Mars) and right (Venus). Schematic after the guides.',['Atheon','Island','Entrance']]],
+  master:['Master variant not shown here.'],
+  calls:[['Venus','Venus','Right plate'],['Links, Mitte, rechts','Left, middle, right','Oracle order'],['Detain','Detain','Away from the group']],
+  L:{lImm:'invulnerable',lBlind:'blinding → relic cleanses',lPrev:'Preview next to Atheon',lImmD:'Imminent Detain',lCaught:'the bubble catches the neighbours',
+   fxAAth:'Atheon',fxAIsl:'The island for damage',fxAPorts:'Left Mars, right Venus',fxAWorld:'Here: Venus',
+   fxA2Harp:'Kill the Harpies',fxA2NoShoot:'Don’t shoot Atheon',fxA2Tp:'Three random players → Venus',
+   fxA3Plate:'Outside: right plate → portal open',fxA3Call:'Outside sees the preview and calls it',fxA3Inside:'Inside in exactly that order',fxA3Last:'Three sets of three',
+   fxA4TV:'Time’s Vengeance',fxA4Out:'Out, the relic cleanses, everyone onto the island',fxA4Dmg:'Everyone damages Atheon',fxA4Det:'Detain: jump away, shoot free',fxA4Repeat:'Then again, until he falls',
+   fxXWrong:'The wrong oracle inside …',fxXWrong2:'→ wipe',fxXDet:'Detain in the middle of the group …',fxXDet2:'→ the bubble catches several'}}};
+const RG_VGA=[
+ {id:'relic',slots:['RH'],focus:[3,4],de:{name:'Relikt-Träger',steps:['Relikt halten, nicht zum Spaß ablegen.','Geblendete am Ausgang reinigen, Praetorians töten.','Time’s Vengeance: Super, Relikt-Schild vor Raketen senken.'],watch:['10 s Ablage-Grenze (laut einem Guide).']},en:{name:'Relic holder',steps:['Hold the relic, don’t drop it for fun.','Cleanse blinded players at the exit, kill Praetorians.','Time’s Vengeance: super, lower the shield before rockets.'],watch:['10 s drop limit (per one guide).']}},
+ {id:'all',slots:['P2','P3','T1','T2','T3'],focus:[2,3,4],de:{name:'Alle anderen',steps:['Harpien töten, Atheon nicht beschießen.','Teleportiert? Welt ansagen, Orakel nach Ansage.','Draußen? Platte, Vorschau ansagen.','Time’s Vengeance: auf die Insel, Schaden, bei Detain weg.'],watch:['Wer ist drinnen, wer draußen?']},en:{name:'Everyone else',steps:['Kill Harpies, don’t shoot Atheon.','Teleported? Call the world, oracles as called.','Outside? Plate, call the preview.','Time’s Vengeance: onto the island, damage, move away with Detain.'],watch:['Who is inside, who is outside?']}}];
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -7119,7 +7420,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:{num:5,name:'Gorgon’s Labyrinth',soon:true},vggate:{num:6,name:'Gatekeeper',soon:true},vgatheon:{num:7,name:'Atheon',soon:true},substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:{num:5,name:'Gorgon’s Labyrinth',soon:true},vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -7281,7 +7582,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
@@ -7390,6 +7691,8 @@ function render(){const E=eng(),sc=E.S[cur],k=cl(el_t/sc.d);const st=E.base();sc
 // one challenge per encounter (shown at that encounter only) and a small extras card per raid
 const CHAL={
  vgconf:{n:'Wait for It…',de:'Jede Wyvern mit gelber Lebensleiste darf erst getötet werden, während sie sich an einem Conflux opfert.',en:'Each yellow-bar Wyvern may only be killed while it is sacrificing itself at a conflux.'},
+ vgatheon:{n:'Ensemble’s Refrain',de:'Jeder Teleportierte zerstört pro Satz nur ein Orakel. Drinnen also feste Plätze: links, Mitte, rechts.',en:'Each teleported player destroys only one oracle per set. So inside: fixed spots, left, middle, right.'},
+ vggate:{n:'Strangers in Time',de:'Praetorian und Wyvern müssen gleichzeitig sterben. Vorher absprechen und auf ein Kommando schießen.',en:'The Praetorian and the Wyvern must die at the same time. Agree beforehand and shoot on a countdown.'},
  vgtemplar:{n:'Out of Its Way',de:'Der Templar darf kein einziges Mal teleportieren. Der Relikt-Träger blockt jeden Ring.',en:'The Templar must never teleport. The relic holder blocks every ring.'},
  vgoracle:{n:'The Only Oracle for You',de:'Niemand darf dasselbe Orakel mehr als einmal zerstören. Plant die Plätze so, dass jeder Spieler wechselt.',en:'Nobody may destroy the same oracle more than once. Plan spots so that every player rotates.'},
  eqharv:{n:'Feat „Encounter Challenges“',de:'Apprentices dürfen nach dem Schildbruch nur mit dem Blaster einer Pike getötet werden, auf der man sitzt. Behemoths dürfen normal sterben.',en:'After their shield breaks, Apprentices may only be killed with the blaster of a Pike you are riding. Behemoths may die normally.'},
