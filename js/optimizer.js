@@ -121,6 +121,9 @@ function setBoni(items) {
   return [...z].flatMap(([s, n]) => s.p.filter((p) => p.c <= n).map((p) => ({ ...p, set: s.n })));
 }
 
+// Von außen (Build Finder) mit Exotic und Zielen öffnen.
+export function setzeOptimizer(werte) { zustandO = { ...zustandO, ...werte, ziele: { ...werte.ziele } }; speichere('d2a.opt', zustandO); }
+
 export function zeigeOptimizer(haupt, zustand) {
   const chars = Object.values(zustand.profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
   if (zustandO.klasse === null || !chars.some((c) => c.classType === zustandO.klasse)) zustandO.klasse = chars[0].classType;

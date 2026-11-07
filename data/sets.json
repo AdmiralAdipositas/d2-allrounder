@@ -1,0 +1,122 @@
+{
+  "stand": "2026-11-03",
+  "quelle": "https://timesaver.gg/blog/destiny-2-tier-5-armor-farm",
+  "sets": {
+    "Wildwood": {
+      "ort": "EDZ",
+      "farm": "Master Lost Sector in EDZ",
+      "schnell": true
+    },
+    "Seventh Seraph": {
+      "ort": "Cosmodrome",
+      "farm": "Master Lost Sector in Cosmodrome",
+      "schnell": true
+    },
+    "Exodus Down": {
+      "ort": "Nessus",
+      "farm": "Master Lost Sector in Nessus",
+      "schnell": true
+    },
+    "Reverie Dawn": {
+      "ort": "Dreaming City",
+      "farm": "Master Lost Sector in Dreaming City",
+      "schnell": true
+    },
+    "Dreambane": {
+      "ort": "Moon",
+      "farm": "Master Lost Sector in Moon",
+      "schnell": true
+    },
+    "Crystocrene": {
+      "ort": "Europa",
+      "farm": "Master Lost Sector in Europa",
+      "schnell": true
+    },
+    "Veritas": {
+      "ort": "Savathûn's Throne World",
+      "farm": "Master Lost Sector in Savathûn's Throne World",
+      "schnell": true
+    },
+    "Thunderhead": {
+      "ort": "Neomuna",
+      "farm": "Master Lost Sector in Neomuna",
+      "schnell": true
+    },
+    "First Ascent": {
+      "ort": "Pale Heart",
+      "farm": "Master Lost Sector in Pale Heart",
+      "schnell": true,
+      "hinweis": "Pieces must first be unlocked through Micah-10's quest."
+    },
+    "Flain": {
+      "ort": "Sundered Doctrine dungeon",
+      "farm": "Sundered Doctrine dungeon",
+      "schnell": false
+    },
+    "CODA": {
+      "ort": "Prophecy dungeon",
+      "farm": "Prophecy dungeon",
+      "schnell": false
+    },
+    "Great Hunt": {
+      "ort": "Last Wish raid",
+      "farm": "Last Wish raid",
+      "schnell": false
+    },
+    "Collective Psyche": {
+      "ort": "The Desert Perpetual raid",
+      "farm": "The Desert Perpetual raid",
+      "schnell": false
+    },
+    "Iron Battalion": {
+      "ort": "Iron Banner",
+      "farm": "Iron Banner",
+      "schnell": false
+    },
+    "Taken King": {
+      "ort": "Ghosts of the Deep dungeon",
+      "farm": "Ghosts of the Deep dungeon",
+      "schnell": false
+    },
+    "Apostate's Blade": {
+      "ort": "Pit of Heresy dungeon",
+      "farm": "Pit of Heresy dungeon",
+      "schnell": false
+    },
+    "Lustrous": {
+      "ort": "Solstice armor at the Tenet of Bravery sculpture",
+      "farm": "Solstice armor at the Tenet of Bravery sculpture",
+      "schnell": false
+    },
+    "Swordmaster": {
+      "ort": "Xûr in the Tower Bazaar",
+      "farm": "Xûr in the Tower Bazaar",
+      "schnell": false
+    },
+    "Smoke Jumper": {
+      "ort": "Fireteam and Solo Ops",
+      "farm": "Fireteam and Solo Ops",
+      "schnell": false
+    },
+    "Ferropotent": {
+      "ort": "Fireteam and Solo Ops",
+      "farm": "Fireteam and Solo Ops",
+      "schnell": false
+    },
+    "Luminopotent": {
+      "ort": "Fireteam and Solo Ops",
+      "farm": "Fireteam and Solo Ops",
+      "schnell": false
+    },
+    "Sage Protector": {
+      "ort": "Equilibrium dungeon",
+      "farm": "Equilibrium dungeon",
+      "schnell": false
+    },
+    "Pantheos Resplendent": {
+      "ort": "Pantheon Raid Gauntlet",
+      "farm": "Pantheon Raid Gauntlet",
+      "schnell": false
+    }
+  }
+}

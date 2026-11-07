@@ -4,7 +4,8 @@ import { ladeDefs } from './defs.js';
 import { zeigeVault } from './vault.js';
 import { zeigeWoche } from './woche.js';
 import { zeigeLoadouts } from './loadouts.js';
-import { zeigeOptimizer } from './optimizer.js';
+import { zeigeOptimizer, setzeOptimizer } from './optimizer.js';
+import { zeigeFinder } from './finder.js';
 import { zeigeStats } from './stats.js';
 import { zeigeXur, xurDa } from './xur.js';
 
@@ -36,7 +37,7 @@ const TABS = {
   xur: () => zeigeXur(haupt, zustand),
   loadouts: () => zeigeLoadouts(haupt, zustand),
   optimizer: () => zeigeOptimizer(haupt, zustand),
-  finder: () => platzhalter('Build Finder', 'Finds builds from what you own. Comes in the next patch.'),
+  finder: () => zeigeFinder(haupt, zustand, (w) => { setzeOptimizer(w); wechsle('optimizer'); }),
   stats: () => zeigeStats(haupt, zustand),
 };
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
