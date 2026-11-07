@@ -40,9 +40,10 @@ async function lade(zustand) {
     for (const a of agg?.activities || []) {
       const d = defs.akt?.[a.activityHash];
       if (!d || !wert(a.values, 'activityCompletions')) continue;
-      const name = d.n.split(':')[0].trim();
-      if (d.g === 'Raids') zusammen(raids, name, d.i, a);
-      else if (d.g === 'Dungeons') zusammen(dungeons, name, d.i, a);
+      const name = d.n.split(':')[0].trim().replace(/^The Pantheon$/, 'Pantheon');
+      const icon = d.i && !/missing_icon/.test(d.i) && !/pgcr/.test(d.i) ? d.i : '';
+      if (d.g === 'Raids') zusammen(raids, name, icon, a);
+      else if (d.g === 'Dungeons') zusammen(dungeons, name, icon, a);
     }
     for (const w of uw?.weapons || []) {
       const it = defs.items[w.referenceId];
