@@ -107,7 +107,7 @@ function karte(b, besitz, besitzSets, sets) {
         ${b.subclass ? `<h3>Subclass</h3><p class="fliste">${esc(b.subclass)}</p>` : ''}
         ${b.faehigkeiten?.length ? `<h3>Super & abilities</h3><p class="fliste">${esc(b.faehigkeiten.join(' · '))}</p>` : ''}
         ${b.aspekte?.length ? `<h3>Aspects</h3><p class="fliste">${esc(b.aspekte.join(' · '))}</p><h3>Fragments</h3><p class="fliste">${esc(b.fragmente.join(' · '))}</p>` : ''}
-        ${b.erklaerung?.length ? `<h3>Why these pieces</h3>${b.erklaerung.map((x) => `<p class="fliste klein2">${esc(x)}</p>`).join('')}` : ''}
+        ${b.erklaerung?.length ? `<h3>Why this works</h3>${b.erklaerung.map((x) => `<p class="fliste klein2">${esc(x)}</p>`).join('')}` : ''}
         <h3>Weapons</h3>
         ${b.empf?.exotic ? `<div class="fz ${besitz.has(b.empf.exotic.n) ? 'hat' : 'fehlt'}"><i data-ih="${b.empf.exotic.hash}" style="background-image:url(${BILD}${b.empf.exotic.i})"></i><span><b>${esc(b.empf.exotic.n)}</b> (exotic)</span><em>${besitz.has(b.empf.exotic.n) ? 'owned' : 'missing'}</em>${besitz.has(b.empf.exotic.n) ? '' : blip(b.empf.exotic.n, quelleText(b.empf.exotic))}${b.empf.exotic.xd ? `<small>${esc(b.empf.exotic.xp || '')}: ${esc(b.empf.exotic.xd)}</small>` : ''}</div>` : ''}
         ${Object.entries(b.empf?.legendaries || {}).map(([slot, l]) => l.length ? `<div class="wslot"><small>${slot[0].toUpperCase() + slot.slice(1)}</small>${l.map((x) => waffeHtml(x, besitz)).join('')}</div>` : '').join('')}
@@ -116,7 +116,7 @@ function karte(b, besitz, besitzSets, sets) {
         <h3>Stat focus</h3><p class="fliste">${esc(b.stats.join(' › '))}</p>
         <p class="fquelle">Source: ${b.link ? `<a href="${esc(b.link)}" target="_blank" rel="noopener">${esc(b.quelle || 'Source')} ↗</a>` : esc(b.quelle || '')}</p>
         <h3>More builds with ${esc(b.exotics[0])}</h3><div class="fquellen">${quellen(b.exotics[0]).map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n} ↗</a>`).join('')}</div>
-        <div class="fb-fuss"><button class="haupt-knopf" data-opt="${esc(b.id)}">Build it: pick armor & equip all</button></div></div>` : ''}
+        <div class="fb-fuss"><button class="haupt-knopf" data-opt="${esc(b.id)}">Build it: pick armor & equip all</button><button class="fk-klapp" data-klapp="${esc(b.id)}" aria-expanded="true">Collapse ▴</button></div></div>` : ''}
     </div></article>`;
 }
 
@@ -193,6 +193,8 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
       if (offen.has(id)) offen.delete(id); else offen.add(id);
       const k = haupt.querySelector(`.feed-karte[data-id="${CSS.escape(id)}"]`);
       k.outerHTML = karte(liste.find((b) => b.id === id), besitz, besitzSets, d.sets);
+      const neuK = haupt.querySelector(`.feed-karte[data-id="${CSS.escape(id)}"]`);
+      if (!offen.has(id) && neuK && neuK.getBoundingClientRect().top < 0) neuK.scrollIntoView({ block: 'start', behavior: 'smooth' });
       return;
     }
     const o = e.target.closest('[data-opt]');

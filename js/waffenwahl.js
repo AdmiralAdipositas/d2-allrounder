@@ -28,12 +28,16 @@ export function empfehle(build, besitz, element) {
   const w = worte(text);
   const el = SCHADEN[element] || 0;
   const typWunsch = (build.waffen || []).map((x) => x.replace(/^Any /, '').toLowerCase());
-  const exoName = (build.exotics || []).find((n) => waffen().some((x) => x.n === n && x.q === 6));
+  const exoName = build.exoWaffe || (build.exotics || []).find((n) => waffen().some((x) => x.n === n && x.q === 6));
   const passt = (d) => (el ? d.d0 === el : true);
+  const typPflicht = build.waffeTyp || [];
+  // Harte Regeln: verlangt die Rüstung einen Waffentyp oder Kinetic-Schaden, kommt nichts anderes in Frage.
+  const erlaubt = (d) => (!typPflicht.length || typPflicht.includes(d.k)) && (!build.kinetisch || d.d0 === 1) && (d.d0 === 1 || passt(d));
   // Exotic-Waffe: im Build genannt, sonst die mit dem passendsten Perk-Text.
   let exotic = exoName ? waffen().find((x) => x.n === exoName) : null;
   if (!exotic) {
-    exotic = waffen().filter((x) => x.q === 6).map((x) => {
+    const pool = waffen().filter((x) => x.q === 6);
+    exotic = (pool.some(erlaubt) ? pool.filter(erlaubt) : pool.filter((x) => !typPflicht.length || typPflicht.includes(x.k))).map((x) => {
       let s = 0;
       for (const v of worte(`${x.xp || ''} ${x.xd || ''}`)) if (w.has(v)) s += 2;
       if (passt(x)) s += 4;
@@ -43,11 +47,11 @@ export function empfehle(build, besitz, element) {
   }
   const legendaries = {};
   for (const [slot, b] of Object.entries(SLOT)) {
-    const liste = waffen().filter((x) => x.q === 5 && x.b === b && x.punkte > 0).map((x) => {
+    const liste = waffen().filter((x) => x.q === 5 && x.b === b && x.punkte > 0 && (!(build.kinetisch && slot === 'kinetic') || x.d0 === 1)).map((x) => {
       let s = Math.min(x.punkte, 4);
       if (slot === 'kinetic' ? (x.d0 === 1 || passt(x)) : passt(x)) s += 9;
       if (besitz.has(x.n)) s += 3;
-      if (typWunsch.some((t) => x.k.toLowerCase().includes(t))) s += 4;
+      if (typWunsch.some((t) => x.k.toLowerCase() === t)) s += 14;
       return { ...x, s };
     }).sort((a, b2) => b2.s - a.s);
     const typen = new Set();
