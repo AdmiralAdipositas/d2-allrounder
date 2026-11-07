@@ -34,7 +34,7 @@ function karte(x) {
   const sock = teil.itemComponents?.sockets?.data?.[idx]?.sockets || [];
   const moegl = teil.itemComponents?.reusablePlugs?.data?.[idx]?.plugs || {};
   const spalten = sock.map((s, i) => ({ aktiv: s.plugHash, art: defs.items[s.plugHash]?.k || '', plugs: [...new Set([s.plugHash, ...(moegl[i] || []).map((p) => p.plugItemHash)])].filter(plugOk) }))
-    .filter((sp) => sp.plugs.length && sp.art !== 'Combat Flair' && !/Shader|Ornament|Tracker|Memento/.test(sp.art));
+    .filter((sp) => sp.plugs.length && !/Combat Flair|Shader|Ornament|Tracker|Memento|Restore Defaults|Mod$/i.test(sp.art) && !/Restore Defaults|Default Ornament/.test(defs.items[sp.aktiv]?.n || ''));
   const roh = Object.values(teil.itemComponents?.stats?.data?.[idx]?.stats || {}).map((s) => ({ n: defs.stats?.[s.statHash]?.n, v: s.value })).filter((s) => s.n);
   const ruestung = d.t === 2;
   const stats = ruestung ? ARMOR_STATS.map((n) => roh.find((s) => s.n === n) || { n, v: 0 }) : roh.filter((s) => s.v);
@@ -44,7 +44,7 @@ function karte(x) {
   return `<article class="xk ${d.q === 6 ? 'exo' : ''}">
     <div class="xk-kopf"><i class="ic ${d.q === 6 ? 'exotic' : ''} ${d.t === 3 ? `el-${d.d0}` : ''}" style="background-image:url(${BILD}${d.i})"></i>
       <div><b>${esc(d.n)}</b><small>${esc(d.k)}</small></div><span class="kosten">${kosten}</span></div>
-    ${spalten.length ? `<div class="xk-perks">${spalten.map((sp) => `<div class="xcol"><small>${esc(sp.art)}</small>${sp.plugs.map((h) => `<i class="xp ${h === sp.aktiv ? 'an' : ''}" data-h="${h}" style="background-image:url(${BILD}${defs.items[h].i})"></i>`).join('')}</div>`).join('')}</div>` : ''}
+    ${spalten.length ? `<div class="xk-perks">${spalten.map((sp) => `<div class="xcol"><small>${esc(sp.art)}</small>${(sp.plugs.length > 8 ? [sp.aktiv] : sp.plugs).map((h) => `<i class="xp ${h === sp.aktiv ? 'an' : ''}" data-h="${h}" style="background-image:url(${BILD}${defs.items[h].i})"></i>`).join('')}${sp.plugs.length > 8 ? `<small>+${sp.plugs.length - 1}</small>` : ''}</div>`).join('')}</div>` : ''}
     ${stats.length ? `<table class="xstats">${stats.map((s) => `<tr><th>${esc(s.n)}</th><td><i><b style="width:${Math.min(100, (s.v / max) * 100)}%"></b></i></td><td>${s.v}</td></tr>`).join('')}
       ${ruestung ? `<tr class="summe"><th>Total</th><td></td><td>${summe}</td></tr>` : ''}</table>` : ''}
   </article>`;
