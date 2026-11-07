@@ -67,7 +67,7 @@ export async function zeigeXur(haupt, zustand) {
     liste.forEach((x) => { x.g = titel; });
     return liste.length ? `<section><h2 class="xg">${titel} <small>${liste.length}</small></h2><div class="xraster">${liste.map(karte).join('')}</div></section>` : '';
   }).join('');
-  haupt.innerHTML = `<div class="kopf"><h1>Xûr</h1><span class="tag gold">Leaves in ${dauer(bis)}</span><span class="platz"></span><small class="leer">Rolls as Xûr offers them to your ${esc(['Titan', 'Hunter', 'Warlock'][letzterChar(zustand.profil).classType])}</small></div>${html}`;
+  haupt.innerHTML = `<div class="kopf"><h1>Xûr</h1><span class="tag gold">Stock refreshes in ${dauer(bis)}</span><span class="platz"></span><small class="leer">Rolls as Xûr offers them to your ${esc(['Titan', 'Hunter', 'Warlock'][letzterChar(zustand.profil).classType])}</small></div>${html}`;
   const tipp = document.querySelector('#tipp');
   haupt.onpointerover = (e) => {
     const el = e.target.closest('[data-h]');

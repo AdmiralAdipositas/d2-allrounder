@@ -1,7 +1,9 @@
 // "This week": Raids, Dungeons und Portal von Bungie, mit Featured, Loot-Stufe, Challenges und Modifiern.
 import * as bungie from './bungie.js';
 import { defs } from './defs.js';
-import { CHALLENGES } from './challenges.js';
+import { CHALLENGES as LISTE } from './challenges.js';
+const CH = Object.fromEntries(Object.entries(LISTE).map(([k, v]) => [k.toLowerCase(), v]));
+const CHALLENGES = new Proxy({}, { get: (_, n) => CH[String(n).toLowerCase()] });
 const ALLGEMEIN = /^(Weekly Raid Challenge|Weekly Dungeon Challenge|All encounters completed)$/;
 
 const BILD = 'https://www.bungie.net';
@@ -71,6 +73,8 @@ async function lade(zustand) {
       }
     }
   }
+  // Challenges zählen nur in der Featured-Aktivität.
+  for (const l of Object.values(gruppen)) for (const e of l) if (!e.featured) e.challenges = [];
   for (const l of Object.values(gruppen)) l.sort((a, b) => b.featured - a.featured || b.tier - a.tier || a.name.localeCompare(b.name));
   cache = { zeit: Date.now(), gruppen };
   return gruppen;
@@ -89,7 +93,7 @@ function karte(e) {
 export async function zeigeWoche(panel, zustand, xur) {
   const r = resets();
   panel.innerHTML = `<h2>This week</h2><p class="reset">Daily reset in <b>${dauer(r.taeglich)}</b> (${uhr(r.taeglich)}) · Weekly in <b>${dauer(r.woechentlich)}</b></p>
-    ${xur ? `<button class="xur-knopf" data-geh="xur">Xûr is here · leaves ${uhr(xur)} →</button>` : ''}<div id="wInhalt"><p class="leer">Loading activities…</p></div>`;
+    ${xur ? `<button class="xur-knopf" data-geh="xur">Xûr is here · stock refreshes ${uhr(xur)} →</button>` : ''}<div id="wInhalt"><p class="leer">Loading activities…</p></div>`;
   if (!zustand.profil) { panel.querySelector('#wInhalt').innerHTML = '<p class="leer">Sign in first.</p>'; return; }
   try {
     const g = await lade(zustand);
