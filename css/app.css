@@ -595,3 +595,8 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .it-perks>div.leer{opacity:.55}.it-perks em{margin-left:auto;font-style:normal;font-size:.7rem;color:var(--gold);border:1px solid #e8c35a66;border-radius:3px;padding:0 4px}
 .it-energie{display:flex;align-items:center;gap:8px;font-size:.72rem}.it-energie small{color:var(--matt)}.it-energie span{display:flex;gap:2px;flex:1}.it-energie i{flex:1;height:8px;background:#ffffff18}.it-energie i.voll{background:var(--gold)}
 .it-mods{display:flex;flex-wrap:wrap;gap:6px;font-size:.72rem}.it-mods span{display:inline-flex;align-items:center;gap:4px}.it-mods i{width:20px;height:20px;background:center/cover}
+.cdock{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:190;display:flex;gap:10px;padding:10px;background:#0b0920ee;border:1px solid var(--gold);border-radius:14px;box-shadow:0 12px 40px #000c}
+.cd-ziel{display:flex;align-items:center;justify-content:center;gap:8px;min-width:150px;height:64px;padding:0 14px;border:2px dashed #3a3466;border-radius:10px;background:#16123a center/cover;color:#fff;text-shadow:0 1px 3px #000;font-family:var(--kopf)}
+.cd-ziel svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6}
+.cd-ziel.drop-an{border-style:solid;border-color:var(--gold);box-shadow:0 0 18px #e8c35a88}
+@media(max-width:760px){.cdock{bottom:auto;top:8px;width:calc(100vw - 16px);gap:6px;padding:6px}.cd-ziel{min-width:0;flex:1;height:52px;font-size:.8rem;padding:0 6px}}

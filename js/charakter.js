@@ -104,8 +104,18 @@ export function zeigeCharakter(haupt, zustand) {
     zug.aktiv = true; document.body.classList.add('zieht'); const tp = document.querySelector('#tipp'); if (tp) tp.hidden = true;
     zug.geist = zug.t.cloneNode(true); zug.geist.classList.add('geist'); document.body.append(zug.geist);
     zug.t.classList.add('quelle'); bewegeGeist(cx, cy);
+    // Ablage-Leiste, die beim Ziehen immer sichtbar ist (egal wie weit gescrollt).
+    const dock = document.createElement('div'); dock.className = 'cdock';
+    dock.innerHTML = `<div class="cd-ziel" data-ziel="tresor"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/><rect x="8" y="5" width="8" height="7" rx="1"/></svg><b>Vault</b></div>${chars.filter((c) => c.characterId !== wahl).map((c) => `<div class="cd-ziel" data-ziel="${c.characterId}" style="background-image:url(${BILD}${c.emblemBackgroundPath || ''})"><b>${KLASSE[c.classType]}</b></div>`).join('')}`;
+    document.body.append(dock); zug.dock = dock;
   };
-  const bewegeGeist = (cx, cy) => { zug.geist.style.left = `${cx - 24}px`; zug.geist.style.top = `${cy - 24}px`; markiere(zielUnter(cx, cy)); };
+  const markiereDock = (z) => zug?.dock?.querySelectorAll('[data-ziel]').forEach((e) => e.classList.toggle('drop-an', e.dataset.ziel === z));
+  const bewegeGeist = (cx, cy) => {
+    zug.geist.style.left = `${cx - 24}px`; zug.geist.style.top = `${cy - 24}px`; const z = zielUnter(cx, cy); markiere(z); markiereDock(z);
+    // Am Rand automatisch scrollen.
+    clearInterval(zug.scroll); const rand = 70;
+    if (cy < rand || cy > innerHeight - rand) { const dy = cy < rand ? -14 : 14; zug.scroll = setInterval(() => scrollBy(0, dy), 16); }
+  };
   const beginne = (t, cx, cy, finger) => {
     const x = proId.get(t.dataset.cid); if (!x) return;
     zug = { x, t, sx: cx, sy: cy, aktiv: false, finger };
@@ -122,7 +132,7 @@ export function zeigeCharakter(haupt, zustand) {
     const war = zug; zug = null;
     if (!war.aktiv) return;
     const z = zielUnter(cx, cy);
-    war.geist.remove(); war.t.classList.remove('quelle'); document.body.classList.remove('zieht'); markiere(null);
+    clearInterval(war.scroll); war.dock?.remove(); war.geist.remove(); war.t.classList.remove('quelle'); document.body.classList.remove('zieht'); markiere(null);
     haupt.dataset.keinKlick = '1'; setTimeout(() => delete haupt.dataset.keinKlick, 80);
     if (z) bewege(war.x, z);
   };
