@@ -95,6 +95,7 @@ panel.addEventListener('pointerover', (e) => {
   const r = m.getBoundingClientRect(), b = t.getBoundingClientRect();
   t.style.left = `${Math.max(8, r.left - b.width - 8)}px`; t.style.top = `${Math.min(r.top, innerHeight - b.height - 8)}px`;
 });
+panel.addEventListener('click', (e) => { const g = e.target.closest('[data-geh]'); if (g) wechsle(g.dataset.geh); });
 panel.addEventListener('click', (e) => { const w = e.target.closest('[data-wiki]'); if (w) { setzeWikiSuche(w.dataset.wiki); wechsle('wiki'); } });
 panel.addEventListener('pointerout', (e) => { if (e.target.closest('[data-tn]')) $('#tipp').hidden = true; });
 

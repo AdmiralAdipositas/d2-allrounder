@@ -10,6 +10,7 @@ const ALLGEMEIN = /^(Weekly Raid Challenge|Weekly Dungeon Challenge|All encounte
 const BILD = 'https://www.bungie.net';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const RESET = 17;
+const IM_GUIDE = ['Root of Nightmares', "King's Fall", 'Last Wish', "Salvation's Edge", 'Vault of Glass', 'Equilibrium'];
 let cache = null;
 
 export function resets(jetzt = new Date()) {
@@ -84,7 +85,7 @@ async function lade(zustand) {
 function karte(e) {
   return `<article class="akt ${e.featured ? 'feat' : ''}">
     <div class="akt-kopf">${e.icon ? `<i style="background-image:url(${BILD}${e.icon})"></i>` : ''}<b>${esc(e.name)}</b>
-      ${e.featured ? '<span class="tag gold">Featured</span>' : ''}${e.tier ? `<span class="tag">Tier ${e.tier}</span>` : ''}</div>
+      ${e.featured ? '<span class="tag gold">Featured</span>' : ''}${IM_GUIDE.some((n) => e.name.startsWith(n)) ? '<button class="tag guide-link" data-geh="guide" title="Open the raid guide">Guide ↗</button>' : ''}${e.tier ? `<span class="tag">Tier ${e.tier}</span>` : ''}</div>
     ${e.stufen.length ? `<small>${esc(e.stufen.join(' · '))}</small>` : ''}
     ${e.challenges.length ? `<div class="chals">${e.challenges.map((c) => `<p class="chal">${c.enc ? `<em>${esc(c.enc)}</em>` : ''}<b>${esc(c.n)}</b>${c.d ? `<span>${esc(c.d)}</span>` : ''}</p>`).join('')}</div>` : ''}
     ${e.mods.length ? `<div class="mods">${e.mods.slice(0, 12).map((m) => `<i data-tn="${esc(m.n)}" data-td="${esc(m.d)}" style="background-image:url(${BILD}${m.i})"></i>`).join('')}</div>` : ''}

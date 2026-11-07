@@ -71,12 +71,25 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
       ${aktiv ? '<em>Active</em>' : sp.plugs.length > 1 ? '<button data-a="setz" class="haupt-knopf">Apply</button>' : ''}</div>`;
   };
   let stats = '';
+  // Alle Kopien derselben Waffe/Rüstung nebeneinander, mit Perks, Roll-Bewertung und Sperren.
+  const kopien = () => {
+    const alle = (zustand.alleItems || sammle(zustand.profil)).filter((x) => x.d.n === it.d.n && x.id !== it.id);
+    if (!alle.length) return '';
+    const zeile = (x) => {
+      const perks = x.plugs.map((p) => defs.items[p]).filter((p) => p?.i && /frames|barrels|magazines|tubes|stocks|grips|scopes|arrows|blades|guards|batteries|hafts|bowstrings/.test(p.pc || ''));
+      return `<div class="kopie"><button class="kp-oeffnen" data-oeffne="${x.id}" title="Open this copy">${x.power || ''}</button>
+        <span class="kp-perks">${perks.slice(0, 6).map((p) => `<i title="${esc(p.n)}" style="background-image:url(${BILD}${p.i})"></i>`).join('')}</span>
+        <small>${esc(x.m?.roll || '')}${x.st ? ` Total ${x.st.Total}` : ''} · ${esc(x.m?.ort || '')}</small>
+        <button class="kp-lock" data-lock="${x.id}" aria-pressed="${x.locked}">${x.locked ? '🔒' : '🔓'}</button></div>`;
+    };
+    return `<details class="kopien" ${alle.length < 4 ? 'open' : ''}><summary>Your other copies (${alle.length})</summary>${alle.map(zeile).join('')}</details>`;
+  };
   const zeichne = (laed = false) => {
     const m = document.querySelector('#meldung');
     d.innerHTML = `<div class="dkopf"><i class="ic ${it.d.q === 6 ? 'exotic' : ''} ${it.d.t === 3 ? `el-${it.element}` : ''}" style="background-image:url(${BILD}${it.d.i})"></i>
       <div><h2>${esc(it.d.n)}</h2><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${it.m.frame ? ` · ${esc(it.m.frame)}` : ''}${it.m.champ ? ` · Stuns ${esc(it.m.champ)}` : ''}${it.m.set ? ` · ${esc(it.m.set)}` : ''}</small>
       ${it.m?.roll ? `<small class="rollinfo ${/PvP/.test(it.m.roll) ? 'pvp' : ''}">${it.m.roll}</small>` : ''}<small class="wo">${ortText()}${it.genutzt ? ' · in a loadout' : ''}${it.locked ? ' · locked' : ''}${it.junk ? ' · <span class="rot">dismantle suggestion</span>' : ''}${it.fuel ? ' · <span class="gold">infusion fuel</span>' : ''}</small></div><button class="zu" data-a="schliessen" aria-label="Close">✕</button></div>
-      <div class="aktionen">${knoepfe()}</div>
+      <div class="aktionen">${knoepfe()}<button data-lock="${it.id}" aria-pressed="${it.locked}">${it.locked ? '🔒 Locked' : '🔓 Lock'}</button></div>${kopien()}
       ${laed ? '<p class="leer">Loading perks…</p>' : `<div class="dkoerper"><div class="pgrid">${raster() || '<p class="leer">No changeable perks.</p>'}</div><div class="dseite">${infoBox()}<div class="dstats">${stats}</div>${it.d.e && defs.sets?.[it.d.e] ? `<div class="tset"><b>${esc(defs.sets[it.d.e].n)}</b>${defs.sets[it.d.e].p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}${it.d.xd ? `<p class="tt"><b class="tgold">${esc(it.d.xp || 'Exotic perk')}</b> ${esc(it.d.xd)}</p>` : ''}</div></div>`}`;
     if (d.open) d.append(m);
     d.querySelectorAll('button').forEach((x) => { x.disabled = beschaeftigt && x.dataset.a !== 'schliessen'; });
@@ -147,6 +160,14 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     if (b.dataset.a === 'schliessen') return d.close();
     if (b.dataset.mehr) { offen = offen === Number(b.dataset.mehr) ? null : Number(b.dataset.mehr); return zeichne(); }
     if (b.dataset.h) { wahl = { s: Number(b.dataset.s), h: Number(b.dataset.h) }; return zeichne(); }
+    if (b.dataset.oeffne) { const x = (zustand.alleItems || sammle(zustand.profil)).find((y) => y.id === b.dataset.oeffne); if (x) return oeffneDetail(x, zustand, neuZeichnen); }
+    if (b.dataset.lock) {
+      const x = b.dataset.lock === it.id ? it : (zustand.alleItems || sammle(zustand.profil)).find((y) => y.id === b.dataset.lock);
+      const cid = x.ort === 'tresor' || x.ort.startsWith('post:') ? chars[0].characterId : x.ort;
+      bungie.post('/Destiny2/Actions/Items/SetLockState/', { state: !x.locked, itemId: x.id, characterId: cid, membershipType: k.membershipType })
+        .then(() => { x.locked = !x.locked; zeichne(); }).catch((err) => import('./app.js').then((mm) => mm.meldung(err.message, true)));
+      return;
+    }
     if (b.dataset.a) fuehreAus(b.dataset.a, b.dataset.c);
   };
 }
