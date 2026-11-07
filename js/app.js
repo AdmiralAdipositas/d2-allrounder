@@ -17,6 +17,7 @@ import { zeigeSquad } from './squad.js';
 import { setzeNav } from './info.js';
 import { zeigeCharakter } from './charakter.js';
 import { starte as starteSprache } from './sprache.js';
+import { zeigeWillkommen, schonGesehen } from './willkommen.js';
 import { sammle } from './vault.js';
 
 const $ = (s) => document.querySelector(s);
@@ -199,7 +200,8 @@ function anmeldeSeite() {
   const bereit = bungie.eingerichtet();
   haupt.innerHTML = `<div class="anmelden karte"><h1>D2 Allrounder</h1>
     <p>Vault, loadouts, armor optimizer and weekly rotation for every class, on phone and PC.</p>
-    ${bereit ? '<button class="haupt-knopf" id="los">Sign in with Bungie</button>' : '<p>Setup is not finished yet: the Bungie app keys are missing.</p>'}<p class="leer klein">Your sign-in stays in this browser. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></p></div>`;
+    ${bereit ? '<button class="haupt-knopf" id="los">Sign in with Bungie</button>' : '<p>Setup is not finished yet: the Bungie app keys are missing.</p>'}<p class="leer klein">Your sign-in stays in this browser. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></p>
+    <p class="leer klein anm-hinweis">Unofficial fan app, not affiliated with Bungie. Destiny content © Bungie, Inc. Mostly built by Claude, Anthropic’s AI.</p></div>`;
   $('#los')?.addEventListener('click', () => bungie.anmelden());
 }
 
@@ -242,6 +244,7 @@ async function start() {
     // Frisch neu zeichnen, solange du noch nichts angeklickt hast; sonst nur die Daten tauschen.
     if (!alt || !klicks) wechsle(zustand.tab); else meldung('Data refreshed from Bungie.');
     if (pz.fest && !matchMedia('(max-width: 760px)').matches) zeigePanel();
+    if (!schonGesehen(zustand.konto)) zeigeWillkommen(zustand.konto);
     // Xûr steckt im This-week-Panel, sobald Bungie sagt, dass er da ist.
     xurDa(zustand).then((bis) => {
       zustand.xur = bis;

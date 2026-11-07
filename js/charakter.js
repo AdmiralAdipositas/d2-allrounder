@@ -55,11 +55,10 @@ export function zeigeCharakter(haupt, zustand) {
     };
     const engr = inv.filter((i) => i.bucketHash === ENGRAMME);
     const post = inv.filter((i) => i.bucketHash === POST);
-    const stats = ARMOR_STATS.map((n) => { const h = Object.keys(defs.stats || {}).find((k) => defs.stats[k].n === n && c.stats?.[k] != null) || Object.keys(defs.stats || {}).find((k) => defs.stats[k].n === n); return [n, c.stats?.[h] || 0, defs.stats?.[h]?.i]; });
+    const statsVon = (x) => ARMOR_STATS.map((n) => { const h = Object.keys(defs.stats || {}).find((k) => defs.stats[k].n === n && x.stats?.[k] != null) || Object.keys(defs.stats || {}).find((k) => defs.stats[k].n === n); return [n, x.stats?.[h] || 0, defs.stats?.[h]?.i]; });
     haupt.innerHTML = `<div class="kopf"><h1>Guardians</h1></div>
-      <div class="cwahl">${chars.map((x) => `<button class="cbanner ${x.characterId === wahl ? 'an' : ''}" data-wahl="${x.characterId}" data-ziel="${x.characterId}" style="background-image:url(${BILD}${x.emblemBackgroundPath || ''})"><b>${KLASSE[x.classType]}</b><small>${RASSE[x.raceType] || ''}</small><span>✦ ${x.light}</span></button>`).join('')}</div>
+      <div class="cwahl">${chars.map((x) => `<button class="cbanner ${x.characterId === wahl ? 'an' : ''}" data-wahl="${x.characterId}" data-ziel="${x.characterId}" style="background-image:url(${BILD}${x.emblemBackgroundPath || ''})"><span class="cb-kopf"><b>${KLASSE[x.classType]}</b><small>${RASSE[x.raceType] || ''}</small><em>✦ ${x.light}</em></span><span class="cb-stats">${statsVon(x).map(([n, v, ic]) => `<span title="${n}: ${v}">${ic ? `<i style="background-image:url(${BILD}${ic})"></i>` : `<small>${n.slice(0, 3)}</small>`}<b>${v}</b></span>`).join('')}</span></button>`).join('')}</div>
       <div class="ctresor" data-ziel="tresor"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/><rect x="8" y="5" width="8" height="7" rx="1"/></svg><b>Vault</b><small>Drag items here (or onto another guardian). Phone: hold an item, then drag.</small></div>
-      <div class="cstats">${stats.map(([n, v, ic]) => `<span title="${n}">${ic ? `<i style="background-image:url(${BILD}${ic})"></i>` : ''}<small>${n}</small><b>${v}</b></span>`).join('')}</div>
       <div class="cgrid"><section class="ckarte"><h3>Weapons</h3>${WAFFEN.map(reihe).join('')}</section>
       <section class="ckarte"><h3>Armor</h3>${RUESTUNG.map(reihe).join('')}</section>
       <section class="ckarte"><h3>Subclass & gear</h3>${SONST.map(reihe).join('')}</section>
