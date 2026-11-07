@@ -45,7 +45,7 @@ export function empfehle(build, besitz, element) {
   for (const [slot, b] of Object.entries(SLOT)) {
     const liste = waffen().filter((x) => x.q === 5 && x.b === b && x.punkte > 0).map((x) => {
       let s = Math.min(x.punkte, 4);
-      if (slot === 'kinetic' ? (x.d0 === 1 || passt(x)) : passt(x)) s += 5;
+      if (slot === 'kinetic' ? (x.d0 === 1 || passt(x)) : passt(x)) s += 9;
       if (besitz.has(x.n)) s += 3;
       if (typWunsch.some((t) => x.k.toLowerCase().includes(t))) s += 4;
       return { ...x, s };

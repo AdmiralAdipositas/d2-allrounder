@@ -84,7 +84,7 @@ function anreichern(b, besitz) {
   }
   return b;
 }
-const waffeHtml = (x, besitz) => `<span class="wf ${besitz.has(x.n) ? 'hat' : ''}" title="${esc(x.k)}${x.qu ? ` · ${esc(x.qu)}` : ''}"><i style="background-image:url(${BILD}${x.i})"></i>${esc(x.n)}${besitz.has(x.n) ? ' ✓' : ''}${x.punkte ? '<em class="gr">god roll</em>' : ''}</span>`;
+const waffeHtml = (x, besitz) => `<span class="wf ${besitz.has(x.n) ? 'hat' : ''}" title="${esc(x.k)} · community PvE pick${x.qu ? ` · ${esc(x.qu)}` : ''}"><i style="background-image:url(${BILD}${x.i})"></i>${esc(x.n)}${besitz.has(x.n) ? ' ✓' : ''}${x.d0 && x.d0 !== 1 ? `<em class="gr el${x.d0}">●</em>` : ''}</span>`;
 
 function karte(b, besitz, besitzSets, sets) {
   anreichern(b, besitz);

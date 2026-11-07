@@ -25,7 +25,8 @@ export function finde(name, element = '') {
   const teil = alle.filter((m) => m.n.toLowerCase().includes(n));
   if (!teil.length) return null;
   const el = element.toLowerCase();
-  return teil.find((m) => el && m.n.toLowerCase().startsWith(el)) || teil.find((m) => /^harmonic/i.test(m.n)) || teil[0];
+  const kurz = (l) => [...l].sort((a, b) => a.n.length - b.n.length)[0];
+  return teil.find((m) => el && m.n.toLowerCase() === `${el} ${n}`) || kurz(teil.filter((m) => el && m.n.toLowerCase().startsWith(el) && !m.n.includes('/'))) || kurz(teil.filter((m) => /^harmonic/i.test(m.n))) || kurz(teil);
 }
 
 // Standard-Mods für einen Build ohne eigene Mod-Liste, nach Element und Stat-Fokus.
