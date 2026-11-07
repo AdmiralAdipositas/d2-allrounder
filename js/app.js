@@ -2,6 +2,7 @@
 import * as bungie from './bungie.js';
 import { ladeDefs } from './defs.js';
 import { ladeRolls } from './rolls.js';
+import { ladeQuellen } from './quellen.js';
 import { zeigeVault } from './vault.js';
 import { zeigeWoche } from './woche.js';
 import { zeigeLoadouts } from './loadouts.js';
@@ -153,7 +154,7 @@ async function start() {
   if (!bungie.eingerichtet() || !bungie.angemeldet()) { wechsleNurLeiste(); return anmeldeSeite(); }
   haupt.innerHTML = '<p class="leer">Loading your guardians…</p>';
   try {
-    await Promise.all([ladeDefs(), ladeRolls()]);
+    await Promise.all([ladeDefs(), ladeRolls(), ladeQuellen()]);
     zustand.konto = await bungie.konto();
     $('#kontoName').textContent = zustand.konto.name;
     $('#konto').title = 'Account';

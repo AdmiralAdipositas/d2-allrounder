@@ -3,6 +3,7 @@
 import { defs } from './defs.js';
 import { sammle } from './vault.js';
 import { baueIdee, elementeAus } from './generator.js';
+import { quelle } from './quellen.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -68,7 +69,7 @@ const quellen = (name) => [
 ];
 
 const blip = (titel, text) => `<span class="blip" tabindex="0" data-tn="${esc(titel)}" data-td="${esc(text)}">i</span>`;
-const quelleText = (d) => (!d ? 'Not in the game data.' : d.qu || (d.q === 6 ? 'Exotic engrams, Xûr, or the Monument to Lost Lights in the Tower.' : 'Source unknown.'));
+const quelleText = (d) => { if (!d) return 'Not in the game data.'; const q = quelle(d.hash, d); return q ? `${q.text} (${q.von})` : d.q === 6 ? 'Exotic engrams, Xûr, or the Monument to Lost Lights in the Tower.' : 'No confirmed source yet – check light.gg.'; };
 
 function karte(b, besitz, besitzSets, sets) {
   const auf = offen.has(b.id);

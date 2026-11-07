@@ -115,6 +115,14 @@ function rechne(liste, wunsch) {
   return { max, anzahl, beste };
 }
 
+function zuteilung(b) {
+  const mods = statMods();
+  const offen = ARMOR_STATS.flatMap((n, j) => Array(b.modsJeStat[j] || 0).fill(n));
+  const z = new Map();
+  for (const it of b.items) if (it.modSockel >= 0 && offen.length) z.set(it.id, mods[offen.shift()]);
+  return z;
+}
+
 function setBoni(items) {
   const z = new Map();
   for (const i of items) if (i.set) z.set(i.set, (z.get(i.set) || 0) + 1);
@@ -158,9 +166,9 @@ export function zeigeOptimizer(haupt, zustand) {
       }).join('')}
       <p class="leer klein">Gold = your minimum, violet = still reachable. Stat mods: ${ARMOR_STATS.map((n) => mods[n] ? `${n} +${mods[n].wert}` : '').filter(Boolean).join(', ') || 'none found'}.</p></section>
     <section><h2>Best sets</h2>${r.beste.map((b, k) => `<article class="kombi">
-      <div class="kitems">${b.items.map((i) => `<i class="ic ${i.exo ? 'exotic' : ''}" title="${esc(i.d.n)}" style="background-image:url(${BILD}${i.d.i})"><i class="ort ${i.ort === 'tresor' ? 'tresor' : 'char'}"></i></i>`).join('')}</div>
+      ${(() => { const z = zuteilung(b); return `<div class="kitems">${b.items.map((i) => { const m = z.get(i.id); return `<div class="kteil"><i class="ic ${i.exo ? 'exotic' : ''}" data-oid="${k}:${i.id}" style="background-image:url(${BILD}${i.d.i})"><i class="ort ${i.ort === 'tresor' ? 'tresor' : 'char'}"></i>${m ? `<i class="kmod" style="background-image:url(${BILD}${m.icon})"></i>` : ''}</i><small>${esc(i.set?.n || (i.exo ? 'Exotic' : '–'))}</small></div>`; }).join('')}</div>`; })()}
       <div class="kwerte">${ARMOR_STATS.map((n, j) => `<span><small>${n}</small><b>${b.werte[j]}</b></span>`).join('')}</div>
-      ${b.modsJeStat.some(Boolean) ? `<small class="kmods">Mods: ${ARMOR_STATS.map((n, j) => (b.modsJeStat[j] ? `${b.modsJeStat[j]}× ${n}` : '')).filter(Boolean).join(', ')}</small>` : ''}
+      ${b.modsJeStat.some(Boolean) ? `<div class="kmods">${ARMOR_STATS.map((n, j) => (b.modsJeStat[j] ? `<span><i style="background-image:url(${BILD}${mods[n]?.icon || ''})"></i>${b.modsJeStat[j]}× ${esc(mods[n]?.name || n)} <b>+${mods[n]?.wert || ''}</b></span>` : '')).join('')}</div>` : ''}
       ${setBoni(b.items).map((p) => `<small class="kset">${esc(p.set)} (${p.c}): ${esc(p.n)}</small>`).join('')}
       <button class="haupt-knopf" data-equip="${k}">${bd ? 'Equip full build' : 'Equip on'} ${KLASSE[zustandO.klasse]}</button></article>`).join('') || '<p class="leer">No combination reaches these minimums. Lower one of them.</p>'}</section></div>`;
   };
@@ -171,16 +179,43 @@ export function zeigeOptimizer(haupt, zustand) {
     if (kl) { zustandO.klasse = Number(kl.dataset.kl); return zeichne(); }
     if (e.target.id === 'reset') { zustandO.ziele = {}; return zeichne(); }
     if (e.target.closest('#ohneBuild')) { zustandO.build = null; return zeichne(); }
-    const leiste = e.target.closest('.sleiste');
-    if (leiste) {
-      const r = leiste.getBoundingClientRect();
-      const wert = Math.round((((e.clientX - r.left) / r.width) * SKALA) / 5) * 5;
-      zustandO.ziele[leiste.dataset.s] = Math.max(0, Math.min(SKALA, wert));
-      return zeichne();
-    }
+    const teil = e.target.closest('[data-oid]');
+    if (teil && e.pointerType !== 'mouse') return zeigeTeil(teil, true);
     const eq = e.target.closest('[data-equip]');
     if (eq) await ausruesten(ergebnisse[Number(eq.dataset.equip)], zustand, chars.find((c) => c.classType === zustandO.klasse), eq);
   };
+  // Leisten ziehen oder klicken, rastet in 5er-Schritten ein; gerechnet wird beim Loslassen.
+  const wertAus = (leiste, x) => { const r = leiste.getBoundingClientRect(); return Math.max(0, Math.min(SKALA, Math.round((((x - r.left) / r.width) * SKALA) / 5) * 5)); };
+  haupt.onpointerdown = (e) => {
+    const leiste = e.target.closest('.sleiste');
+    if (!leiste) return;
+    e.preventDefault();
+    leiste.setPointerCapture(e.pointerId);
+    const zeige = (x) => { const w = wertAus(leiste, x); leiste.querySelector('.sziel').style.width = `${(w / SKALA) * 100}%`; leiste.parentElement.querySelector('.swert b').textContent = w; return w; };
+    let w = zeige(e.clientX);
+    leiste.onpointermove = (ev) => { w = zeige(ev.clientX); };
+    leiste.onpointerup = () => { leiste.onpointermove = leiste.onpointerup = null; zustandO.ziele[leiste.dataset.s] = w; zeichne(); };
+  };
+  // Hover (Maus) bzw. Antippen (Handy) zeigt Teil, Set, Stats und den Mod, der draufkommt.
+  const tipp = document.querySelector('#tipp');
+  const zeigeTeil = (el) => {
+    const [k, id] = el.dataset.oid.split(':');
+    const b = ergebnisse[Number(k)];
+    const i = b?.items.find((x) => x.id === id);
+    if (!i) return;
+    const m = zuteilung(b).get(i.id);
+    tipp.innerHTML = `<b>${esc(i.d.n)}</b><small>${esc(i.d.k)}${i.set ? ` · ${esc(i.set.n)}` : ''}${i.exo ? ' · Exotic' : ''} · ${i.ort === 'tresor' ? 'Vault' : 'Character'}</small>
+      <table class="tstat">${ARMOR_STATS.map((n) => `<tr><td>${n}</td><td>${i.st[n]}</td></tr>`).join('')}<tr class="summe"><td>Total</td><td>${i.st.Total}</td></tr></table>
+      ${m ? `<div class="tmod"><i style="background-image:url(${BILD}${m.icon})"></i>Add ${esc(m.name)} (+${m.wert})</div>` : i.modSockel < 0 ? '<small>No free stat mod slot.</small>' : ''}
+      ${i.set ? i.set.p.map((p) => `<small>${p.c}-piece ${esc(p.n)}</small>`).join('') : ''}`;
+    tipp.hidden = false;
+    const r = el.getBoundingClientRect(), t = tipp.getBoundingClientRect();
+    tipp.style.left = `${Math.max(8, Math.min(r.right + 8, innerWidth - t.width - 8))}px`;
+    tipp.style.top = `${Math.max(8, Math.min(r.top, innerHeight - t.height - 8))}px`;
+  };
+  document.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' && !e.target.closest('[data-oid]')) tipp.hidden = true; });
+  haupt.onpointerover = (e) => { const el = e.target.closest('[data-oid]'); if (el && e.pointerType === 'mouse') zeigeTeil(el); };
+  haupt.onpointerout = (e) => { if (e.target.closest('[data-oid]') && e.pointerType === 'mouse') tipp.hidden = true; };
   haupt.onchange = (e) => {
     if (e.target.id === 'exo') zustandO.exotic = Number(e.target.value);
     if (e.target.id === 'mitMods') zustandO.mods = e.target.checked;

@@ -4,6 +4,7 @@ import { defs } from './defs.js';
 import { sammle } from './vault.js';
 import { CHALLENGES } from './challenges.js';
 import { empfehlung } from './rolls.js';
+import { quelle } from './quellen.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock', 3: 'Any class' };
@@ -24,7 +25,8 @@ async function baue(zustand) {
   for (const x of sammle(zustand.profil)) besitz.set(x.d.n, (besitz.get(x.d.n) || 0) + 1);
   const liste = [];
   const items = Object.entries(defs.items).filter(([, d]) => [2, 3].includes(d.t) && d.i);
-  const quelleVon = (d) => (d.qu || '').replace(/^Source:\s*/i, '');
+  const quelleVon = (d, h) => quelle(h, d)?.text || '';
+  const vonText = (d, h) => { const q = quelle(h, d); return q ? ` <span class="wm">(${q.von})</span>` : ''; };
   const farmVon = (name) => Object.entries(setsFarm).find(([n]) => name.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(name.toLowerCase()))?.[1];
 
   // Rüstungssets
@@ -33,20 +35,21 @@ async function baue(zustand) {
     const teile = items.filter(([, d]) => d.e === Number(h));
     if (!teile.length) continue;
     const farm = farmVon(s.n);
-    const quellen = [...new Set(teile.map(([, d]) => quelleVon(d)).filter(Boolean))];
+    const quellen = [...new Set(teile.map(([th, d]) => quelleVon(d, th)).filter(Boolean))];
     const hat = teile.reduce((a, [, d]) => a + (besitz.get(d.n) || 0), 0);
     liste.push({ typ: 'set', titel: s.n, icon: teile[0][1].i, tags: `set armor ${farm?.ort || ''} ${quellen.join(' ')}`,
-      kurz: farm ? `${farm.farm}${farm.schnell ? ' · fast farm' : ''}.` : quellen[0] ? `Drops from: ${quellen[0]}.` : 'Source not in the data.',
+      kurz: farm ? `${farm.farm}${farm.schnell ? ' · fast farm' : ''}.` : quellen[0] ? `Drops from: ${quellen[0]}.` : 'No confirmed drop source yet – see light.gg below.',
       mehr: `${(s.p || []).map((p) => `<p><b>${p.c}-piece: ${esc(p.n)}</b> – ${esc(p.d)}</p>`).join('')}
         ${quellen.length > 1 ? `<p class="wm">Also from: ${esc(quellen.slice(1).join(' · '))}</p>` : ''}
-        <p class="wm">You own ${hat} piece${hat === 1 ? '' : 's'}.</p>
+        <p class="wm">You own ${hat} piece${hat === 1 ? '' : 's'}. Sources: ${farm ? 'farm guide (timesaver.gg), ' : ''}Bungie collections, DIM community data.</p>
+        <p><a href="https://www.light.gg/db/search/?q=${encodeURIComponent(s.n)}" target="_blank" rel="noopener">light.gg ↗</a></p>
         <div class="wteile">${teile.slice(0, 15).map(([, d]) => `<span title="${esc(KLASSE[d.c])} · ${esc(d.k)}"><i style="background-image:url(${BILD}${d.i})"></i>${esc(d.n)}${besitz.get(d.n) ? ' ✓' : ''}</span>`).join('')}</div>` });
   }
   // Orte
   for (const ort of ORTE) {
     const re = new RegExp(`\\b${ort}\\b`, 'i');
     const sets = Object.entries(setsFarm).filter(([, f]) => re.test(f.ort) || re.test(f.farm));
-    const waffen = items.filter(([, d]) => d.t === 3 && re.test(d.qu || ''));
+    const waffen = items.filter(([wh, d]) => d.t === 3 && re.test(quelleVon(d, wh)));
     if (!sets.length && !waffen.length) continue;
     liste.push({ typ: 'ort', titel: ort, icon: '', tags: `destination planet ${ort}`,
       kurz: `${sets.length ? `Armor: ${sets.map(([n]) => n).join(', ')}. ` : ''}${waffen.length ? `${waffen.length} weapons drop here.` : ''}`,
@@ -60,21 +63,21 @@ async function baue(zustand) {
     if (d.q === 6) {
       gesehen.add(d.n);
       liste.push({ typ: 'exo', titel: d.n, icon: d.i, tags: `exotic ${d.k} ${KLASSE[d.c]} ${d.xp || ''} ${d.xd || ''}`,
-        kurz: `${KLASSE[d.c] !== 'Any class' ? `${KLASSE[d.c]} ` : ''}${d.k}. ${quelleVon(d) ? `Get it: ${quelleVon(d)}.` : 'Exotic engrams, Xûr, or the Monument to Lost Lights.'}`,
-        mehr: `${d.xd ? `<p><b>${esc(d.xp || 'Exotic perk')}</b> – ${esc(d.xd)}</p>` : ''}<p class="wm">${besitz.get(d.n) ? `You own ${besitz.get(d.n)}.` : 'Not in your inventory.'}</p><p><a href="https://www.light.gg/db/items/${h}/" target="_blank" rel="noopener">light.gg ↗</a></p>` });
-    } else if (d.t === 3 && d.qu && d.q === 5) {
+        kurz: `${KLASSE[d.c] !== 'Any class' ? `${KLASSE[d.c]} ` : ''}${d.k}. ${quelleVon(d, h) ? `Get it: ${quelleVon(d, h)}.` : 'Get it from exotic engrams, Xûr, or the Monument to Lost Lights in the Tower.'}`,
+        mehr: `${d.xd ? `<p><b>${esc(d.xp || 'Exotic perk')}</b> – ${esc(d.xd)}</p>` : ''}<p class="wm">Source:${vonText(d, h) || ' general exotic sources'}. </p><p class="wm">${besitz.get(d.n) ? `You own ${besitz.get(d.n)}.` : 'Not in your inventory.'}</p><p><a href="https://www.light.gg/db/items/${h}/" target="_blank" rel="noopener">light.gg ↗</a></p>` });
+    } else if (d.t === 3 && d.q === 5 && quelleVon(d, h)) {
       gesehen.add(d.n);
       const r = empfehlung(h);
-      liste.push({ typ: 'waffe', titel: d.n, icon: d.i, tags: `weapon ${d.k} ${d.qu}`, quelle: quelleVon(d),
-        kurz: `${d.k}. Get it: ${quelleVon(d)}.`,
-        mehr: `<p class="wm">${besitz.get(d.n) ? `You own ${besitz.get(d.n)} cop${besitz.get(d.n) === 1 ? 'y' : 'ies'}.` : 'Not in your inventory.'}${r?.ge?.length ? ' Community PvE god roll known.' : ''}${r?.gv?.length ? ' PvP god roll known.' : ''}</p><p><a href="https://www.light.gg/db/items/${h}/" target="_blank" rel="noopener">light.gg ↗</a></p>` });
+      liste.push({ typ: 'waffe', titel: d.n, icon: d.i, tags: `weapon ${d.k} ${quelleVon(d, h)}`, quelle: quelleVon(d, h),
+        kurz: `${d.k}. Get it: ${quelleVon(d, h)}.`,
+        mehr: `<p class="wm">Source:${vonText(d, h)}.</p><p class="wm">${besitz.get(d.n) ? `You own ${besitz.get(d.n)} cop${besitz.get(d.n) === 1 ? 'y' : 'ies'}.` : 'Not in your inventory.'}${r?.ge?.length ? ' Community PvE god roll known.' : ''}${r?.gv?.length ? ' PvP god roll known.' : ''}</p><p><a href="https://www.light.gg/db/items/${h}/" target="_blank" rel="noopener">light.gg ↗</a></p>` });
     }
   }
   // Raids und Dungeons
   const akt = new Map();
   for (const a of Object.values(defs.akt || {})) { if (a.g === 'Portal') continue; const n = a.n.split(':')[0].trim(); if (!akt.has(n)) akt.set(n, a); }
   for (const [n, a] of akt) {
-    const loot = [...new Map(items.filter(([, d]) => (d.qu || '').toLowerCase().includes(n.toLowerCase())).map(([, d]) => [d.n, d])).values()];
+    const loot = [...new Map(items.filter(([lh, d]) => quelleVon(d, lh).toLowerCase().includes(n.toLowerCase())).map(([, d]) => [d.n, d])).values()];
     liste.push({ typ: 'akt', titel: n, icon: a.i && !/missing/.test(a.i) ? a.i : '', tags: `${a.g} raid dungeon activity`,
       kurz: `${a.g === 'Raids' ? 'Raid' : 'Dungeon'}. ${loot.length ? `${loot.length} items drop here.` : ''}`,
       mehr: `${a.d ? `<p>${esc(a.d)}</p>` : ''}${loot.length ? `<div class="wteile">${loot.slice(0, 30).map((d) => `<span><i style="background-image:url(${BILD}${d.i})"></i>${esc(d.n)}${besitz.get(d.n) ? ' ✓' : ''}</span>`).join('')}</div>` : ''}` });
