@@ -6235,6 +6235,127 @@ const DPK=(function(){
  return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
 })();
 
+
+/* =================== DUNGEONS (shared, 3 players) =================== */
+function dgFinish(keys,floor){return function(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)}];
+  s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));
+  keys.forEach(q=>{if(s.dead[q])return;const p=s.p[q];
+   if(s.stk[q]!=null)units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x+15} ${p.y+14})"><rect x="-9" y="-6" width="18" height="12" rx="3" fill="${s.stkWarn&&s.stkWarn[q]?'#ff6156':'#2a2440'}" stroke="${s.stkC||'#a982f5'}"/><text y="3.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" font-weight="700" fill="#fff">${s.stk[q]}</text></g>`});
+   if(s.orb[q])units.push({t:'raw',x:0,y:0,svg:`<circle cx="${p.x}" cy="${p.y-22}" r="7" fill="${s.orb[q]}" stroke="#fff" stroke-width="1.2"/>`});
+   if(s.tag[q])units.push({t:'raw',x:0,y:0,svg:`<text x="${p.x}" y="${p.y-20}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" font-weight="700" fill="#f6dc8e">${s.tag[q]}</text>`});});
+  const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q],o:s.fade[q]==null?1:s.fade[q]}));
+  const hud=s.hud?{t:L(s.hud.t),v:fmt(s.hud.v),hi:false,paused:false,low:s.hud.v<10}:null;
+  return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud,plus:'',pips:s.pips?{at:[624,8],label:L(s.pips.lk)+' '+s.pips.done+'/'+s.pips.n,n:s.pips.n,done:s.pips.done}:null};};}
+function dgBase(keys,POS,extra){return function(){const s=Object.assign({p:{},stk:{},orb:{},tag:{},units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{},fade:{}},extra||{});
+  keys.forEach(k=>s.p[k]={...POS[k]});return s;};}
+const dgFire=(s,k,key,b,i,c)=>{if(s.busy[key]||s.dead[key])return;s.busy[key]=1;if(Math.floor(k*70+(i||0))%2)s.shots.push({a:s.p[key],q:key,b,c:c||C.ally});};
+const dgBg=g=>{g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';};
+const dgRoom=(fill,stroke,extra,label)=>s=>`<rect x="-40" y="-40" width="880" height="520" fill="#0b0a0f"/><rect x="110" y="30" width="580" height="390" rx="14" fill="${fill}" stroke="${stroke}"/>`+extra(s)+`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">${label||'SPAWN · schematic'}</text>`;
+const DG3=['P1','P2','P3'];
+const DGPOS={P1:{x:340,y:380},P2:{x:400,y:395},P3:{x:460,y:380}};
+
+/* =================== SHATTERED THRONE: VORGOTH =================== */
+// Four Keeper Wizards (each with two Taken Vandals and two Goblins): kill → Petitioner's Mark (stacks to 4, 45 s, reset
+// on pickup, lost on death). At 4 stacks → Petitioner's Burden → extinguish a flame around Vorgoth → shield down → damage.
+const STV=(function(){
+ const W=[{x:180,y:120},{x:620,y:120},{x:180,y:320},{x:620,y:320}];const B={x:400,y:200};const FL=[{x:340,y:200},{x:460,y:200},{x:400,y:150},{x:400,y:250}];
+ const floor=dgRoom('#14121c','#3a3356',s=>FL.map((f,i)=>`<circle cx="${f.x}" cy="${f.y}" r="9" fill="${(s.out||[]).includes(i)?'#1e1a2a':'#ff9a3c'}" opacity="${(s.out||[]).includes(i)?.5:.9}"/>`).join(''));
+ const base=dgBase(DG3,DGPOS,{out:[]});
+ const boss=(s,o)=>s.units.push(Object.assign({t:'ogre',x:B.x,y:B.y},o||{}));
+ const S=[
+ {d:26,f(k,s){boss(s);const i=Math.min(3,Math.floor(k*4));const ph=(k*4)%1;const w=W[i];
+   if(ph<.6){s.units.push({t:'hwiz',x:w.x,y:w.y,hp:ph>=.15?1-seg(ph,.15,.55)*.97:null});DG3.forEach((q,j)=>{s.p[q]=mv(s.p[q],{x:w.x+(w.x<400?60:-60)+j*14,y:w.y+40},.08);if(ph>=.15)dgFire(s,k,q,w,j);});}
+   if(ph>=.6&&ph<.75)s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${w.x}" cy="${w.y}" r="8" fill="#a982f5"/>`});
+   s.stk.P1=i+(ph>=.75?1:0)||null;s.hud={t:'lMarkT',v:45-ph*10};
+   s.fx=k<.25?{k:'fxV1Adds',o:1,c:C.ally}:{k:'fxV1Mark',o:1,c:'#a982f5'};}},
+ {d:20,f(k,s){boss(s,{hp:k>=.4?1-seg(k,.4,.95)*.4:null});s.stk.P1=k<.25?4:null;s.tag.P1=k<.25?'BURDEN':null;s.p.P1=mv(DGPOS.P1,{x:FL[0].x-20,y:FL[0].y+20},seg(k,0,.2));s.out=k>=.25?[0]:[];
+   if(k>=.25&&k<.32)s.bursts.push({...FL[0],r:10+60*seg(k,.25,.32),c:'#a982f5',o:1-seg(k,.25,.32)});
+   if(k>=.4)DG3.forEach((q,j)=>dgFire(s,k,q,B,j));
+   s.fx=k<.25?{k:'fxV2Flame',o:win(k,0,.25,.02),c:'#ff9a3c'}:k<.4?{k:'fxV2Shield',o:win(k,.25,.4,.02),c:C.good}:{k:'fxV2Dmg',o:win(k,.4,1,.02),c:C.ally};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+
+/* =================== SHATTERED THRONE: DUL INCARU =================== */
+// Three melee Knights; each kill drops Finite Thought (lets you damage Dul Incaru, stacks up to 3, timer: at zero you die
+// unless you cleanse at the central brazier). Knights respawn after ~60 s. Shooting the crystal removes Knight shields but
+// spawns Psions on the ledges.
+const STD=(function(){
+ const B={x:400,y:110};const BR={x:400,y:260};const KN=[{x:250,y:240},{x:550,y:240},{x:400,y:330}];
+ const floor=dgRoom('#14121c','#3a3356',s=>`<circle cx="${BR.x}" cy="${BR.y}" r="24" fill="${s.cleanse?'rgba(127,227,255,.3)':'rgba(127,227,255,.08)'}" stroke="#7fe3ff" stroke-width="2"/><text x="${BR.x}" y="${BR.y+40}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#7fe3ff">BRAZIER</text>`);
+ const base=dgBase(DG3,DGPOS,{cleanse:false});
+ const boss=(s,o)=>s.units.push(Object.assign({t:'hwiz',x:B.x,y:B.y},o||{}));
+ const S=[
+ {d:24,f(k,s){boss(s);KN.forEach((n,i)=>{if(k<.55)s.units.push({t:'hk',x:n.x,y:n.y,hp:k>=.15?1-seg(k,.15,.52)*.97:null});});
+   DG3.forEach((q,j)=>{s.p[q]=mv(DGPOS[q],{x:KN[j].x,y:KN[j].y+50},seg(k,0,.12));if(k>=.15&&k<.52)dgFire(s,k,q,KN[j],j);if(k>=.55)s.stk[q]=3;});
+   if(k>=.55)s.hud={t:'lFiniteT',v:Math.max(0,30-(k-.55)*40)};
+   s.fx=k<.52?{k:'fxD1Knights',o:win(k,0,.52,.02),c:C.ally}:{k:'fxD1Finite',o:win(k,.52,1,.02),c:'#a982f5'};}},
+ {d:20,f(k,s){boss(s,{hp:k<.6?1-seg(k,.05,.55)*.4:.6});DG3.forEach((q,j)=>{s.stk[q]=k<.7?3:null;s.p[q]=k<.6?{x:330+j*70,y:260}:mv({x:330+j*70,y:260},{x:BR.x-20+j*20,y:BR.y+20},seg(k,.6,.68));if(k<.55)dgFire(s,k,q,B,j);});
+   s.cleanse=k>=.68;s.hud={t:'lFiniteT',v:Math.max(0,20-k*25)};
+   s.fx=k<.6?{k:'fxD2Dmg',o:win(k,0,.6,.02),c:C.ally}:{k:'fxD2Clean',o:win(k,.6,1,.02),c:'#7fe3ff'};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+
+/* =================== PIT OF HERESY: NECROPOLIS =================== */
+// Rooms with a giant Knight (drops the Hive Sword) or one of three bosses marked by Hive symbols. Kill each boss with the
+// sword: Knight = light attacks/super, Wizard = heavy-attack projectiles, Shrieker = deflect its shots.
+const PHN=(function(){
+ const RM=[{x:180,y:150,n:'Knight'},{x:400,y:110,n:'Wizard'},{x:620,y:150,n:'Shrieker'}];const GK={x:400,y:300};
+ const floor=dgRoom('#141018','#3a2a3a',s=>RM.map(r=>`<rect x="${r.x-60}" y="${r.y-50}" width="120" height="90" rx="8" fill="#0e0b12" stroke="#5a3a4a"/>`).join(''));
+ const base=dgBase(DG3,DGPOS,{});
+ const S=[
+ {d:16,f(k,s){if(k<.6){s.units.push({t:'hk',x:GK.x,y:GK.y,big:1,hp:1-seg(k,.1,.55)*.97});DG3.forEach((q,j)=>dgFire(s,k,q,GK,j));}
+   if(k>=.6){s.p.P1=mv(DGPOS.P1,GK,seg(k,.6,.7));s.tag.P1=k>=.7?'SWORD':null;}
+   s.fx=k<.6?{k:'fxN1Giant',o:win(k,0,.6,.02),c:C.ally}:{k:'fxN1Sword',o:win(k,.6,1,.02),c:'#7ee08a'};}},
+ {d:24,f(k,s){s.tag.P1='SWORD';const i=Math.min(2,Math.floor(k*3));const ph=(k*3)%1;const r=RM[i];
+   s.p.P1=mv(s.p.P1,{x:r.x,y:r.y+50},.1);s.units.push({t:i===0?'hk':i===1?'hwiz':'wizard',x:r.x,y:r.y,hp:1-seg(ph,.2,.9)*.97});
+   if(ph>=.2&&ph<.9){if(i===2&&ph%.2<.1){s.eshots.push({a:r,b:s.p.P1});}s.adds.push({t:'raw',x:0,y:0,svg:`<path d="M${s.p.P1.x} ${s.p.P1.y} L${r.x} ${r.y}" stroke="#7ee08a" stroke-width="2" opacity="${Math.sin(now*20)>0?1:.2}"/>`});}
+   s.labels.push({x:r.x,y:r.y-60,k:['lNKnight','lNWiz','lNShr'][i],c:'#7ee08a',o:1});
+   s.fx={k:'fxN2Bosses',o:win(k,0,1,.02),c:'#7ee08a'};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+
+/* =================== PIT OF HERESY: CHAMBER OF SUFFERING =================== */
+// Keep someone on the central plate (empty → rage → wipe after ~10 s). Knights drop orbs; deposit six. Curse of Suffering
+// stacks raise damage taken; each deposit resets them.
+const PHC=(function(){
+ const PL={x:400,y:220};const DEP=[{x:200,y:120},{x:600,y:120},{x:200,y:330},{x:600,y:330}];
+ const floor=dgRoom('#141018','#3a2a3a',s=>`<circle cx="${PL.x}" cy="${PL.y}" r="26" fill="${s.empty?'rgba(255,97,86,.3)':'rgba(246,220,142,.15)'}" stroke="${s.empty?'#ff6156':'#f6dc8e'}" stroke-width="2"/>`+DEP.map(d=>`<rect x="${d.x-14}" y="${d.y-12}" width="28" height="24" rx="4" fill="#0e0b12" stroke="#a982f5"/>`).join(''));
+ const base=dgBase(DG3,DGPOS,{empty:false});
+ const S=[
+ {d:22,f(k,s){s.p.P2={...PL};const kn={x:300,y:150};if(k<.35){s.units.push({t:'hk',x:kn.x,y:kn.y,hp:1-seg(k,.05,.32)*.97});['P1','P3'].forEach((q,j)=>dgFire(s,k,q,kn,j));}
+   if(k>=.35&&k<.45)s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${kn.x}" cy="${kn.y}" r="8" fill="#a982f5"/>`});
+   s.orb.P1=k>=.45&&k<.75?'#a982f5':null;s.p.P1=k<.45?mv(DGPOS.P1,kn,seg(k,.35,.45)):mv(kn,{x:DEP[0].x+20,y:DEP[0].y+20},seg(k,.45,.7));
+   DG3.forEach(q=>s.stk[q]=k<.75?Math.min(9,1+Math.floor(k*10)):0);if(k>=.75&&k<.82)s.bursts.push({...DEP[0],r:10+30*seg(k,.75,.82),c:'#a982f5',o:1-seg(k,.75,.82)});
+   s.pips={lk:'lOrbLbl',n:6,done:k<.75?0:1};
+   s.fx=k<.45?{k:'fxC1Plate',o:win(k,0,.45,.02),c:'#f6dc8e'}:k<.75?{k:'fxC1Orb',o:win(k,.45,.75,.02),c:'#a982f5'}:{k:'fxC1Reset',o:win(k,.75,1,.02),c:C.good};}},
+ {d:14,f(k,s){s.p.P2=mv(PL,{x:520,y:300},seg(k,0,.15));s.empty=k>=.15;s.hud={t:'lRageT',v:Math.max(0,10-(k-.15)*16)};if(k>=.15&&k<.5)s.labels.push({x:PL.x,y:PL.y-40,k:'lEmpty',c:C.danger,o:1});
+   if(k>=.5)s.p.P3=mv(DGPOS.P3,PL,seg(k,.5,.65));if(k>=.65)s.empty=false;
+   s.fx=k<.5?{k:'fxC2Empty',o:win(k,0,.5,.02),c:C.danger}:{k:'fxC2Back',o:win(k,.5,1,.02),c:C.good};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+
+/* =================== PIT OF HERESY: ZULMAK =================== */
+// The three sword bosses return; each drops an orb; deposit all three at separate spots → damage, which only counts
+// inside the centre. When Zulmak plants his sword, jump out of the boss area.
+const PHZ=(function(){
+ const Z={x:400,y:200};const DEP=[{x:250,y:300},{x:550,y:300},{x:400,y:370}];
+ const floor=dgRoom('#141018','#3a2a3a',s=>`<circle cx="${Z.x}" cy="${Z.y}" r="110" fill="${s.dmg?'rgba(246,220,142,.08)':'none'}" stroke="#f6dc8e" stroke-dasharray="5 5" opacity=".6"/>`+DEP.map(d=>`<rect x="${d.x-14}" y="${d.y-12}" width="28" height="24" rx="4" fill="#0e0b12" stroke="#a982f5"/>`).join(''));
+ const base=dgBase(DG3,DGPOS,{dmg:false});
+ const boss=(s,o)=>s.units.push(Object.assign({t:'hk',x:Z.x,y:Z.y,big:1},o||{}));
+ const S=[
+ {d:20,f(k,s){boss(s);DG3.forEach((q,j)=>{s.orb[q]=k<.5?'#a982f5':null;s.p[q]=mv(DGPOS[q],{x:DEP[j].x,y:DEP[j].y-26},seg(k,0,.45));});if(k>=.5&&k<.58)DEP.forEach(d=>s.bursts.push({...d,r:10+30*seg(k,.5,.58),c:'#a982f5',o:1-seg(k,.5,.58)}));
+   s.fx=k<.5?{k:'fxZ1Orbs',o:win(k,0,.5,.02),c:'#a982f5'}:{k:'fxZ1Open',o:win(k,.5,1,.02),c:C.good};}},
+ {d:22,f(k,s){s.dmg=true;boss(s,{hp:1-seg(k,.05,.6)*.3});DG3.forEach((q,j)=>{const t={x:340+j*60,y:260};s.p[q]=k<.6?mv(s.p[q],t,.2):mv(t,{x:200+j*200,y:400},seg(k,.62,.75));if(k<.6)dgFire(s,k,q,Z,j);});
+   if(k>=.6&&k<.66)s.labels.push({x:Z.x,y:Z.y-50,k:'lPlant',c:C.danger,o:1});if(k>=.78&&k<.86){s.bursts.push({...Z,r:20+110*seg(k,.78,.86),c:C.danger,o:1-seg(k,.78,.86)});s.shake=.8;}
+   s.fx=k<.6?{k:'fxZ2Dmg',o:win(k,0,.6,.02),c:C.ally}:{k:'fxZ2Out',o:win(k,.6,1,.02),c:C.danger};}}
+ ];
+ return{bg:dgBg,S,base,finish:dgFinish(DG3,floor)};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -8957,6 +9078,63 @@ const RG_DPA=[{id:'rd',slots:['RD1','RD2'],focus:[1],de:{name:'Leser',steps:['Pl
 const RG_DPE=[{id:'in',slots:['IL','IR'],focus:[1],de:{name:'Innen',steps:['Im Licht stehen, Augen ansagen und brechen.'],watch:['Welches leuchtet nochmal?']},en:{name:'Inside',steps:['Stand in the light, call and break eyes.'],watch:['Which one glows again?']}},{id:'out',slots:['OL1','OL2','OR1','OR2'],focus:[2,3],de:{name:'Außen',steps:['Auge der Gegenseite brechen.','Schaden zwischen den Schilden.'],watch:['Seitenraum-Teleport.']},en:{name:'Outside',steps:['Break the opposite side’s eye.','Damage between the shields.'],watch:['Side room teleport.']}}];
 const RG_DPK=[{id:'ban',slots:['B1','B2'],focus:[1],de:{name:'Verbannt',steps:['Cyclops im Portal-Raum töten.'],watch:['Wer verbannt wird, ist zufällig.']},en:{name:'Banished',steps:['Kill the Cyclops in the portal room.'],watch:['Who gets banished is random.']}},{id:'out',slots:['O1','O2','O3','O4'],focus:[1,2,3],de:{name:'Außen',steps:['Farbe finden, vier dunken.','Kristalle, Schaden.','Ein Würfel.'],watch:['Nach dem Kill verstecken.']},en:{name:'Outside',steps:['Find the colour, dunk four.','Crystals, damage.','One cube.'],watch:['Hide after the kill.']}}];
 
+const SV_DG=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="40" y="10" width="340" height="190" rx="10" fill="#14121c" stroke="#3a3356"/><g font-family="Chakra Petch, sans-serif" font-size="11" text-anchor="middle"><text x="210" y="105" fill="#9c95b0">{0}</text></g></svg>`;
+const DG_SLOTS=[['P1','Spieler 1','Player 1'],['P2','Spieler 2','Player 2'],['P3','Spieler 3','Player 3']];
+const dgEnc=(num,name,eng,de,en)=>({num,name,eng,diags:[SV_DG],order:['P1','P2','P3'],slots:DG_SLOTS,
+ de:Object.assign({m:{},master:['Master-Variante hier nicht abgebildet.'],diags:[['Schematisch','Keine Karte in den Quellen.',['schematisch']]],gear:{crit:['Boss-Schaden.'],top:['Ad-Clear.'],budget:['Dungeons sind seit 2026 deutlich leichter (laut Guide).']}},de),
+ en:Object.assign({m:{},master:['Master variant not shown here.'],diags:[['Schematic','No map in the sources.',['schematic']]],gear:{crit:['Boss damage.'],top:['Ad clear.'],budget:['Dungeons are much easier since 2026 (per the guide).']}},en)});
+const RG_DG=(de,en)=>[{id:'all',slots:['P1','P2','P3'],focus:[1,2],de:{name:'Alle',steps:de,watch:[]},en:{name:'Everyone',steps:en,watch:[]}}];
+const ENC_STV=dgEnc(1,'Vorgoth, the Boundless Hunger',STV,
+ {kicker:'Shattered Throne · Vorgoth',lede:'Vorher: Labyrinth im Taken-Realm (Gruppen töten, dem Symbol folgen) und eine Thrallway ohne Regeneration. Vorgoth: Vier Keeper-Wizards, jeder mit zwei Taken Vandals und zwei Goblins. Erst die Adds, dann die Wizards einzeln. Jeder Wizard gibt „Petitioner’s Mark“ (bis 4 Stapel, 45 s, beim Aufheben zurückgesetzt, beim Tod weg). Mit 4 Stapeln wird daraus „Petitioner’s Burden“: damit eine Flamme um Vorgoth löschen, Schild weg, Schaden. Schematisch.',
+  sc:[['Marks','Adds zuerst, dann Wizards einzeln; ein Spieler sammelt alle vier Marks.'],['Burden','Flamme löschen, Schild weg, Schaden. Taken-Bomben abschießen oder ausweichen.']],tip:{1:'Ein Sammler.',2:'Bomben abschießen.'},
+  roles:[['Sammler','Marks holen, Flamme löschen.','runner'],['Rest','Adds, Wizards.','']],rules:['Mark: 45 s, bis 4.','4 = Burden → Flamme.'],wipes:['Sammler stirbt: Stapel weg.'],tips:['<b>Waffen laut Guide:</b> Whisper of the Worm, Sleeper Simulant.'],calls:[['Vier','Four','Burden'],['Flamme','Flame','löschen']],
+  L:{lMarkT:'MARK',fxV1Adds:'Adds, dann Wizard',fxV1Mark:'Petitioner’s Mark sammeln',fxV2Flame:'Burden: Flamme löschen',fxV2Shield:'Schild weg',fxV2Dmg:'Schaden'}},
+ {kicker:'Shattered Throne · Vorgoth',lede:'First: a labyrinth in the Taken realm (kill groups, follow the symbol) and a thrallway without regeneration. Vorgoth: four Keeper Wizards, each with two Taken Vandals and two Goblins. Adds first, then the Wizards one by one. Each Wizard gives “Petitioner’s Mark” (up to 4 stacks, 45 s, reset on pickup, lost on death). At 4 stacks it becomes “Petitioner’s Burden”: use it to put out a flame around Vorgoth, shield down, damage. Schematic.',
+  sc:[['Marks','Adds first, then Wizards one by one; one player collects all four marks.'],['Burden','Put out a flame, shield down, damage. Shoot or dodge Taken bombs.']],tip:{1:'One collector.',2:'Shoot the bombs.'},
+  roles:[['Collector','Get marks, put out the flame.','runner'],['Rest','Adds, Wizards.','']],rules:['Mark: 45 s, up to 4.','4 = Burden → flame.'],wipes:['Collector dies: stacks gone.'],tips:['<b>Weapons per the guide:</b> Whisper of the Worm, Sleeper Simulant.'],calls:[['Vier','Four','Burden'],['Flamme','Flame','put out']],
+  L:{lMarkT:'MARK',fxV1Adds:'Adds, then Wizard',fxV1Mark:'Collect Petitioner’s Mark',fxV2Flame:'Burden: put out a flame',fxV2Shield:'Shield down',fxV2Dmg:'Damage'}});
+const ENC_STD=dgEnc(2,'Dûl Incaru, the Eternal Return',STD,
+ {kicker:'Shattered Throne · Dûl Incaru',lede:'Drei Nahkampf-Knights. Jeder Kill gibt „Finite Thought“: damit kann man Dûl Incaru verletzen, bis zu drei Stapel für mehr Schaden, aber mit Timer: bei null stirbt man, außer man reinigt sich am Brazier in der Mitte. Knights kommen nach etwa 60 s zurück. Der Kristall schützt die Knights; zerstört man ihn, kommen Psions auf den Seiten-Balkonen. Schematisch.',
+  sc:[['Knights','Möglichst alle drei zusammen töten, jeder hat dann Finite Thought.'],['Schaden + Reinigen','Schaden auf Dûl Incaru, rechtzeitig am Brazier reinigen.']],tip:{1:'Knights zusammen.',2:'Timer im Blick.'},
+  roles:[['Alle','Knights, Schaden, reinigen.','']],rules:['Finite Thought: Timer, bei null tot.','Brazier reinigt.'],wipes:['Finite Thought läuft ab.'],tips:['<b>Sicherer Platz:</b> hinterer Balkon, Säulen zum Kiten (laut Guide).'],calls:[['Reinigen','Cleanse','Brazier']],
+  L:{lFiniteT:'FINITE THOUGHT',fxD1Knights:'Drei Knights zusammen töten',fxD1Finite:'Finite Thought: Timer läuft',fxD2Dmg:'Schaden auf Dûl Incaru',fxD2Clean:'Am Brazier reinigen'}},
+ {kicker:'Shattered Throne · Dûl Incaru',lede:'Three melee Knights. Each kill gives “Finite Thought”: it lets you damage Dûl Incaru, up to three stacks for more damage, but with a timer: at zero you die unless you cleanse at the central brazier. Knights return after about 60 s. The crystal shields the Knights; destroying it spawns Psions on the side ledges. Schematic.',
+  sc:[['Knights','Try to kill all three together, so everyone has Finite Thought.'],['Damage + cleanse','Damage Dûl Incaru, cleanse at the brazier in time.']],tip:{1:'Knights together.',2:'Watch the timer.'},
+  roles:[['Everyone','Knights, damage, cleanse.','']],rules:['Finite Thought: timer, dead at zero.','The brazier cleanses.'],wipes:['Finite Thought runs out.'],tips:['<b>Safe spot:</b> the back balcony, pillars for kiting (per the guide).'],calls:[['Reinigen','Cleanse','brazier']],
+  L:{lFiniteT:'FINITE THOUGHT',fxD1Knights:'Kill the three Knights together',fxD1Finite:'Finite Thought: timer running',fxD2Dmg:'Damage Dûl Incaru',fxD2Clean:'Cleanse at the brazier'}});
+const ENC_PHN=dgEnc(1,'Necropolis',PHN,
+ {kicker:'Pit of Heresy · Necropolis',lede:'Räume mit einem Riesen-Knight (lässt das Hive-Schwert fallen) oder einem von drei Bossen, die Hive-Symbole an der Rückwand markieren. Jeden Boss mit dem Schwert töten: Knight mit leichten Angriffen/Super, Wizard mit den Projektilen des schweren Angriffs, Shrieker durch Abblocken seiner Schüsse. Danach erscheint ein Licht in der Mitte, ihm folgen und den letzten Pit Keeper töten. Schematisch.',
+  sc:[['Schwert','Riesen-Knight töten, Schwert aufheben.'],['Bosse','Knight, Wizard, Shrieker jeweils auf ihre Art mit dem Schwert.']],tip:{1:'Ein Raum pro Spieler.',2:'Schwert-Technik je Boss.'},
+  roles:[['Schwert','Bosse töten.','runner'],['Rest','Räume freiräumen.','']],rules:['Bosse nur mit dem Schwert.'],wipes:['In der Quelle nicht beschrieben.'],tips:['<b>Danach:</b> Tunnels (Orbs von drei Knights, unverwundbare Ogres in den Gängen).'],calls:[['Schwert','Sword','aufheben']],
+  L:{fxN1Giant:'Riesen-Knight töten',fxN1Sword:'Hive-Schwert aufheben',fxN2Bosses:'Bosse mit dem Schwert',lNKnight:'Knight: leichte Angriffe',lNWiz:'Wizard: schwerer Angriff',lNShr:'Shrieker: abblocken'}},
+ {kicker:'Pit of Heresy · Necropolis',lede:'Rooms with a giant Knight (drops the Hive sword) or one of three bosses, marked by Hive symbols on the back wall. Kill each boss with the sword: Knight with light attacks/super, Wizard with the heavy attack’s projectiles, Shrieker by blocking its shots. Then a light appears in the middle, follow it and kill the last Pit Keeper. Schematic.',
+  sc:[['Sword','Kill the giant Knight, pick up the sword.'],['Bosses','Knight, Wizard, Shrieker each their own way with the sword.']],tip:{1:'One room per player.',2:'Sword technique per boss.'},
+  roles:[['Sword','Kill bosses.','runner'],['Rest','Clear rooms.','']],rules:['Bosses only with the sword.'],wipes:['Not described in the source.'],tips:['<b>Afterwards:</b> Tunnels (orbs from three Knights, immune Ogres in the lanes).'],calls:[['Schwert','Sword','pick up']],
+  L:{fxN1Giant:'Kill the giant Knight',fxN1Sword:'Pick up the Hive sword',fxN2Bosses:'Bosses with the sword',lNKnight:'Knight: light attacks',lNWiz:'Wizard: heavy attack',lNShr:'Shrieker: block'}});
+const ENC_PHC=dgEnc(2,'Chamber of Suffering',PHC,
+ {kicker:'Pit of Heresy · Chamber of Suffering',lede:'Immer jemand auf der Platte in der Mitte: leer = sie tobt, nach 10 Sekunden Wipe. Knights lassen Orbs fallen, sechs ablegen. „Curse of Suffering“-Stapel erhöhen den erlittenen Schaden, jede Ablage setzt sie zurück. Jede Ablage ruft eine Welle. Schematisch.',
+  sc:[['Orbs','Einer auf der Platte, zwei holen Orbs von Knights und legen ab.'],['Platte leer','Nie länger als 10 Sekunden.']],tip:{1:'Platte nie leer.',2:'Ablegen = Curse weg.'},
+  roles:[['Platte','In der Mitte stehen.',''],['Läufer','Knights, Orbs.','runner']],rules:['6 Orbs.','Platte leer: 10 s bis Wipe.'],wipes:['Platte länger als 10 s leer.'],tips:['<b>Danach:</b> Harrow-Labyrinth: das Symbol oben zeigt den Wizard, der die Tür öffnet.'],calls:[['Platte','Plate','wechseln']],
+  L:{lOrbLbl:'ORBS',lRageT:'PLATTE',lEmpty:'Platte leer!',fxC1Plate:'Einer bleibt auf der Platte',fxC1Orb:'Knight → Orb → ablegen',fxC1Reset:'Curse zurückgesetzt',fxC2Empty:'Platte leer: 10 s',fxC2Back:'Sofort wieder drauf'}},
+ {kicker:'Pit of Heresy · Chamber of Suffering',lede:'Always keep someone on the central plate: empty = it rages, wipe after 10 seconds. Knights drop orbs, deposit six. “Curse of Suffering” stacks raise damage taken, each deposit resets them. Each deposit spawns a wave. Schematic.',
+  sc:[['Orbs','One on the plate, two grab orbs from Knights and deposit.'],['Empty plate','Never longer than 10 seconds.']],tip:{1:'Never leave the plate empty.',2:'Deposit = curse gone.'},
+  roles:[['Plate','Stand in the middle.',''],['Runners','Knights, orbs.','runner']],rules:['6 orbs.','Empty plate: 10 s to wipe.'],wipes:['Plate empty for more than 10 s.'],tips:['<b>Afterwards:</b> Harrow labyrinth: the symbol above shows the Wizard that opens the door.'],calls:[['Platte','Plate','swap']],
+  L:{lOrbLbl:'ORBS',lRageT:'PLATE',lEmpty:'Plate empty!',fxC1Plate:'One stays on the plate',fxC1Orb:'Knight → orb → deposit',fxC1Reset:'Curse reset',fxC2Empty:'Plate empty: 10 s',fxC2Back:'Back on right away'}});
+const ENC_PHZ=dgEnc(3,'Zulmak, Instrument of Torment',PHZ,
+ {kicker:'Pit of Heresy · Zulmak',lede:'Die drei Schwert-Bosse aus der Necropolis kommen zurück, gleiche Technik. Jeder lässt einen Orb fallen; alle drei an getrennten Stellen um den Boss ablegen, dann Schaden. Schaden zählt nur im Bereich in der Mitte. Rammt Zulmak sein Schwert in den Boden: aus dem Boss-Bereich springen. Schematisch.',
+  sc:[['Orbs','Drei Orbs an drei Stellen ablegen.'],['Schaden','In der Mitte Schaden; beim Schwert-Rammen raus.']],tip:{1:'Drei Stellen, drei Spieler.',2:'Schwert = raus.'},
+  roles:[['Alle','Bosse, Orbs, Schaden.','']],rules:['Schaden nur in der Mitte.'],wipes:['Im Bereich bleiben, wenn er das Schwert rammt.'],tips:['<b>2026:</b> laut Guide durch stärkere Hüter deutlich leichter.'],calls:[['Raus!','Out!','Schwert']],
+  L:{fxZ1Orbs:'Drei Orbs an drei Stellen',fxZ1Open:'Schaden frei',fxZ2Dmg:'Schaden in der Mitte',fxZ2Out:'Schwert gerammt: raus!',lPlant:'Schwert!'}},
+ {kicker:'Pit of Heresy · Zulmak',lede:'The three sword bosses from the Necropolis return, same technique. Each drops an orb; deposit all three at separate spots around the boss, then damage. Damage only counts inside the central area. When Zulmak plants his sword: jump out of the boss area. Schematic.',
+  sc:[['Orbs','Deposit three orbs at three spots.'],['Damage','Damage in the middle; get out when he plants the sword.']],tip:{1:'Three spots, three players.',2:'Sword = out.'},
+  roles:[['Everyone','Bosses, orbs, damage.','']],rules:['Damage only in the middle.'],wipes:['Staying in the area when he plants the sword.'],tips:['<b>2026:</b> much easier with stronger Guardians, per the guide.'],calls:[['Raus!','Out!','sword']],
+  L:{fxZ1Orbs:'Three orbs at three spots',fxZ1Open:'Damage open',fxZ2Dmg:'Damage in the middle',fxZ2Out:'Sword planted: get out!',lPlant:'Sword!'}});
+const RG_STV=RG_DG(['Adds, dann Wizards.','Einer sammelt vier Marks.','Flamme löschen, Schaden.'],['Adds, then Wizards.','One collects four marks.','Put out a flame, damage.']);
+const RG_STD=RG_DG(['Knights zusammen töten.','Schaden.','Am Brazier reinigen.'],['Kill the Knights together.','Damage.','Cleanse at the brazier.']);
+const RG_PHN=RG_DG(['Riesen-Knight, Schwert.','Bosse mit dem Schwert.'],['Giant Knight, sword.','Bosses with the sword.']);
+const RG_PHC=RG_DG(['Einer auf der Platte.','Orbs ablegen.'],['One on the plate.','Deposit orbs.']);
+const RG_PHZ=RG_DG(['Bosse, Orbs.','Schaden in der Mitte, beim Schwert raus.'],['Bosses, orbs.','Damage in the middle, out on the sword.']);
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -9244,7 +9422,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,ceabyss:ENC_CEA,cebridge:ENC_CEB,ceiryut:ENC_CEI,cecrota:ENC_CEC,dpiat:ENC_DPI,dpagr:ENC_DPA,dpepo:ENC_DPE,dpkor:ENC_DPK,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,ceabyss:ENC_CEA,cebridge:ENC_CEB,ceiryut:ENC_CEI,cecrota:ENC_CEC,dpiat:ENC_DPI,dpagr:ENC_DPA,dpepo:ENC_DPE,dpkor:ENC_DPK,stvorg:ENC_STV,stdul:ENC_STD,phnecro:ENC_PHN,phcham:ENC_PHC,phzul:ENC_PHZ,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -9310,6 +9488,8 @@ const ACT={
  dp:{name:'The Desert Perpetual',encs:['dpiat','dpagr','dpepo','dpkor'],src:[['The Game Post – Desert Perpetual Epic raid guide (Nov 2025)','https://thegamepost.com/destiny-2-desert-perpetual-epic-raid-guide/'],['Kyber’s Corner – The Desert Perpetual','https://kyberscorner.com/destiny-2-the-desert-perpetual-raid/'],['Sportskeeda – Feat: Encounter challenges','https://widgets.sportskeeda.com/mmo/all-feat-encounter-challenges-destiny-2-the-desert-perpetual-raid'],['Destinypedia – The Desert Perpetual','https://www.destinypedia.com/The_Desert_Perpetual']]},
  se:{name:'Salvation’s Edge',encs:['substratum','dissipation','repository','verity','zenith'],src:[['Shacknews – Salvation’s Edge raid guide','https://www.shacknews.com/article/140025/salvations-edge-raid-guide-destiny-2'],['PCGamesN – Salvation’s Edge guide','https://www.pcgamesn.com/destiny-2/salvations-edge-guide'],['Professionalism.gg – Salvation’s Edge','https://professionalism.gg/raid-guides/salvations-edge'],['Backdash – Salvation’s Edge raid guide','https://www.thebackdash.com/destiny/destiny-2-salvations-edge-raid-guide'],['Sportskeeda – Substratum guide','https://sportskeeda.com/mmo/destiny-2-salvation-s-edge-raid-first-encounter-guide-substratum'],['Paracausality – Salvation’s Edge guide','https://www.paracausality.com/se_guide'],['Destiny 2 Wiki – Salvation’s Edge','https://d2.destinygamewiki.com/wiki/Salvation%27s_Edge'],['Destructoid – Substratum map','https://www.destructoid.com/destiny-2-salvations-edge-first-encounter-raid-guide/'],['Destinypedia – Salvation’s Edge','https://www.destinypedia.com/Salvation%27s_Edge'],['Destructoid – Verity map','https://www.destructoid.com/destiny-2-salvations-edge-fourth-encounter-raid-guide-verity/'],['Destructoid – Zenith','https://www.destructoid.com/destiny-2-salvations-edge-5th-encounter-raid-guide-zenith/']]}
 ,
+ st:{name:'The Shattered Throne',kind:'dungeon',encs:['stvorg','stdul'],src:[['Yardbarker – Shattered Throne dungeon guide 2026','https://www.yardbarker.com/video_games/articles/destiny_2_shattered_throne_dungeon_guide_2026/s1_17456_43886482'],['Shacknews – Shattered Throne dungeon guide','https://shacknews.com/article/107607/shattered-throne-dungeon-guide-destiny-2']]},
+ ph:{name:'Pit of Heresy',kind:'dungeon',encs:['phnecro','phcham','phzul'],src:[['Yardbarker – Pit of Heresy 2026 dungeon guide','https://www.yardbarker.com/video_games/articles/destiny_2_pit_of_heresy_2026_dungeon_guide/s1_17456_43890145'],['Shacknews – Pit of Heresy guide','https://shacknews.com/article/114869/pit-of-heresy-guide-destiny-2']]},
  eq:{name:'Equilibrium',kind:'dungeon',encs:['eqharv','eqharrow','eqsere'],src:[['Destinypedia – Equilibrium','https://www.destinypedia.com/Equilibrium'],['Shacknews – Equilibrium dungeon guide','https://www.shacknews.com/article/147168/how-to-complete-the-equilibrium-dungeon-in-destiny-2'],['Vaexil – Equilibrium field guide (PDF)','https://destiny2.vaexil.tv/downloads/guides/dungeons/equilibrium/equilibrium-complete-guide.pdf'],['Grindout – Equilibrium guide','https://grindout.com/destiny-2/guides/equilibrium-guide'],['The Game Post – Equilibrium dungeon guide','https://thegamepost.com/destiny-2-equilibrium-dungeon-guide/'],['ProGameTalk – Equilibrium walkthrough','https://progametalk.com/destiny-2/equilibrium-dungeon-walkthrough/'],['Kyber’s Corner – Equilibrium','https://kyberscorner.com/destiny-2-equilibrium-dungeon/'],['Total Apex Gaming – Harrow guide','https://totalapexgaming.com/action/equilibrium-harrow-guide/']]}};
 const actOf=id=>Object.keys(ACT).find(a=>ACT[a].encs.includes(id))||'ron';
 
@@ -9411,7 +9591,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.ceabyss=RG_CEA;RG.cebridge=RG_CEB;RG.ceiryut=RG_CEI;RG.cecrota=RG_CEC;RG.dpiat=RG_DPI;RG.dpagr=RG_DPA;RG.dpepo=RG_DPE;RG.dpkor=RG_DPK;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.ceabyss=RG_CEA;RG.cebridge=RG_CEB;RG.ceiryut=RG_CEI;RG.cecrota=RG_CEC;RG.dpiat=RG_DPI;RG.dpagr=RG_DPA;RG.dpepo=RG_DPE;RG.dpkor=RG_DPK;RG.stvorg=RG_STV;RG.stdul=RG_STD;RG.phnecro=RG_PHN;RG.phcham=RG_PHC;RG.phzul=RG_PHZ;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
@@ -9563,6 +9743,10 @@ const CHAL={
  verity:{n:'Varied Geometry',de:'Derselbe 3D-Schlüssel darf nicht wiederholt werden. Die Guides beschreiben es unterschiedlich: nicht zweimal hintereinander, oder erst wieder, wenn alle sechs Formen dran waren.',en:'The same 3D key may not be repeated. Guides describe it differently: not twice in a row, or only again once all six shapes have been used.'},
  zenith:{n:'Coordinated Efforts',de:'Alle sechs Knöpfe innerhalb weniger Sekunden nach dem ersten zerstören. Dafür sammeln alle sechs vorher Glyphbreaker und schießen dann gleichzeitig.',en:'Break all six buttons within a few seconds of the first. So all six collect Glyphbreaker first, then shoot together.'}};
 const XTRA={
+ st:{de:[['Exotic','Wish-Ender (Bogen); die Statue auf dem zweiten Traversal-Weg gehört zur Quest.'],['Hinweis','Keine Rally-Banner; Thrallways ohne Regeneration. Zu schnelles Laufen im Phalanx-Bereich kann den Encounter blockieren (Soft-Lock).'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],
+  en:[['Exotic','Wish-Ender (bow); the statue on the second traversal belongs to the quest.'],['Note','No rally banners; thrallways without regeneration. Rushing the Phalanx area can soft-lock the encounter.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
+ ph:{de:[['Harrow-Labyrinth','Symbol oben = Wizard, der die Tür öffnet (laut Guide): Eistüte nah links, Zaun ganz links, Tisch mit drei Strichen Mitte links, Tisch mit zwei Strichen ganz rechts, „Praise“ Mitte, „A“ nah rechts.'],['Exotic','Xenophage (Machine Gun) über eine Quest im Dungeon (Details nicht geprüft).'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],
+  en:[['Harrow labyrinth','Symbol above = the Wizard that opens the door (per the guide): ice cream cone close left, fence far left, table with three lines middle left, table with two lines far right, “Praise” middle, “A” close right.'],['Exotic','Xenophage (machine gun) via a quest in the dungeon (details not checked).'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
  dp:{de:[['Reihenfolge','Die ersten drei Bosse frei wählbar (oben am Lift), Koregos zuletzt. Nach Koregos kann man direkt zu jedem Encounter springen.'],
    ['Titel','„Atemporal“: alle Raid-Triumphe; sechs davon erhöhen die Exotic-Chance.'],
    ['Exotic','Whirling Ovation (Raketenwerfer), Zufallsdrop bei Koregos, einmal pro Woche.'],
