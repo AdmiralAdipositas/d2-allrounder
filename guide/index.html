@@ -503,7 +503,7 @@ function plateS(x,y,st,col,op,num,dis){if(op<=0)return'';const D=col==='D',c=D?C
  s+=`<text x="${x}" y="${y+28}" text-anchor="middle" class="pnum">${num}</text></g>`;return s;}
 function lblS(x,y,txt,c,o=1,cls='lbl'){return `<text x="${x}" y="${y}" text-anchor="middle" class="${cls}" fill="${c}" opacity="${o}">${esc(txt)}</text>`;}
 let HF=0;function hpBar(x,y,w,h,hp,gh){hp=hp==null?1:hp;gh=gh==null?hp:Math.max(gh,hp);return (HF>0?`<rect x="${x-1.5}" y="${y-1.5}" width="${w+3}" height="${h+3}" rx="${h/2+1.5}" fill="none" stroke="#fff" stroke-width="1.2" opacity="${HF}"/>`:'')+`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="#3a2a2a"/><rect x="${x}" y="${y}" width="${w*gh}" height="${h}" rx="${h/2}" fill="#ffe9c2" opacity=".85"/><rect x="${x}" y="${y}" width="${w*hp}" height="${h}" rx="${h/2}" fill="${C.enemy}"/>`+(HF>0?`<rect x="${x+w*hp}" y="${y}" width="${Math.max(2,w*(gh-hp))}" height="${h}" fill="#fff" opacity="${HF*.9}"/>`:'');}
-const ENEMY={vmind:1,angel:1,fserv:1,atraks:1,taniks:1,nap:1,behe:1,leg:1,lack:1,harrow:1,sere:1,bshadow:1,vgob:1,vhob:1,vpra:1,vcyc:1,vwyv:1,vfan:1,witness:1,zhand:1,scorp:1,rhand:1,incend:1,herald:1,hblight:1,mino:1,subj:1,harpy:1,rface:1,riven:1,rheart:1,mknight:1,morgeth:1,dart:1,shuro:1,kalli:1,daughter:1,oryx:1,shade:1,golg:1,warpriest:1,knightO:1,taken:1,knightY:1,psion:1,torm:1,champ:1,cent:1,colossus:1,boss:1,nez:1,thrall:1,wizard:1,knight:1,ogre:1};
+const ENEMY={scorn:1,tknight:1,caretaker:1,rhulk:1,vmind:1,angel:1,fserv:1,atraks:1,taniks:1,nap:1,behe:1,leg:1,lack:1,harrow:1,sere:1,bshadow:1,vgob:1,vhob:1,vpra:1,vcyc:1,vwyv:1,vfan:1,witness:1,zhand:1,scorp:1,rhand:1,incend:1,herald:1,hblight:1,mino:1,subj:1,harpy:1,rface:1,riven:1,rheart:1,mknight:1,morgeth:1,dart:1,shuro:1,kalli:1,daughter:1,oryx:1,shade:1,golg:1,warpriest:1,knightO:1,taken:1,knightY:1,psion:1,torm:1,champ:1,cent:1,colossus:1,boss:1,nez:1,thrall:1,wizard:1,knight:1,ogre:1};
 function fxPre(u,o){if(!ENEMY[u.t])return'';let s=`<ellipse cx="${u.x}" cy="${u.y+(u.t==='boss'||u.t==='nez'?34:16)}" rx="${u.t==='boss'||u.t==='nez'?34:14}" ry="${u.t==='boss'||u.t==='nez'?8:4}" fill="#000" opacity="${.35*o}"/>`;
  if(o<1&&o>0&&!REDUCE){const q=1-o;s+=`<circle cx="${u.x}" cy="${u.y}" r="${16+26*q}" fill="rgba(20,8,36,${.55*q})" stroke="#6d4bd1" stroke-width="2" opacity="${q}"/>`;
   for(let i=0;i<8;i++){const a=i*0.785+now*1.5,rr=10+30*q+((i*7)%5);const px=u.x+Math.cos(a)*rr,py=u.y+Math.sin(a)*rr*.6-q*14-(i%3)*3;s+=`<circle cx="${px}" cy="${py}" r="${1.6+(i%3)*.6}" fill="${i%2?'#a982f5':'#2c1d4d'}" opacity="${q}"/>`;}}
@@ -815,6 +815,10 @@ function unitS(u,L){const o=u.o==null?1:u.o;if(o<=0)return'';const sc=u.sc==null
   case'taniks':{const sc=u.big?1.3:1;s+=`<g transform="scale(${sc})">`+(u.stun?`<circle r="${30+3*Math.sin(now*10)}" fill="rgba(89,184,255,.2)" stroke="#59b8ff" stroke-width="2.4"/>`:'')+(u.wing?`<path d="M-14 -4 L-40 -18 L-34 4 Z M14 -4 L40 -18 L34 4 Z" fill="#3a2414" stroke="#ff9a3c" stroke-width="1.8"/>`:'')+`<path d="M0 -20 L14 -6 L12 16 L-12 16 L-14 -6 Z" fill="#2c1e14" stroke="#ff9a3c" stroke-width="2.4"/><circle cy="-8" r="3.4" fill="#ff6156"/></g>`+(u.hp!=null?hpBar(-30,30*sc,60,6,u.hp,u.gh):'');break;}
   case'vmind':{const sc=u.big?1.5:u.small?.8:1.1;s+=`<g transform="scale(${sc})"><path d="M-30 0 L0 -28 L30 0 L0 34 Z" fill="#2c2214" stroke="#d9a441" stroke-width="2.4"/><circle r="9" fill="#ff6156" opacity="${.7+.3*Math.sin(now*4)}"/>`+(u.eyes||[]).map(e=>{const p={t:[0,-30],i:[-26,4],o:[26,4],x:[0,30]}[e];return`<circle cx="${p[0]}" cy="${p[1]}" r="5.5" fill="#ff6156" stroke="#fff" stroke-width="1.4"/>`;}).join('')+(u.knee?`<circle cx="-20" cy="26" r="7" fill="none" stroke="#59b8ff" stroke-width="2.4"/>`:'')+(u.shoulder?`<circle cx="22" cy="-14" r="7" fill="none" stroke="#ff9a3c" stroke-width="2.4"/>`:'')+(u.plus?`<path d="M-8 -50 h16 M0 -58 v16" stroke="${u.plus}" stroke-width="4"/>`:'')+`</g>`+(u.hp!=null?hpBar(-40,46*sc,80,6,u.hp,u.gh):'');break;}
   case'angel':s+=`<path d="M0 -10 C8 -16 16 -12 18 -4 C10 -6 4 -2 0 8 C-4 -2 -10 -6 -18 -4 C-16 -12 -8 -16 0 -10 Z" fill="#2c2214" stroke="#ece8f4" stroke-width="1.8"/>`+(u.sh?`<circle r="${17+1.5*Math.sin(now*6)}" fill="rgba(255,255,255,.12)" stroke="#ffffff" stroke-width="2"/>`:'')+(u.hp!=null?hpBar(-16,16,32,4,u.hp,u.gh):'');break;
+  case'scorn':s+=`<path d="M0 -12 L9 -2 L6 11 L-6 11 L-9 -2 Z" fill="#2a1a10" stroke="#ff9a3c" stroke-width="1.8"/><circle cy="-4" r="2.6" fill="#7fe3ff"/>`+(u.hp!=null?hpBar(-16,16,32,4,u.hp,u.gh):'');break;
+  case'tknight':s+=(u.sh?`<circle r="${19+1.5*Math.sin(now*6)}" fill="rgba(255,255,255,.1)" stroke="#ffffff" stroke-width="2"/>`:'')+`<path d="M0 -14 L11 -2 L8 13 L-8 13 L-11 -2 Z" fill="#14101e" stroke="#a982f5" stroke-width="2"/><circle cy="-5" r="2.8" fill="#e7dbff"/>`+(u.hp!=null?hpBar(-18,20,36,5,u.hp,u.gh):'');break;
+  case'caretaker':s+=`<g opacity="${u.down?.75:1}" transform="rotate(${u.down?90:0})"><rect x="-22" y="-30" width="44" height="60" rx="12" fill="#1a1426" stroke="#c9b6ff" stroke-width="2.4"/><circle cy="-14" r="8" fill="${u.face?'#f6dc8e':'#4a3d6b'}" stroke="#fff" stroke-width="${u.face?2:0}"/><rect x="-12" y="8" width="24" height="16" rx="3" fill="${u.back?'#ff9a3c':'#2a2440'}"/></g>`+(u.hp!=null?hpBar(-30,40,60,6,u.hp,u.gh):'');break;
+  case'rhulk':s+=(u.beam?`<line x1="0" y1="0" x2="${u.beam.x-u.x}" y2="${u.beam.y-u.y}" stroke="#ff6156" stroke-width="6" opacity=".55"/>`:'')+`<path d="M0 -24 L14 -8 L11 20 L-11 20 L-14 -8 Z" fill="#14101e" stroke="#a982f5" stroke-width="2.4"/><circle cy="-10" r="3.4" fill="#f6dc8e"/>`+(u.glaive?`<path d="M18 -26 L32 26" stroke="#f6dc8e" stroke-width="3"/>`:`<path d="M18 -26 L32 26" stroke="#6b5a9a" stroke-width="2"/>`)+(u.weak!=null?Array.from({length:u.weak},(_,i)=>`<circle cx="${-15+i*10}" cy="30" r="3.5" fill="#f6dc8e"/>`).join(''):'')+(u.kick?`<circle r="${34}" fill="none" stroke="#a982f5" stroke-width="3"/>`:'')+(u.hp!=null?hpBar(-34,40,68,6,u.hp,u.gh):'');break;
   case'vfan':s+=`<circle r="7" fill="#2c2214" stroke="#ffffff" stroke-width="1.8"/><circle r="${3+1.2*Math.sin(now*12)}" fill="#ffffff"/>`;break;
   case'nap':s+=`<path d="M0 -12 L9 8 L0 4 L-9 8 Z" fill="#1a1426" stroke="#e7dbff" stroke-width="2"/><circle cy="-3" r="2.4" fill="#a982f5"/>`+(u.sh?`<circle r="17" fill="rgba(169,130,245,.12)" stroke="#e7dbff" stroke-width="2" stroke-dasharray="4 3" stroke-dashoffset="${-now*8}"/>`:'')+(u.ch>0?`<circle r="${14+26*u.ch}" fill="rgba(169,130,245,${.08+.12*u.ch})" stroke="#ffffff" stroke-width="${1+1.5*u.ch}" opacity="${.5+.5*Math.sin(now*14)}"/>`:'')+(u.hp!=null?hpBar(-18,16,36,4,u.hp,u.gh):'');break;
   case'behe':s+=`<g transform="rotate(${u.rot||0})"><rect x="-18" y="-13" width="36" height="26" rx="5" fill="#3a2414" stroke="${u.big?'#ffcf4a':C.enemy}" stroke-width="2.6"/><path d="M4 0 H26" stroke="${u.big?'#ffcf4a':C.enemy}" stroke-width="5" stroke-linecap="round"/><circle r="5" fill="${u.big?'#ffcf4a':C.enemy}"/></g>`+(u.hp!=null?hpBar(-22,20,44,5,u.hp,u.gh):'');break;
@@ -5680,6 +5684,225 @@ const GSM=(function(){
  return{bg:gosBg,S,base,finish:gosFinish(keys,floor)};
 })();
 
+
+/* =================== VOW OF THE DISCIPLE (shared) =================== */
+// Glyphs drawn as small labelled tokens (no copyrighted art): first letters of the callout name.
+const VOW_ABK={Pyramid:'PY',Traveler:'TR',Light:'LI',Darkness:'DA',Guardian:'GU',Witness:'WI',Kill:'KI',Hive:'HI',Savathun:'SA',Worship:'WO',Commune:'CO',Give:'GV',Drink:'DR',Stop:'ST',Remember:'RE',Grief:'GR',Enter:'EN',Fleet:'FL',Knowledge:'KN',Neutral:'NE',Scorn:'SC',Ascendant:'AS',Tower:'TO',Black:'BL',Truth:'TU',Darkness2:'DA'};
+const vowSym=(p,n,o,c)=>({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><rect x="-13" y="-11" width="26" height="22" rx="4" fill="#1a1426" stroke="${c||'#c9b6ff'}" stroke-width="1.8"/><text y="4" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" font-weight="700" fill="${c||'#e7dbff'}">${VOW_ABK[n]||n.slice(0,2).toUpperCase()}</text></g>`});
+const vowObel=(p,o,hl,fill)=>({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><path d="M-14 22 L-9 -26 L9 -26 L14 22 Z" fill="#14101e" stroke="${hl?'#f6dc8e':'#6b5a9a'}" stroke-width="${hl?2.6:1.6}"/>${fill!=null?`<rect x="-9" y="${22-48*fill}" width="18" height="${48*fill}" fill="rgba(255,97,86,.35)"/>`:''}</g>`});
+function vowFinish(keys,floor){return function(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)}];
+  s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));
+  keys.forEach(q=>{if(s.dead[q])return;const p=s.p[q];
+   (s.sym[q]||[]).forEach((n,i)=>units.push(vowSym({x:p.x-((s.sym[q].length-1)*13)+i*26,y:p.y-26},n,1)));
+   if(s.relic[q])units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x+15} ${p.y+12})"><circle r="7" fill="${{seed:'#a982f5',aegis:'#f6dc8e',eye:'#7fe3ff'}[s.relic[q]]}" stroke="#fff" stroke-width="1"/></g>`});
+   if(s.force[q])units.push({t:'raw',x:0,y:0,svg:`<circle cx="${p.x}" cy="${p.y}" r="14" fill="none" stroke="${s.force[q]==='E'?'#ff6156':'#a982f5'}" stroke-width="2.4" stroke-dasharray="${s.force[q]==='E'?'0':'4 3'}"/>`});
+   if(s.dark[q]!=null)units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x+15} ${p.y+14})"><rect x="-9" y="-6" width="18" height="12" rx="3" fill="${s.dark[q]>=8?'#ff6156':'#2a2440'}" stroke="#a982f5"/><text y="3.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" font-weight="700" fill="#e7dbff">${s.dark[q]}</text></g>`});});
+  const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q],o:s.fade[q]==null?1:s.fade[q]}));
+  const hud=s.hud?{t:L(s.hud.t),v:fmt(s.hud.v),hi:false,paused:false,low:s.hud.v<20}:null;
+  return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud,plus:'',pips:s.pips?{at:[624,8],label:L(s.pips.lk)+' '+s.pips.done+'/'+s.pips.n,n:s.pips.n,done:s.pips.done}:null};};}
+function vowBase(keys,POS,extra){return function(){const s=Object.assign({p:{},sym:{},relic:{},force:{},dark:{},units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{},fade:{}},extra||{});
+  keys.forEach(k=>s.p[k]={...POS[k]});return s;};}
+const vowFire=(s,k,key,b,i)=>{if(s.busy[key]||s.dead[key])return;s.busy[key]=1;if(Math.floor(k*70+(i||0))%2)s.shots.push({a:s.p[key],q:key,b,c:C.ally});};
+const vowBg=g=>{g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';};
+
+/* =================== VOW: ACQUISITION =================== */
+// SCHEMATIC: three obelisks (left, middle, right), rooms along the left (Pyramid side) and right (Traveler side) walls.
+// Pairs per obelisk: defender keeps Scorn off it (shot too much = wipe), floater runs. A symbol flashes → a Taken
+// Knight spawns on that side; each Knight kill hands out a symbol (after three, every team has two). The floater goes
+// to the room of their second symbol; Light = kill the left Glyphkeeper, Darkness = the right one → third symbol.
+// The three floaters then shoot their three symbols together on the one obelisk that holds them.
+const VWA=(function(){
+ const keys=['D1','F1','D2','F2','D3','F3'];
+ const OB=[{x:250,y:250},{x:400,y:230},{x:550,y:250}];
+ const ROOM={L:[0,1,2,3,4].map(i=>({x:70,y:80+i*70})),R:[0,1,2,3,4].map(i=>({x:730,y:80+i*70}))};
+ const POS={D1:{x:250,y:300},F1:{x:220,y:320},D2:{x:400,y:290},F2:{x:430,y:310},D3:{x:550,y:300},F3:{x:580,y:320}};
+ const OBSYM=[['Pyramid','Kill','Light'],['Traveler','Witness','Darkness'],['Guardian','Hive','Light']];
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/><rect x="110" y="40" width="580" height="380" rx="12" fill="#16121f" stroke="#2f2a4a"/>`;
+  ['L','R'].forEach(sd=>ROOM[sd].forEach((p,i)=>{const on=s.room===sd+i;o+=`<rect x="${p.x-30}" y="${p.y-24}" width="60" height="48" rx="6" fill="${on?'rgba(169,130,245,.18)':'#100d19'}" stroke="${on?'#a982f5':'#3a3356'}"/><text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="10" fill="#9c95b0">${sd}${i+1}</text>`;}));
+  o+=`<text x="70" y="30" text-anchor="middle" class="hud-t" style="fill:#c9b6ff">PYRAMID</text><text x="730" y="30" text-anchor="middle" class="hud-t" style="fill:#c9b6ff">TRAVELER</text><text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN · schematic</text>`;return o;}
+ const base=vowBase(keys,POS,{room:null});
+ const obs=(s,o)=>OB.forEach((p,i)=>{s.adds.push(vowObel(p,1,(o.hl||[]).includes(i),o.fill?o.fill[i]:null));if(o.syms)OBSYM[i].forEach((n,j)=>s.adds.push(vowSym({x:p.x-28+j*28,y:p.y-48},n,o.syms)));});
+ const S=[
+ // 1 layout
+ {d:20,f(k,s){const o1=win(k,0,.33),o2=win(k,.33,.66),o3=win(k,.66,1.01);obs(s,{syms:k>=.66?o3:0});
+   if(k<.33)s.spot=OB.map(p=>({...p,r:34,o:o1,w:true}));else if(k<.66)s.spot=[{x:70,y:220,r:60,o:o2,w:true},{x:730,y:220,r:60,o:o2,w:true}];else s.spot=OB.map(p=>({x:p.x,y:p.y-48,r:44,o:o3,w:true}));
+   s.fx=k<.33?{k:'fxA1Ob',o:o1,c:'#c9b6ff'}:k<.66?{k:'fxA1Rooms',o:o2,c:'#c9b6ff'}:{k:'fxA1Syms',o:o3,c:'#c9b6ff'};}},
+ // 2 defend + Knights: symbol flashes, Knight on that side, kill → symbol to a team
+ {d:24,f(k,s){obs(s,{fill:[seg(k,0,1)*.3,seg(k,0,1)*.2,seg(k,0,1)*.25]});
+   [0,1,2].forEach(i=>{const e={x:OB[i].x+(i-1)*40,y:120};if(k<.3){s.units.push({t:'scorn',x:e.x,y:e.y,hp:1-seg(k,.02,.28)*.97});vowFire(s,k,'D'+(i+1),e,i);}});
+   const kn=[[.3,'L',2,'F1','Pyramid'],[.5,'R',1,'F2','Traveler'],[.7,'L',4,'F3','Pyramid']];
+   kn.forEach(([t,sd,i,q,n],j)=>{const p=ROOM[sd][i];const kp={x:p.x+(sd==='L'?60:-60),y:p.y};if(k>=t-.04&&k<t+.14){s.units.push({t:'tknight',x:kp.x,y:kp.y,hp:1-seg(k,t,t+.12)*.97});['D1','D2','D3'].forEach((d,m)=>vowFire(s,k,d,kp,m+j));if(k<t+.02)s.labels.push({x:kp.x,y:kp.y-30,k:'lKnight',c:'#a982f5',o:1});}});
+   ['F1','F2','F3'].forEach((q,j)=>{s.sym[q]=[];if(k>=.44)s.sym[q].push(['Kill','Witness','Hive'][j]);if(k>=.84)s.sym[q].push(['Pyramid','Traveler','Pyramid'][j]);});
+   s.fx=k<.3?{k:'fxA2Def',o:win(k,0,.3,.02),c:C.ally}:k<.84?{k:'fxA2Knight',o:win(k,.3,.84,.02),c:'#a982f5'}:{k:'fxA2Two',o:win(k,.84,1,.02),c:'#c9b6ff'};}},
+ // 3 room: F1 runs to its room, Light → left Glyphkeeper → third symbol
+ {d:22,f(k,s){obs(s,{});s.sym.F1=['Kill','Pyramid'];s.sym.F2=['Witness','Traveler'];s.sym.F3=['Hive','Pyramid'];
+   const R=ROOM.L[2];s.room='L2';s.p.F1=mv(POS.F1,{x:R.x+10,y:R.y},seg(k,0,.3));
+   if(k>=.3&&k<.42)s.labels.push({x:R.x+40,y:R.y-40,k:'lLight',c:'#ece8f4',o:1});
+   const gl={x:R.x-14,y:R.y-12},gr={x:R.x+20,y:R.y+12};
+   if(k<.62){s.units.push({t:'scorn',x:gl.x,y:gl.y,hp:k>=.42?1-seg(k,.42,.6)*.97:null,lb:'lLeft',lc:'#ece8f4',ly:-18});s.units.push({t:'scorn',x:gr.x,y:gr.y,lb:'lRight',lc:'#9c95b0',ly:18});if(k>=.42)vowFire(s,k,'F1',gl,0);}
+   if(k>=.62)s.sym.F1=['Kill','Pyramid','Light'];
+   s.cam=camK(k,[[0,400,220,1],[.2,140,240,1.6],[.9,140,240,1.6],[1,400,220,1]]);
+   s.fx=k<.3?{k:'fxA3Run',o:win(k,0,.3,.02),c:'#c9b6ff'}:k<.62?{k:'fxA3LD',o:win(k,.3,.62,.02),c:'#ece8f4'}:{k:'fxA3Third',o:win(k,.62,1,.02),c:'#c9b6ff'};}},
+ // 4 offering: the obelisk with Pyramid+Kill+Light; all three symbols shot together
+ {d:20,f(k,s){obs(s,{syms:1,hl:k>=.15?[0]:[]});s.sym.F1=['Kill','Pyramid','Light'];
+   const t=[{x:222,y:202},{x:250,y:202},{x:278,y:202}];['F1','F2','F3'].forEach((q,i)=>{s.p[q]=mv(POS[q],{x:200+i*50,y:320},seg(k,0,.15));if(k>=.3&&k<.42){s.shots.push({a:s.p[q],q,b:t[i],c:C.ally});}});
+   if(k>=.42&&k<.5)s.bursts.push({x:250,y:202,r:10+40*seg(k,.42,.5),c:C.good,o:1-seg(k,.42,.5)});
+   if(k>=.45)s.labels.push({x:250,y:150,k:'lAccepted',c:C.good,o:win(k,.45,.8,.02)});
+   if(k>=.8)s.labels.push({x:400,y:120,k:'lWipe',c:C.danger,o:win(k,.8,1,.02)});
+   s.fx=k<.3?{k:'fxA4Find',o:win(k,0,.3,.02),c:C.light}:k<.8?{k:'fxA4Shoot',o:win(k,.3,.8,.02),c:C.good}:{k:'fxA4Warn',o:win(k,.8,1,.02),c:C.danger};}}
+ ];
+ return{bg:vowBg,S,base,finish:vowFinish(keys,floor)};
+})();
+
+/* =================== VOW: CARETAKER =================== */
+// SCHEMATIC: per floor an obelisk at the far end, the dark symbol room (opened by shooting the cruxes) to the side,
+// the Caretaker walking towards the obelisk (reaching it = wipe). Stun: a player runs to its legs → slam → dodge;
+// shoot the glowing face, then open/shoot the back → it falls. Two runners alternate, three symbols per trip,
+// nine in total (Darkness stacks in the room). Then three damage wells, one after another, then upstairs.
+const VWC=(function(){
+ const keys=['S1','S2','S3','S4','R1','R2'];
+ const OB={x:400,y:60},ROOM={x:690,y:220},CT0={x:400,y:330};
+ const WELL=[{x:300,y:250},{x:400,y:200},{x:500,y:250}];
+ const POS={S1:{x:330,y:390},S2:{x:400,y:400},S3:{x:470,y:390},S4:{x:400,y:370},R1:{x:600,y:300},R2:{x:620,y:330}};
+ const ORDER=['Kill','Guardian','Witness','Pyramid','Traveler','Hive','Light','Darkness','Commune'];
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/><rect x="150" y="30" width="460" height="390" rx="12" fill="#16121f" stroke="#2f2a4a"/>`;
+  o+=`<rect x="630" y="160" width="120" height="120" rx="8" fill="#08060c" stroke="${s.roomOpen?'#a982f5':'#3a3356'}" stroke-width="${s.roomOpen?2.4:1.2}"/><text x="690" y="300" text-anchor="middle" class="hud-t" style="fill:#5f587a">DARK ROOM</text>`;
+  WELL.forEach((p,i)=>{const on=s.well===i;o+=`<circle cx="${p.x}" cy="${p.y}" r="30" fill="${on?'rgba(255,154,60,.25)':'none'}" stroke="${on?'#ff9a3c':'#3a3356'}" stroke-width="${on?2.4:1}" stroke-dasharray="${on?'0':'4 4'}"/>`;});
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">STAIRS / SPAWN · schematic</text>`;return o;}
+ const base=vowBase(keys,POS,{roomOpen:false,well:null});
+ const ct=(s,p,o)=>s.units.push(Object.assign({t:'caretaker',x:p.x,y:p.y},o||{}));
+ const S=[
+ // 1 layout
+ {d:18,f(k,s){s.adds.push(vowObel(OB,1,false,null));ct(s,CT0);const o1=win(k,0,.3),o2=win(k,.3,.6),o3=win(k,.6,1.01);
+   if(k<.3)s.spot=[{...CT0,r:40,o:o1,w:true},{...OB,r:34,o:o1,w:true}];else if(k<.6)s.spot=[{...ROOM,r:70,o:o2,w:true}];else s.spot=WELL.map(p=>({...p,r:34,o:o3,w:true}));
+   s.fx=k<.3?{k:'fxC1Walk',o:o1,c:C.danger}:k<.6?{k:'fxC1Room',o:o2,c:'#a982f5'}:{k:'fxC1Well',o:o3,c:'#ff9a3c'};}},
+ // 2 stun: legs → slam → dodge, shoot face, then back → falls
+ {d:24,f(k,s){s.adds.push(vowObel(OB,1,false,null));const p=mv(CT0,{x:400,y:240},seg(k,0,.3)*(k<.6?1:0)+(k>=.6?.3:0));const P={x:400,y:Math.min(330,330-90*Math.min(1,k/.3))};
+   ct(s,P,{face:k>=.3&&k<.5,back:k>=.5&&k<.7,down:k>=.7});
+   s.p.S4=k<.22?mv(POS.S4,{x:P.x,y:P.y+30},seg(k,.04,.2)):k<.3?mv({x:P.x,y:P.y+30},{x:P.x+60,y:P.y+50},seg(k,.24,.3)):{x:P.x+60,y:P.y+50};
+   if(k>=.2&&k<.26){s.bursts.push({x:P.x,y:P.y+20,r:10+50*seg(k,.2,.26),c:'#ff9a3c',o:1-seg(k,.2,.26)});s.shake=.6;}
+   if(k>=.3&&k<.5)['S1','S2','S3'].forEach((q,i)=>vowFire(s,k,q,{x:P.x,y:P.y-12},i));
+   if(k>=.5&&k<.7){s.p.S1=mv(POS.S1,{x:P.x-40,y:P.y-50},seg(k,.5,.56));vowFire(s,k,'S1',{x:P.x,y:P.y-20},0);vowFire(s,k,'S2',{x:P.x,y:P.y-20},1);}
+   s.cam=camK(k,[[0,400,220,1],[.1,400,280,1.4],[.9,400,280,1.4],[1,400,220,1]]);
+   s.fx=k<.2?{k:'fxC2Legs',o:win(k,0,.2,.02),c:C.ally}:k<.3?{k:'fxC2Slam',o:win(k,.2,.3,.02),c:'#ff9a3c'}:k<.5?{k:'fxC2Face',o:win(k,.3,.5,.02),c:C.light}:k<.7?{k:'fxC2Back',o:win(k,.5,.7,.02),c:C.light}:{k:'fxC2Down',o:win(k,.7,1,.02),c:C.good};}},
+ // 3 symbols: runners alternate, three per trip, nine in total, Darkness stacks inside
+ {d:28,f(k,s){s.adds.push(vowObel(OB,1,k>=.2,null));ct(s,{x:400,y:250},{down:true});s.roomOpen=true;
+   const trips=[[0,'R1',0],[.34,'R2',3],[.67,'R1',6]];let done=0;
+   trips.forEach(([a,q,o],j)=>{const b=a+.33;if(k>=a&&k<b){const t=(k-a)/.33;const inR={x:ROOM.x,y:ROOM.y};s.p[q]=t<.35?mv(POS[q],inR,t/.35):t<.6?inR:mv(inR,{x:OB.x+60,y:OB.y+60},(t-.6)/.25);
+     s.sym[q]=t<.35?[]:ORDER.slice(o,o+Math.min(3,Math.floor((t-.35)/.08)+1));s.dark[q]=t>=.35&&t<.9?Math.min(9,3+Math.floor((t-.35)*12)):null;
+     if(t>=.86&&t<.96){s.shots.push({a:s.p[q],q,b:{x:OB.x,y:OB.y-10},c:C.ally});}if(t>=.96)s.sym[q]=[];}
+    if(k>=b)done+=3;});
+   s.pips={lk:'lSymLbl',n:9,done:Math.min(9,done)};
+   s.fx=k<.34?{k:'fxC3Trip',o:win(k,0,.34,.02),c:'#a982f5'}:k<.67?{k:'fxC3Alt',o:win(k,.34,.67,.02),c:'#a982f5'}:{k:'fxC3Nine',o:win(k,.67,1,.02),c:C.good};}},
+ // 4 damage: three wells one after another, then up the stairs; final stand corridor
+ {d:24,f(k,s){s.adds.push(vowObel(OB,.5,false,null));const hp=1-seg(k,.05,.75)*.33;ct(s,{x:400,y:120},{down:k<.75,hp});
+   const w=k<.25?0:k<.5?1:k<.75?2:null;s.well=w;
+   keys.forEach((q,i)=>{if(w!=null){const c=WELL[w];s.p[q]=mv(s.p[q],{x:c.x+Math.cos(i)*18,y:c.y+Math.sin(i)*14},.35);vowFire(s,k,q,{x:400,y:120},i);}else{s.p[q]=mv(s.p[q],{x:360+i*16,y:410},seg(k,.75,.95));}});
+   if(w!=null)s.hud={t:'lWellT',v:10-((k%.25)/.25)*10};
+   s.fx=k<.75?{k:'fxC4Wells',o:win(k,0,.75,.02),c:'#ff9a3c'}:{k:'fxC4Up',o:win(k,.75,1,.02),c:'#ece8f4'};}}
+ ];
+ return{bg:vowBg,S,base,finish:vowFinish(keys,floor)};
+})();
+
+/* =================== VOW: EXHIBITION =================== */
+// SCHEMATIC: rooms in a row, each opened by shooting the matching symbol above the exit. Terminal Resonance timer;
+// wrong symbols cost time. Room 1: relic holder kills the Taken Glyphkeeper, the others the Scorn Glyphkeeper, the
+// symbol both show is shot above the door. Later rooms add relics (names differ between guides): a Darkness relic for the
+// shielded Knights/Hourglass (+time), Aegis cleanses Pervading Darkness, Eye of Riven clears Taken shields/tethers.
+const VWE=(function(){
+ const keys=['P1','P2','P3','P4','P5','P6'];
+ const DOOR={x:400,y:60};
+ const POS={P1:{x:330,y:360},P2:{x:400,y:370},P3:{x:470,y:360},P4:{x:330,y:400},P5:{x:400,y:410},P6:{x:470,y:400}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/><rect x="140" y="50" width="520" height="370" rx="12" fill="#16121f" stroke="#2f2a4a"/>`;
+  o+=`<rect x="${DOOR.x-50}" y="${DOOR.y-14}" width="100" height="18" rx="4" fill="${s.open?'#1e3a26':'#100d19'}" stroke="${s.open?'#8ff0a4':'#6b5a9a'}" stroke-width="2"/>`;
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">ENTRANCE · schematic</text>`;return o;}
+ const base=vowBase(keys,POS,{open:false});
+ const S=[
+ // 1 room 1: two Glyphkeepers, the common symbol above the door
+ {d:24,f(k,s){s.hud={t:'lResT',v:Math.max(0,120-k*30)};s.relic.P1='seed';
+   const T={x:240,y:200},Sc={x:560,y:200};
+   if(k<.45){s.units.push({t:'tknight',x:T.x,y:T.y,hp:k>=.1?1-seg(k,.1,.42)*.97:null,lb:'lTakenGK',lc:'#a982f5',ly:-26});s.units.push({t:'scorn',x:Sc.x,y:Sc.y,hp:k>=.1?1-seg(k,.1,.42)*.97:null,lb:'lScornGK',lc:'#ff9a3c',ly:-26});
+     if(k>=.1){vowFire(s,k,'P1',T,0);['P2','P3','P4'].forEach((q,i)=>vowFire(s,k,q,Sc,i+1));}}
+   if(k>=.45){s.adds.push(vowSym({x:T.x,y:T.y},'Savathun',1,'#a982f5'));s.adds.push(vowSym({x:T.x+28,y:T.y},'Kill',1,'#a982f5'));s.adds.push(vowSym({x:Sc.x-28,y:Sc.y},'Kill',1,'#ff9a3c'));s.adds.push(vowSym({x:Sc.x,y:Sc.y},'Hive',1,'#ff9a3c'));
+     if(k>=.55)s.labels.push({x:400,y:200,k:'lCommon',c:C.light,o:1});}
+   if(k>=.62){s.adds.push(vowSym({x:DOOR.x,y:DOOR.y-30},'Kill',1,'#f6dc8e'));if(k<.72)['P2','P3'].forEach((q,i)=>s.shots.push({a:s.p[q],q,b:{x:DOOR.x,y:DOOR.y-30},c:C.ally}));}
+   s.open=k>=.72;if(k>=.76)keys.forEach((q,i)=>s.p[q]=mv(POS[q],{x:370+i*12,y:DOOR.y+40},seg(k,.76,.98)));
+   s.fx=k<.45?{k:'fxE1GK',o:win(k,0,.45,.02),c:C.ally}:k<.62?{k:'fxE1Common',o:win(k,.45,.62,.02),c:C.light}:{k:'fxE1Door',o:win(k,.62,1,.02),c:C.good};}},
+ // 2 relics: Aegis cleanses Darkness, Darkness relic kills the shielded Knight (+40 s), Eye clears Taken shields
+ {d:26,f(k,s){s.hud={t:'lResT',v:Math.max(0,70-k*30+(k>=.45?40:0))};s.relic.P1='seed';s.relic.P2='aegis';s.relic.P3='eye';
+   keys.forEach((q,i)=>{if(q!=='P2')s.dark[q]=k<.25?Math.min(9,3+Math.floor(k*24)):1;});
+   if(k<.25)s.labels.push({x:s.p.P2.x,y:s.p.P2.y-30,k:'lAegis',c:'#f6dc8e',o:win(k,.08,.25,.02)});
+   if(k>=.2&&k<.26)s.bursts.push({...s.p.P2,r:10+80*seg(k,.2,.26),c:'#f6dc8e',o:1-seg(k,.2,.26)});
+   const H={x:400,y:180};if(k>=.28&&k<.45){s.units.push({t:'tknight',x:H.x,y:H.y,sh:k<.34,hp:1-seg(k,.34,.45)*.97,lb:'lHour',lc:'#a982f5',ly:-26});vowFire(s,k,'P1',H,0);}
+   if(k>=.45&&k<.55)s.labels.push({x:H.x,y:H.y-20,k:'lPlus40',c:C.good,o:1});
+   const B={x:580,y:230};if(k>=.55&&k<.9){s.units.push({t:'tknight',x:B.x,y:B.y,sh:k<.66,hp:k>=.66?1-seg(k,.66,.88)*.97:null});if(k<.62)s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${B.x}" cy="${B.y}" r="${8+40*seg(k,.55,.62)}" fill="rgba(127,227,255,.3)"/>`});s.labels.push({x:s.p.P3.x,y:s.p.P3.y-30,k:'lEye',c:'#7fe3ff',o:win(k,.55,.66,.02)});if(k>=.66)['P3','P4'].forEach((q,i)=>vowFire(s,k,q,B,i));}
+   s.fx=k<.28?{k:'fxE2Aegis',o:win(k,0,.28,.02),c:'#f6dc8e'}:k<.55?{k:'fxE2Seed',o:win(k,.28,.55,.02),c:'#a982f5'}:{k:'fxE2Eye',o:win(k,.55,1,.02),c:'#7fe3ff'};}},
+ // 3 last room: bank all relics before the timer ends
+ {d:16,f(k,s){s.hud={t:'lResT',v:Math.max(0,30-k*25)};const BK={x:400,y:110};
+   ['P1','P2','P3'].forEach((q,i)=>{s.relic[q]=k<.4+i*.12?['seed','aegis','eye'][i]:null;s.p[q]=mv(POS[q],{x:BK.x-40+i*40,y:BK.y+30},seg(k,.05,.35+i*.1));if(k>=.4+i*.12&&k<.46+i*.12)s.bursts.push({...BK,r:10+30*seg(k,.4+i*.12,.46+i*.12),c:C.good,o:1-seg(k,.4+i*.12,.46+i*.12)});});
+   s.adds.push(vowObel(BK,1,true,null));
+   s.fx=k<.9?{k:'fxE3Bank',o:win(k,0,.9,.02),c:C.good}:{k:'fxE3Done',o:win(k,.9,1,.02),c:C.good};}}
+ ];
+ return{bg:vowBg,S,base,finish:vowFinish(keys,floor)};
+})();
+
+/* =================== VOW: RHULK =================== */
+// SCHEMATIC: Rhulk at the top of the stairs behind a force field; crystals, a Give plate, six pillars (3 left, 3 right).
+// Shoot a crystal → Leeching Force; pass it via the Give plate; one player stands in Rhulk's beam → Emanating Force;
+// deposit it at the pillar whose symbol the Reader called (Glyphkeepers show it). Six deposits push the field back.
+// Damage setup: shoot Rhulk's glaive → symbol; Leeching holder takes the beam and deposits in that corner
+// (Traveler front-left, Light front-right, Pyramid back-left, Darkness back-right). Four times → damage.
+const VWR=(function(){
+ const keys=['RD','L1','L2','D1','D2','AD'];
+ const RH={x:400,y:90};const CRY={x:400,y:260};const GIVE={x:400,y:330};
+ const PIL=[{x:180,y:150},{x:150,y:250},{x:180,y:350},{x:620,y:150},{x:650,y:250},{x:620,y:350}];
+ const CORNER={Traveler:{x:250,y:120},Light:{x:550,y:120},Pyramid:{x:250,y:220},Darkness:{x:550,y:220}};
+ const POS={RD:{x:400,y:400},L1:{x:350,y:350},L2:{x:450,y:350},D1:{x:300,y:300},D2:{x:500,y:300},AD:{x:400,y:410}};
+ function floor(s){let o=`<rect x="-40" y="-40" width="880" height="520" fill="#0d0b12"/><rect x="110" y="30" width="580" height="390" rx="12" fill="#16121f" stroke="#2f2a4a"/>`;
+  if(s.field!=null)o+=`<path d="M120 ${200-s.field*120} Q400 ${150-s.field*120} 680 ${200-s.field*120}" fill="none" stroke="#a982f5" stroke-width="3" stroke-dasharray="6 4" opacity=".7"/>`;
+  PIL.forEach((p,i)=>{const on=s.pil===i;o+=`<rect x="${p.x-14}" y="${p.y-18}" width="28" height="36" rx="4" fill="${on?'rgba(255,97,86,.25)':'#100d19'}" stroke="${on?'#ff6156':'#6b5a9a'}" stroke-width="${on?2.4:1.4}"/>`;});
+  o+=`<circle cx="${GIVE.x}" cy="${GIVE.y}" r="20" fill="none" stroke="#a982f5" stroke-width="2" stroke-dasharray="4 3"/><text x="${GIVE.x}" y="${GIVE.y+34}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" fill="#a982f5">GIVE</text>`;
+  if(s.corners)Object.entries(CORNER).forEach(([n,p])=>{o+=`<rect x="${p.x-18}" y="${p.y-14}" width="36" height="28" rx="4" fill="${s.cornerOn===n?'rgba(255,97,86,.25)':'#100d19'}" stroke="${s.cornerOn===n?'#ff6156':'#6b5a9a'}"/>`;});
+  o+=`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">ENTRANCE · schematic</text>`;return o;}
+ const base=vowBase(keys,POS,{field:0,pil:null,corners:false,cornerOn:null});
+ const rh=(s,o)=>s.units.push(Object.assign({t:'rhulk',x:RH.x,y:RH.y},o||{}));
+ const S=[
+ // 1 layout
+ {d:18,f(k,s){rh(s);s.adds.push({t:'raw',x:0,y:0,svg:`<path d="M${CRY.x} ${CRY.y-14} L${CRY.x+10} ${CRY.y} L${CRY.x} ${CRY.y+14} L${CRY.x-10} ${CRY.y} Z" fill="#a982f5"/>`});const o1=win(k,0,.33),o2=win(k,.33,.66),o3=win(k,.66,1.01);
+   if(k<.33)s.spot=[{...RH,r:50,o:o1,w:true}];else if(k<.66)s.spot=[{...CRY,r:26,o:o2,w:true},{...GIVE,r:30,o:o2,w:true}];else s.spot=PIL.map(p=>({...p,r:26,o:o3,w:true}));
+   s.fx=k<.33?{k:'fxR1Rhulk',o:o1,c:'#a982f5'}:k<.66?{k:'fxR1Cry',o:o2,c:'#a982f5'}:{k:'fxR1Pil',o:o3,c:'#ff6156'};}},
+ // 2 force: crystal → Leeching, give, beam → Emanating, deposit at the called pillar
+ {d:28,f(k,s){rh(s,{beam:k>=.4&&k<.6?s.p.D1:null});s.adds.push({t:'raw',x:0,y:0,svg:`<path d="M${CRY.x} ${CRY.y-14} L${CRY.x+10} ${CRY.y} L${CRY.x} ${CRY.y+14} L${CRY.x-10} ${CRY.y} Z" fill="#a982f5" opacity="${k<.12?1:.3}"/>`});
+   if(k<.12)s.shots.push({a:s.p.L1,q:'L1',b:CRY,c:C.ally});
+   if(k>=.12)s.force.L1=k<.28?'L':null;
+   if(k>=.2&&k<.3){s.p.L1=mv(POS.L1,GIVE,seg(k,.16,.24));s.p.D1=mv(POS.D1,{x:GIVE.x-30,y:GIVE.y},seg(k,.16,.24));}
+   if(k>=.28){s.force.D1=k<.5?'L':k<.82?'E':null;}
+   if(k>=.3&&k<.5)s.p.D1=mv({x:GIVE.x-30,y:GIVE.y},{x:300,y:200},seg(k,.3,.4));
+   const gk={x:560,y:300};if(k<.4){s.units.push({t:'tknight',x:gk.x,y:gk.y,hp:1-seg(k,.05,.35)*.97});vowFire(s,k,'RD',gk,0);vowFire(s,k,'AD',gk,1);}
+   if(k>=.35){s.adds.push(vowSym({x:gk.x,y:gk.y},'Witness',1,'#a982f5'));s.labels.push({x:s.p.RD.x,y:s.p.RD.y-30,k:'lReader',c:C.light,o:win(k,.35,.7,.02)});}
+   if(k>=.6){s.pil=1;s.adds.push(vowSym({x:PIL[1].x,y:PIL[1].y-34},'Witness',1,'#ff6156'));s.p.D1=mv({x:300,y:200},{x:PIL[1].x+26,y:PIL[1].y},seg(k,.6,.78));if(k>=.78&&k<.86)s.bursts.push({...PIL[1],r:10+30*seg(k,.78,.86),c:'#ff6156',o:1-seg(k,.78,.86)});}
+   s.pips={lk:'lDepLbl',n:6,done:k<.82?0:1};s.field=k<.82?0:.15;
+   s.fx=k<.14?{k:'fxR2Cry',o:win(k,0,.14,.02),c:'#a982f5'}:k<.3?{k:'fxR2Give',o:win(k,.14,.3,.02),c:'#a982f5'}:k<.58?{k:'fxR2Beam',o:win(k,.3,.58,.02),c:'#ff6156'}:{k:'fxR2Dep',o:win(k,.58,1,.02),c:'#ff6156'};}},
+ // 3 damage setup: glaive symbol → corner, four times
+ {d:24,f(k,s){s.corners=true;s.field=1;const seq=['Traveler','Light','Pyramid','Darkness'];const i=Math.min(3,Math.floor(k*4));const ph=(k*4)%1;const n=seq[i];
+   rh(s,{glaive:ph<.3,weak:4-i-(ph>.85?1:0),beam:ph>=.3&&ph<.5?s.p.D2:null});
+   if(ph<.25)s.shots.push({a:s.p.AD,q:'AD',b:{x:RH.x+30,y:RH.y+20},c:C.ally});
+   if(ph>=.25)s.adds.push(vowSym({x:RH.x+30,y:RH.y-30},n,1,'#f6dc8e'));
+   s.force.D2=ph>=.3&&ph<.85?'E':ph<.3?'L':null;s.cornerOn=ph>=.5?n:null;
+   s.p.D2=ph<.5?{x:400,y:220}:mv({x:400,y:220},{x:CORNER[n].x+(CORNER[n].x<400?24:-24),y:CORNER[n].y+24},seg(ph,.5,.8));
+   if(ph>=.8&&ph<.9)s.bursts.push({...CORNER[n],r:10+30*seg(ph,.8,.9),c:'#ff6156',o:1-seg(ph,.8,.9)});
+   s.pips={lk:'lWeakLbl',n:4,done:Math.min(4,i+(ph>.85?1:0))};
+   s.fx={k:'fxR3Glaive',o:win(k,0,1,.02),c:'#f6dc8e'};}},
+ // 4 damage + run back; final stand
+ {d:22,f(k,s){s.field=1;rh(s,{hp:k<.5?1-seg(k,.05,.45)*.35:k<.7?.65:.65-seg(k,.72,.97)*.6,kick:k>=.2&&k<.26});
+   keys.forEach((q,i)=>{const t={x:300+i*40,y:200+(i%2)*30};s.p[q]=k<.5?mv(POS[q],t,seg(k,0,.08)):k<.62?mv(t,{x:360+i*16,y:410},seg(k,.5,.6)):mv({x:360+i*16,y:410},t,seg(k,.62,.7));if((k>=.05&&k<.45)||(k>=.72&&k<.97))vowFire(s,k,q,RH,i);
+     if(k>=.72)s.dark[q]=Math.min(9,Math.floor((k-.72)*30));});
+   if(k>=.2&&k<.26)s.bursts.push({x:400,y:190,r:10+60*seg(k,.2,.26),c:'#a982f5',o:1-seg(k,.2,.26)});
+   s.fx=k<.2?{k:'fxR4Dmg',o:win(k,0,.2,.02),c:C.ally}:k<.3?{k:'fxR4Kick',o:win(k,.2,.3,.02),c:'#a982f5'}:k<.5?{k:'fxR4Dmg',o:win(k,.3,.5,.02),c:C.ally}:k<.7?{k:'fxR4Back',o:win(k,.5,.7,.02),c:C.danger}:{k:'fxR4Final',o:win(k,.7,1,.02),c:C.danger};}}
+ ];
+ return{bg:vowBg,S,base,finish:vowFinish(keys,floor)};
+})();
+
 /* =================== EQUILIBRIUM: HARVESTER =================== */
 // First encounter "Defeat the Barant Imperium Forces" (Harvester). Schematic after the written guides (no community map available):
 // rally/entrance at the bottom, the Harvester in the middle, three connectors (left of rally, left and right of the Harvester),
@@ -8073,6 +8296,183 @@ const RG_GSC=[{id:'mote',slots:['M1','M2','M3'],focus:[2,4],de:{name:'Mote-Team'
 const RG_GSM=[{id:'mote',slots:['A1','A2','B1','B2'],focus:[2,3],de:{name:'Mote-Teams',steps:['Knie (blau) oder Schulter (orange).','Insel: ~15 Motes.','„Ready“, zurück, ablegen.'],watch:['Motes verfallen nach 60 s.']},en:{name:'Mote teams',steps:['Knee (blue) or shoulder (orange).','Island: ~15 motes.','“Ready”, back, deposit.'],watch:['Motes expire after 60 s.']}},
  {id:'build',slots:['P1','P2'],focus:[2,4],de:{name:'Bauer',steps:['Cyclops töten.','Plattform vom Relais aus neu tethern.'],watch:['Nicht auf der markierten Plattform stehen.']},en:{name:'Builders',steps:['Kill the Cyclops.','Re-tether the platform from the relay.'],watch:['Don’t stand on the marked platform.']}}];
 
+const SV_VWA=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="60" y="14" width="300" height="186" rx="8" fill="#16121f" stroke="#2f2a4a"/>${[0,1,2,3,4].map(i=>`<rect x="14" y="${14+i*38}" width="34" height="28" rx="4" fill="#100d19" stroke="#3a3356"/><rect x="372" y="${14+i*38}" width="34" height="28" rx="4" fill="#100d19" stroke="#3a3356"/>`).join('')}${[[140,120],[210,110],[280,120]].map(([x,y])=>`<path d="M${x-8} ${y+14} L${x-5} ${y-14} L${x+5} ${y-14} L${x+8} ${y+14} Z" fill="#14101e" stroke="#6b5a9a"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="31" y="208" fill="#c9b6ff">{0}</text><text x="389" y="208" fill="#c9b6ff">{1}</text><text x="210" y="160" fill="#9c95b0">{2}</text></g></svg>`;
+const SV_VWC=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="80" y="10" width="240" height="190" rx="8" fill="#16121f" stroke="#2f2a4a"/><rect x="330" y="70" width="70" height="70" rx="6" fill="#08060c" stroke="#a982f5"/><path d="M192 44 L195 16 L205 16 L208 44 Z" fill="#14101e" stroke="#6b5a9a"/>${[[150,120],[200,100],[250,120]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="15" fill="none" stroke="#ff9a3c" stroke-dasharray="3 3"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="200" y="58" fill="#9c95b0">{0}</text><text x="365" y="158" fill="#a982f5">{1}</text><text x="200" y="150" fill="#ff9a3c">{2}</text></g></svg>`;
+const SV_VWE=`<svg viewBox="0 0 420 210" aria-hidden="true">${[0,1,2,3].map(i=>`<rect x="${20+i*100}" y="60" width="80" height="90" rx="6" fill="#16121f" stroke="#2f2a4a"/><rect x="${90+i*100}" y="95" width="10" height="20" fill="${i<3?'#6b5a9a':'#8ff0a4'}"/><text x="${60+i*100}" y="110" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="11" fill="#9c95b0">${i+1}</text>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="40" fill="#c9b6ff">{0}</text><text x="370" y="175" fill="#8ff0a4">{1}</text></g></svg>`;
+const SV_VWR=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="60" y="10" width="300" height="190" rx="8" fill="#16121f" stroke="#2f2a4a"/>${[[90,50],[78,105],[90,160],[330,50],[342,105],[330,160]].map(([x,y])=>`<rect x="${x-8}" y="${y-10}" width="16" height="20" rx="3" fill="#100d19" stroke="#6b5a9a"/>`).join('')}${[[150,45,'TR'],[270,45,'LI'],[150,90,'PY'],[270,90,'DA']].map(([x,y,t])=>`<rect x="${x-14}" y="${y-10}" width="28" height="20" rx="3" fill="#100d19" stroke="#ff6156"/><text x="${x}" y="${y+4}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" fill="#e7dbff">${t}</text>`).join('')}<path d="M210 22 L218 32 L216 46 L204 46 L202 32 Z" fill="#14101e" stroke="#a982f5"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="130" fill="#ff6156">{0}</text><text x="85" y="198" fill="#9c95b0">{1}</text></g></svg>`;
+const ENC_VWA={num:1,name:'Acquisition',eng:VWA,diags:[SV_VWA],order:['D1','F1','D2','F2','D3','F3'],
+ slots:[['D1','Verteidiger links','Defender left'],['F1','Läufer links','Floater left'],['D2','Verteidiger Mitte','Defender middle'],['F2','Läufer Mitte','Floater middle'],['D3','Verteidiger rechts','Defender right'],['F3','Läufer rechts','Floater right']],
+ de:{kicker:'Vow of the Disciple · Encounter 1 · Acquisition',
+  gear:{crit:['Unstoppable-Mod oder -Waffe: Unstoppable Abominations.'],top:['Ein Guide nennt Salvager’s Salvo für Ad-Clear und Gjallarhorn für die Glyphkeeper.'],budget:['Wenig Ausrüstung? Verteidiger: Gegner vom Obelisken weghalten.']},
+  lede:'Vorher die Bootsfahrt: Resonanz an der Pyramide sammeln (max. 3), am Boot ablegen, Abominations töten. Dann Acquisition: drei Obelisken, Zweierteams. Der Verteidiger hält Gegner vom Obelisken fern (zu oft beschossen = Wipe), der Läufer sammelt Symbole. Leuchtet Pyramid auf, kommt ein Taken Knight links (L1–L5), bei Traveler rechts (R1–R5). Jeder Knight gibt einem Team ein Symbol, nach drei Knights hat jedes Team zwei. Der Läufer geht in den Raum seines zweiten Symbols: Light = linken Glyphkeeper töten, Darkness = rechten → drittes Symbol. Dann schießen die Läufer zusammen ihre drei Symbole auf dem Obelisken, der genau diese drei trägt. Schematisch.',
+  sc:[['Aufbau','Drei Obelisken, Räume links (Pyramid-Seite) und rechts (Traveler-Seite). Auf jedem Obelisken drei Symbole.'],
+   ['Knights','Gegner vom Obelisken weghalten. Leuchtet ein Symbol, kommt ein Taken Knight auf der passenden Seite. Jeder Kill gibt einem Team ein Symbol; nach drei hat jedes Team zwei.'],
+   ['Raum','Läufer in den Raum seines zweiten Symbols. Vorher ansagen, wer die Tür schießt, sonst schließt man anderen die Tür. Light = linken Glyphkeeper töten, Darkness = rechten. Das gibt das dritte Symbol.'],
+   ['Opfergabe','Den einen Obelisken finden, der alle drei Symbole trägt (nicht unbedingt auf der eigenen Seite) und zusammen schießen. „Offering accepted“ = richtig. Abgelehnt ist kein Wipe, neu prüfen. Wiederholen.']],
+  tip:{1:'Räume nummerieren L1–L5, R1–R5.',2:'Verteidiger: Obelisk sauber halten.',3:'Tür ansagen.',4:'Gleichzeitig schießen.'},
+  m:{},
+  roles:[['Verteidiger','Obelisk schützen, Knights töten.',''],['Läufer','Symbole sammeln, Raum, Opfergabe.','runner']],
+  rules:['Pyramid = links, Traveler = rechts.','Light = linker Glyphkeeper, Darkness = rechter.','Drei Symbole zusammen auf den richtigen Obelisken.'],
+  wipes:['Obelisk zu oft von Gegnern beschossen.'],
+  tips:['<b>Challenge:</b> siehe Challenge-Karte.','<b>Symbole:</b> Die Glyphen in der App sind Kürzel; die echten Bilder stehen auf der Wiki-Raidseite.'],
+  diags:[['Die Halle','Räume links (Pyramid) und rechts (Traveler), drei Obelisken. Schematisch.',['PYRAMID','TRAVELER','Obelisken']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Knight L3','Knight L3','Seite + Raum'],['Ich hab Kill, Pyramid','I have Kill, Pyramid','Symbole'],['Drei, zwei, eins','Three, two, one','zusammen schießen']],
+  L:{fxA1Ob:'Drei Obelisken',fxA1Rooms:'Räume: links Pyramid, rechts Traveler',fxA1Syms:'Jeder Obelisk trägt drei Symbole',
+   fxA2Def:'Verteidiger: Gegner vom Obelisken weg',fxA2Knight:'Symbol leuchtet → Knight auf der Seite → Symbol',fxA2Two:'Jedes Team hat zwei Symbole',lKnight:'Taken Knight',
+   fxA3Run:'Läufer in den Raum des zweiten Symbols',fxA3LD:'Light = links, Darkness = rechts',fxA3Third:'Drittes Symbol',lLight:'„Light“',lLeft:'links',lRight:'rechts',
+   fxA4Find:'Obelisk mit allen drei Symbolen',fxA4Shoot:'Zusammen schießen',fxA4Warn:'Obelisk zu oft beschossen = Wipe',lAccepted:'Offering accepted',lWipe:'Obelisk schützen!'}},
+ en:{kicker:'Vow of the Disciple · Encounter 1 · Acquisition',
+  gear:{crit:['Unstoppable mod or weapon: Unstoppable Abominations.'],top:['One guide names Salvager’s Salvo for ad clear and Gjallarhorn for the Glyphkeepers.'],budget:['Short on gear? Defender: keep enemies off the obelisk.']},
+  lede:'First the boat ride: collect resonance at the pyramid (max 3), deposit at the boat, kill Abominations. Then Acquisition: three obelisks, teams of two. The defender keeps enemies off the obelisk (shot too often = wipe), the floater collects symbols. If Pyramid lights up, a Taken Knight comes on the left (L1–L5), Traveler on the right (R1–R5). Each Knight gives a team a symbol; after three Knights every team has two. The floater goes to the room of their second symbol: Light = kill the left Glyphkeeper, Darkness = the right one → third symbol. Then the floaters shoot their three symbols together on the obelisk that carries exactly those three. Schematic.',
+  sc:[['Layout','Three obelisks, rooms left (Pyramid side) and right (Traveler side). Three symbols on each obelisk.'],
+   ['Knights','Keep enemies off the obelisk. When a symbol lights up, a Taken Knight comes on that side. Each kill gives a team a symbol; after three every team has two.'],
+   ['Room','Floater into the room of their second symbol. Call who shoots the door first, or you close someone else’s door. Light = kill the left Glyphkeeper, Darkness = the right one. That gives the third symbol.'],
+   ['Offering','Find the one obelisk carrying all three symbols (not necessarily on your side) and shoot together. “Offering accepted” = correct. A rejection isn’t a wipe, re-check. Repeat.']],
+  tip:{1:'Number the rooms L1–L5, R1–R5.',2:'Defenders: keep the obelisk clean.',3:'Call the door.',4:'Shoot together.'},
+  m:{},
+  roles:[['Defender','Protect the obelisk, kill Knights.',''],['Floater','Collect symbols, room, offering.','runner']],
+  rules:['Pyramid = left, Traveler = right.','Light = left Glyphkeeper, Darkness = right.','Three symbols together on the right obelisk.'],
+  wipes:['The obelisk gets shot too often by enemies.'],
+  tips:['<b>Challenge:</b> see the challenge card.','<b>Symbols:</b> the glyphs in the app are abbreviations; the real images are on the wiki raid page.'],
+  diags:[['The hall','Rooms left (Pyramid) and right (Traveler), three obelisks. Schematic.',['PYRAMID','TRAVELER','obelisks']]],
+  master:['Master variant not shown here.'],
+  calls:[['Knight L3','Knight L3','side + room'],['Ich hab Kill, Pyramid','I have Kill, Pyramid','symbols'],['Drei, zwei, eins','Three, two, one','shoot together']],
+  L:{fxA1Ob:'Three obelisks',fxA1Rooms:'Rooms: Pyramid left, Traveler right',fxA1Syms:'Each obelisk carries three symbols',
+   fxA2Def:'Defenders: enemies off the obelisk',fxA2Knight:'Symbol lights → Knight on that side → symbol',fxA2Two:'Every team has two symbols',lKnight:'Taken Knight',
+   fxA3Run:'Floater into the second symbol’s room',fxA3LD:'Light = left, Darkness = right',fxA3Third:'Third symbol',lLight:'“Light”',lLeft:'left',lRight:'right',
+   fxA4Find:'Obelisk with all three symbols',fxA4Shoot:'Shoot together',fxA4Warn:'Obelisk shot too often = wipe',lAccepted:'Offering accepted',lWipe:'Protect the obelisk!'}}};
+const ENC_VWC={num:2,name:'Caretaker',eng:VWC,diags:[SV_VWC],order:['S1','S2','S3','S4','R1','R2'],
+ slots:[['S1','Stun','Stun'],['S2','Stun','Stun'],['S3','Ad-Clear','Ad clear'],['S4','Beine (Slam)','Legs (slam)'],['R1','Läufer','Runner'],['R2','Läufer','Runner']],
+ de:{kicker:'Vow of the Disciple · Encounter 2 · Caretaker',
+  gear:{crit:['Linear-Fusion oder Fusion für die kurzen Schadensfenster.','Eine Glaive fürs Öffnen des Rückens (laut einem Guide).'],top:['Outbreak Perfected für Munition, Buffs auf jedem Feld.'],budget:['Wenig Ausrüstung? Ad-Clear oder Läufer.']},
+  lede:'Der Caretaker läuft auf den Obelisken zu: erreicht er ihn, Wipe. Das Vierer-Team hält ihn auf: einer läuft zu den Beinen, er schlägt zu (ausweichen), dann das leuchtende Gesicht schießen, den Rücken öffnen und schießen: er fällt. Die zwei Läufer gehen abwechselnd in den dunklen Raum (Cruxes schießen), holen je drei Symbole und schießen sie am Obelisken. Im Raum steigen Darkness-Stapel, 10 = tot. Neun Symbole, dann drei Schadensfelder nacheinander (je ~10 Sekunden), dann die Treppe hoch. Am Ende ein Gang mit Feldern: wer es nicht bis zum letzten schafft, wiped. Schematisch.',
+  sc:[['Aufbau','Obelisk am Ende, dunkler Raum an der Seite, der Caretaker läuft auf den Obelisken zu.'],
+   ['Stun','Einer läuft an die Beine: Slam, ausweichen (ein Guide: er ignoriert diesen Spieler danach). Leuchtendes Gesicht schießen, Rücken öffnen und schießen: er fällt.'],
+   ['Symbole','Läufer abwechselnd in den dunklen Raum, je drei Symbole, merken, am Obelisken schießen. Neun insgesamt. Darkness-Stapel unter 10 halten.'],
+   ['Schaden','Drei Felder, eins nach dem anderen, je etwa 10 Sekunden. Danach Treppe hoch, nächstes Stockwerk. Final Stand: Gang mit Feldern, vor dem letzten Feld fertig sein.']],
+  tip:{1:'Wer stunnt, wer läuft?',2:'Erst Gesicht, dann Rücken.',3:'Symbole laut ansagen.',4:'Nächstes Feld ansagen.'},
+  m:{},
+  roles:[['Stun-Team','Beine, Gesicht, Rücken.',''],['Läufer','Dunkler Raum, Symbole, Obelisk.','runner']],
+  rules:['Caretaker am Obelisken = Wipe.','Neun Symbole vor dem Schaden.','Darkness 10 = tot.'],
+  wipes:['Caretaker erreicht den Obelisken.','Final Stand nicht geschafft.'],
+  tips:['<b>Schadens-Deckel:</b> Pro Stockwerk ist der Schaden begrenzt (laut Guide).'],
+  diags:[['Ein Stockwerk','Obelisk oben, dunkler Raum rechts, drei Felder. Schematisch.',['Obelisk','dunkler Raum','Felder']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Slam!','Slam!','Beine'],['Gesicht','Face','Stun'],['Feld zwei','Well two','Schaden']],
+  L:{lSymLbl:'SYMBOLE',lWellT:'FELD',fxC1Walk:'Caretaker läuft zum Obelisken',fxC1Room:'Dunkler Raum mit Symbolen',fxC1Well:'Drei Schadensfelder',
+   fxC2Legs:'An die Beine laufen',fxC2Slam:'Slam: ausweichen',fxC2Face:'Gesicht schießen',fxC2Back:'Rücken öffnen und schießen',fxC2Down:'Er fällt',
+   fxC3Trip:'Läufer: drei Symbole pro Gang',fxC3Alt:'Abwechseln, Darkness im Blick',fxC3Nine:'Neun Symbole',
+   fxC4Wells:'Feld für Feld, je ~10 s',fxC4Up:'Treppe hoch'}},
+ en:{kicker:'Vow of the Disciple · Encounter 2 · Caretaker',
+  gear:{crit:['Linear fusion or fusion for the short damage windows.','A glaive for opening the back (per one guide).'],top:['Outbreak Perfected for ammo, buffs on every well.'],budget:['Short on gear? Ad clear or runner.']},
+  lede:'The Caretaker walks towards the obelisk: if he reaches it, wipe. The team of four stops him: one runs to his legs, he slams (dodge), then shoot the glowing face, open the back and shoot it: he falls. The two runners take turns going into the dark room (shoot the cruxes), grab three symbols each and shoot them at the obelisk. In the room Darkness stacks rise, 10 = dead. Nine symbols, then three damage wells one after another (~10 seconds each), then up the stairs. At the end a corridor with wells: if you don’t finish before the last one, wipe. Schematic.',
+  sc:[['Layout','Obelisk at the end, dark room on the side, the Caretaker walks towards the obelisk.'],
+   ['Stun','One runs to the legs: slam, dodge (one guide: he ignores that player afterwards). Shoot the glowing face, open and shoot the back: he falls.'],
+   ['Symbols','Runners take turns into the dark room, three symbols each, remember them, shoot them at the obelisk. Nine in total. Keep Darkness stacks under 10.'],
+   ['Damage','Three wells, one after another, about 10 seconds each. Then up the stairs, next floor. Final stand: corridor with wells, finish before the last one.']],
+  tip:{1:'Who stuns, who runs?',2:'Face first, then back.',3:'Call the symbols out loud.',4:'Call the next well.'},
+  m:{},
+  roles:[['Stun team','Legs, face, back.',''],['Runners','Dark room, symbols, obelisk.','runner']],
+  rules:['Caretaker at the obelisk = wipe.','Nine symbols before damage.','Darkness 10 = dead.'],
+  wipes:['The Caretaker reaches the obelisk.','Final stand not done in time.'],
+  tips:['<b>Damage cap:</b> damage is capped per floor (per the guide).'],
+  diags:[['One floor','Obelisk on top, dark room on the right, three wells. Schematic.',['obelisk','dark room','wells']]],
+  master:['Master variant not shown here.'],
+  calls:[['Slam!','Slam!','legs'],['Gesicht','Face','stun'],['Feld zwei','Well two','damage']],
+  L:{lSymLbl:'SYMBOLS',lWellT:'WELL',fxC1Walk:'Caretaker walks to the obelisk',fxC1Room:'Dark room with symbols',fxC1Well:'Three damage wells',
+   fxC2Legs:'Run to the legs',fxC2Slam:'Slam: dodge',fxC2Face:'Shoot the face',fxC2Back:'Open and shoot the back',fxC2Down:'He falls',
+   fxC3Trip:'Runner: three symbols per trip',fxC3Alt:'Alternate, watch Darkness',fxC3Nine:'Nine symbols',
+   fxC4Wells:'Well by well, ~10 s each',fxC4Up:'Up the stairs'}}};
+const ENC_VWE={num:3,name:'Exhibition',eng:VWE,diags:[SV_VWE],order:['P1','P2','P3','P4','P5','P6'],
+ slots:[['P1','Darkness-Relikt','Darkness relic'],['P2','Aegis','Aegis'],['P3','Eye of Riven','Eye of Riven'],['P4','Symbole','Symbols'],['P5','Symbole','Symbols'],['P6','Symbole','Symbols']],
+ de:{kicker:'Vow of the Disciple · Encounter 3 · Exhibition',
+  gear:{crit:['Overload gegen Overload-Taken (laut Guide).'],top:['Roaming Supers und Blind-Granaten gegen Taken an den Tethern.'],budget:['Wenig Ausrüstung? Symbole lesen und schießen.']},
+  lede:'Vier Räume hintereinander, ein Timer (Terminal Resonance) läuft, bei null Wipe. Jeder Raum öffnet sich mit dem Symbol über der Tür, das beide Glyphkeeper zeigen: der Relikt-Träger tötet den Taken, die anderen den Scorn. Falsches Symbol kostet Zeit. Ab Raum 2 kommen Relikte dazu (die Namen unterscheiden sich je nach Guide): ein Darkness-Relikt für die geschilderten Knights/Hourglass (+40 Sekunden), Aegis reinigt Pervading Darkness (10 Stapel = tot), Eye of Riven räumt Taken-Schilde und -Tether. Im letzten Raum alle Relikte ablegen, bevor die Zeit abläuft. Schematisch.',
+  sc:[['Raum 1','Relikt-Träger tötet den Taken Glyphkeeper, die anderen den Scorn Glyphkeeper. Das Symbol, das beide zeigen, über der Tür schießen.'],
+   ['Relikte','Aegis: Block reinigt Darkness. Darkness-Relikt: geschildeten Knight/Hourglass töten = +40 Sekunden. Eye of Riven: Granate räumt Taken-Schilde. Räume 2 und 3 brauchen zwei Symbole.'],
+   ['Letzter Raum','Alle Relikte ablegen, bevor der Timer abläuft.']],
+  tip:{1:'Relikt-Träger rotieren (nicht zwei Räume hintereinander).',2:'Aegis rechtzeitig blocken.',3:'Zeit im Blick.'},
+  m:{},
+  roles:[['Relikt-Träger','Je ein Relikt, Aufgabe des Relikts.','runner'],['Symbole','Glyphkeeper, Symbole lesen und schießen.','']],
+  rules:['Timer bei null = Wipe.','Darkness 10 = tot.','Falsches Symbol kostet Zeit.'],
+  wipes:['Terminal Resonance läuft ab.'],
+  tips:['<b>Namen:</b> Die Guides nennen die Relikte unterschiedlich (Seed, Laser, Relic). Wichtig ist, was sie tun.'],
+  diags:[['Die Räume','Vier Räume, Symbol über jeder Tür, am Ende ablegen. Schematisch.',['Symbol über der Tür','ablegen']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Gemeinsam: Kill','Common: Kill','Tür'],['Block!','Block!','Aegis'],['+40','+40','Zeit']],
+  L:{lResT:'RESONANCE',fxE1GK:'Taken- und Scorn-Glyphkeeper',fxE1Common:'Das gemeinsame Symbol',fxE1Door:'Über der Tür schießen',lTakenGK:'Taken',lScornGK:'Scorn',lCommon:'gemeinsam: KI',
+   fxE2Aegis:'Aegis blockt: Darkness weg',fxE2Seed:'Schild-Knight töten: +40 s',fxE2Eye:'Eye of Riven: Taken-Schild weg',lAegis:'Block',lHour:'Hourglass',lPlus40:'+40 s',lEye:'Granate',
+   fxE3Bank:'Alle Relikte ablegen',fxE3Done:'Geschafft'}},
+ en:{kicker:'Vow of the Disciple · Encounter 3 · Exhibition',
+  gear:{crit:['Overload against Overload Taken (per the guide).'],top:['Roaming supers and blinding grenades against Taken at the tethers.'],budget:['Short on gear? Read and shoot symbols.']},
+  lede:'Four rooms in a row, a timer (Terminal Resonance) runs, wipe at zero. Each room opens with the symbol above the door that both Glyphkeepers show: the relic holder kills the Taken one, the others the Scorn one. A wrong symbol costs time. From room 2 relics are added (names differ between guides): a Darkness relic for the shielded Knights/Hourglass (+40 seconds), Aegis cleanses Pervading Darkness (10 stacks = dead), Eye of Riven clears Taken shields and tethers. In the last room bank all relics before time runs out. Schematic.',
+  sc:[['Room 1','The relic holder kills the Taken Glyphkeeper, the others the Scorn Glyphkeeper. Shoot the symbol both show above the door.'],
+   ['Relics','Aegis: block cleanses Darkness. Darkness relic: kill the shielded Knight/Hourglass = +40 seconds. Eye of Riven: grenade clears Taken shields. Rooms 2 and 3 need two symbols.'],
+   ['Last room','Bank all relics before the timer runs out.']],
+  tip:{1:'Rotate relic holders (not two rooms in a row).',2:'Aegis: block in time.',3:'Watch the time.'},
+  m:{},
+  roles:[['Relic holders','One relic each, its job.','runner'],['Symbols','Glyphkeepers, read and shoot symbols.','']],
+  rules:['Timer at zero = wipe.','Darkness 10 = dead.','Wrong symbol costs time.'],
+  wipes:['Terminal Resonance runs out.'],
+  tips:['<b>Names:</b> guides name the relics differently (Seed, Laser, Relic). What matters is what they do.'],
+  diags:[['The rooms','Four rooms, a symbol above every door, bank at the end. Schematic.',['symbol above the door','bank']]],
+  master:['Master variant not shown here.'],
+  calls:[['Gemeinsam: Kill','Common: Kill','door'],['Block!','Block!','Aegis'],['+40','+40','time']],
+  L:{lResT:'RESONANCE',fxE1GK:'Taken and Scorn Glyphkeeper',fxE1Common:'The common symbol',fxE1Door:'Shoot it above the door',lTakenGK:'Taken',lScornGK:'Scorn',lCommon:'common: KI',
+   fxE2Aegis:'Aegis blocks: Darkness gone',fxE2Seed:'Kill the shield Knight: +40 s',fxE2Eye:'Eye of Riven: Taken shield gone',lAegis:'block',lHour:'Hourglass',lPlus40:'+40 s',lEye:'grenade',
+   fxE3Bank:'Bank all relics',fxE3Done:'Done'}}};
+const ENC_VWR={num:4,name:'Rhulk, Disciple of the Witness',eng:VWR,diags:[SV_VWR],order:['RD','L1','L2','D1','D2','AD'],
+ slots:[['RD','Leser (Reader)','Reader'],['L1','Splitter','Splitter'],['L2','Splitter','Splitter'],['D1','Dunker','Dunker'],['D2','Dunker','Dunker'],['AD','Ad-Clear / Glaive','Ad clear / glaive']],
+ de:{kicker:'Vow of the Disciple · Encounter 4 · Rhulk',
+  gear:{crit:['Boss-Schaden; One-and-done-Supers (Thundercrash, Nova Bomb, Golden Gun) für den Final Stand aufheben.'],top:['Divinity für einen Spieler, Sleeper oder Linear Fusion für die anderen.'],budget:['Wenig Ausrüstung? Ad-Clear oder Leser.']},
+  lede:'Rhulk oben auf der Treppe hinter einem Kraftfeld. Kristall schießen → Leeching Force. Über die Give-Platte weitergeben. Einer stellt sich mit Leeching Force in Rhulks Strahl → Emanating Force, und legt sie an der Säule ab, deren Symbol der Leser ansagt (Glyphkeeper zeigen es). Sechs Ablagen drücken das Kraftfeld zurück. Vor dem Schaden: Rhulks Glaive schießen, sein Symbol bestimmt die Ecke (Traveler vorne links, Light vorne rechts, Pyramid hinten links, Darkness hinten rechts). Viermal, dann Schaden. Danach schnell zurück zur Fahne, bevor die Kuppel wächst. Final Stand: Darkness-Stapel, 10 = Wipe. Schematisch.',
+  sc:[['Aufbau','Rhulk oben, Kraftfeld, Kristall, Give-Platte, sechs Säulen (drei links, drei rechts).'],
+   ['Force','Kristall schießen = Leeching Force. Über die Give-Platte weitergeben. In den Strahl = Emanating Force. Leser sagt die Säule an, ablegen. Ohne Leeching Force im Strahl: Schaden und Darkness. Sechs Ablagen.'],
+   ['Glaive','Glaive schießen: das Symbol zeigt die Ecke. Leeching-Träger nimmt den Strahl, legt in der Ecke ab, eine goldene Schwachstelle weniger. Viermal.'],
+   ['Schaden','Schaden, seinem Tritt und Strahl ausweichen. Danach zurück zur Fahne. Final Stand: alles raushauen, bevor Darkness 10 erreicht.']],
+  tip:{1:'Rollen klar: Leser, Splitter, Dunker.',2:'Nie ohne Leeching in den Strahl.',3:'Ecken: TR vl, LI vr, PY hl, DA hr.',4:'Supers für den Final Stand.'},
+  m:{},
+  roles:[['Leser','Säulen-Symbole ansagen.','runner'],['Splitter','Kristalle, Leeching weitergeben.',''],['Dunker','Strahl nehmen, ablegen.','runner']],
+  rules:['Sechs Ablagen schieben das Feld.','Glaive-Symbol = Ecke.','Final Stand vor Darkness 10.'],
+  wipes:['Darkness 10 im Final Stand.','Zu spät zurück zur Fahne.'],
+  tips:['<b>Truhe:</b> Für eine Extra-Truhe gibt es Symbole im Raid (Shacknews-Guide).'],
+  diags:[['Die Arena','Sechs Säulen, vier Ecken für das Glaive-Symbol. Schematisch.',['Ecken (Glaive)','Säulen']]],
+  master:['Master-Variante hier nicht abgebildet.'],
+  calls:[['Säule rechts Mitte','Right middle pillar','Leser'],['Glaive: Pyramid','Glaive: Pyramid','Ecke'],['Zurück!','Back!','Fahne']],
+  L:{lDepLbl:'ABLAGEN',lWeakLbl:'SCHWACHSTELLEN',fxR1Rhulk:'Rhulk hinter dem Kraftfeld',fxR1Cry:'Kristall und Give-Platte',fxR1Pil:'Sechs Säulen',
+   fxR2Cry:'Kristall schießen = Leeching',fxR2Give:'Über Give weitergeben',fxR2Beam:'In den Strahl = Emanating',fxR2Dep:'An der angesagten Säule ablegen',lReader:'sagt die Säule an',
+   fxR3Glaive:'Glaive-Symbol → Ecke ablegen, viermal',fxR4Dmg:'Schaden',fxR4Kick:'Tritt: ausweichen',fxR4Back:'Zurück zur Fahne',fxR4Final:'Final Stand vor Darkness 10'}},
+ en:{kicker:'Vow of the Disciple · Encounter 4 · Rhulk',
+  gear:{crit:['Boss damage; save one-and-done supers (Thundercrash, Nova Bomb, Golden Gun) for the final stand.'],top:['Divinity for one player, Sleeper or linear fusion for the others.'],budget:['Short on gear? Ad clear or reader.']},
+  lede:'Rhulk at the top of the stairs behind a force field. Shoot the crystal → Leeching Force. Pass it on via the Give plate. One player with Leeching Force stands in Rhulk’s beam → Emanating Force, and deposits it at the pillar whose symbol the reader calls (Glyphkeepers show it). Six deposits push the force field back. Before damage: shoot Rhulk’s glaive, its symbol decides the corner (Traveler front-left, Light front-right, Pyramid back-left, Darkness back-right). Four times, then damage. Afterwards hurry back to the flag before the dome grows. Final stand: Darkness stacks, 10 = wipe. Schematic.',
+  sc:[['Layout','Rhulk on top, force field, crystal, Give plate, six pillars (three left, three right).'],
+   ['Force','Shoot the crystal = Leeching Force. Pass it via the Give plate. Into the beam = Emanating Force. The reader calls the pillar, deposit. In the beam without Leeching Force: damage and Darkness. Six deposits.'],
+   ['Glaive','Shoot the glaive: the symbol shows the corner. The Leeching holder takes the beam, deposits in the corner, one gold weak spot less. Four times.'],
+   ['Damage','Damage, dodge his kick and beam. Then back to the flag. Final stand: unload before Darkness reaches 10.']],
+  tip:{1:'Clear roles: reader, splitters, dunkers.',2:'Never into the beam without Leeching.',3:'Corners: TR fl, LI fr, PY bl, DA br.',4:'Supers for the final stand.'},
+  m:{},
+  roles:[['Reader','Call pillar symbols.','runner'],['Splitters','Crystals, pass Leeching.',''],['Dunkers','Take the beam, deposit.','runner']],
+  rules:['Six deposits push the field.','Glaive symbol = corner.','Final stand before Darkness 10.'],
+  wipes:['Darkness 10 in the final stand.','Too late back to the flag.'],
+  tips:['<b>Chest:</b> there are symbols in the raid for an extra chest (Shacknews guide).'],
+  diags:[['The arena','Six pillars, four corners for the glaive symbol. Schematic.',['corners (glaive)','pillars']]],
+  master:['Master variant not shown here.'],
+  calls:[['Säule rechts Mitte','Right middle pillar','reader'],['Glaive: Pyramid','Glaive: Pyramid','corner'],['Zurück!','Back!','flag']],
+  L:{lDepLbl:'DEPOSITS',lWeakLbl:'WEAK SPOTS',fxR1Rhulk:'Rhulk behind the force field',fxR1Cry:'Crystal and Give plate',fxR1Pil:'Six pillars',
+   fxR2Cry:'Shoot the crystal = Leeching',fxR2Give:'Pass via Give',fxR2Beam:'Into the beam = Emanating',fxR2Dep:'Deposit at the called pillar',lReader:'calls the pillar',
+   fxR3Glaive:'Glaive symbol → corner, four times',fxR4Dmg:'Damage',fxR4Kick:'Kick: dodge',fxR4Back:'Back to the flag',fxR4Final:'Final stand before Darkness 10'}}};
+const RG_VWA=[{id:'def',slots:['D1','D2','D3'],focus:[2],de:{name:'Verteidiger',steps:['Gegner vom Obelisken.','Knights auf der angesagten Seite töten.'],watch:['Unstoppables.']},en:{name:'Defenders',steps:['Enemies off the obelisk.','Kill Knights on the called side.'],watch:['Unstoppables.']}},
+ {id:'flo',slots:['F1','F2','F3'],focus:[3,4],de:{name:'Läufer',steps:['Zwei Symbole merken.','Raum des zweiten Symbols, Light/Dark beachten.','Opfergabe zusammen schießen.'],watch:['Tür ansagen.']},en:{name:'Floaters',steps:['Remember two symbols.','Room of the second symbol, mind Light/Dark.','Shoot the offering together.'],watch:['Call the door.']}}];
+const RG_VWC=[{id:'stun',slots:['S1','S2','S3','S4'],focus:[2,4],de:{name:'Stun-Team',steps:['Beine → Slam → ausweichen.','Gesicht, dann Rücken.','Schaden auf den Feldern.'],watch:['Er darf nicht zum Obelisken.']},en:{name:'Stun team',steps:['Legs → slam → dodge.','Face, then back.','Damage on the wells.'],watch:['He must not reach the obelisk.']}},
+ {id:'run',slots:['R1','R2'],focus:[3],de:{name:'Läufer',steps:['Dunkler Raum, drei Symbole.','Am Obelisken schießen.','Abwechseln.'],watch:['Darkness unter 10.']},en:{name:'Runners',steps:['Dark room, three symbols.','Shoot them at the obelisk.','Alternate.'],watch:['Darkness under 10.']}}];
+const RG_VWE=[{id:'relic',slots:['P1','P2','P3'],focus:[2,3],de:{name:'Relikt-Träger',steps:['Relikt-Aufgabe erfüllen.','Im letzten Raum ablegen.'],watch:['Nicht zwei Räume hintereinander.']},en:{name:'Relic holders',steps:['Do the relic’s job.','Bank in the last room.'],watch:['Not two rooms in a row.']}},
+ {id:'sym',slots:['P4','P5','P6'],focus:[1],de:{name:'Symbole',steps:['Scorn Glyphkeeper töten.','Gemeinsames Symbol über der Tür schießen.'],watch:['Falsches Symbol kostet Zeit.']},en:{name:'Symbols',steps:['Kill the Scorn Glyphkeeper.','Shoot the common symbol above the door.'],watch:['Wrong symbol costs time.']}}];
+const RG_VWR=[{id:'rd',slots:['RD'],focus:[2],de:{name:'Leser',steps:['Glyphkeeper-Symbol lesen.','Säule ansagen.'],watch:['Klare Ansagen.']},en:{name:'Reader',steps:['Read the Glyphkeeper symbol.','Call the pillar.'],watch:['Clear calls.']}},
+ {id:'sp',slots:['L1','L2'],focus:[2],de:{name:'Splitter',steps:['Kristall schießen.','Über Give weitergeben.'],watch:['Leeching nicht verlieren.']},en:{name:'Splitters',steps:['Shoot the crystal.','Pass via Give.'],watch:['Don’t lose Leeching.']}},
+ {id:'dk',slots:['D1','D2'],focus:[2,3],de:{name:'Dunker',steps:['Mit Leeching in den Strahl.','Säule bzw. Ecke ablegen.'],watch:['Nie ohne Leeching in den Strahl.']},en:{name:'Dunkers',steps:['Into the beam with Leeching.','Deposit at the pillar or corner.'],watch:['Never into the beam without Leeching.']}},
+ {id:'ad',slots:['AD'],focus:[3,4],de:{name:'Ad-Clear / Glaive',steps:['Glyphkeeper und Adds.','Rhulks Glaive schießen.'],watch:['Symbol klar ansagen.']},en:{name:'Ad clear / glaive',steps:['Glyphkeepers and adds.','Shoot Rhulk’s glaive.'],watch:['Call the symbol clearly.']}}];
+
 const SV_EQH=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="16" y="14" width="388" height="172" rx="20" fill="none" stroke="#2a2640" stroke-width="16"/><rect x="38" y="34" width="344" height="132" rx="8" fill="#151220" stroke="#2f2a4a"/><path d="M180 92 L230 86 L248 100 L230 114 L180 108 Z" fill="#232838" stroke="#6f7a96"/>${[[150,104],[262,104],[166,150]].map(([x,y])=>`<rect x="${x-6}" y="${y-6}" width="12" height="12" rx="3" fill="#1d2232" stroke="#7fa8ff"/>`).join('')}${[[34,100,6,24],[198,30,24,6],[380,100,6,24]].map(([x,y,w,h])=>`<rect x="${x}" y="${y-h/2+3}" width="${w}" height="${h}" rx="2" fill="rgba(255,97,86,.3)" stroke="#ff6156"/>`).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="214" y="132" fill="#ece8f4">{0}</text><text x="262" y="126" fill="#7fd8ff">{1}</text><text x="56" y="70" fill="#ff6156">{2}</text><text x="210" y="196" fill="#e7dbff">{3}</text></g></svg>`;
 const SV_EQR=`<svg viewBox="0 0 420 200" aria-hidden="true"><rect x="90" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="304" y="40" width="26" height="150" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="90" y="40" width="240" height="24" rx="3" fill="#18152a" stroke="#2f2a4a"/><rect x="18" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="342" y="86" width="60" height="70" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="170" y="6" width="80" height="30" rx="4" fill="#18152a" stroke="#2f2a4a"/><rect x="130" y="78" width="160" height="110" rx="6" fill="#151220" stroke="#3a3356"/>${[[172,104],[248,104]].map(([x,y])=>`<rect x="${x-14}" y="${y-9}" width="28" height="18" rx="3" fill="#030205" stroke="#ff6156"/>`).join('')}<circle cx="150" cy="96" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="150" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><circle cx="270" cy="170" r="7" fill="#1d2232" stroke="#7fd8ff"/><g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="48" y="124" fill="#a982f5">{0}</text><text x="210" y="134" fill="#ff6156">{1}</text><text x="210" y="160" fill="#7fd8ff">{2}</text><text x="210" y="198" fill="#9c95b0">{3}</text></g></svg>`;
 const SV_EQS=`<svg viewBox="0 0 420 200" aria-hidden="true"><ellipse cx="210" cy="100" rx="120" ry="86" fill="#151220" stroke="#3a3356" stroke-width="2"/><ellipse cx="210" cy="100" rx="30" ry="24" fill="#100d19" stroke="#5f587a"/>${[0,1,2,3,4].map(i=>{const a=(-54+i*72)*Math.PI/180;return `<circle cx="${210+18*Math.cos(a)}" cy="${100+15*Math.sin(a)}" r="4" fill="#050508" stroke="#fff"/>`;}).join('')}<path d="M210 26 L218 38 L215 50 L210 46 L205 50 L202 38 Z" fill="#100a16" stroke="#e7dbff"/>${[190,350,40,140,90].map(d=>{const a=d*Math.PI/180;return `<path d="M${210+88*Math.cos(a)} ${100+64*Math.sin(a)-6} l5 10 l-5 -2 l-5 2 Z" fill="#1a1426" stroke="#e7dbff"/>`;}).join('')}<g font-family="Chakra Petch, sans-serif" font-size="10" text-anchor="middle"><text x="210" y="16" fill="#e7dbff">{0}</text><text x="210" y="134" fill="#ffffff">{1}</text><text x="350" y="104" fill="#e7dbff">{2}</text></g></svg>`;
@@ -8360,7 +8760,7 @@ warpriest:ENC_KFW,
 golgoroth:ENC_KFG,
 daughters:ENC_KFD,
 oryx:ENC_KFX,
-vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
+vgopen:ENC_VGO,vgconf:ENC_VGC,vgoracle:ENC_VGR,vgtemplar:ENC_VGT,vgmaze:ENC_VGL,dscsec:ENC_DSE,dscatr:ENC_DSA,dscrap:ENC_DSR,dsctan:ENC_DST,gsevade:ENC_GSE,gssummon:ENC_GSS,gscons:ENC_GSC,gssanct:ENC_GSM,vwacq:ENC_VWA,vwcare:ENC_VWC,vwexh:ENC_VWE,vwrhulk:ENC_VWR,vggate:ENC_VGG,vgatheon:ENC_VGA,substratum:ENC_SSE,dissipation:ENC_SED,repository:ENC_SER,verity:ENC_SEV,zenith:ENC_SEZ,
 kalli:ENC_LWK,
 shurochi:ENC_LWS,
 morgeth:ENC_LWM,
@@ -8421,6 +8821,7 @@ const ACT={
  vog:{name:'Vault of Glass',encs:['vgopen','vgconf','vgoracle','vgtemplar','vgmaze','vggate','vgatheon'],src:[['Kyber’s Corner – Vault of Glass','https://kyberscorner.com/destiny2/vaultofglass/'],['Blueberries – Vex Mythoclast + Catalyst','https://www.blueberries.gg/weapons/vex-mythoclast-exotic-catalyst/'],['Shacknews – Vault of Glass raid guide','https://www.shacknews.com/article/124508/vault-of-glass-raid-guide-destiny-2'],['Windows Central – Vault of Glass raid guide','https://www.windowscentral.com/destiny-2-vault-glass-raid-guide'],['PCGamesN – Vault of Glass guide','https://www.pcgamesn.com/destiny-2/vault-of-glass-guide'],['Prima Games – Conflux and Oracle guide','https://primagames.com/gaming/destiny-2-vault-of-glass-conflux-oracle-guide'],['DestinyTracker – Vault of Glass guide','https://destinytracker.com/destiny-2/guides/vault-of-glass-complete-raid-guide-by-suttledge-e61ebd34'],['Templar’s Well map (Reddit, via TheGamer)','https://www.reddit.com/r/raidsecrets/']]},
  dsc:{name:'Deep Stone Crypt',encs:['dscsec','dscatr','dscrap','dsctan'],src:[['Shacknews – Deep Stone Crypt raid guide','https://shacknews.com/article/121651/deep-stone-crypt-raid-guide-destiny-2'],['Yardbarker – Deep Stone Crypt 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_deep_stone_crypt_2026_raid_guide/s1_17456_43911788'],['Kyber’s Corner – Deep Stone Crypt','https://kyberscorner.com/destiny2/deep-stone-crypt/'],['Destinypedia – Deep Stone Crypt (raid)','https://destinypedia.com/Deep_Stone_Crypt_(Raid)'],['Dot Esports – Of All Trades challenge','https://dotesports.com/destiny/news/how-to-complete-the-of-all-trades-rapture-challenge-in-destiny-2s-deep-stone-crypt-raid']]},
  gos:{name:'Garden of Salvation',encs:['gsevade','gssummon','gscons','gssanct'],src:[['Shacknews – Garden of Salvation raid guide','https://shacknews.com/article/114369/garden-of-salvation-raid-guide-destiny-2'],['Yardbarker – Garden of Salvation 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_garden_of_salvation_2026_raid_guide/s1_17456_43890120'],['Kyber’s Corner – Garden of Salvation','https://kyberscorner.com/destiny2/gardenofsalvation/'],['TheGamer – Enlightened title','https://www.thegamer.com/destiny-2-enlightened-title-triumphs-guide/'],['Destinypedia – Garden of Salvation','https://www.destinypedia.com/Garden_of_Salvation']]},
+ vow:{name:'Vow of the Disciple',encs:['vwacq','vwcare','vwexh','vwrhulk'],src:[['Shacknews – Vow of the Disciple raid guide','https://shacknews.com/article/129163/vow-of-the-disciple-raid-guide-destiny-2'],['Yardbarker – Vow of the Disciple 2026 raid guide','https://www.yardbarker.com/entertainment/articles/destiny_2_vow_of_the_disciple_2026_raid_guide/s1_17456_43915072'],['DestinyTracker – Vow complete raid guide (Suttledge)','https://destinytracker.com/destiny-2/guides/vow-of-the-disciple-complete-raid-guide-by-suttledge-095cf690'],['Dot Esports – Vow glyphs and callouts','https://dotesports.com/destiny/guides/all-vow-of-the-disciple-glyphs-symbols-and-callouts-in-destiny-2'],['TheGamer – Vow weekly challenges','https://www.thegamer.com/destiny-2-vow-of-the-disciple-weekly-challenges-guide/'],['TheGamer – Disciple-Slayer title','https://www.thegamer.com/destiny-2-disciple-slayer-title-guide/'],['Shacknews – Rhulk extra chest symbols','https://shacknews.com/article/129266/vow-of-the-disciple-rhulk-extra-chest-symbol-locations-destiny-2']]},
  se:{name:'Salvation’s Edge',encs:['substratum','dissipation','repository','verity','zenith'],src:[['Shacknews – Salvation’s Edge raid guide','https://www.shacknews.com/article/140025/salvations-edge-raid-guide-destiny-2'],['PCGamesN – Salvation’s Edge guide','https://www.pcgamesn.com/destiny-2/salvations-edge-guide'],['Professionalism.gg – Salvation’s Edge','https://professionalism.gg/raid-guides/salvations-edge'],['Backdash – Salvation’s Edge raid guide','https://www.thebackdash.com/destiny/destiny-2-salvations-edge-raid-guide'],['Sportskeeda – Substratum guide','https://sportskeeda.com/mmo/destiny-2-salvation-s-edge-raid-first-encounter-guide-substratum'],['Paracausality – Salvation’s Edge guide','https://www.paracausality.com/se_guide'],['Destiny 2 Wiki – Salvation’s Edge','https://d2.destinygamewiki.com/wiki/Salvation%27s_Edge'],['Destructoid – Substratum map','https://www.destructoid.com/destiny-2-salvations-edge-first-encounter-raid-guide/'],['Destinypedia – Salvation’s Edge','https://www.destinypedia.com/Salvation%27s_Edge'],['Destructoid – Verity map','https://www.destructoid.com/destiny-2-salvations-edge-fourth-encounter-raid-guide-verity/'],['Destructoid – Zenith','https://www.destructoid.com/destiny-2-salvations-edge-5th-encounter-raid-guide-zenith/']]}
 ,
  eq:{name:'Equilibrium',kind:'dungeon',encs:['eqharv','eqharrow','eqsere'],src:[['Destinypedia – Equilibrium','https://www.destinypedia.com/Equilibrium'],['Shacknews – Equilibrium dungeon guide','https://www.shacknews.com/article/147168/how-to-complete-the-equilibrium-dungeon-in-destiny-2'],['Vaexil – Equilibrium field guide (PDF)','https://destiny2.vaexil.tv/downloads/guides/dungeons/equilibrium/equilibrium-complete-guide.pdf'],['Grindout – Equilibrium guide','https://grindout.com/destiny-2/guides/equilibrium-guide'],['The Game Post – Equilibrium dungeon guide','https://thegamepost.com/destiny-2-equilibrium-dungeon-guide/'],['ProGameTalk – Equilibrium walkthrough','https://progametalk.com/destiny-2/equilibrium-dungeon-walkthrough/'],['Kyber’s Corner – Equilibrium','https://kyberscorner.com/destiny-2-equilibrium-dungeon/'],['Total Apex Gaming – Harrow guide','https://totalapexgaming.com/action/equilibrium-harrow-guide/']]}};
@@ -8524,7 +8925,7 @@ kftotems:[
   en:{name:'Starts in the middle',steps:['Only kill enemies in the middle if they attack you. Let the rest walk into the side rooms.','Stun and kill the Unstoppable Ogre at the front by the gate, between the balconies.','When the balcony is free: take over the Wizard and Blightguard there.','From then on you run the loop: balcony → totem → deposit → balcony.'],
    watch:['When depositing: only step off once the buff name is fully gone. The last stack shows only the name, no ×1.','When the old brand holder comes to deposit, cover them.','Totem empty? Run there right away if nobody else can.']}}]
 };
-RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
+RG.warpriest=RG_KFW;RG.golgoroth=RG_KFG;RG.daughters=RG_KFD;RG.oryx=RG_KFX;RG.kalli=RG_LWK;RG.shurochi=RG_LWS;RG.morgeth=RG_LWM;RG.vault=RG_LWV;RG.riven=RG_LWR;RG.queenswalk=RG_LWQ;RG.substratum=RG_SSE;RG.repository=RG_SER;RG.verity=RG_SEV;RG.vgopen=RG_VGO;RG.eqharv=RG_EQH;RG.eqharrow=RG_EQR;RG.eqsere=RG_EQS;RG.vgconf=RG_VGC;RG.vgoracle=RG_VGR;RG.vgtemplar=RG_VGT;RG.vggate=RG_VGG;RG.vgatheon=RG_VGA;RG.dscsec=RG_DSE;RG.dscatr=RG_DSA;RG.dscrap=RG_DSR;RG.dsctan=RG_DST;RG.gsevade=RG_GSE;RG.gssummon=RG_GSS;RG.gscons=RG_GSC;RG.gssanct=RG_GSM;RG.vwacq=RG_VWA;RG.vwcare=RG_VWC;RG.vwexh=RG_VWE;RG.vwrhulk=RG_VWR;RG.vgmaze=RG_VGL;RG.zenith=RG_SEZ;RG.dissipation=RG_SED;
 for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
@@ -8632,6 +9033,10 @@ function render(){const E=eng(),sc=E.S[cur],k=cl(el_t/sc.d);const st=E.base();sc
 /* =================== CHALLENGES & EXTRAS =================== */
 // one challenge per encounter (shown at that encounter only) and a small extras card per raid
 const CHAL={
+ vwacq:{n:'Swift Destruction',de:'Alle drei Unstoppable Abominations müssen kurz nacheinander sterben. Jeden kurz vor oder nach einer Obelisk-Runde stunnen und dann alle drei innerhalb weniger Sekunden töten; der Timer startet beim ersten Tod.',en:'All three Unstoppable Abominations must die in short succession. Stun each right before or after an obelisk round, then kill all three within a few seconds; the timer starts at the first death.'},
+ vwcare:{n:'Base Information',de:'Läufer dürfen nur ein Symbol auf einmal tragen. Drei oder vier Läufer einteilen, die je ein Symbol pro Gang holen.',en:'Runners may carry only one symbol at a time. Assign three or four runners who grab one symbol per trip.'},
+ vwexh:{n:'Defenses Down',de:'Jeder Spieler darf nur einen Taken Knight töten. Den Knight-Buff paarweise über die Räume rotieren, im ersten Raum den zweiten Knight auslassen.',en:'Each player may kill only one Taken Knight. Rotate the Knight buff between pairs across the rooms and skip the second Knight in the first room.'},
+ vwrhulk:{n:'Looping Catalyst',de:'In der ersten Hälfte darf das Team den Leeching-Buff nie ganz verlieren. Nach jedem Dunk wie gewohnt splitten, sodass immer jemand ihn hat.',en:'In the first half the team must never fully lose the Leeching buff. Split after every dunk as usual so someone always has it.'},
  gsevade:{n:'Leftovers',de:'Die Cyclops in den ersten zwei Räumen dürfen nicht getötet werden. Ad-Clear vorsichtig mit Flächenschaden.',en:'The Cyclops in the first two rooms must not be killed. Careful with area damage when clearing adds.'},
  gssummon:{n:'A Link to the Chain',de:'Alle sechs müssen gleichzeitig Enlightened bekommen: eine lange Kette mit allen Spielern von einer Kiste.',en:'All six must get Enlightened at the same time: one long chain with every player from one box.'},
  gscons:{n:'To the Top',de:'Immer genau 10 Motes auf einmal ablegen. Also zwei Minotauren pro Lauf sammeln.',en:'Always deposit exactly 10 motes at a time. So collect two Minotaurs per run.'},
@@ -8668,6 +9073,16 @@ const CHAL={
  verity:{n:'Varied Geometry',de:'Derselbe 3D-Schlüssel darf nicht wiederholt werden. Die Guides beschreiben es unterschiedlich: nicht zweimal hintereinander, oder erst wieder, wenn alle sechs Formen dran waren.',en:'The same 3D key may not be repeated. Guides describe it differently: not twice in a row, or only again once all six shapes have been used.'},
  zenith:{n:'Coordinated Efforts',de:'Alle sechs Knöpfe innerhalb weniger Sekunden nach dem ersten zerstören. Dafür sammeln alle sechs vorher Glyphbreaker und schießen dann gleichzeitig.',en:'Break all six buttons within a few seconds of the first. So all six collect Glyphbreaker first, then shoot together.'}};
 const XTRA={
+ vow:{de:[['Titel','„Disciple-Slayer“: u. a. die Triumph-Challenges (On My Go, Handle With Care, Glyph To Glyph, Symmetrical Energy).'],
+   ['Exotic','Collective Obligation (Void-Pulse-Rifle), Zufallsdrop bei Rhulk.'],
+   ['Beute','Nach Rhulk lässt sich eine Waffe als garantierte Resonance-Waffe kaufen (laut DestinyTracker-Guide). Für eine Extra-Truhe bei Rhulk gibt es Symbole im Raid (Shacknews).'],
+   ['Symbole','Die echten Glyphen-Bilder stehen auf der Wiki-Raidseite der App, im Guide stehen Kürzel.'],
+   ['2026','Seit dem Update vom 9. Juni 2026 hat jeder Raid gestufte Beute und ein eigenes Rüstungsset mit Set-Boni. Details für Vow haben wir noch nicht geprüft.']],
+  en:[['Title','“Disciple-Slayer”: among others the triumph challenges (On My Go, Handle With Care, Glyph To Glyph, Symmetrical Energy).'],
+   ['Exotic','Collective Obligation (Void pulse rifle), random drop from Rhulk.'],
+   ['Loot','After Rhulk one weapon can be bought as a guaranteed Resonance weapon (per the DestinyTracker guide). There are symbols in the raid for an extra chest at Rhulk (Shacknews).'],
+   ['Symbols','The real glyph images are on the app’s wiki raid page; the guide uses abbreviations.'],
+   ['2026','Since the June 9, 2026 update every raid has tiered loot and its own armor set with set bonuses. We haven’t checked the Vow details yet.']]},
  gos:{de:[['Titel','„Enlightened“: Raid-Triumphe inklusive aller Challenges.'],
    ['Exotic','Divinity (Arc-Trace-Rifle, Heavy): über die Quest „Divine Fragmentation“ im Raid: Vex-Kern dreimal analysieren, Decryption Core reparieren, Kern stärken, vollständig analysieren. Divinity betäubt und schwächt Ziele bei Dauerfeuer.'],
    ['Versteckte Truhen','Zwei, mit schon erhaltenen Rüstungsteilen, Raid-Mods und Vex Mind Components.'],
