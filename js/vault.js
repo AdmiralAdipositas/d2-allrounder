@@ -34,6 +34,25 @@ let statMin = (() => { try { return JSON.parse(localStorage.getItem('d2a.statmin
 // Bringt ein Item auf einen Charakter und macht vorher Platz: Ein Charakter hat pro Slot nur 9 freie Plätze
 // (plus das angelegte Teil). Ist der Slot voll, wandert das schwächste nicht angelegte, nicht gesperrte Teil,
 // das in keinem Ingame-Loadout steckt und nicht gerade gebraucht wird, in den Tresor.
+// Ein angelegtes Teil kann nicht verschoben werden: vorher automatisch ein Ersatz aus demselben Slot anlegen.
+// Bevorzugt: höchste Power, gleiche Klasse; ein Exotic nur, wenn das alte auch eins war (sonst Exotic-Konflikt).
+export async function ersatzAnlegen(zustand, it) {
+  if (!it.angelegt) return;
+  const bungie = await import('./bungie.js');
+  const cid = it.ort;
+  const klasse = zustand.profil.characters?.data?.[cid]?.classType;
+  const kand = sammle(zustand.profil).filter((x) => x.ort === cid && !x.angelegt && x.d.b === it.d.b && x.id !== it.id && (x.d.c === 3 || x.d.c === klasse) && (it.d.q === 6 || x.d.q !== 6))
+    .sort((a, b) => b.power - a.power);
+  const neu = kand[0];
+  if (!neu) throw new Error(`${it.d.n} is equipped and there is nothing else in that slot on this character to swap in.`);
+  await bungie.ausruesten(zustand.konto, neu, cid);
+  merkeAenderung(neu.id, { ort: cid, angelegt: true });
+  merkeAenderung(it.id, { ort: cid, angelegt: false });
+  it.angelegt = false;
+  const { meldung } = await import('./app.js');
+  meldung(`Equipped ${neu.d.n} instead.`);
+}
+
 export async function zumCharakter(zustand, it, cid, brauchen = new Set()) {
   const bungie = await import('./bungie.js');
   const k = zustand.konto;

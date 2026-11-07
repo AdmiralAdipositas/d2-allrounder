@@ -123,7 +123,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     if (ort.startsWith('post:')) { ort = ort.slice(5); await bungie.abholen(k, it, ort); it.ort = ort; }
     if (ort === ziel) return;
     if (ort !== 'tresor') {
-      if (it.angelegt) throw new Error('This item is equipped. Equip something else in that slot first.');
+      if (it.angelegt) { const { ersatzAnlegen } = await import('./vault.js'); await ersatzAnlegen(zustand, it); }
       await bungie.verschiebe(k, it, ort, true); it.ort = 'tresor';
     }
     if (ziel !== 'tresor') { const { zumCharakter } = await import('./vault.js'); await zumCharakter(zustand, it, ziel, new Set([it.id])); it.ort = ziel; }

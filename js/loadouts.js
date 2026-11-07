@@ -24,7 +24,7 @@ async function bringe(k, it, ziel) {
   let ort = it.ort;
   if (ort.startsWith('post:')) { ort = ort.slice(5); await bungie.abholen(k, it, ort); }
   if (ort === ziel) return;
-  if (ort !== 'tresor') { if (it.angelegt) throw new Error(`${it.d.n} is equipped on another character.`); await bungie.verschiebe(k, it, ort, true); }
+  if (ort !== 'tresor') { if (it.angelegt) { const { ersatzAnlegen } = await import('./vault.js'); const { zustand } = await import('./app.js'); await ersatzAnlegen(zustand, it); } await bungie.verschiebe(k, it, ort, true); }
   await bungie.verschiebe(k, it, ziel, false);
   it.ort = ziel;
   merkeAenderung(it.id, { ort: ziel, angelegt: false });

@@ -2,7 +2,7 @@
 // angelegte Teile + die 9 Inventarplätze pro Slot, Subclass, Ghost, Sparrow, Schiff, Engramme und Postmaster.
 // Klick auf Waffe/Rüstung öffnet die Detailansicht (Anlegen, Verschieben, Sperren).
 import { defs } from './defs.js';
-import { sammle, ARMOR_STATS, merkeAenderung, zumCharakter } from './vault.js';
+import { sammle, ARMOR_STATS, merkeAenderung, zumCharakter, ersatzAnlegen } from './vault.js';
 import * as bungie from './bungie.js';
 import { meldung } from './app.js';
 import { oeffneDetail } from './detail.js';
@@ -76,14 +76,14 @@ export function zeigeCharakter(haupt, zustand) {
     try {
       let ort = x.ort;
       if (ziel === 'anlegen') {
-        if (ort !== wahl) { meldung(`Moving ${x.d.n}…`); if (ort.startsWith('post:')) { ort = ort.slice(5); await bungie.abholen(k, x, ort); } if (ort !== 'tresor' && ort !== wahl) { if (x.angelegt) throw new Error(`${x.d.n} is equipped on another guardian.`); await bungie.verschiebe(k, x, ort, true); } if (ort !== wahl) await zumCharakter(zustand, x, wahl, new Set([x.id])); }
+        if (ort !== wahl) { meldung(`Moving ${x.d.n}…`); if (ort.startsWith('post:')) { ort = ort.slice(5); await bungie.abholen(k, x, ort); } if (ort !== 'tresor' && ort !== wahl) { await ersatzAnlegen(zustand, x); await bungie.verschiebe(k, x, ort, true); } if (ort !== wahl) await zumCharakter(zustand, x, wahl, new Set([x.id])); }
         await bungie.ausruesten(k, x, wahl);
         for (const y of items) if (y.ort === wahl && y.angelegt && y.d.b === x.d.b && y.id !== x.id) merkeAenderung(y.id, { ort: wahl, angelegt: false });
         merkeAenderung(x.id, { ort: wahl, angelegt: true });
         meldung(`${x.d.n} equipped.`);
       } else {
         if (ort === ziel) { laeuft = false; return; }
-        if (x.angelegt) throw new Error(`${x.d.n} is equipped. Equip something else in that slot first.`);
+        await ersatzAnlegen(zustand, x);
         meldung(`Moving ${x.d.n}…`);
         if (ort.startsWith('post:')) { ort = ort.slice(5); await bungie.abholen(k, x, ort); }
         if (ort !== 'tresor') await bungie.verschiebe(k, x, ort, true);
