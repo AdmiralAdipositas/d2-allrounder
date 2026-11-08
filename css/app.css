@@ -654,7 +654,7 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .wmerk span{display:flex;flex-direction:column;padding:6px 12px;border:1px solid var(--linie);border-radius:8px;background:var(--bg2)}
 .wmerk small{font-size:.68rem;color:var(--matt);text-transform:uppercase;letter-spacing:.06em}.wmerk b{font-size:.92rem}
 .wflavor{font-style:italic;color:var(--text2);border-left:2px solid var(--gold);padding-left:10px;margin:10px 0 14px;max-width:640px}
-.wstats{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:4px 24px;max-width:860px;margin-bottom:8px}
+.wstats{columns:2 300px;column-gap:32px;max-width:760px;margin-bottom:8px}.wstats .wstat{break-inside:avoid;margin-bottom:5px}
 .wstat{display:grid;grid-template-columns:130px 1fr 34px;align-items:center;gap:10px;font-size:.85rem}
 .wstat span{color:var(--text2)}.wstat i{height:8px;background:var(--bg3);border-radius:2px;overflow:hidden}.wstat u{display:block;height:100%;background:var(--text)}
 .wstat b{text-align:right;font-variant-numeric:tabular-nums}.wstat.zahl{grid-template-columns:130px 1fr}
