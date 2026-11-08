@@ -764,3 +764,16 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .ov-teil.gleich{opacity:.5}.ov-teil i{width:40px;height:40px;background:var(--bg4) center/cover;border-radius:3px}.ov-pfeil{color:var(--gold)}
 .ov-teil span{display:flex;flex-direction:column}.ov-teil small{color:var(--matt);font-size:.75rem}
 .ov-opt{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:.88rem}
+/* Inventar: Spaltenkopf mit Stats, Engramme/Postmaster je Hüter, Filter, Tresor nach Waffentyp */
+.ckopf{flex-direction:column;align-items:stretch;gap:4px;cursor:pointer}
+.ck-z1{display:flex;align-items:baseline;gap:6px}.ck-z1 small{opacity:.85;font-size:.7rem}.ck-z1 em{margin-left:auto}
+.ck-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;padding:3px 4px;border-radius:5px;background:#0a0c10b8;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.ck-stats span{display:flex;align-items:center;gap:2px;justify-content:center;font-size:.72rem}.ck-stats i{width:12px;height:12px;background:center/contain no-repeat}.ck-stats small{font-size:.55rem}
+.cextra{display:flex;flex-wrap:wrap;gap:6px 12px;padding:4px 0 6px;border-bottom:1px solid var(--flaeche3)}.cextra small{display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--matt);margin-bottom:2px}
+.cextra b.warn{color:var(--warn)}.cgitter.klein{grid-template-columns:repeat(auto-fill,26px);gap:2px}.cgitter.klein .ck{width:26px;height:26px}.cextra .chip{margin-top:3px}
+.invfilter{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:-4px 0 12px}.invfilter .invlinks{margin-left:auto}
+.invfilter .chip[aria-pressed=true]{background:var(--violett);color:#0b0a1a}
+.chip.el-arc[aria-pressed=true]{background:var(--arc)}.chip.el-solar[aria-pressed=true]{background:var(--solar)}.chip.el-void[aria-pressed=true]{background:var(--void)}.chip.el-stasis[aria-pressed=true]{background:var(--stasis)}.chip.el-strand[aria-pressed=true]{background:var(--strand)}.chip.el-kinetic[aria-pressed=true]{background:var(--kinetic)}
+.ttyp{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:start;padding:4px 0;border-top:1px dashed var(--flaeche3)}
+.tt-ic{display:flex;flex-direction:column;align-items:center;gap:1px;padding-top:3px}.tt-ic i{width:34px;height:22px;background:center/contain no-repeat;filter:brightness(1.3)}.tt-ic small{font-size:.58rem;text-align:center;color:var(--matt);line-height:1.1}.tt-ic em{font-style:normal;font-size:.62rem;color:var(--matt)}
+.ckopf.tres{flex-direction:row;align-items:center}

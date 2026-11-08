@@ -19,7 +19,7 @@ const SONST = [[3284755031, 'Subclass'], [4023194814, 'Ghost'], [2025709351, 'Sp
 const ENGRAMME = 375726501, POST = 215593132;
 const ELEMENT = { 1: 'kinetic', 2: 'arc', 3: 'solar', 4: 'void', 6: 'stasis', 7: 'strand' };
 
-let wahl = null, bereich = 'waffen', suche = '';
+let wahl = null, bereich = 'waffen', suche = '', filter = new Set();
 // Allgemeine Items (Ghost, Sparrow, Schiff, Emblem, Subclass) – nicht in sammle(); eigene Liste + lokale Änderungen nach dem Verschieben.
 const ALLG = new Set([4023194814, 2025709351, 284967655, 4274335291, 3284755031]);
 const allgAend = new Map();
@@ -49,6 +49,7 @@ export function zeigeCharakter(haupt, zustand) {
     const alsRoh = (x) => ({ itemHash: x.hash, itemInstanceId: x.id, bucketHash: x.d.b, quantity: 1 });
     const gear = new Set(items.map((x) => x.d.b));
     const q = suche.trim().toLowerCase();
+    const anzahl = new Map(); for (const x of items) anzahl.set(x.d.n, (anzahl.get(x.d.n) || 0) + 1);
     const istAllg = (i) => i.itemInstanceId && ALLG.has(defs.items[i.itemHash]?.b);
     const anVon = (cid) => [...(p.characterEquipment?.data?.[cid]?.items || []).filter((i) => !gear.has(i.bucketHash) && !istAllg(i)), ...items.filter((x) => x.ort === cid && x.angelegt).map(alsRoh), ...allg.filter((x) => x.ort === cid && x.angelegt).map(alsRoh)];
     const invVon = (cid) => [...(p.characterInventories?.data?.[cid]?.items || []).filter((i) => (!gear.has(i.bucketHash) || i.bucketHash === POST) && !istAllg(i)), ...items.filter((x) => x.ort === cid && !x.angelegt).map(alsRoh), ...allg.filter((x) => x.ort === cid && !x.angelegt).map(alsRoh)];
@@ -59,7 +60,9 @@ export function zeigeCharakter(haupt, zustand) {
       const power = inst[i.itemInstanceId]?.primaryStat?.value;
       const el = ELEMENT[inst[i.itemInstanceId]?.damageType] || '';
       const klick = x ? `data-cid="${i.itemInstanceId}"` : '';
-      const dim = q && !d.n.toLowerCase().includes(q) && !(d.k || '').toLowerCase().includes(q);
+      const elName = ELEMENT[inst[i.itemInstanceId]?.damageType] || '';
+      const passt = (f) => (f === 'exo' ? d.q === 6 : f === 'leg' ? d.q === 5 : f === 'lock' ? x?.locked : f === 'dupe' ? x && (anzahl.get(d.n) || 0) > 1 : f.startsWith('el:') ? elName === f.slice(3) : true);
+      const dim = (q && !d.n.toLowerCase().includes(q) && !(d.k || '').toLowerCase().includes(q)) || (filter.size && ![...filter].every(passt));
       return `<button class="ck ${gross ? 'gross' : ''} ${d.q === 6 ? 'exo' : ''} ${x?.mw ? 'mw' : ''} ${dim ? 'dim' : ''}" ${klick} data-ih="${i.itemHash}" aria-label="${esc(d.n)}" style="background-image:url(${BILD}${d.i})">${power ? `<em class="${el}">${power}</em>` : ''}${i.quantity > 1 ? `<em>${i.quantity}</em>` : ''}${x?.locked ? '<i class="ck-lock">🔒</i>' : ''}</button>`;
     };
     const reihen = bereich === 'waffen' ? WAFFEN : bereich === 'ruestung' ? RUESTUNG : bereich === 'sonst' ? SONST : [...WAFFEN, ...RUESTUNG, ...SONST];
@@ -69,27 +72,30 @@ export function zeigeCharakter(haupt, zustand) {
       const max = b === 3284755031 ? rest.length : 9;
       return `<div class="creihe" data-bucket="${b}" data-cfor="${cid}"><small>${name}</small><div class="cr-in">${e ? kachel(e, true) : '<span class="ck gross leer-k"></span>'}<div class="cgitter">${rest.map((i) => kachel(i)).join('')}${Array(Math.max(0, max - rest.length)).fill('<span class="ck leer-k"></span>').join('')}</div></div> ${b !== 3284755031 && rest.length >= max ? '<b class="cvoll" title="Full: the app makes room automatically when it moves something here">full</b>' : ''}</div>`;
     };
-    const kopfVon = (x) => `<div class="ckopf" style="background-image:url(${BILD}${x.emblemBackgroundPath || ''})"><b>${KLASSE[x.classType]}</b><em>✦ ${x.light}</em></div>`;
-    const spalte = (x) => { const an = anVon(x.characterId), inv = invVon(x.characterId); return `<section class="cspalte ${x.characterId === wahl ? 'an' : ''}" data-ziel="${x.characterId}">${kopfVon(x)}${reihen.map(reihe(x.characterId, an, inv)).join('')}</section>`; };
+    const statsVon = (x) => ARMOR_STATS.map((n) => { const h = Object.keys(defs.stats || {}).find((k) => defs.stats[k].n === n && x.stats?.[k] != null) || Object.keys(defs.stats || {}).find((k) => defs.stats[k].n === n); return [n, x.stats?.[h] || 0, defs.stats?.[h]?.i]; });
+    const kopfVon = (x) => `<div class="ckopf" data-wahl="${x.characterId}" style="background-image:url(${BILD}${x.emblemBackgroundPath || ''})"><span class="ck-z1"><b>${KLASSE[x.classType]}</b><small>${RASSE[x.raceType] || ''}</small><em>✦ ${x.light}</em></span><span class="ck-stats">${statsVon(x).map(([n, v, ic]) => `<span title="${n}: ${v}">${ic ? `<i style="background-image:url(${BILD}${ic})"></i>` : `<small>${n.slice(0, 3)}</small>`}<b>${v}</b></span>`).join('')}</span></div>`;
+    const extraVon = (cid) => { const inv = invVon(cid); const e = inv.filter((i) => i.bucketHash === ENGRAMME), po = inv.filter((i) => i.bucketHash === POST); if (!e.length && !po.length) return ''; return `<div class="cextra">${e.length ? '' : '<!--'}<div><small>Engrams ${e.length}/10</small><div class="cgitter klein">${e.map((i) => kachel(i)).join('')}</div></div>${e.length ? '' : '-->'}${po.length ? `<div><small>Postmaster <b class="${po.length >= 18 ? 'warn' : ''}">${po.length}/21</b></small><div class="cgitter klein">${po.map((i) => kachel(i)).join('')}</div><button class="chip klein" data-postpanel>Open Postmaster</button></div>` : ''}</div>`; };
+    const spalte = (x) => { const an = anVon(x.characterId), inv = invVon(x.characterId); return `<section class="cspalte ${x.characterId === wahl ? 'an' : ''}" data-ziel="${x.characterId}">${kopfVon(x)}${extraVon(x.characterId)}${reihen.map(reihe(x.characterId, an, inv)).join('')}</section>`; };
     // Schmaler Streifen (Handy): Emblem + angelegte Teile; beim Ziehen klappt er auf.
     const streifen = (x) => { const an = anVon(x.characterId); return `<section class="cstreifen" data-ziel="${x.characterId}" data-wahl="${x.characterId}" style="--emb:url(${BILD}${x.emblemPath || x.emblemBackgroundPath || ''})"><span class="cs-kopf"><i></i><b>${KLASSE[x.classType][0]}</b></span>${reihen.map(([b]) => { const e = an.find((i) => i.bucketHash === b); return `<span class="cs-slot">${e ? kachel(e) : '<span class="ck leer-k"></span>'}</span>`; }).join('')}</section>`; };
     const tresorItems = [...items, ...allg].filter((x) => x.ort === 'tresor' && reihen.some(([b]) => b === x.d.b));
-    const tresor = `<section class="ctresorbox" data-ziel="tresor"><div class="ckopf tres"><b>Vault</b><em>${tresorItems.length} shown</em></div>${reihen.filter(([b]) => tresorItems.some((x) => x.d.b === b)).map(([b, name]) => { const l = tresorItems.filter((x) => x.d.b === b).sort((a, c) => (c.d.q === 6) - (a.d.q === 6) || (a.d.c - c.d.c) || a.d.n.localeCompare(c.d.n)); return `<div class="treihe"><small>${name} <span>${l.length}</span></small><div class="cgitter breit">${l.map((x) => kachel(alsRoh(x))).join('')}</div></div>`; }).join('') || '<p class="leer klein">Nothing of this kind in the vault.</p>'}</section>`;
+    const sortiere = (a, c) => (c.d.q === 6) - (a.d.q === 6) || (a.d.c - c.d.c) || a.d.n.localeCompare(c.d.n);
+    const typZeile = (t, l) => `<div class="ttyp"><span class="tt-ic" title="${esc(t)}">${defs.wtyp?.[t] ? `<i style="background-image:url(${BILD}${defs.wtyp[t]})"></i>` : `<small>${esc(t)}</small>`}<em>${l.length}</em></span><div class="cgitter breit">${l.sort(sortiere).map((x) => kachel(alsRoh(x))).join('')}</div></div>`;
+    const tresorBlock = ([b, name]) => {
+      const l = tresorItems.filter((x) => x.d.b === b); if (!l.length) return '';
+      if (WAFFEN.some(([w]) => w === b)) { const typen = [...new Set(l.map((x) => x.d.k))].sort(); return `<div class="treihe"><small>${name} <span>${l.length}</span></small>${typen.map((t) => typZeile(t, l.filter((x) => x.d.k === t))).join('')}</div>`; }
+      return `<div class="treihe"><small>${name} <span>${l.length}</span></small><div class="cgitter breit">${l.sort(sortiere).map((x) => kachel(alsRoh(x))).join('')}</div></div>`;
+    };
+    const tresor = `<section class="ctresorbox" data-ziel="tresor"><div class="ckopf tres"><b>Vault</b><em>${tresorItems.length}</em></div>${reihen.map(tresorBlock).join('') || '<p class="leer klein">Nothing of this kind in the vault.</p>'}</section>`;
     const c = chars.find((x) => x.characterId === wahl);
-    const an = anVon(wahl), inv = invVon(wahl);
-    const engr = inv.filter((i) => i.bucketHash === ENGRAMME);
-    const post = inv.filter((i) => i.bucketHash === POST);
     const breit = (haupt.clientWidth || innerWidth) >= 980;
-    const statsVon = (x) => ARMOR_STATS.map((n) => { const h = Object.keys(defs.stats || {}).find((k) => defs.stats[k].n === n && x.stats?.[k] != null) || Object.keys(defs.stats || {}).find((k) => defs.stats[k].n === n); return [n, x.stats?.[h] || 0, defs.stats?.[h]?.i]; });
+    const FILTER = [['exo', 'Exotic'], ['leg', 'Legendary'], ['lock', 'Locked'], ['dupe', 'Duplicates'], ['el:kinetic', 'Kinetic'], ['el:arc', 'Arc'], ['el:solar', 'Solar'], ['el:void', 'Void'], ['el:stasis', 'Stasis'], ['el:strand', 'Strand']];
     haupt.innerHTML = `<div class="kopf"><h1>Inventory</h1></div>
-      <div class="cwahl">${chars.map((x) => `<button class="cbanner ${x.characterId === wahl ? 'an' : ''}" data-wahl="${x.characterId}" data-ziel="${x.characterId}" style="background-image:url(${BILD}${x.emblemBackgroundPath || ''})"><span class="cb-kopf"><b>${KLASSE[x.classType]}</b><small>${RASSE[x.raceType] || ''}</small><em>✦ ${x.light}</em></span><span class="cb-stats">${statsVon(x).map(([n, v, ic]) => `<span title="${n}: ${v}">${ic ? `<i style="background-image:url(${BILD}${ic})"></i>` : `<small>${n.slice(0, 3)}</small>`}<b>${v}</b></span>`).join('')}</span></button>`).join('')}</div>
-      <div class="invleiste"><div class="wsub">${BEREICHE.map(([k, t]) => `<button class="chip" data-bereich="${k}" aria-pressed="${k === bereich}">${t}</button>`).join('')}</div><input id="invSuche" type="search" placeholder="Highlight: name or type…" value="${esc(suche)}" aria-label="Highlight items"><span class="invlinks"><button class="chip" data-tabweiter="vault">Weapon list & filters</button><button class="chip" data-tabweiter="armor">Armor list & stats</button></span></div>
+      <div class="invleiste"><div class="wsub">${BEREICHE.map(([k, t]) => `<button class="chip" data-bereich="${k}" aria-pressed="${k === bereich}">${t}</button>`).join('')}</div><input id="invSuche" type="search" placeholder="Highlight: name or type…" value="${esc(suche)}" aria-label="Highlight items"></div>
+      <div class="invfilter">${FILTER.map(([k, t]) => `<button class="chip klein ${k.startsWith('el:') ? `el-${k.slice(3)}` : ''}" data-filter="${k}" aria-pressed="${filter.has(k)}">${t}</button>`).join('')}${filter.size || q ? '<button class="chip klein" data-filterweg>✕ clear</button>' : ''}<span class="invlinks"><button class="chip klein" data-tabweiter="vault" title="All weapons with every filter">Weapon list ↗</button><button class="chip klein" data-tabweiter="armor" title="All armor with stats">Armor list ↗</button></span></div>
       ${breit
         ? `<div class="inv inv-alle" style="--n:${chars.length}">${chars.map(spalte).join('')}${tresor}</div>`
-        : `<div class="inv inv-fokus">${spalte(c)}<div class="cstreifen-box">${chars.filter((x) => x.characterId !== wahl).map(streifen).join('')}</div></div>${tresor}`}
-      <div class="cgrid unten"><section class="ckarte"><h3>Engrams <small>${KLASSE[c.classType]} · ${engr.length} / 10</small></h3><div class="cgitter breit">${engr.map((i) => kachel(i)).join('')}${Array(Math.max(0, 10 - engr.length)).fill('<span class="ck leer-k"></span>').join('')}</div></section>
-        <section class="ckarte"><h3>Postmaster <small>${post.length} / 21</small></h3>${post.length ? `<div class="cgitter breit">${post.map((i) => kachel(i)).join('')}</div><button class="chip" data-postpanel>Open Postmaster</button>` : '<p class="leer klein">Empty.</p>'}</section></div>
-      <p class="leer klein">Drag any weapon or armor piece onto another guardian, the vault, or a guardian's equipped slot to move or equip it. Phone: hold an item, then drag; the narrow guardian strips open under your finger. Click for details.</p>`;
+        : `<div class="inv inv-fokus">${spalte(c)}<div class="cstreifen-box">${chars.filter((x) => x.characterId !== wahl).map(streifen).join('')}</div></div>${tresor}`}`;
     const si = haupt.querySelector('#invSuche');
     si?.addEventListener('input', () => { suche = si.value; const pos = si.selectionStart; zeichne(); const n = haupt.querySelector('#invSuche'); n.focus(); n.setSelectionRange(pos, pos); });
   };
@@ -226,6 +232,9 @@ export function zeigeCharakter(haupt, zustand) {
   haupt.onclick = (e) => {
     if (haupt.dataset.keinKlick) return;
     { const tp = document.querySelector('#tipp'); if (tp) tp.hidden = true; }
+    const fi = e.target.closest('[data-filter]');
+    if (fi) { const k = fi.dataset.filter; if (filter.has(k)) filter.delete(k); else { if (k.startsWith('el:')) for (const f of [...filter]) if (f.startsWith('el:')) filter.delete(f); if (k === 'exo') filter.delete('leg'); if (k === 'leg') filter.delete('exo'); filter.add(k); } return zeichne(); }
+    if (e.target.closest('[data-filterweg]')) { filter.clear(); suche = ''; return zeichne(); }
     const br = e.target.closest('[data-bereich]');
     if (br) { bereich = br.dataset.bereich; try { localStorage.setItem('d2a.invBereich', bereich); } catch {} return zeichne(); }
     const tw = e.target.closest('[data-tabweiter]');
