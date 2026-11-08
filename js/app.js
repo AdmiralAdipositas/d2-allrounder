@@ -103,7 +103,7 @@ rail.addEventListener('click', (e) => {
   if (!b) return;
   if (b.dataset.tab) wechsle(b.dataset.tab);
   else if (b.dataset.panel) schaltePanel();
-  else if ('zufall' in b.dataset) { if (zustand.profil) import('./zufall.js').then((m) => m.oeffneZufall(zustand)); else meldung('Sign in first – the randomizer uses your own gear.', true); }
+  else if ('zufall' in b.dataset) { if (!zustand.profil) meldung('Sign in first – the randomizer uses your own gear.', true); else import('./zufall.js').then((m) => m.oeffneZufall(zustand)).catch((err) => { console.error(err); meldung(`Randomizer: ${err.message}`, true); }); }
   else if (b.id === 'konto') kontoKlick();
   if (matchMedia('(pointer: coarse)').matches) rail.classList.remove('offen');
 });

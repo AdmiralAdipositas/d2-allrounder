@@ -133,7 +133,7 @@ function ausTemp(zustand, t) {
 // ---------- Glücksrad ----------
 const SPASS = ['Primaries only', 'No super', 'No grenades', 'Hand cannons only', 'Swords only', 'Everyone on the same element', 'No exotics', 'Sidearms only', 'Only blue (rare) weapons', 'Melee kills only for adds', 'No radar (turn it off in settings)', 'Random fireteam leader picks every loadout'];
 const basis = (n) => n.split(':')[0].trim();
-const aktPool = (g) => Object.values(defs.akt || {}).filter((a) => a.g === g);
+const aktPool = (g) => Object.values(defs.akt || {}).filter((a) => a.g === g && !/unidentified|classified|^\s*$/i.test(a.n));
 function vorlagen(zustand) {
   const namen = (g) => [...new Set(aktPool(g).map((a) => basis(a.n)))].sort();
   const exos = [...new Set(sammle(zustand.profil).filter((x) => x.d.t === 3 && x.d.q === 6).map((x) => x.d.n))].sort();
@@ -254,7 +254,8 @@ export function oeffneZufall(zustand) {
     for (;;) { const l = kettenSchritte(zustand, cid, kette.stand); if (kette.i >= l.length) { ketteFertig(); return; } if (l[kette.i][2]().length) return; kette.verlauf[kette.i] = '— nothing fits'; kette.i++; }
   };
   zeichne();
-  box.onclick = async (e) => {
+  box.onclick = async (e) => { try { await klick(e); } catch (err) { console.error(err); meldung(`Randomizer: ${err.message}`, true); } };
+  const klick = async (e) => {
     if (e.target === box || e.target.closest('[data-zu]')) { box.remove(); return; }
     const t = e.target.closest('[data-tab]'); if (t) { tab = t.dataset.tab; return zeichne(); }
     if (e.target.closest('[data-wuerfeln]') && tab === 'rad' && kette?.e) { ketteFertig(); return zeichne(); }

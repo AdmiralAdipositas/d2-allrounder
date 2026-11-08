@@ -52,7 +52,7 @@ export function zeigeLoadouts(haupt, zustand) {
 
   const zeichne = () => {
     const los = profil.characterLoadouts?.data?.[charWahl]?.loadouts || [];
-    haupt.innerHTML = `<div class="kopf"><h1>Loadouts</h1><button class="chip" data-zufall>🎲 Randomizer & wheel</button><span class="platz"></span><div class="chips">${chars.map((c) => `<button class="chip" data-char="${c.characterId}" aria-pressed="${c.characterId === charWahl}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}</div></div>
+    haupt.innerHTML = `<div class="kopf"><h1>Loadouts</h1><span class="platz"></span><div class="chips">${chars.map((c) => `<button class="chip" data-char="${c.characterId}" aria-pressed="${c.characterId === charWahl}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}</div></div>
       <div class="loraster">${los.map((l, i) => {
         const items = (l.items || []).filter((x) => x.itemInstanceId && x.itemInstanceId !== '0');
         const leer = !items.length;
@@ -71,7 +71,6 @@ export function zeigeLoadouts(haupt, zustand) {
   zeichne();
 
   haupt.onclick = async (e) => {
-    if (e.target.closest('[data-zufall]')) { import('./zufall.js').then((m) => m.oeffneZufall(zustand)); return; }
     const ed = e.target.closest('[data-edit]');
     if (ed) { const i = Number(ed.dataset.edit); const l = profil.characterLoadouts.data[charWahl].loadouts[i]; bearbeite = bearbeite?.i === i ? null : { i, n: l.nameHash, ic: l.iconHash, f: l.colorHash }; return zeichne(); }
     if (bearbeite) {
