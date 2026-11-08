@@ -905,3 +905,7 @@ main{padding:12px 16px 40px}
 .tspalten.n2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}.tspalten.n3{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
 .tspalte{min-width:0}
 .b-ausr .cgitter .leer-k{display:none}.b-ausr .creihe .cr-in{min-height:0}
+/* Glückshebel: sichtbare neutrale Mitte, rastet ein */
+.zf-skala{position:relative}.zf-skala input{position:relative;z-index:1}
+.zf-mitte{position:absolute;left:50%;top:50%;width:3px;height:22px;transform:translate(-50%,-50%);background:var(--text);border-radius:2px;opacity:.75;pointer-events:none;box-shadow:0 0 6px var(--gold)}
+.zf-glueck span:last-of-type{display:flex;gap:6px;align-items:center}

@@ -16,10 +16,12 @@ const lies = (k, s) => { try { return { ...s, ...(JSON.parse(localStorage.getIte
 const schreib = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 const zuf = (l) => l[Math.floor(Math.random() * l.length)];
 
-let opt = lies('d2a.zufallOpt', { waffen: true, ruestung: true, subclass: true, exoW: 'ja', exoR: 'ja', special: false, set: '0', glueck: 0, aus: [] });
+let opt = lies('d2a.zufallOpt', { waffen: true, ruestung: true, subclass: true, exoW: 'ja', exoR: 'ja', prim: 'ja', spec: 'ja', set: '0', glueck: 0, aus: [] });
 // Ältere Einstellungen (true/false) übernehmen.
 if (typeof opt.exoW === 'boolean') opt.exoW = opt.nurExo ? 'immer' : opt.exoW ? 'ja' : 'nie';
 if (typeof opt.exoR === 'boolean') opt.exoR = opt.exoR ? 'ja' : 'nie';
+if (opt.special === true) { opt.spec = 'immer'; delete opt.special; }
+opt.prim ??= 'ja'; opt.spec ??= 'ja';
 let rad = lies('d2a.rad', { vorlage: 'fun', aus: {}, eigen: '', tempo: 5, bremse: 4, kette: { akt: true, diff: true, mod: 1, sub: true, w: true, exo: true, set: false }, pool: 'Portal' });
 let temp = lies('d2a.zufallTemp', { l: [] }).l;
 let ergebnis = null;
@@ -58,17 +60,25 @@ function pools(zustand, cid) {
   const klasse = zustand.profil.characters?.data?.[cid]?.classType;
   return { waffen: items.filter((x) => x.d.t === 3 && !opt.aus.includes(x.d.k)), ruest: items.filter((x) => x.d.t === 2 && (x.d.c === klasse || x.d.c === 3)) };
 }
+// Munition: Primary (1) und Special (2) je „vielleicht / immer / nie“, wie bei den Exotics.
+const MUNI = [[1, 'prim'], [2, 'spec']];
+const muniOk = (x) => !MUNI.some(([a, k]) => opt[k] === 'nie' && x.d.a === a);
 function wuerfleWaffen(waffen, fest = {}) {
   const out = []; let exoDa = Object.values(fest).some((x) => x?.d.q === 6);
-  const mitSpecial = SLOTS.filter(([b]) => waffen.some((x) => x.d.b === b && x.d.a === 2 && (opt.exoW !== 'nie' || x.d.q !== 6)));
-  const specialSlot = opt.special && !Object.values(fest).some((x) => x?.d.a === 2) ? zuf(mitSpecial)?.[0] : null;
-  const exoSlot = opt.exoW === 'immer' && !exoDa ? zuf(SLOTS.filter(([b]) => b !== specialSlot && waffen.some((x) => x.d.b === b && x.d.q === 6)).concat(SLOTS.filter(([b]) => b === specialSlot && waffen.some((x) => x.d.b === b && x.d.q === 6 && x.d.a === 2))))?.[0] : null;
+  const frei = SLOTS.map(([b]) => b).filter((b) => !fest[b]).sort(() => Math.random() - 0.5);
+  const pflicht = {}; // Slot → Munition, die dort liegen muss
+  for (const [a, k] of MUNI) {
+    if (opt[k] !== 'immer' || Object.values(fest).some((x) => x?.d.a === a)) continue;
+    const b = frei.find((c) => !pflicht[c] && waffen.some((x) => x.d.b === c && x.d.a === a && muniOk(x)));
+    if (b) pflicht[b] = a;
+  }
+  const exoSlot = opt.exoW === 'immer' && !exoDa ? frei.find((b) => waffen.some((x) => x.d.b === b && x.d.q === 6 && muniOk(x) && (!pflicht[b] || x.d.a === pflicht[b]))) : null;
   for (const [b, n] of SLOTS) {
     if (fest[b]) { out.push({ x: fest[b], slot: n, b }); continue; }
-    let l = waffen.filter((x) => x.d.b === b);
+    let l = waffen.filter((x) => x.d.b === b && muniOk(x));
     if (opt.exoW === 'nie' || exoDa) l = l.filter((x) => x.d.q !== 6);
     if (b === exoSlot) l = l.filter((x) => x.d.q === 6);
-    if (b === specialSlot) l = l.filter((x) => x.d.a === 2);
+    if (pflicht[b]) l = l.filter((x) => x.d.a === pflicht[b]);
     const x = ziehe(l, opt.glueck); if (!x) continue;
     if (x.d.q === 6) exoDa = true;
     out.push({ x, slot: n, b });
@@ -162,7 +172,13 @@ function wuerfleKandidaten(waffen, b, fest) {
   const exoDa = Object.values(fest).some((x) => x.d.q === 6);
   let l = waffen.filter((x) => x.d.b === b);
   if (opt.exoW === 'nie' || exoDa) l = l.filter((x) => x.d.q !== 6);
-  if (opt.special && b === 953998645 && !Object.values(fest).some((x) => x.d.a === 2) && l.some((x) => x.d.a === 2)) l = l.filter((x) => x.d.a === 2);
+  l = l.filter(muniOk);
+  // „immer“: spätestens im letzten offenen Slot, der diese Munition tragen kann, erzwingen.
+  for (const [a, k] of MUNI) {
+    if (opt[k] !== 'immer' || Object.values(fest).some((x) => x.d.a === a)) continue;
+    const offen = SLOTS.map(([c]) => c).filter((c) => !fest[c] && waffen.some((x) => x.d.b === c && x.d.a === a && muniOk(x)));
+    if (offen[offen.length - 1] === b && l.some((x) => x.d.a === a)) l = l.filter((x) => x.d.a === a);
+  }
   // Rad bleibt lesbar: höchstens 20 Kandidaten, gezogen mit dem Glückshebel.
   const out = []; const rest = [...l];
   while (out.length < 20 && rest.length) { const x = ziehe(rest, opt.glueck); out.push(x); rest.splice(rest.indexOf(x), 1); }
@@ -214,9 +230,9 @@ export function oeffneZufall(zustand) {
       <div class="wsub"><button class="chip" data-tab="loadout" aria-pressed="${tab === 'loadout'}">🎲 Loadout randomizer</button><button class="chip" data-tab="rad" aria-pressed="${tab === 'rad'}">🎡 Lucky wheel</button>${temp.length ? `<button class="chip" data-tab="temp" aria-pressed="${tab === 'temp'}">📌 Saved rolls (${temp.length})</button>` : ''}</div>
       <div class="zf-opt"><label>Guardian <select data-char>${chars.map((c) => `<option value="${c.characterId}" ${c.characterId === cid ? 'selected' : ''}>${KLASSE[c.classType]} ${c.light}</option>`).join('')}</select></label></div>
       ${tab === 'loadout' ? `
-        <div class="zf-opt">${[['waffen', 'Weapons'], ['ruestung', 'Armor'], ['subclass', 'Subclass'], ['special', 'Always a special weapon']].map(([k, t]) => `<label class="zf-cb"><input type="checkbox" data-opt="${k}" ${opt[k] ? 'checked' : ''}> ${t}</label>`).join('')}</div>
-        <div class="zf-opt"><label>Exotic weapon ${sel('exoW', [['ja', 'maybe'], ['immer', 'always'], ['nie', 'never']])}</label><label>Exotic armor ${sel('exoR', [['ja', 'maybe'], ['immer', 'always'], ['nie', 'never']])}</label><label>Set bonus ${sel('set', [['0', 'don’t care'], ['2', '2-piece'], ['4', '4-piece']])}</label></div>
-        <div class="zf-hebel"><span>☠ Bad luck</span><input type="range" min="-100" max="100" step="10" value="${opt.glueck}" data-glueck aria-label="Luck lever"><span>Luck ☘</span><small>${hebelText()}</small></div>
+        <div class="zf-opt">${[['waffen', 'Weapons'], ['ruestung', 'Armor'], ['subclass', 'Subclass']].map(([k, t]) => `<label class="zf-cb"><input type="checkbox" data-opt="${k}" ${opt[k] ? 'checked' : ''}> ${t}</label>`).join('')}</div>
+        <div class="zf-opt"><label>Primary ${sel('prim', [['ja', 'maybe'], ['immer', 'always'], ['nie', 'never']])}</label><label>Special ${sel('spec', [['ja', 'maybe'], ['immer', 'always'], ['nie', 'never']])}</label><label>Exotic weapon ${sel('exoW', [['ja', 'maybe'], ['immer', 'always'], ['nie', 'never']])}</label><label>Exotic armor ${sel('exoR', [['ja', 'maybe'], ['immer', 'always'], ['nie', 'never']])}</label><label>Set bonus ${sel('set', [['0', 'don’t care'], ['2', '2-piece'], ['4', '4-piece']])}</label></div>
+        <div class="zf-hebel zf-glueck"><span>☠ Bad luck</span><div class="zf-skala"><input type="range" min="-100" max="100" step="10" value="${opt.glueck}" data-glueck aria-label="Luck lever" list="zfmitte"><datalist id="zfmitte"><option value="0"></option></datalist><i class="zf-mitte" title="Neutral"></i></div><span>Luck ☘ ${opt.glueck ? '<button class="chip klein" data-neutral>↺ neutral</button>' : ''}</span><small>${hebelText()}</small></div>
         <details class="zf-typen"><summary>Weapon types in the pool (${typen.length - opt.aus.filter((t) => typen.includes(t)).length}/${typen.length})</summary><div class="zf-haken">${typen.map((t) => `<label class="zf-cb"><input type="checkbox" data-typ="${esc(t)}" ${!opt.aus.includes(t) ? 'checked' : ''}> ${esc(t)}</label>`).join('')}</div></details>
         <button class="haupt-knopf" data-wuerfeln>🎲 Roll</button>
         ${ergebnis ? ergebnisHtml(ergebnis) : '<p class="leer klein">Only uses items you own. Exotic items from Collections can’t be pulled by apps, so “exotic armor” means one you own.</p>'}`
@@ -260,6 +276,7 @@ export function oeffneZufall(zustand) {
     const t = e.target.closest('[data-tab]'); if (t) { tab = t.dataset.tab; return zeichne(); }
     if (e.target.closest('[data-wuerfeln]') && tab === 'rad' && kette?.e) { ketteFertig(); return zeichne(); }
     if (e.target.closest('[data-wuerfeln]')) { if (opt.glueck) await ladeKills(zustand); ergebnis = wuerfle(zustand, cid); return zeichne(); }
+    if (e.target.closest('[data-neutral]')) { opt.glueck = 0; schreib('d2a.zufallOpt', opt); return zeichne(); }
     if (e.target.closest('[data-anlegen]')) { e.target.disabled = true; await anlegen(zustand, tab === 'rad' ? kette.e : ergebnis); return; }
     if (e.target.closest('[data-temp]')) { const x = tab === 'rad' ? kette.e : ergebnis; merkeTemp(x, x.info?.[0]?.[1]); meldung('Saved under “Saved rolls”.'); return zeichne(); }
     const ta = e.target.closest('[data-tempan]'); if (ta) { ta.disabled = true; await anlegen(zustand, ausTemp(zustand, temp[Number(ta.dataset.tempan)])); return; }
