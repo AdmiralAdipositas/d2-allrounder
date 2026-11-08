@@ -12,7 +12,7 @@ import { zeigeStats } from './stats.js';
 import { zeigeXur, xurDa } from './xur.js';
 import { zeigePost, postAnzahl } from './post.js';
 import { zeigeKonto } from './konto.js';
-import { zeigeWiki, setzeWikiSuche } from './wiki.js';
+import { zeigeWiki, setzeWikiSuche, setzeWikiKat } from './wiki.js';
 import { zeigeSquad } from './squad.js';
 import { setzeNav } from './info.js';
 import { zeigeCharakter } from './charakter.js';
@@ -85,6 +85,7 @@ setzeNav({
   items: () => zustand.alleItems || (zustand.profil ? (zustand.alleItems = sammle(zustand.profil)) : []),
 });
 export const springeGuide = (id) => { zustand.guideZiel = id; wechsle('guide'); };
+export const springeWiki = (kat, suche) => { if (suche) setzeWikiSuche(suche); else setzeWikiKat(kat); wechsle('wiki'); };
 const TABS = Object.fromEntries(['char', 'vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
 

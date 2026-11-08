@@ -53,6 +53,13 @@ async function anfrage(pfad, optionen = {}) {
   return d.Response;
 }
 export const get = (pfad) => anfrage(pfad);
+// Spielberichte (PGCR) liegen auf dem Stats-Host.
+export async function pgcr(id) {
+  const r = await fetch(`https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/${id}/`, { headers: { 'X-API-Key': CONFIG.apiKey } });
+  const d = await r.json().catch(() => null);
+  if (!r.ok || !d || d.ErrorCode !== 1) throw new Error(d?.Message || `HTTP ${r.status}`);
+  return d.Response;
+}
 export const post = (pfad, inhalt) => anfrage(pfad, { method: 'POST', body: JSON.stringify(inhalt) });
 
 export async function konto() {

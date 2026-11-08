@@ -29,6 +29,7 @@ let ix = null;
 let ansicht = { kat: null, seite: null, sub: 'alle', suche: '', farm: '', wf: {} };
 // Zurück-Verlauf: vorherige Seite und Scrollhöhe, damit „←“ wieder an dieselbe Stelle führt.
 const verlauf = [];
+export function setzeWikiKat(kat) { ansicht = { ...ansicht, kat, seite: null, suche: '', check: null }; verlauf.length = 0; }
 export function setzeWikiSuche(q, art) {
   if (art === 'farm') ansicht = { ...ansicht, kat: 'farm', seite: null, farm: q, suche: '' };
   else ansicht = { ...ansicht, kat: null, seite: null, suche: q };
