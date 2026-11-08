@@ -6077,160 +6077,276 @@ const CEC=(function(){
 
 
 /* =================== THE DESERT PERPETUAL (shared) =================== */
-// Based on early written guides (mostly the Epic version) — everything schematic and marked as such.
-const DP_COL={red:'#ff6156',white:'#ece8f4',blue:'#59b8ff'};
-const dpChr=(p,c,o)=>({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><circle r="7" fill="${DP_COL[c]}" stroke="#fff" stroke-width="1.2"/></g>`});
-function dpFinish(keys,floor){return function(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)}];
+// Rebuilt 08.11.2026 after the Vaexil normal-mode field guide (mechanics verified 30.07.2026), gobble.tools and TheGamer.
+// Hub "Predestination": podiums Left = Epoptes, Right = Iatros, Back = Agraios, Forward = Koregos (last).
+// Maps are top-down and schematic (no community overhead maps found); entrance/rally always at the bottom.
+const DP_COL={red:'#ff6156',white:'#ece8f4',blue:'#59b8ff',gold:'#f6dc8e'};
+const dpChr=(p,c,o)=>({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><circle r="6" fill="${DP_COL[c]}" stroke="#fff" stroke-width="1.2"/><circle r="10" fill="none" stroke="${DP_COL[c]}" stroke-opacity=".5"/></g>`});
+const dpTx=(x,y,t,c,sz,w)=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="${sz||10}" font-weight="${w||600}" fill="${c||'#c9b98a'}">${t}</text>`;
+const dpPlate=(x,y,c,on,t)=>`<g transform="translate(${x} ${y})"><path d="M0 -16 L22 0 L0 16 L-22 0 Z" fill="${on?c+'44':'#1a160e'}" stroke="${c}" stroke-width="${on?2.4:1.4}"/>${on?`<path d="M0 -9 L12 0 L0 9 L-12 0 Z" fill="${c}" opacity=".55"/>`:''}</g>`+(t?dpTx(x,y+30,t,c,9):'');
+const dpRing=(x,y,c,on,t,r)=>`<g transform="translate(${x} ${y})"><ellipse rx="${r||20}" ry="${(r||20)*.55}" fill="none" stroke="#5a4a2a" stroke-width="7"/><ellipse rx="${r||20}" ry="${(r||20)*.55}" fill="none" stroke="${on?c:'#8a7a52'}" stroke-width="${on?3.4:1.6}"/></g>`+(t!=null?dpTx(x,y-(r||20)*.55-6,t,on?c:'#c9b98a',11,700):'');
+function dpFinish(keys,floor){return function(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s,L)}];
   s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));
   keys.forEach(q=>{if(s.dead[q])return;const p=s.p[q];
-   if(s.buff[q])units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y-22})"><rect x="-9" y="-7" width="18" height="13" rx="3" fill="#14101e" stroke="#f6dc8e"/><text y="3.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" font-weight="700" fill="#f6dc8e">${s.buff[q]}</text></g>`});
-   if(s.chr[q])units.push(dpChr({x:p.x+14,y:p.y+12},s.chr[q]));});
+   if(s.buff[q])units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y-22})"><rect x="-10" y="-7" width="20" height="13" rx="3" fill="#14101e" stroke="#f6dc8e"/><text y="3.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="8" font-weight="700" fill="#f6dc8e">${s.buff[q]}</text></g>`});
+   if(s.chr[q])units.push(dpChr({x:p.x+14,y:p.y+12},s.chr[q]));
+   if(s.say[q]){const t=L(s.say[q]);units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y-38})"><rect x="-${4+t.length*3.2}" y="-9" width="${8+t.length*6.4}" height="15" rx="7" fill="#f6dc8e"/><text y="2.5" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9.5" font-weight="700" fill="#14101e">${t}</text></g>`});}});
   const players=keys.map(q=>({x:s.p[q].x,y:s.p[q].y,r:0,dead:!!s.dead[q],o:s.fade[q]==null?1:s.fade[q]}));
-  const hud=s.hud?{t:L(s.hud.t),v:fmt(s.hud.v),hi:false,paused:false,low:s.hud.v<15}:null;
+  const hud=s.hud?{t:L(s.hud.t),v:fmt(s.hud.v),hi:false,paused:!!s.hud.p,low:s.hud.v<5}:null;
   return{plates:[],beams:[],dis:false,players,units,shots:s.shots,eshots:s.eshots,shake:s.shake,bursts:s.bursts,labels:s.labels,spot:s.spot,cam:s.cam,bn:s.bn,fx:s.fx,flash:s.flash,hud,plus:'',pips:s.pips?{at:[624,8],label:L(s.pips.lk)+' '+s.pips.done+'/'+s.pips.n,n:s.pips.n,done:s.pips.done}:null};};}
-function dpBase(keys,POS,extra){return function(){const s=Object.assign({p:{},buff:{},chr:{},units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{},fade:{}},extra||{});
+function dpBase(keys,POS,extra){return function(){const s=Object.assign({p:{},buff:{},chr:{},say:{},units:[],adds:[],shots:[],eshots:[],bursts:[],labels:[],bn:null,fx:null,spot:null,cam:[400,220,1],flash:0,shake:0,hud:null,busy:{},dead:{},fade:{}},extra||{});
   keys.forEach(k=>s.p[k]={...POS[k]});return s;};}
 const dpFire=(s,k,key,b,i)=>{if(s.busy[key]||s.dead[key])return;s.busy[key]=1;if(Math.floor(k*70+(i||0))%2)s.shots.push({a:s.p[key],q:key,b,c:C.ally});};
+const dpShot=(s,key,b)=>{s.busy[key]=1;s.shots.push({a:s.p[key],q:key,b,c:C.ally});};
 const dpBg=g=>{g.innerHTML='<rect x="0" y="0" width="800" height="440" fill="url(#sky)"/>';};
-const dpFloor=(extra)=>s=>`<rect x="-40" y="-40" width="880" height="520" fill="#0e0c08"/><rect x="90" y="30" width="620" height="390" rx="14" fill="#1a160e" stroke="#4a3d22"/>`+extra(s)+`<text x="400" y="436" text-anchor="middle" class="hud-t" style="fill:#5f587a">SPAWN · schematic</text>`;
+const dpFloor=(extra)=>(s,L)=>`<rect x="-40" y="-40" width="880" height="520" fill="#0e0c08"/><rect x="40" y="18" width="720" height="402" rx="18" fill="#1b170f" stroke="#4a3d22"/>`+extra(s,L)+`<path d="M370 432 L400 418 L430 432" fill="none" stroke="#f6dc8e" stroke-width="2"/>`+dpTx(400,412,L('lRally'),'#f6dc8e',9,700)+dpTx(720,436,L('lSchem'),'#6f6550',8,500);
+const dpHourglass=(x,y,fill,diamond)=>`<g transform="translate(${x} ${y})"><path d="M-16 -26 L16 -26 L3 0 L16 26 L-16 26 L-3 0 Z" fill="#241c0e" stroke="#d9a441" stroke-width="2"/><rect x="-11" y="${26-18*fill}" width="22" height="${18*fill}" fill="#f6dc8e" opacity=".7"/>${diamond?`<path d="M0 30 L7 38 L0 46 L-7 38 Z" fill="${diamond==='hit'?'#5a5040':'#fff'}" stroke="#fff"/>`:''}</g>`;
+const dpDur=(k,a,b)=>k>=a&&k<b;
 
-/* =================== DESERT PERPETUAL: IATROS =================== */
-// Runners: Minotaur in a section shows its Chronon colour; read the ring colour in the Vex pool, both dunk; 6 Chronons
-// (three pairs) start Diastole. Shooters get Constant (left pillar) / Absolute (middle) / Cyclical (right) and hit the
-// capsule heights the jumper calls (red = bottom, white = middle, blue = top) together → the jumper climbs a tier.
-const DPI=(function(){
- const keys=['JU','S1','S2','S3','R1','R2'];
- const PIL={L:{x:200,y:160},M:{x:400,y:120},R:{x:600,y:160}};const RING={x:400,y:300};const POOL={x:300,y:330};
- const POS={JU:{x:400,y:220},S1:{x:220,y:300},S2:{x:400,y:380},S3:{x:580,y:300},R1:{x:260,y:390},R2:{x:540,y:390}};
- const floor=dpFloor(s=>Object.entries(PIL).map(([n,p])=>`<rect x="${p.x-16}" y="${p.y-60}" width="32" height="110" rx="6" fill="#120f0a" stroke="#6b5a3a"/>${['blue','white','red'].map((c,i)=>`<rect x="${p.x-10}" y="${p.y-52+i*34}" width="20" height="26" rx="4" fill="${(s.hit||[]).includes(n+c)?DP_COL[c]:'#1e1a12'}" stroke="${DP_COL[c]}" stroke-opacity=".6"/>`).join('')}`).join('')+`<circle cx="${RING.x}" cy="${RING.y}" r="26" fill="none" stroke="${DP_COL[s.ring||'white']}" stroke-width="4"/><ellipse cx="${POOL.x}" cy="${POOL.y}" rx="26" ry="12" fill="rgba(127,227,255,.15)" stroke="#7fe3ff"/>`);
- const base=dpBase(keys,POS,{hit:[],ring:'white'});
- const boss=(s,o)=>s.units.push(Object.assign({t:'vmind',x:400,y:60,small:1},o||{}));
- const S=[
- // 1 chronons
- {d:26,f(k,s){boss(s);const cols=['red','blue','white'];const i=Math.min(2,Math.floor(k*3));const ph=(k*3)%1;s.ring=cols[i];
-   const M={x:150+i*250,y:250};if(ph<.35){s.units.push({t:'mino',x:M.x,y:M.y,hp:1-seg(ph,.05,.3)*.97});['R1','R2'].forEach((q,j)=>dpFire(s,k,q,M,j));}
-   if(ph>=.3&&ph<.4)s.adds.push(dpChr(M,cols[i]));
-   ['R1','R2'].forEach((q,j)=>{s.chr[q]=ph>=.4&&ph<.85?cols[i]:null;s.p[q]=ph<.4?mv(POS[q],M,seg(ph,.3,.4)):ph<.6?mv(M,j?RING:POOL,seg(ph,.4,.6)):j?{x:RING.x+20,y:RING.y}:{x:RING.x-20,y:RING.y};});
-   if(ph>=.55&&ph<.7)s.labels.push({x:POOL.x,y:POOL.y-26,k:'lRead',c:'#7fe3ff',o:1});if(ph>=.85&&ph<.95)s.bursts.push({...RING,r:10+30*seg(ph,.85,.95),c:DP_COL[cols[i]],o:1-seg(ph,.85,.95)});
-   s.pips={lk:'lChrLbl',n:6,done:Math.min(6,i*2+(ph>=.9?2:0))};
-   s.fx=ph<.4?{k:'fxI1Mino',o:1,c:C.ally}:ph<.7?{k:'fxI1Read',o:1,c:'#7fe3ff'}:{k:'fxI1Dunk',o:1,c:C.good};}},
- // 2 diastole: shooters at pillars hit the called heights together, jumper climbs
- {d:26,f(k,s){boss(s);s.buff={S1:'CO',S2:'AB',S3:'CY'};
-   const calls=[['L','red','M','blue','R','white'],['L','white','M','red','R','blue']];const r=k<.5?0:1;const c=calls[r];
-   if((k%.5)<.15)s.labels.push({x:s.p.JU.x,y:s.p.JU.y-34,k:r?'lCall2':'lCall1',c:C.light,o:1});
-   s.hit=[];if((k%.5)>=.2&&(k%.5)<.32){[['S1',0],['S2',2],['S3',4]].forEach(([q,j])=>{const p=PIL[c[j]];const y={blue:p.y-52+13,white:p.y-18+13,red:p.y+16+13}[c[j+1]];s.shots.push({a:s.p[q],q,b:{x:p.x,y},c:C.ally});s.hit.push(c[j]+c[j+1]);});}
-   if((k%.5)>=.32)s.p.JU=mv(r?{x:400,y:180}:POS.JU,r?{x:400,y:140}:{x:400,y:180},seg(k%.5,.32,.45));
-   if(k>=.5&&k<.6)s.labels.push({x:400,y:330,k:'lSwap',c:'#ff6156',o:1});
-   s.fx=k<.5?{k:'fxI2Shoot',o:win(k,0,.5,.02),c:C.light}:{k:'fxI2Swap',o:win(k,.5,1,.02),c:'#ff6156'};}},
- // 3 last cube → damage
- {d:16,f(k,s){boss(s,{hp:k>=.2?1-seg(k,.2,.95)*.3:null});s.p.JU=k<.2?mv({x:400,y:140},{x:400,y:100},seg(k,0,.15)):{x:400,y:100};if(k<.2)s.adds.push({t:'raw',x:0,y:0,svg:`<rect x="392" y="88" width="16" height="16" fill="#f6dc8e"/>`});
-   if(k>=.2)keys.forEach((q,i)=>dpFire(s,k,q,{x:400,y:60},i));s.fx=k<.2?{k:'fxI3Cube',o:win(k,0,.2,.02),c:'#f6dc8e'}:{k:'fxI3Dmg',o:win(k,.2,1,.02),c:C.ally};}}
- ];
- return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
-})();
-
-/* =================== DESERT PERPETUAL: AGRAIOS =================== */
-// Readers on plates map the accelerators to colours (two blue, two red, one white). Runners farm Minotaurs for the
-// needed colour and dunk into the matching hoop. A centre dunk resets the drop rule (next Minotaur drops the colour of
-// its spawn spot). Flex handles adds and reflects the boss laser. Final stand: pairs kill the clone matching their buff.
-const DPA=(function(){
- const keys=['RD1','RD2','RU1','RU2','FX1','FX2'];
- const HOOP=[{x:180,y:120,c:'blue'},{x:300,y:80,c:'red'},{x:400,y:70,c:'white'},{x:500,y:80,c:'blue'},{x:620,y:120,c:'red'}];
- const PL=[{x:250,y:330},{x:550,y:330}];
- const POS={RD1:{x:250,y:330},RD2:{x:550,y:330},RU1:{x:330,y:380},RU2:{x:470,y:380},FX1:{x:200,y:400},FX2:{x:600,y:400}};
- const floor=dpFloor(s=>HOOP.map((h,i)=>`<circle cx="${h.x}" cy="${h.y}" r="18" fill="none" stroke="${s.map?DP_COL[h.c]:'#6b5a3a'}" stroke-width="3"/>`).join('')+PL.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="20" fill="none" stroke="#f6dc8e" stroke-dasharray="4 3"/>`).join('')+`<circle cx="400" cy="220" r="22" fill="none" stroke="#c9b6ff" stroke-width="2"/>`);
- const base=dpBase(keys,POS,{map:false});
- const boss=(s,o)=>s.units.push(Object.assign({t:'vmind',x:400,y:200,small:1},o||{}));
- const S=[
- // 1 readers map the hoops
- {d:18,f(k,s){boss(s);s.map=k>=.3;if(k>=.3)s.labels.push({x:400,y:30,k:'lMap',c:C.light,o:win(k,.3,1,.02)});
-   if(k<.3)s.spot=PL.map(p=>({...p,r:30,o:win(k,0,.3),w:true}));else s.spot=HOOP.map(h=>({...h,r:24,o:win(k,.3,1.01),w:true}));
-   s.fx=k<.3?{k:'fxA1Plates',o:win(k,0,.3,.02),c:'#f6dc8e'}:{k:'fxA1Map',o:win(k,.3,1,.02),c:C.light};}},
- // 2 runners farm Minotaur colour, dunk matching hoop; centre dunk = reset; flex reflects laser
- {d:26,f(k,s){boss(s,{beam:k>=.62&&k<.8});s.map=true;const M={x:200,y:250};
-   if(k<.25){s.units.push({t:'mino',x:M.x,y:M.y,hp:1-seg(k,.04,.22)*.97});['RU1','FX1'].forEach((q,i)=>dpFire(s,k,q,M,i));}
-   if(k>=.22&&k<.28)s.adds.push(dpChr(M,'red'));s.chr.RU1=k>=.28&&k<.5?'red':null;
-   s.p.RU1=k<.28?mv(POS.RU1,M,seg(k,.2,.28)):k<.5?mv(M,{x:HOOP[1].x,y:HOOP[1].y+24},seg(k,.3,.48)):{x:HOOP[1].x,y:HOOP[1].y+24};
-   if(k>=.48&&k<.56)s.bursts.push({...HOOP[1],r:10+20*seg(k,.48,.56),c:DP_COL.red,o:1-seg(k,.48,.56)});
-   if(k>=.62&&k<.8){s.p.FX2=mv(POS.FX2,{x:640,y:300},seg(k,.6,.66));s.labels.push({x:640,y:270,k:'lReflect',c:'#c9b6ff',o:1});s.shots.push({a:s.p.FX2,q:'FX2',b:{x:400,y:200},c:'#c9b6ff'});}
-   if(k>=.82)s.labels.push({x:400,y:260,k:'lReset',c:'#ff6156',o:win(k,.82,1,.02)});
-   s.fx=k<.3?{k:'fxA2Mino',o:win(k,0,.3,.02),c:C.ally}:k<.6?{k:'fxA2Dunk',o:win(k,.3,.6,.02),c:DP_COL.red}:k<.82?{k:'fxA2Laser',o:win(k,.6,.82,.02),c:'#c9b6ff'}:{k:'fxA2Reset',o:win(k,.82,1,.02),c:'#ff6156'};}},
- // 3 final stand: pairs, clones matching buff
- {d:20,f(k,s){const cl=[{x:200,y:150,c:'red'},{x:600,y:150,c:'blue'},{x:400,y:340,c:'white'}];boss(s,{hp:k>=.7?1-seg(k,.7,.98)*.5:null,sh:k<.7});
-   const pairs=[['RD1','RU1'],['RD2','RU2'],['FX1','FX2']];
-   pairs.forEach((pr,i)=>{const C0=cl[i];pr.forEach((q,j)=>{s.buff[q]=C0.c.slice(0,2).toUpperCase();s.p[q]=mv(POS[q],{x:C0.x-20+j*40,y:C0.y+(C0.y<200?60:-50)},seg(k,0,.15));if(k>=.15&&k<.65)dpFire(s,k,q,C0,i+j);if(k>=.7)dpFire(s,k,q,{x:400,y:200},i+j);});
-    if(k<.65)s.units.push({t:'vmind',x:C0.x,y:C0.y,small:1,hp:k>=.15?1-seg(k,.15,.62)*.97:null});});
-   s.fx=k<.65?{k:'fxA3Clones',o:win(k,0,.65,.02),c:C.ally}:{k:'fxA3Burn',o:win(k,.65,1,.02),c:C.ally};}}
- ];
- return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
-})();
-
-/* =================== DESERT PERPETUAL: EPOPTES =================== */
-// Inside readers stand in the light and look at the eyes: two glow → called and broken by the inside team; one of
-// them glows again → the outside shooters on the opposite side break it from the main room. Both sides → boss open.
-// Damage between four big shields; two random players are pulled into a side room to break an extra shield.
+/* =================== DESERT PERPETUAL: EPOPTES (podium Left) =================== */
+// Two Lens rooms (left diamond, right rectangle) with a Lens Hydra each: six outer eyes 1–6 clockwise from the top + centre eye.
+// Readers stand in the projected light (freezes their Temporality countdown) and call the number on their obelisk; the
+// reader on the OTHER side destroys that eye on their own Lens. After eye 4: Function Collapse (three nodes above each Lens).
 const DPE=(function(){
- const keys=['IL','IR','OL1','OL2','OR1','OR2'];
- const ROOM={L:{x:200,y:150},R:{x:600,y:150}};const BOSS={x:400,y:250};
- const EYES={L:[{x:170,y:120},{x:200,y:105},{x:230,y:120}],R:[{x:570,y:120},{x:600,y:105},{x:630,y:120}]};
- const POS={IL:{x:200,y:180},IR:{x:600,y:180},OL1:{x:280,y:350},OL2:{x:330,y:370},OR1:{x:520,y:350},OR2:{x:470,y:370}};
- const floor=dpFloor(s=>['L','R'].map(sd=>{const r=ROOM[sd];return `<rect x="${r.x-70}" y="${r.y-80}" width="140" height="120" rx="8" fill="#120f0a" stroke="#6b5a3a"/><ellipse cx="${r.x}" cy="${r.y+30}" rx="30" ry="10" fill="rgba(246,220,142,.18)"/>`+EYES[sd].map((e,i)=>{const g=(s.glow||[]).includes(sd+i),b=(s.broke||[]).includes(sd+i);return `<circle cx="${e.x}" cy="${e.y}" r="7" fill="${b?'#2a2414':g?'#ff6156':'#5a4a2a'}" stroke="${g?'#fff':'#6b5a3a'}"/>`;}).join('');}).join('')+(s.shields?[[260,250],[540,250],[400,150],[400,360]].map(([x,y])=>`<rect x="${x-26}" y="${y-8}" width="52" height="16" rx="4" fill="rgba(127,227,255,.25)" stroke="#7fe3ff"/>`).join(''):''));
- const base=dpBase(keys,POS,{glow:[],broke:[],shields:false});
- const boss=(s,o)=>s.units.push(Object.assign({t:'hydra',x:BOSS.x,y:BOSS.y},o||{}));
+ const keys=['LR','RR','LC','RC','M1','M2'];
+ const LL={x:155,y:205},LRm={x:645,y:205},BOSS={x:400,y:92},OBL={x:155,y:300},OBR={x:645,y:300},OBM={x:400,y:250};
+ const POS={LR:{x:380,y:400},RR:{x:420,y:400},LC:{x:350,y:395},RC:{x:450,y:395},M1:{x:385,y:385},M2:{x:415,y:385}};
+ const IN={LR:{x:175,y:275},RR:{x:625,y:275},LC:{x:270,y:310},RC:{x:530,y:310},M1:{x:355,y:262},M2:{x:445,y:262}};
+ const eyeP=(c,i)=>i===0?{x:c.x,y:c.y}:{x:c.x+Math.cos((-90+(i-1)*60)*Math.PI/180)*30,y:c.y+Math.sin((-90+(i-1)*60)*Math.PI/180)*30};
+ const nodeP=(c,i)=>[{x:c.x,y:c.y-80},{x:c.x-26,y:c.y-58},{x:c.x+26,y:c.y-58}][i];
+ const lens=(c,broken,nodes,lit)=>`<g>${[1,2,3,4,5,6].map(i=>{const p=eyeP(c,i);const b=broken.includes(i);return `<circle cx="${p.x}" cy="${p.y}" r="9" fill="${b?'#2a2418':'#ff6156'}" stroke="${b?'#5a4a2a':'#fff'}" stroke-width="1.4"/>`+dpTx(p.x,p.y+3.5,i,b?'#6f6550':'#fff',9,700);}).join('')}<circle cx="${c.x}" cy="${c.y}" r="11" fill="${broken.includes(0)?'#2a2418':'#ff6156'}" stroke="#fff" stroke-width="1.6"/>`
+   +(nodes?[0,1,2].map(i=>{const p=nodeP(c,i);const on=lit.includes(i);return nodes[i]?'':`<circle cx="${p.x}" cy="${p.y}" r="8" fill="${on?'#fff':'#14101e'}" stroke="#fff" stroke-width="1.4" opacity="${on?1:.9}"/>`;}).join(''):'')+`</g>`;
+ const floor=dpFloor((s,L)=>
+   `<path d="M155 95 L265 205 L155 335 L45 205 Z" fill="#141009" stroke="#6b5a3a" stroke-width="2"/>`+dpTx(155,90,L('lLensL'),'#c9b98a',9)
+  +`<rect x="545" y="105" width="200" height="230" rx="6" fill="#141009" stroke="#6b5a3a" stroke-width="2"/>`+dpTx(645,100,L('lLensR'),'#c9b98a',9)
+  +(s.light?`<ellipse cx="175" cy="280" rx="34" ry="20" fill="rgba(246,220,142,.22)" stroke="#f6dc8e" stroke-dasharray="4 3"/><ellipse cx="625" cy="280" rx="34" ry="20" fill="rgba(246,220,142,.22)" stroke="#f6dc8e" stroke-dasharray="4 3"/>`:'')
+  +[OBL,OBR,OBM].map((o,i)=>`<rect x="${o.x-7}" y="${o.y-18}" width="14" height="30" fill="#2a2214" stroke="#d9a441"/>`+(s.obl&&s.obl[i]!=null?dpTx(o.x,o.y+28,s.obl[i],'#f6dc8e',12,700):'')).join('')
+  +dpRing(400,195,'#f6dc8e',s.ring,null,26)+dpPlate(355,262,'#59b8ff',s.plOn)+dpPlate(445,262,'#59b8ff',s.plOn)
+  +dpPlate(360,340,'#ece8f4',s.dmgPl,L('lPillarPl'))+dpPlate(440,340,'#ff6156',s.dmgPl,L('lDmgPl'))
+  +lens(LL,s.eL,s.col?s.nL:null,s.litL||[])+lens(LRm,s.eR,s.col?s.nR:null,s.litR||[])
+  +`<g transform="translate(${BOSS.x} ${BOSS.y})"><circle r="30" fill="#2a1a12" stroke="#ece8f4" stroke-width="2.4"/><circle r="40" fill="none" stroke="#e8e8f4" stroke-width="1.4" stroke-dasharray="7 6"/>${[-1,1].map(d=>`<circle cx="${d*16}" cy="10" r="7" fill="${s.shE&&s.shE[d<0?0:1]?'#2a2418':'#ff6156'}" stroke="#fff"/>`).join('')}<circle r="8" fill="#ff6156"/>${s.bossHp!=null?hpBar(-40,46,80,6,s.bossHp):''}</g>`+dpTx(BOSS.x,BOSS.y-48,'EPOPTES','#ece8f4',10,700));
+ const base=dpBase(keys,POS,{eL:[],eR:[],obl:[],nL:[0,0,0],nR:[0,0,0]});
+ const goIn=(s,k)=>keys.forEach(q=>s.p[q]=mv(POS[q],IN[q],seg(k,0,1)));
+ const atIn=s=>keys.forEach(q=>s.p[q]={...IN[q]});
  const S=[
- // 1 inside: two eyes glow, inside breaks both
- {d:22,f(k,s){boss(s);s.glow=k<.5?['L0','L2']:[];s.broke=k>=.5?['L0','L2']:[];
-   if(k<.2)s.labels.push({x:ROOM.L.x,y:ROOM.L.y-90,k:'lTwo',c:C.light,o:win(k,.04,.2,.02)});
-   if(k>=.2&&k<.5){dpFire(s,k,'IL',EYES.L[0],0);s.p.OL1=mv(POS.OL1,{x:240,y:200},seg(k,.15,.25));dpFire(s,k,'OL1',EYES.L[2],1);}
-   s.cam=camK(k,[[0,400,220,1],[.06,220,180,1.6],[.9,220,180,1.6],[1,400,220,1]]);
-   s.fx=k<.2?{k:'fxE1Call',o:win(k,0,.2,.02),c:C.light}:{k:'fxE1Break',o:win(k,.2,1,.02),c:C.ally};}},
- // 2 one glows again → opposite outside shooters break it
- {d:20,f(k,s){boss(s);s.broke=['L2'];s.glow=k<.55?['L0']:[];if(k>=.55)s.broke=['L0','L2'];
-   if(k<.2)s.labels.push({x:ROOM.L.x,y:ROOM.L.y-90,k:'lAgain',c:'#ff6156',o:win(k,.04,.2,.02)});
-   if(k>=.2&&k<.55)['OR1','OR2'].forEach((q,i)=>dpFire(s,k,q,EYES.L[0],i));
-   s.fx=k<.2?{k:'fxE2Again',o:win(k,0,.2,.02),c:'#ff6156'}:k<.6?{k:'fxE2Opp',o:win(k,.2,.6,.02),c:C.ally}:{k:'fxE2Other',o:win(k,.6,1,.02),c:'#ece8f4'};}},
- // 3 damage between shields, two pulled into a side room
- {d:20,f(k,s){s.shields=true;boss(s,{hp:1-seg(k,.1,.95)*.3});keys.forEach((q,i)=>{if(q==='IL'||q==='IR'){if(k<.12)s.fade[q]=1-seg(k,.05,.12);else if(k<.4){s.p[q]=q==='IL'?{x:200,y:120}:{x:600,y:120};s.fade[q]=1;}else s.p[q]=mv(s.p[q],{x:380+(q==='IL'?0:40),y:300},seg(k,.4,.5));}else{s.p[q]=mv(POS[q],{x:330+i*20,y:300},seg(k,0,.1));dpFire(s,k,q,BOSS,i);}});
-   if(k>=.12&&k<.4)s.labels.push({x:200,y:60,k:'lPulled',c:'#7fe3ff',o:1});
-   s.fx=k<.4?{k:'fxE3Pull',o:win(k,0,.4,.02),c:'#7fe3ff'}:{k:'fxE3Dmg',o:win(k,.4,1,.02),c:C.ally};}}
+ // 1 start: Magistrates open the side-room plates, readers walk into the projected light
+ {d:20,f(k,s){const MG=[{x:300,y:300},{x:500,y:300}];
+   if(k<.45){MG.forEach((m,i)=>s.units.push({t:'vcyc',x:m.x,y:m.y,hp:1-seg(k,.1,.42)*.97}));goIn(s,seg(k,0,.15));
+     [['LC',MG[0]],['M1',MG[0]],['RC',MG[1]],['M2',MG[1]]].forEach(([q,m],i)=>{if(k>.12)dpFire(s,k,q,m,i);});}
+   else{atIn(s);s.light=k>.55;s.plOn=1;if(k<.55){s.p.LR=mv(IN.LC,IN.LR,seg(k,.45,.55));s.p.RR=mv(IN.RC,IN.RR,seg(k,.45,.55));}}
+   s.fx=k<.45?{k:'fxE1Mag',o:win(k,0,.45,.03),c:C.ally}:{k:'fxE1Light',o:win(k,.45,1,.03),c:'#f6dc8e'};
+   if(k>.6)s.hud={t:'lTemp',v:30,p:1};}},
+ // 2 eye exchange: reader calls own obelisk number, the opposite side breaks that eye on its own Lens (4 per side)
+ {d:30,f(k,s){atIn(s);s.light=1;s.plOn=1;s.hud={t:'lTemp',v:30,p:1};
+   const seq=[['LR',2],['RR',5],['LR',4],['RR',1],['LR',6],['RR',3]];const n=Math.min(6,Math.floor(k/.12));
+   seq.forEach(([q,e],i)=>{const other=q==='LR'?'RR':'LR';const done=i<n;if(done)(other==='RR'?s.eR:s.eL).push(e);});
+   if(n<6&&k<.72){const [q,e]=seq[n];const other=q==='LR'?'RR':'LR';const ph=(k%.12)/.12;s.obl=[q==='LR'?e:null,q==='RR'?e:null,null];
+     if(ph<.5)s.say[q]=String(e);if(ph>=.5&&ph<.8)dpShot(s,other,eyeP(other==='RR'?LRm:LL,e));}
+   if(k>=.72&&k<.86){s.say.M1='lReady';s.labels.push({x:400,y:220,k:'lPause',c:'#f6dc8e',o:1});}
+   if(k>=.86){s.eL.push(1);s.eR.push(2);if(k<.93){s.say.LR='2';}else dpShot(s,'LR',eyeP(LL,1));}
+   s.fx=k<.72?{k:'fxE2Swap',o:win(k,0,.72,.03),c:'#f6dc8e'}:{k:'fxE2Pause',o:win(k,.72,1,.03),c:'#f6dc8e'};}},
+ // 3 Function Collapse: three nodes above each Lens; middle reader reads the unlit one, Lens reader breaks it, other middle breaks the rest
+ {d:28,f(k,s){atIn(s);s.light=1;s.plOn=1;s.col=1;s.eL=[2,4,6,1];s.eR=[5,1,3,2];s.hud={t:'lTemp',v:30,p:1};
+   s.litL=[0,2];s.litR=[0,1];
+   if(k<.5){s.nL=[k>.4,k>.32,k>.4];s.nR=[0,0,0];if(k<.22)s.say.M1='lNodeL';else if(k<.32)dpShot(s,'LR',nodeP(LL,1));else if(k<.42){dpShot(s,'M2',nodeP(LL,0));}}
+   else{s.nL=[1,1,1];s.nR=[k>.9,k>.9,k>.82];if(k<.72)s.say.M2='lNodeR';else if(k<.82)dpShot(s,'RR',nodeP(LRm,2));else if(k<.92)dpShot(s,'M1',nodeP(LRm,0));}
+   if(k>.15&&k<.95)s.labels.push({x:400,y:330,k:'lStayLight',c:'#ff6156',o:1});
+   s.fx=k<.5?{k:'fxE3ColL',o:win(k,0,.5,.03),c:'#ece8f4'}:{k:'fxE3ColR',o:win(k,.5,1,.03),c:'#ece8f4'};}},
+ // 4 finish the Lenses (5, 6, centre), then both holders break Epoptes' two shield eyes
+ {d:20,f(k,s){atIn(s);s.light=k<.5;s.plOn=1;s.eL=[2,4,6,1];s.eR=[5,1,3,2];
+   const fin=[[5,3],[3,6]];if(k>.1)s.eL.push(5);if(k>.2)s.eR.push(6);if(k>.3){s.eL.push(3);s.eR.push(4);}if(k>.42){s.eL.push(0);s.eR.push(0);}
+   if(k<.1)dpShot(s,'LR',eyeP(LL,5));else if(k<.2)dpShot(s,'RR',eyeP(LRm,6));else if(k<.42){dpShot(s,'LR',eyeP(LL,k<.3?3:0));dpShot(s,'RR',eyeP(LRm,k<.3?4:0));}
+   if(k>=.5){s.p.LR=mv(IN.LR,{x:330,y:180},seg(k,.5,.65));s.p.RR=mv(IN.RR,{x:470,y:180},seg(k,.5,.65));s.shE=[k>.78,k>.86];if(k>.68&&k<.78)dpShot(s,'LR',{x:384,y:102});if(k>.78&&k<.86)dpShot(s,'RR',{x:416,y:102});}
+   s.fx=k<.5?{k:'fxE4Fin',o:win(k,0,.5,.03),c:'#f6dc8e'}:{k:'fxE4Shield',o:win(k,.5,1,.03),c:C.good};}},
+ // 5 damage: Epoptes names a pair (close / far projection); clearing the eyes adds ~10 s; three pairs
+ {d:30,f(k,s){s.eL=[0,1,2,3,4,5,6];s.eR=[0,1,2,3,4,5,6];s.shE=[1,1];s.dmgPl=1;const DP={x:400,y:330};
+   const prs=[['LC','RC'],['M1','M2'],['LR','RR']];const i=Math.min(2,Math.floor(k*3));const ph=(k*3)%1;const pr=prs[i];
+   keys.forEach((q,j)=>{s.p[q]={x:340+j*24,y:330};});
+   pr.forEach((q,j)=>{const t=j?{x:400,y:20+8}:{x:400,y:150};s.p[q]=mv({x:340+keys.indexOf(q)*24,y:330},t,seg(ph,.05,.3));s.say[q]=ph<.3?(j?'lFar':'lClose'):null;});
+   keys.forEach((q,j)=>{if(!pr.includes(q))dpFire(s,k,q,BOSS,j);});
+   if(ph>.35&&ph<.6)pr.forEach(q=>dpShot(s,q,{x:BOSS.x+(q===pr[0]?-34:34),y:BOSS.y+30}));
+   s.bossHp=1-seg(k,0,.98)*.8;s.hud={t:'lDmgT',v:Math.max(1,20-ph*18+(ph>.6?10:0))};
+   if(ph>.6&&ph<.75)s.labels.push({x:400,y:200,k:'lPlus10',c:C.good,o:1});
+   s.fx={k:'fxE5Dmg',o:win(k,0,1,.02),c:C.ally};}}
  ];
  return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
 })();
 
-/* =================== DESERT PERPETUAL: KOREGOS =================== */
-// Very condensed: two players are banished (Excluded From Reality) and kill a Cyclops; the outside team finds the
-// Chronon colour (test it, or wait for Worldline Stability late in the timer) and dunks four. Minigame (Hydra/Wyvern/
-// Hobgoblin) → crystals: buffed players break the matching outer crystal, unbuffed the inner ones (1, 2, 3) → damage.
-// Last stand: platforming with six cubes (one each), crystals, kill; afterwards jump off and hide.
-const DPK=(function(){
- const keys=['B1','B2','O1','O2','O3','O4'];
- const PORT={x:150,y:110};const BOSS={x:400,y:200};
- const OUT=[{x:260,y:120},{x:540,y:120},{x:400,y:340}];const INN=[{x:350,y:220},{x:450,y:220},{x:400,y:270}];
- const POS={B1:{x:330,y:390},B2:{x:360,y:400},O1:{x:420,y:390},O2:{x:450,y:400},O3:{x:480,y:390},O4:{x:510,y:400}};
- const floor=dpFloor(s=>`<path d="M${PORT.x} ${PORT.y-30} L${PORT.x+30} ${PORT.y+24} L${PORT.x-30} ${PORT.y+24} Z" fill="rgba(169,130,245,.15)" stroke="#a982f5" stroke-width="2"/>`+(s.cry?OUT.map((p,i)=>`<path d="M${p.x} ${p.y-16} L${p.x+10} ${p.y} L${p.x} ${p.y+16} L${p.x-10} ${p.y} Z" fill="${(s.broke||[]).includes('o'+i)?'#1e1a12':'rgba(127,227,255,.4)'}" stroke="#7fe3ff"/>`).join('')+INN.map((p,i)=>`<path d="M${p.x} ${p.y-12} L${p.x+8} ${p.y} L${p.x} ${p.y+12} L${p.x-8} ${p.y} Z" fill="${(s.broke||[]).includes('i'+i)?'#1e1a12':'rgba(255,255,255,.4)'}" stroke="#fff"/>`).join(''):''));
- const base=dpBase(keys,POS,{cry:false,broke:[]});
- const boss=(s,o)=>s.units.push(Object.assign({t:'vmind',x:BOSS.x,y:BOSS.y-90,small:1},o||{}));
+/* =================== DESERT PERPETUAL: IATROS (podium Right) =================== */
+// Hourglass + ring + white diamond mid-room. Plates Entrance / Center / Far on the left half. Box spires: Entrance-side,
+// Right-side (across from Center), Far-side; each with bottom / middle / top boxes. Diastole: four charges, one per second.
+const DPI=(function(){
+ const keys=['B1','B2','B3','CL','R1','R2'];
+ const HG={x:470,y:235},PL={E:{x:260,y:360},C:{x:260,y:240},F:{x:260,y:115}},SP={E:{x:110,y:360},R:{x:715,y:240},F:{x:110,y:110}};
+ const POS={B1:{x:380,y:400},B2:{x:410,y:400},B3:{x:440,y:400},CL:{x:395,y:388},R1:{x:470,y:400},R2:{x:500,y:400}};
+ const AT={B1:{x:155,y:375},B2:{x:665,y:255},B3:{x:155,y:125},CL:{x:260,y:240},R1:{x:430,y:300},R2:{x:520,y:300}};
+ const box=(x,y,row)=>({x:x,y:y+[18,0,-18][row]});
+ const STEP=[{x:300,y:212},{x:330,y:186},{x:360,y:160}];
+ const floor=dpFloor((s,L)=>
+   Object.entries(PL).map(([n,p])=>dpPlate(p.x,p.y,'#59b8ff',s.start===n,L('lPl'+n))).join('')
+  +Object.entries(SP).map(([n,p])=>`<rect x="${p.x-22}" y="${p.y-34}" width="44" height="68" rx="5" fill="#120f0a" stroke="#6b5a3a"/>`+[0,1,2].map(r=>{const b=box(p.x,p.y,r);const gone=(s.rows||0)>r;return `<rect x="${b.x-16}" y="${b.y-7}" width="32" height="14" rx="2" fill="${gone?'#1a160e':'#cfc7b0'}" stroke="${gone?'#3a3022':'#fff'}" stroke-dasharray="${gone?'3 3':''}"/>`;}).join('')+dpTx(p.x,p.y+48,L('lSp'+n),'#c9b98a',8.5)).join('')
+  +dpTx(110,52,L('lRows'),'#6f6550',8)
+  +STEP.map((p,i)=>(s.rows||0)>i?`<rect x="${p.x-18}" y="${p.y-8}" width="36" height="16" rx="3" fill="#cfc7b0" opacity=".85" stroke="#fff"/>`+((s.holo||0)<=i?`<rect x="${p.x-6}" y="${p.y-26}" width="12" height="12" fill="none" stroke="#7fe3ff" stroke-width="1.6" transform="rotate(45 ${p.x} ${p.y-20})"/>`:''):'').join('')
+  +dpRing(HG.x,HG.y-48,'#f6dc8e',s.ringOn,null,22)+dpHourglass(HG.x,HG.y,s.fill==null?0:s.fill,s.dia||1));
+ const base=dpBase(keys,POS,{fill:0,rows:0,holo:0});
+ const boss=(s,p,hp)=>s.units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y}) scale(1.8)"><path d="M0 -8 C10 -16 22 -10 26 0 C16 -4 8 0 0 8 C-8 0 -16 -4 -26 0 C-22 -10 -10 -16 0 -8 Z" fill="#2c2214" stroke="#ece8f4" stroke-width="1.4"/><circle r="3" fill="#ff6156"/></g>`+(hp!=null?`<g transform="translate(${p.x} ${p.y})">${hpBar(-36,22,72,6,hp)}</g>`:'')+dpTx(p.x,p.y-26,'IATROS','#ece8f4',9,700)});
+ const IAT={x:600,y:70};
+ const at=s=>keys.forEach(q=>s.p[q]={...AT[q]});
  const S=[
- // 1 banished pair + chronon colour + 4 dunks
- {d:26,f(k,s){boss(s);['B1','B2'].forEach((q,i)=>{s.p[q]=k<.12?mv(POS[q],PORT,seg(k,0,.12)):{x:PORT.x-12+i*24,y:PORT.y+40};s.buff[q]=k>=.12?'EX':null;});
-   if(k>=.12&&k<.5){const c={x:PORT.x,y:PORT.y-4};s.units.push({t:'vcyc',x:c.x+70,y:c.y-40});['B1','B2'].forEach((q,i)=>dpFire(s,k,q,{x:c.x+70,y:c.y-40},i));}
-   const col='blue';['O1','O2','O3','O4'].forEach((q,i)=>{const z={x:600+(i%2)*60,y:260+Math.floor(i/2)*60};if(k>=.3&&k<.7){s.p[q]=mv(POS[q],z,seg(k,.3,.4));if(k>=.45)s.chr[q]=col;}if(k>=.7){s.p[q]=mv(z,{x:BOSS.x-30+i*20,y:BOSS.y+30},seg(k,.7,.85));s.chr[q]=k<.86?col:null;}});
-   if(k>=.3&&k<.5)s.labels.push({x:630,y:230,k:'lColor',c:DP_COL.blue,o:1});
-   if(k>=.86&&k<.92)s.bursts.push({...BOSS,r:10+40*seg(k,.86,.92),c:DP_COL.blue,o:1-seg(k,.86,.92)});
-   s.pips={lk:'lChrLbl',n:4,done:k<.86?0:4};
-   s.fx=k<.3?{k:'fxK1Ban',o:win(k,0,.3,.02),c:'#a982f5'}:k<.7?{k:'fxK1Color',o:win(k,.3,.7,.02),c:DP_COL.blue}:{k:'fxK1Dunk',o:win(k,.7,1,.02),c:C.good};}},
- // 2 crystals: buffed outer (matching), unbuffed inner → damage
- {d:22,f(k,s){s.cry=true;boss(s,{hp:k>=.5?1-seg(k,.5,.95)*.25:null});s.buff={O1:'CO',O2:'AB'};s.broke=[];
-   if(k>=.1&&k<.3){dpFire(s,k,'O1',OUT[0],0);dpFire(s,k,'O2',OUT[1],1);}if(k>=.3)s.broke.push('o0','o1');
-   if(k>=.3&&k<.45)['O3','O4'].forEach((q,i)=>dpFire(s,k,q,INN[0],i));if(k>=.45)s.broke.push('i0');
-   if(k>=.5)keys.forEach((q,i)=>dpFire(s,k,q,{x:BOSS.x,y:BOSS.y-90},i));
-   s.fx=k<.3?{k:'fxK2Outer',o:win(k,0,.3,.02),c:'#7fe3ff'}:k<.5?{k:'fxK2Inner',o:win(k,.3,.5,.02),c:'#ece8f4'}:{k:'fxK2Dmg',o:win(k,.5,1,.02),c:C.ally};}},
- // 3 last stand: six cubes, one each, then jump off and hide after the kill
- {d:20,f(k,s){boss(s,{hp:k<.7?.2-seg(k,.3,.7)*.19:null,o:k<.75?1:0});const cubes=[0,1,2,3,4,5].map(i=>({x:220+i*70,y:180-i*20}));
-   cubes.forEach((c,i)=>{if(k<.06+i*.04)s.adds.push({t:'raw',x:0,y:0,svg:`<rect x="${c.x-7}" y="${c.y-7}" width="14" height="14" fill="#f6dc8e"/>`});});
-   keys.forEach((q,i)=>{s.p[q]=k<.06+i*.04?mv(POS[q],cubes[i],seg(k,0,.06+i*.04)):k<.75?cubes[i]:mv(cubes[i],{x:100+i*20,y:410},seg(k,.75,.9));if(k>=.3&&k<.7)dpFire(s,k,q,{x:BOSS.x,y:BOSS.y-90},i);});
-   if(k>=.75)s.labels.push({x:400,y:300,k:'lHide',c:C.danger,o:win(k,.75,1,.02)});
-   s.fx=k<.3?{k:'fxK3Cubes',o:win(k,0,.3,.02),c:'#f6dc8e'}:k<.75?{k:'fxK3Kill',o:win(k,.3,.75,.02),c:C.ally}:{k:'fxK3Hide',o:win(k,.75,1,.02),c:C.danger};}}
+ // 1 six Minotaurs → Chronons through the ring above the hourglass → shoot the white diamond
+ {d:26,f(k,s){boss(s,IAT);const M=[{x:380,y:170},{x:560,y:170},{x:380,y:300},{x:560,y:300},{x:470,y:140},{x:470,y:330}];
+   const n=Math.min(6,Math.floor(seg(k,.05,.8)*6.99));s.ringOn=1;s.fill=n/6;s.pips={lk:'lChrLbl',n:6,done:n};
+   keys.forEach((q,i)=>{const m=M[i];const ph=seg(k,.05+i*.11,.2+i*.11);s.p[q]=ph<.5?mv(POS[q],m,ph*2):mv(m,{x:HG.x+(i-2.5)*6,y:HG.y-48},(ph-.5)*2);if(ph<.35)s.units.push({t:'mino',x:m.x,y:m.y,hp:1-ph*2.7});if(ph>.35&&ph<.99)s.chr[q]='white';});
+   if(k>.86){s.dia=k>.93?'hit':1;dpShot(s,'B2',{x:HG.x,y:HG.y+38});}
+   s.fx=k<.86?{k:'fxI1Fill',o:win(k,0,.86,.03),c:C.ally}:{k:'fxI1Dia',o:win(k,.86,1,.02),c:'#fff'};}},
+ // 2 Diastole: climber on the starting plate, four charges; on charge 4 all three spires break their bottom row → platform
+ {d:24,f(k,s){boss(s,IAT);at(s);s.start='C';s.fill=1-k*.15;s.dia='hit';s.ringOn=1;const c=Math.floor(k*5.5)%5;
+   s.pips={lk:'lDia',n:4,done:Math.min(4,c)};if(k<.75)s.say.CL=c?String(Math.min(4,c)):'lOnPlate';
+   if(c===4||k>=.73){s.rows=k>.78?1:0;if(k<.8)['B1','B2','B3'].forEach(q=>dpShot(s,q,box(SP[q==='B1'?'E':q==='B2'?'R':'F'].x,SP[q==='B1'?'E':q==='B2'?'R':'F'].y,0)));}
+   if(k>.82){s.p.CL=mv(AT.CL,STEP[0],seg(k,.82,.95));}
+   if(k>.4&&k<.6)s.labels.push({x:260,y:290,k:'lNoGround',c:'#ff6156',o:1});
+   s.fx=k<.7?{k:'fxI2Dia',o:win(k,0,.7,.03),c:'#7fe3ff'}:{k:'fxI2Row',o:win(k,.7,1,.03),c:C.good};}},
+ // 3 staircase: hologram, then middle and top rows on fresh four-counts; runners keep the hourglass topped up
+ {d:28,f(k,s){boss(s,IAT);at(s);s.start='C';s.dia='hit';s.ringOn=1;const st=Math.min(2,Math.floor(k*3));const ph=(k*3)%1;
+   s.rows=Math.min(3,st+1+(ph>=.55&&st<2?1:0));s.holo=st+(ph>.2?1:0);
+   s.p.CL=st<2&&ph>.6?mv(STEP[st],STEP[st+1],seg(ph,.6,.75)):{...STEP[st]};if(ph<.2)s.say.CL='lHolo';else if(ph<.5)s.say.CL=String(Math.min(4,Math.floor((ph-.2)/.075)+1));
+   if(ph>=.48&&ph<.56&&st<2)['B1','B2','B3'].forEach(q=>{const sp=SP[q==='B1'?'E':q==='B2'?'R':'F'];dpShot(s,q,box(sp.x,sp.y,st+1));});
+   s.fill=.85-k*.3+(k>.5?.17:0);if(k>.45&&k<.55){s.p.R1=mv(AT.R1,{x:HG.x,y:HG.y-48},seg(k,.45,.5));s.chr.R1='white';}
+   s.hud={t:'lHour',v:Math.round(s.fill*40)};
+   s.fx=k<.5?{k:'fxI3Climb',o:win(k,0,.5,.03),c:'#7fe3ff'}:{k:'fxI3Keep',o:win(k,.5,1,.03),c:'#f6dc8e'};}},
+ // 4 damage: Iatros teleports onto the starting plate; stay out of the stomp; reserve Chronons extend the hourglass
+ {d:24,f(k,s){const P={x:260,y:240};const B=k<.12?mv(IAT,P,seg(k,0,.12)):P;boss(s,B,k>.15?1-seg(k,.15,.95)*.75:1);s.start='C';s.dia='hit';s.ringOn=1;s.rows=3;s.holo=3;
+   const ST={B1:{x:330,y:330},B2:{x:360,y:345},B3:{x:390,y:330},CL:{x:340,y:150},R1:{x:430,y:300},R2:{x:520,y:300}};keys.forEach(q=>s.p[q]=mv(AT[q],ST[q],seg(k,0,.12)));
+   s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${P.x}" cy="${P.y}" r="58" fill="none" stroke="#ff6156" stroke-dasharray="5 4" opacity=".7"/>`});
+   if(k>.15)['B1','B2','B3','CL'].forEach((q,i)=>dpFire(s,k,q,P,i));
+   s.fill=.55-k*.35+(k>.6?.2:0);if(k>.55&&k<.65){s.p.R2=mv(ST.R2,{x:HG.x,y:HG.y-48},seg(k,.55,.62));s.chr.R2='white';}
+   s.hud={t:'lHour',v:Math.round(s.fill*40)};if(k>.8)s.labels.push({x:HG.x,y:HG.y+70,k:'lNeo',c:'#ff6156',o:1});
+   s.fx={k:'fxI4Dmg',o:win(k,0,1,.02),c:C.ally};}}
+ ];
+ return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
+})();
+
+/* =================== DESERT PERPETUAL: AGRAIOS (podium Back) =================== */
+// Five rings on a circle, 1–5 clockwise from front-left around the back; the sixth spot (front middle) is empty.
+// Copies on platforms inside the circle, three Temporality plates further in. Matching holder = runner (Alignment Charge),
+// four safe rings get one Cobalt Chronon each, runner crosses 1→5 → Vex detain thrown on the grouped team at ~3–2 s.
+const DPA=(function(){
+ const keys=['RUN','H2','H3','C1','C2','C3'];
+ const CEN={x:400,y:225};const RP=[150,210,270,330,30].map(a=>({x:CEN.x+Math.cos(a*Math.PI/180)*270,y:CEN.y+Math.sin(a*Math.PI/180)*175}));
+ const CP=[{x:300,y:155,n:'CO'},{x:400,y:118,n:'AB'},{x:500,y:155,n:'CY'}];const PLT=[{x:345,y:255},{x:400,y:275},{x:455,y:255}];
+ const POS={RUN:{x:370,y:405},H2:{x:400,y:405},H3:{x:430,y:405},C1:{x:340,y:398},C2:{x:460,y:398},C3:{x:490,y:398}};
+ const ON={RUN:PLT[1],H2:PLT[0],H3:PLT[2],C1:{x:220,y:300},C2:{x:580,y:300},C3:{x:400,y:340}};
+ const GRP={x:600,y:110};
+ const floor=dpFloor((s,L)=>
+   `<ellipse cx="${CEN.x}" cy="${CEN.y}" rx="270" ry="175" fill="none" stroke="#3a3022" stroke-dasharray="6 6"/>`
+  +RP.map((p,i)=>dpRing(p.x,p.y,s.rc&&s.rc[i]==='red'?'#ff6156':'#59b8ff',(s.rc&&s.rc[i])||((s.lit||0)>i),String(i+1),22)+(s.st&&s.st[i]?`<circle cx="${p.x+20}" cy="${p.y+8}" r="5" fill="#59b8ff" stroke="#fff"/>`:'')).join('')
+  +dpTx(CEN.x,CEN.y+192,L('lNo6'),'#6f6550',8)
+  +CP.map((c,i)=>`<rect x="${c.x-24}" y="${c.y-12}" width="48" height="24" rx="4" fill="#141009" stroke="#6b5a3a"/>`+(s.cDead&&s.cDead[i]?'':`<g transform="translate(${c.x} ${c.y}) scale(1.5)"><path d="M0 -10 L8 0 L0 10 L-8 0 Z" fill="#2c2214" stroke="${s.atk===i?'#ff6156':'#d9a441'}" stroke-width="1.8"/><circle r="2.4" fill="#ff6156"/></g>`)+dpTx(c.x,c.y-20,c.n,'#c9b98a',8)+(s.py===i?`<circle cx="${c.x}" cy="${c.y+18}" r="5" fill="#f6dc8e"/>`:'')).join('')
+  +PLT.map((p,i)=>dpPlate(p.x,p.y,'#ece8f4',s.plOn,['CO','AB','CY'][i])).join(''));
+ const base=dpBase(keys,POS,{lit:0});
+ const boss=(s,hp)=>s.units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${CEN.x} ${CEN.y-15}) scale(2.2)"><path d="M0 -10 L8 0 L0 10 L-8 0 Z" fill="#2c2214" stroke="#ece8f4" stroke-width="1.2"/><circle r="2.4" fill="#ff6156"/></g>`+(hp!=null?`<g transform="translate(${CEN.x} ${CEN.y-15})">${hpBar(-36,26,72,6,hp)}</g>`:'')+dpTx(CEN.x,CEN.y-46,'AGRAIOS','#ece8f4',9,700)});
+ const run=(s,q,k)=>{const pts=[s.p[q],...RP,GRP];s.p[q]=along(pts,k);};
+ const along=(pts,t)=>{const D=[0];for(let i=1;i<pts.length;i++)D.push(D[i-1]+Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y));const d=cl(t)*D[D.length-1];let i=1;while(i<D.length-1&&D[i]<d)i++;const q=(d-D[i-1])/((D[i]-D[i-1])||1);return mv(pts[i-1],pts[i],q);};
+ const on=s=>keys.forEach(q=>s.p[q]={...ON[q]});
+ const S=[
+ // 1 power the five rings with Cobalt Chronons from the Minotaurs
+ {d:26,f(k,s){boss(s);const M=[{x:250,y:330},{x:550,y:330},{x:400,y:360}];
+   ['C1','C2','C3'].forEach((q,i)=>{const ph=seg(k,.05,.85);s.p[q]=ph<.25?mv(POS[q],M[i],ph*4):along([M[i],...[[RP[0],RP[1]],[RP[4],RP[3]],[RP[2]]][i]],(ph-.25)/.7);if(ph<.22){s.units.push({t:'mino',x:M[i].x,y:M[i].y,hp:1-ph*4.3});dpFire(s,k,q,M[i],i);}else s.chr[q]='blue';});
+   ['RUN','H2','H3'].forEach(q=>s.p[q]=mv(POS[q],ON[q],seg(k,0,.2)));s.plOn=k>.2;
+   s.lit=k<.4?0:k<.6?2:k<.85?4:5;s.pips={lk:'lRings',n:5,done:s.lit};boss(s);
+   s.fx={k:'fxA1Ring',o:win(k,0,1,.03),c:'#59b8ff'};}},
+ // 2 a copy attacks: the holder whose perspective matches sees the red ring, takes the pylon (Alignment Charge) = runner
+ {d:24,f(k,s){on(s);boss(s);s.plOn=1;s.lit=5;s.atk=1;s.buff={RUN:'AB',H2:'CO',H3:'CY'};
+   s.rc=k>.2?[null,null,'red',null,null]:null;if(k>.2&&k<.45)s.say.RUN='lRed3';
+   if(k>.45){s.p.RUN=mv(ON.RUN,{x:CP[1].x,y:CP[1].y+30},seg(k,.45,.6));s.py=k<.6?1:null;}
+   if(k>.62){s.buff.RUN='AC';s.say.H2=k<.8?'1 + 2':null;s.say.H3=k>.8?'4 + 5':null;}
+   s.eshots.push({a:{x:CP[1].x,y:CP[1].y},b:{x:400,y:405},c:'#ff6156'});
+   s.fx=k<.45?{k:'fxA2Match',o:win(k,0,.45,.03),c:'#ff6156'}:{k:'fxA2Pylon',o:win(k,.45,1,.03),c:'#f6dc8e'};}},
+ // 3 stabilise: one Cobalt Chronon into each of the four safe rings, the red ring stays
+ {d:20,f(k,s){on(s);boss(s);s.plOn=1;s.lit=5;s.atk=1;s.buff={RUN:'AC',H2:'CO',H3:'CY'};s.p.RUN={x:CP[1].x,y:CP[1].y+30};s.rc=[null,null,'red',null,null];
+   const tg=[['C1',0],['C1',1],['C2',4],['C2',3]];s.st=tg.map((t,i)=>k>.2+i*.18);s.st.splice(2,0,false);s.st=[s.st[0],s.st[1],false,s.st[4],s.st[3]];
+   ['C1','C2'].forEach((q,i)=>{const a=i?[RP[4],RP[3]]:[RP[0],RP[1]];s.p[q]=along([ON[q],...a],seg(k,.05,.85));s.chr[q]=k<.85?'blue':null;});
+   s.labels.push({x:RP[2].x,y:RP[2].y+30,k:'lNoTemp',c:'#ff6156',o:win(k,.1,.9)});
+   s.fx={k:'fxA3Stab',o:win(k,0,1,.03),c:'#59b8ff'};}},
+ // 4 run 1→5, grenade becomes a detain; team groups near 4/5, detain at ~3–2 s on the lowest wipe timer
+ {d:26,f(k,s){boss(s);s.plOn=1;s.lit=5;s.atk=1;s.rc=[null,null,'red',null,null];s.st=[1,1,0,1,1];
+   s.buff={RUN:k<.7?'AC':'',H2:'CO',H3:'CY'};
+   ['H2','H3','C1','C2','C3'].forEach((q,i)=>s.p[q]=mv(ON[q],{x:GRP.x-30+(i%3)*24,y:GRP.y+20+Math.floor(i/3)*22},seg(k,.1,.35)));
+   s.p.RUN=along([{x:CP[1].x,y:CP[1].y+30},...RP,GRP],seg(k,0,.62));
+   const t=Math.max(0,9-k*9.5);s.hud={t:'lWipe',v:t};if(k>.62&&k<.7)s.say.RUN='3…2';
+   if(k>.7){s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${GRP.x}" cy="${GRP.y+30}" r="${50*seg(k,.7,.76)}" fill="rgba(127,227,255,.18)" stroke="#7fe3ff" stroke-width="2"/>`});s.cDead=[0,k>.82,0];s.atk=k>.82?null:1;s.hud=null;}
+   s.fx=k<.62?{k:'fxA4Run',o:win(k,0,.62,.03),c:'#f6dc8e'}:{k:'fxA4Det',o:win(k,.62,1,.03),c:'#7fe3ff'};}},
+ // 5 damage: three segments, two more five-ring runs during damage (three detains in total)
+ {d:28,f(k,s){boss(s,1-seg(k,.05,.97)*.85);s.lit=5;s.plOn=1;const seg3=Math.min(2,Math.floor(k*3));s.pips={lk:'lDet',n:3,done:seg3+1};
+   ['H2','H3','C1','C2','C3'].forEach((q,i)=>{s.p[q]={x:GRP.x-30+(i%3)*24,y:GRP.y+20+Math.floor(i/3)*22};dpFire(s,k,q,{x:CEN.x,y:CEN.y-15},i);});
+   const ph=(k*3)%1;if(seg3>0){s.p.RUN=along([GRP,...RP,GRP],seg(ph,0,.8));if(ph>.85)s.adds.push({t:'raw',x:0,y:0,svg:`<circle cx="${GRP.x}" cy="${GRP.y+30}" r="50" fill="rgba(127,227,255,.18)" stroke="#7fe3ff" stroke-width="2"/>`});}else{s.p.RUN={...GRP};dpFire(s,k,'RUN',{x:CEN.x,y:CEN.y-15},6);}
+   s.fx={k:'fxA5Dmg',o:win(k,0,1,.02),c:C.ally};}}
+ ];
+ return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
+})();
+
+/* =================== DESERT PERPETUAL: KOREGOS (podium Forward, always last) =================== */
+// Koregos at the centre, hourglass on the same floor. Plates on the far side: Constant left (3), Absolute middle (1),
+// Cyclical right (2). Oculus pillars L1 near-left, L2 far-left, R2 far-right, R1 near-right. Three Hydras unlock the plates.
+const DPK=(function(){
+ const keys=['K1','K2','K3','AB','Y1','Y2'];
+ const KO={x:400,y:190},HG={x:400,y:330},PL={CO:{x:215,y:62},AB:{x:400,y:48},CY:{x:585,y:62}};
+ const PIL={L1:{x:130,y:330},L2:{x:130,y:115},R2:{x:670,y:115},R1:{x:670,y:330}};
+ const MINES=[{x:215,y:260,c:'blue',w:1},{x:255,y:380,c:'blue',w:0},{x:95,y:225,c:'red',w:1},{x:290,y:300,c:'white',w:0},{x:180,y:395,c:'blue',w:1},{x:555,y:370,c:'red',w:0}];
+ const TOT=[{x:320,y:140},{x:480,y:140},{x:320,y:245},{x:480,y:245}];
+ const POS={K1:{x:350,y:405},K2:{x:375,y:405},K3:{x:400,y:405},AB:{x:425,y:405},Y1:{x:450,y:405},Y2:{x:475,y:405}};
+ const ON={K1:{x:195,y:62},K2:{x:215,y:78},K3:{x:235,y:62},AB:{x:400,y:48},Y1:{x:572,y:62},Y2:{x:598,y:70}};
+ const floor=dpFloor((s,L)=>
+   Object.entries(PL).map(([n,p])=>dpPlate(p.x,p.y,{CO:'#ff6156',AB:'#ece8f4',CY:'#59b8ff'}[n],s.plOn,L('lT'+n))).join('')
+  +Object.entries(PIL).map(([n,p])=>`<circle cx="${p.x}" cy="${p.y}" r="18" fill="#2a2214" stroke="#d9a441" stroke-width="2"/>`+(s.ocu?`<circle cx="${p.x}" cy="${p.y}" r="${28+3*Math.sin(Date.now()/200)}" fill="rgba(255,255,255,.12)" stroke="#fff" stroke-width="1.6"/>`:'')+dpTx(p.x,p.y+4,n,'#f6dc8e',10,700)).join('')
+  +(s.mines?MINES.map((m,i)=>(s.mGone&&s.mGone[i])?'':`<g transform="translate(${m.x} ${m.y})"><circle r="8" fill="${DP_COL[m.c]}" stroke="#14101e" stroke-width="2"/>${s.glow&&m.w?`<circle r="13" fill="none" stroke="#fff" stroke-width="2" opacity=".9"/>`:''}${s.point&&s.point.includes(i)?`<path d="M0 -24 L5 -16 L-5 -16 Z" fill="#ff6156"/>`:''}</g>`).join(''):'')
+  +(s.tot?TOT.map((t,i)=>`<g transform="translate(${t.x} ${t.y})"><rect x="-6" y="-18" width="12" height="30" fill="#5a4320" stroke="#d9a441"/>${['A','B','C'].map((c,j)=>`<rect x="${-26+j*18}" y="-36" width="12" height="12" fill="${s.totDone>i||(s.totSel===i&&s.cube===c)?'#fff':'none'}" stroke="#fff" stroke-width="1.2"/>`+dpTx(-20+j*18,-40,c,'#ece8f4',8)).join('')}</g>`).join(''):'')
+  +(s.plat?`<rect x="380" y="225" width="40" height="70" fill="#cfc7b0" opacity=".4"/>`:'')
+  +dpHourglass(HG.x,HG.y,s.fill||0,s.dia||1));
+ const base=dpBase(keys,POS,{fill:0});
+ const boss=(s,hp,ap)=>s.units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${KO.x} ${KO.y})">${[0,60,120,180,240,300].map(a=>`<path d="M0 0 L12 -46 L0 -58 L-12 -46 Z" fill="#2c2214" stroke="#ece8f4" stroke-width="1.4" transform="rotate(${a+(ap?0:0)})"/>`).join('')}<circle r="16" fill="#14101e" stroke="#f6dc8e" stroke-width="2"/>${ap==='h'?`<rect x="-18" y="-4" width="36" height="8" rx="4" fill="#ff6156"/>`:ap==='v'?`<rect x="-4" y="-18" width="8" height="36" rx="4" fill="#ff6156"/>`:''}${hp!=null?hpBar(-40,66,80,6,hp):''}</g>`+dpTx(KO.x,KO.y-66,'KOREGOS','#ece8f4',9,700)});
+ const on=s=>keys.forEach(q=>s.p[q]={...ON[q]});
+ const S=[
+ // 1 kill the three Hydras, everyone onto the plates: 3 Constant, 1 Absolute, 2 Cyclical
+ {d:20,f(k,s){boss(s);const H=[{x:215,y:120},{x:400,y:110},{x:585,y:120}];
+   if(k<.55){H.forEach((h,i)=>s.units.push({t:'hydra',x:h.x,y:h.y,hp:1-seg(k,.1,.5)*.97}));keys.forEach((q,i)=>{s.p[q]=mv(POS[q],{x:POS[q].x,y:300},seg(k,0,.2));if(k>.15)dpFire(s,k,q,H[Math.floor(i/2)],i);});}
+   else{keys.forEach(q=>s.p[q]=mv({x:POS[q].x,y:300},ON[q],seg(k,.55,.75)));s.plOn=k>.75;if(k>.75)s.buff={K1:'CO',K2:'CO',K3:'CO',AB:'AB',Y1:'CY',Y2:'CY'};}
+   s.fx=k<.55?{k:'fxK1Hyd',o:win(k,0,.55,.03),c:C.ally}:{k:'fxK1Pl',o:win(k,.55,1,.03),c:'#f6dc8e'};}},
+ // 2 Time's Arrow: the Constant stunners break the four laser cannons → Temporal Oculus on the pillars (~20 s)
+ {d:20,f(k,s){boss(s);on(s);s.plOn=1;s.buff={K1:'CO',K2:'CO',K3:'CO',AB:'AB',Y1:'CY',Y2:'CY'};
+   const LC=[{x:330,y:150},{x:470,y:150},{x:330,y:235},{x:470,y:235}];
+   if(k<.6){LC.forEach((c,i)=>{if(k<.15+i*.11)s.units.push({t:'raw',x:0,y:0,svg:`<g transform="translate(${c.x} ${c.y})"><rect x="-8" y="-8" width="16" height="16" fill="#3a2a14" stroke="#ff6156" stroke-width="2"/><circle r="3" fill="#ff6156"/></g>`});});
+     if(k<.6){dpShot(s,k<.36?'K1':'K2',LC[Math.min(3,Math.floor(k/.11))]);}}
+   else{s.ocu=1;s.hud={t:'lOcu',v:20-seg(k,.6,1)*6};}
+   s.fx=k<.6?{k:'fxK2Las',o:win(k,0,.6,.03),c:'#ff6156'}:{k:'fxK2Ocu',o:win(k,.6,1,.03),c:'#fff'};}},
+ // 3 info cycle at one pillar: Absolute calls the colour, Constant points, Cyclicals check the white glow, Absolute breaks
+ {d:30,f(k,s){boss(s);s.ocu=1;s.mines=1;s.plOn=1;s.buff={K1:'CO',K2:'CO',K3:'CO',AB:'AB',Y1:'CY',Y2:'CY'};
+   ['K1','K2'].forEach(q=>s.p[q]={...ON[q]});const G={K3:{x:150,y:310},AB:{x:120,y:345},Y1:{x:105,y:315},Y2:{x:160,y:350}};
+   ['K3','AB','Y1','Y2'].forEach(q=>s.p[q]=mv(ON[q],G[q],seg(k,0,.15)));
+   if(k>.15&&k<.3)s.say.AB='lBlue';if(k>=.3&&k<.45){s.point=[0,1,4];s.say.K3='lThese';}
+   if(k>=.45&&k<.6){s.point=[0,1,4];s.glow=1;s.say.Y1='lYes15';s.say.Y2='lNo2';}
+   s.mGone=[k>.66,0,0,0,k>.72,0];if(k>=.6&&k<.72){s.glow=1;dpShot(s,'AB',MINES[k<.66?0:4]);}
+   if(k>=.72){s.chr.Y1='blue';s.chr.Y2='blue';['Y1','Y2'].forEach((q,i)=>s.p[q]=mv(G[q],{x:HG.x-12+i*24,y:HG.y-36},seg(k,.74,.88)));if(k>.88){s.chr.Y1=s.chr.Y2=null;}}
+   s.fill=k>.88?2/6:0;s.pips={lk:'lChrLbl',n:6,done:k>.88?2:0};
+   s.hud={t:'lOcu',v:Math.max(0,14-k*12)};
+   s.fx=k<.45?{k:'fxK3Call',o:win(k,0,.45,.03),c:'#59b8ff'}:k<.72?{k:'fxK3Glow',o:win(k,.45,.72,.03),c:'#fff'}:{k:'fxK3Dep',o:win(k,.72,1,.03),c:'#f6dc8e'};}},
+ // 4 three pillars = six Chronons → shoot the diamond; four totems: Absolute takes the cube both pairs see
+ {d:26,f(k,s){boss(s);s.plOn=1;on(s);s.buff={K1:'CO',K2:'CO',K3:'CO',AB:'AB',Y1:'CY',Y2:'CY'};
+   if(k<.3){s.fill=2/6+seg(k,0,.25)*4/6;s.pips={lk:'lChrLbl',n:6,done:Math.round(2+seg(k,0,.25)*4)};s.labels.push({x:400,y:372,k:'lPil23',c:'#f6dc8e',o:win(k,0,.3)});}
+   else{s.fill=1;s.dia=k>.35?'hit':1;if(k<.36)dpShot(s,'AB',{x:HG.x,y:HG.y+38});s.tot=1;const ti=Math.min(3,Math.floor(seg(k,.38,1)*4));s.totSel=ti;s.totDone=ti;
+     const T=TOT[ti];s.p.AB={x:T.x,y:T.y+26};s.p.K3={x:T.x-30,y:T.y+20};s.p.Y1={x:T.x+30,y:T.y+20};
+     const ph=(seg(k,.38,1)*4)%1;if(ph<.4){s.say.K3='A + B';s.say.Y1='B + C';}else if(ph<.8){s.say.AB='B';s.cube='B';}
+     if(ti===3&&ph>.8)s.plat=1;}
+   s.fx=k<.38?{k:'fxK4Dia',o:win(k,0,.38,.03),c:'#fff'}:{k:'fxK4Tot',o:win(k,.38,1,.03),c:'#f6dc8e'};}},
+ // 5 damage: horizontal red apertures; portals in sequence, the portal runner brings the matching Chronon; final stand vertical
+ {d:30,f(k,s){const fs=k>.75;boss(s,1-seg(k,.05,.98)*.95,fs?'v':'h');s.plat=1;s.fill=1;s.dia='hit';
+   const POR=[{x:70,y:230,c:'red'},{x:730,y:230,c:'blue'},{x:400,y:395,c:'white'}];const pi=Math.min(2,Math.floor(seg(k,0,.75)*3));const ph=(seg(k,0,.75)*3)%1;
+   ['K1','K2','AB','Y1','Y2'].forEach((q,i)=>{s.p[q]={x:330+i*35,y:k>.9?300:262};if(k<.92)dpFire(s,k,q,{x:KO.x,y:KO.y},i);});
+   if(!fs){const P=POR[pi];s.adds.push({t:'portal',x:P.x,y:P.y});s.adds.push(dpChr({x:P.x+(P.x<400?60:P.x>400?-60:0),y:P.y-(P.x===400?50:0)},P.c,ph<.45?1:0));
+     s.p.K3=ph<.45?mv({x:400,y:262},{x:P.x+(P.x<400?60:P.x>400?-60:0),y:P.y-(P.x===400?50:0)},seg(ph,0,.45)):mv({x:P.x+(P.x<400?60:P.x>400?-60:0),y:P.y-(P.x===400?50:0)},P,seg(ph,.45,.8));s.chr.K3=ph>.45&&ph<.8?P.c:null;s.pips={lk:'lPort',n:3,done:pi+(ph>.8?1:0)};}
+   else{s.p.K3={x:330+5*35,y:k>.9?300:262};dpFire(s,k,'K3',KO,5);}
+   if(k>.92)s.labels.push({x:400,y:330,k:'lDeco',c:'#ff6156',o:1});
+   s.fx=fs?(k<.9?{k:'fxK5Fin',o:win(k,.75,.9,.03),c:C.ally}:{k:'fxK5Deco',o:win(k,.9,1,.03),c:'#ff6156'}):{k:'fxK5Dmg',o:win(k,0,.75,.03),c:C.ally};}}
  ];
  return{bg:dpBg,S,base,finish:dpFinish(keys,floor)};
 })();
@@ -9277,74 +9393,103 @@ const RG_CEB=[{id:'pl',slots:['P1'],focus:[1],de:{name:'Platte',steps:['Mit Enli
 const RG_CEI=[{id:'en',slots:['E1','E2','E3'],focus:[2,3],de:{name:'Enlightened',steps:['An der Tür warten.','Durch die Barriere, Wizard töten.'],watch:['Drained of Light.']},en:{name:'Enlightened',steps:['Wait at the door.','Through the barrier, kill the wizard.'],watch:['Drained of Light.']}},{id:'sc',slots:['SC','DP','P6'],focus:[2],de:{name:'Scout, Ablage, Ad-Clear',steps:['Wizard-Platz ansagen.','Kelch ablegen.'],watch:['Lied-Timer.']},en:{name:'Scout, depositor, ad clear',steps:['Call the wizard spot.','Deposit the Chalice.'],watch:['Song timer.']}}];
 const RG_CEC=[{id:'sw',slots:['S1','S2'],focus:[2],de:{name:'Schwerter',steps:['Schwert aufheben.','Schild gleichzeitig treffen.'],watch:['Enlightened nötig.']},en:{name:'Swords',steps:['Pick up a sword.','Hit the shield together.'],watch:['Needs Enlightened.']}},{id:'ov',slots:['OV'],focus:[3],de:{name:'Oversoul',steps:['Enlightened behalten.','Oversoul spät zerstören.'],watch:['30 Sekunden.']},en:{name:'Oversoul',steps:['Keep Enlightened.','Destroy the Oversoul late.'],watch:['30 seconds.']}},{id:'rest',slots:['DP','P5','P6'],focus:[1,2],de:{name:'Ablage & Ad-Clear',steps:['Kelch im Licht weitergeben.','Turm-Knights töten.'],watch:['Strahl wandert.']},en:{name:'Depositor & ad clear',steps:['Pass the Chalice in the light.','Kill tower Knights.'],watch:['The beam moves.']}}];
 
-const SV_DP=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="40" y="10" width="340" height="190" rx="10" fill="#1a160e" stroke="#4a3d22"/><g font-family="Chakra Petch, sans-serif" font-size="11" text-anchor="middle"><text x="210" y="105" fill="#9c95b0">{0}</text></g></svg>`;
-const DP_NOTE_DE='Grundlage sind frühe Text-Guides (größtenteils für die Epic-Version); Abläufe und Namen können im Normalmodus abweichen. Alles schematisch.';
-const DP_NOTE_EN='Based on early written guides (mostly for the Epic version); steps and names may differ in normal mode. Everything schematic.';
-const dpEnc=(num,name,eng,order,slots,de,en)=>({num,name,eng,diags:[SV_DP],order,slots,de:Object.assign({master:['Epic/Master hier nur teilweise abgebildet.'],m:{},diags:[['Schematisch','Keine Karte in den Quellen.',['schematisch']]]},de),en:Object.assign({master:['Epic/Master only partly shown here.'],m:{},diags:[['Schematic','No map in the sources.',['schematic']]]},en)});
-const ENC_DPI=dpEnc(1,'Iatros, Inward-Turned',DPI,['JU','S1','S2','S3','R1','R2'],[['JU','Springer','Jumper'],['S1','Schütze links (Constant)','Shooter left (Constant)'],['S2','Schütze Mitte (Absolute)','Shooter middle (Absolute)'],['S3','Schütze rechts (Cyclical)','Shooter right (Cyclical)'],['R1','Chronon-Läufer','Chronon runner'],['R2','Chronon-Läufer','Chronon runner']],
- {kicker:'The Desert Perpetual · Iatros (Riesen-Wyvern)',gear:{crit:['Präzise Waffen für die Kapseln.'],top:['Ad-Clear für die Minotauren.'],budget:['Wenig Ausrüstung? Chronon-Läufer.']},
-  lede:'Die ersten drei Bosse wählt ihr selbst (oben am Lift), Koregos ist immer der letzte. Iatros: Läufer töten in jedem Abschnitt einen Minotaurus, der zeigt die Chronon-Farbe. Im Vex-Pool liest einer die Farbe des Rings, beide dunken. Der Ring wechselt etwa 3 Sekunden nach jedem Dunk die Farbe. 6 Chronons (drei Paare) starten Diastole. Dann bekommen die Schützen Constant (linke Säule), Absolute (Mitte) oder Cyclical (rechts) und treffen zusammen die Höhen, die der Springer ansagt (rot = unten, weiß = Mitte, blau = oben). Der Springer klettert, der letzte Würfel startet den Schaden. '+DP_NOTE_DE,
-  sc:[['Chronons','Minotaurus → Farbe. Im Pool die Ringfarbe lesen, zu zweit dunken. 6 Chronons.'],['Diastole','Schützen an den Säulen treffen die angesagten Höhen gleichzeitig, der Springer klettert. Nach der ersten richtigen Salve können zwei Schützen-Buffs tauschen, Säule neu prüfen.'],['Schaden','Letzter Würfel = Schaden. Die Läufer machen derweil weiter mit Chronons.']],
-  tip:{1:'Ringfarbe vor jedem Dunk neu lesen.',2:'Gleichzeitig schießen.',3:'Läufer weiter dunken.'},roles:[['Springer','Kapseln lesen, klettern.','runner'],['Schützen','Säulen-Höhen treffen.',''],['Läufer','Chronons.','runner']],
-  rules:['Rot unten, weiß Mitte, blau oben.','6 Chronons starten Diastole.'],wipes:['Dunk-Muster während des Schadens nicht weitergeführt (laut Guide Wipe-Gefahr).'],tips:['<b>Challenge (Feat):</b> drei verschiedene Spieler nehmen je einen Buff von den Plattformen, also drei Kletterer.'],
-  calls:[['Links rot, Mitte blau, rechts weiß','Left red, middle blue, right white','Springer'],['Ring blau','Ring blue','Leser']],
-  L:{lChrLbl:'CHRONONS',lRead:'Ring lesen',lCall1:'„L rot, M blau, R weiß“',lCall2:'„L weiß, M rot, R blau“',lSwap:'Buffs können tauschen!',fxI1Mino:'Minotaurus → Chronon-Farbe',fxI1Read:'Ringfarbe im Vex-Pool lesen',fxI1Dunk:'Zu zweit dunken',fxI2Shoot:'Schützen treffen die angesagten Höhen',fxI2Swap:'Buff-Tausch: Säule neu prüfen',fxI3Cube:'Letzter Würfel',fxI3Dmg:'Schaden'}},
- {kicker:'The Desert Perpetual · Iatros (giant Wyvern)',gear:{crit:['Precise weapons for the capsules.'],top:['Ad clear for the Minotaurs.'],budget:['Short on gear? Chronon runner.']},
-  lede:'You pick the first three bosses yourselves (at the top of the lift), Koregos is always last. Iatros: runners kill a Minotaur in each section, it shows the Chronon colour. In the Vex pool one reads the ring colour, both dunk. The ring changes colour about 3 seconds after each dunk. 6 Chronons (three pairs) start Diastole. Then shooters get Constant (left pillar), Absolute (middle) or Cyclical (right) and together hit the heights the jumper calls (red = bottom, white = middle, blue = top). The jumper climbs, the last cube starts damage. '+DP_NOTE_EN,
-  sc:[['Chronons','Minotaur → colour. Read the ring colour in the pool, dunk in pairs. 6 Chronons.'],['Diastole','Shooters at the pillars hit the called heights together, the jumper climbs. After the first correct volley two shooter buffs may swap, re-check the pillar.'],['Damage','Last cube = damage. Runners keep dunking Chronons meanwhile.']],
-  tip:{1:'Re-read the ring before every dunk.',2:'Shoot together.',3:'Runners keep dunking.'},roles:[['Jumper','Read capsules, climb.','runner'],['Shooters','Hit pillar heights.',''],['Runners','Chronons.','runner']],
-  rules:['Red bottom, white middle, blue top.','6 Chronons start Diastole.'],wipes:['Not continuing the dunk pattern during damage (wipe risk per the guide).'],tips:['<b>Challenge (feat):</b> three different players each take one buff from the platforms, so three climbers.'],
-  calls:[['Links rot, Mitte blau, rechts weiß','Left red, middle blue, right white','jumper'],['Ring blau','Ring blue','reader']],
-  L:{lChrLbl:'CHRONONS',lRead:'read the ring',lCall1:'“L red, M blue, R white”',lCall2:'“L white, M red, R blue”',lSwap:'Buffs may swap!',fxI1Mino:'Minotaur → Chronon colour',fxI1Read:'Read the ring colour in the Vex pool',fxI1Dunk:'Dunk in pairs',fxI2Shoot:'Shooters hit the called heights',fxI2Swap:'Buff swap: re-check the pillar',fxI3Cube:'Last cube',fxI3Dmg:'Damage'}});
-const ENC_DPA=dpEnc(2,'Agraios, Inherent',DPA,['RD1','RD2','RU1','RU2','FX1','FX2'],[['RD1','Leser','Reader'],['RD2','Leser','Reader'],['RU1','Läufer','Runner'],['RU2','Läufer','Runner'],['FX1','Flex','Flex'],['FX2','Flex (Laser)','Flex (laser)']],
- {kicker:'The Desert Perpetual · Agraios (Riesen-Hobgoblin)',gear:{crit:['Reichweite für Flex und Laser.'],top:['Ad-Clear für Minotauren.'],budget:['Wenig Ausrüstung? Leser.']},
-  lede:'Leser stehen auf Platten und ordnen die Beschleuniger Farben zu (zwei blau, zwei rot, einer weiß). Läufer farmen Minotauren für die gebrauchte Farbe und dunken in den passenden Ring. Ein Dunk in der Mitte setzt die Drop-Regel zurück: der nächste Minotaurus lässt die Farbe seines Spawn-Platzes fallen, also „Reset“ ansagen. Flex räumt Adds und reflektiert den Boss-Laser. Final Stand: drei Paare, jedes tötet den Klon in seiner Buff-Farbe, dann der Boss in der Mitte. '+DP_NOTE_DE,
-  sc:[['Karte','Leser auf den Platten: welcher Ring welche Farbe hat.'],['Farmen und dunken','Minotaurus der richtigen Farbe, Chronon zum passenden Ring. Flex reflektiert den Laser. Mitte-Dunk = Reset.'],['Final Stand','Paare töten den Klon in ihrer Farbe, dann Boss in der Mitte.']],
-  tip:{1:'Karte laut ansagen.',2:'Reset ansagen.',3:'Paare festlegen.'},roles:[['Leser','Platten, Karte.',''],['Läufer','Minotauren, Dunks.','runner'],['Flex','Adds, Laser.','']],
-  rules:['Zwei blau, zwei rot, einer weiß.','Mitte-Dunk = Reset.'],wipes:['In den Quellen nicht klar beschrieben.'],tips:['<b>Challenge (Feat):</b> niemand nimmt einen zweiten Chronon, bevor jeder einen hatte, in jeder Phase.'],
-  calls:[['Reset','Reset','Mitte'],['Laser','Laser','Flex']],
-  L:{lMap:'Ringe zugeordnet',lReflect:'Laser reflektieren',lReset:'Mitte-Dunk = Reset',fxA1Plates:'Leser auf die Platten',fxA1Map:'Farben der Ringe',fxA2Mino:'Minotaurus der richtigen Farbe',fxA2Dunk:'Chronon in den passenden Ring',fxA2Laser:'Flex reflektiert den Laser',fxA2Reset:'„Reset!“',fxA3Clones:'Paare: Klon in eigener Farbe',fxA3Burn:'Boss in der Mitte'}},
- {kicker:'The Desert Perpetual · Agraios (giant Hobgoblin)',gear:{crit:['Range for flex and laser.'],top:['Ad clear for Minotaurs.'],budget:['Short on gear? Reader.']},
-  lede:'Readers stand on plates and map the accelerators to colours (two blue, two red, one white). Runners farm Minotaurs for the needed colour and dunk into the matching hoop. A centre dunk resets the drop rule: the next Minotaur drops the colour of its spawn spot, so call “reset”. Flex clears adds and reflects the boss laser. Final stand: three pairs, each kills the clone in its buff colour, then the boss in the middle. '+DP_NOTE_EN,
-  sc:[['Map','Readers on the plates: which hoop has which colour.'],['Farm and dunk','Minotaur of the right colour, Chronon to the matching hoop. Flex reflects the laser. Centre dunk = reset.'],['Final stand','Pairs kill the clone in their colour, then the boss in the middle.']],
-  tip:{1:'Call the map out loud.',2:'Call resets.',3:'Set the pairs.'},roles:[['Readers','Plates, map.',''],['Runners','Minotaurs, dunks.','runner'],['Flex','Adds, laser.','']],
-  rules:['Two blue, two red, one white.','Centre dunk = reset.'],wipes:['Not clearly described in the sources.'],tips:['<b>Challenge (feat):</b> nobody takes a second Chronon before everyone had one, in every phase.'],
-  calls:[['Reset','Reset','centre'],['Laser','Laser','flex']],
-  L:{lMap:'hoops mapped',lReflect:'reflect the laser',lReset:'centre dunk = reset',fxA1Plates:'Readers onto the plates',fxA1Map:'Hoop colours',fxA2Mino:'Minotaur of the right colour',fxA2Dunk:'Chronon into the matching hoop',fxA2Laser:'Flex reflects the laser',fxA2Reset:'“Reset!”',fxA3Clones:'Pairs: clone in their colour',fxA3Burn:'Boss in the middle'}});
-const ENC_DPE=dpEnc(3,'Epoptes, Lord of Quanta',DPE,['IL','IR','OL1','OL2','OR1','OR2'],[['IL','Innen links','Inside left'],['IR','Innen rechts','Inside right'],['OL1','Außen links','Outside left'],['OL2','Außen links','Outside left'],['OR1','Außen rechts','Outside right'],['OR2','Außen rechts','Outside right']],
- {kicker:'The Desert Perpetual · Epoptes (Riesen-Hydra)',gear:{crit:['Präzision für die Augen.'],top:['Boss-Schaden.'],budget:['Wenig Ausrüstung? Außen-Schütze.']},
-  lede:'Innen stehen Leser im Licht und schauen auf die Augen. Zwei leuchten: ansagen, das Innen-Team bricht sie. Eins davon leuchtet nochmal: ansagen, die Außen-Schützen der gegenüberliegenden Seite brechen es vom Hauptraum aus. Dasselbe auf der anderen Seite, dann ist der Boss offen. Schaden zwischen vier großen Schilden; zu Beginn werden zwei zufällige Spieler in einen Seitenraum geholt und brechen dort einen Extra-Schild. '+DP_NOTE_DE,
-  sc:[['Zwei Augen','Leser sagt die zwei leuchtenden Augen an, innen brechen.'],['Nochmal eins','Eins leuchtet erneut: die Außen-Schützen der Gegenseite brechen es.'],['Schaden','Zwischen den vier Schilden stehen; zwei im Seitenraum brechen einen Extra-Schild und kommen zurück.']],
-  tip:{1:'Augen nummerieren (L1–L3, R1–R3).',2:'Gegenseite schießt.',3:'Zwischen den Schilden.'},roles:[['Innen','Lesen, Augen brechen.','runner'],['Außen','Gegenseite schießen.','']],
-  rules:['Zuerst zwei, dann eins nochmal.','Gegenseite bricht das zweite.'],wipes:['In den Quellen nicht klar beschrieben.'],tips:['<b>Challenge (Feat):</b> die zwei Spieler in jedem Raum schießen die Augen abwechselnd.'],
-  calls:[['L1 und L3','L1 and L3','Augen'],['Nochmal L1','L1 again','Gegenseite']],
-  L:{lTwo:'zwei Augen leuchten',lAgain:'eins leuchtet nochmal',lPulled:'in den Seitenraum geholt',fxE1Call:'Zwei Augen ansagen',fxE1Break:'Innen bricht sie',fxE2Again:'Eins leuchtet erneut',fxE2Opp:'Außen-Schützen der Gegenseite brechen es',fxE2Other:'Dann die andere Seite',fxE3Pull:'Zwei im Seitenraum: Extra-Schild',fxE3Dmg:'Schaden zwischen den Schilden'}},
- {kicker:'The Desert Perpetual · Epoptes (giant Hydra)',gear:{crit:['Precision for the eyes.'],top:['Boss damage.'],budget:['Short on gear? Outside shooter.']},
-  lede:'Inside, readers stand in the light and look at the eyes. Two glow: call them, the inside team breaks them. One of them glows again: call it, the outside shooters on the opposite side break it from the main room. Same on the other side, then the boss is open. Damage between four large shields; at the start two random players are pulled into a side room and break an extra shield there. '+DP_NOTE_EN,
-  sc:[['Two eyes','The reader calls the two glowing eyes, inside breaks them.'],['One again','One glows again: the outside shooters on the opposite side break it.'],['Damage','Stand between the four shields; two in the side room break an extra shield and come back.']],
-  tip:{1:'Number the eyes (L1–L3, R1–R3).',2:'Opposite side shoots.',3:'Between the shields.'},roles:[['Inside','Read, break eyes.','runner'],['Outside','Shoot for the other side.','']],
-  rules:['First two, then one again.','The opposite side breaks the second.'],wipes:['Not clearly described in the sources.'],tips:['<b>Challenge (feat):</b> the two players in each room alternate shooting the eyes.'],
-  calls:[['L1 und L3','L1 and L3','eyes'],['Nochmal L1','L1 again','opposite side']],
-  L:{lTwo:'two eyes glow',lAgain:'one glows again',lPulled:'pulled into the side room',fxE1Call:'Call the two eyes',fxE1Break:'Inside breaks them',fxE2Again:'One glows again',fxE2Opp:'Opposite outside shooters break it',fxE2Other:'Then the other side',fxE3Pull:'Two in the side room: extra shield',fxE3Dmg:'Damage between the shields'}});
-const ENC_DPK=dpEnc(4,'Koregos, the Worldline',DPK,['B1','B2','O1','O2','O3','O4'],[['B1','Verbannt','Banished'],['B2','Verbannt','Banished'],['O1','Außen','Outside'],['O2','Außen','Outside'],['O3','Außen','Outside'],['O4','Außen','Outside']],
- {kicker:'The Desert Perpetual · Koregos (Riesen-Harpyie)',gear:{crit:['Boss-Schaden, viele Phasen.'],top:['Ad-Clear für die Minispiele.'],budget:['Wenig Ausrüstung? Außen-Team.']},
-  lede:'Stark verkürzt, der Kampf hat laut Guide sechs Phasen. Zwei Spieler werden verbannt („Excluded From Reality“) und töten im Portal-Raum einen Cyclops. Das Außen-Team findet die Chronon-Farbe (testen, falscher Dunk tötet den Dunker, oder warten, bis „Worldline Stability“ sie im letzten Drittel des Timers zeigt) und dunkt vier. Minispiel (Hydra, Wyvern oder Hobgoblin), danach Kristalle: Spieler mit Buff brechen den passenden äußeren, Spieler ohne Buff die inneren (1, dann 2, dann 3), dann Schaden. Zum Schluss Plattformen mit sechs Würfeln (jeder genau einen), Kristalle, Kill. Danach runterspringen und verstecken, sonst tötet euch die Wipe-Mechanik nach dem Sieg. '+DP_NOTE_DE,
-  sc:[['Verbannt + Chronons','Zwei im Portal-Raum gegen den Cyclops; draußen Farbe finden und vier dunken.'],['Kristalle','Buff-Träger brechen die passenden äußeren Kristalle, die anderen die inneren. Dann Schaden.'],['Final Stand','Sechs Würfel, jeder nimmt genau einen (zwei nehmen tötet jemand anderen). Kill, dann runterspringen und verstecken.']],
-  tip:{1:'Farbe testen oder warten.',2:'Innen: 1, 2, 3.',3:'Würfel-Reihenfolge vorher.'},roles:[['Verbannt','Portal-Raum, Cyclops.','runner'],['Außen','Chronons, Kristalle, Schaden.','']],
-  rules:['Falscher Dunk tötet den Dunker.','Jeder genau einen Würfel.','Nach dem Kill verstecken.'],wipes:['Nach dem Sieg nicht versteckt.','Zwei Würfel genommen (jemand anderes stirbt).'],tips:['<b>Challenge (Feat):</b> alle sechs müssen einen Chronon ins Stundenglas legen.'],
-  calls:[['Farbe blau','Colour blue','Chronons'],['Innen eins','Inner one','Kristall'],['Runter!','Jump off!','nach dem Kill']],
-  L:{lChrLbl:'CHRONONS',lColor:'Farbe finden',lHide:'runterspringen + verstecken',fxK1Ban:'Zwei verbannt: Cyclops im Portal-Raum',fxK1Color:'Chronon-Farbe finden',fxK1Dunk:'Vier dunken',fxK2Outer:'Buff-Träger: äußere Kristalle',fxK2Inner:'Ohne Buff: innere Kristalle',fxK2Dmg:'Schaden',fxK3Cubes:'Sechs Würfel, jeder einen',fxK3Kill:'Kill',fxK3Hide:'Danach verstecken!'}},
- {kicker:'The Desert Perpetual · Koregos (giant Harpy)',gear:{crit:['Boss damage, many phases.'],top:['Ad clear for the minigames.'],budget:['Short on gear? Outside team.']},
-  lede:'Heavily condensed, the fight has six phases per the guide. Two players get banished (“Excluded From Reality”) and kill a Cyclops in the portal room. The outside team finds the Chronon colour (test it, a wrong dunk kills the dunker, or wait until “Worldline Stability” shows it in the last third of the timer) and dunks four. Minigame (Hydra, Wyvern or Hobgoblin), then crystals: buffed players break the matching outer crystal, unbuffed players the inner ones (1, then 2, then 3), then damage. Finally platforming with six cubes (everyone exactly one), crystals, kill. Then jump off and hide, or the wipe mechanic kills you after the win. '+DP_NOTE_EN,
-  sc:[['Banished + Chronons','Two in the portal room against the Cyclops; outside find the colour and dunk four.'],['Crystals','Buffed players break the matching outer crystals, the others the inner ones. Then damage.'],['Final stand','Six cubes, everyone takes exactly one (taking two kills someone else). Kill, then jump off and hide.']],
-  tip:{1:'Test the colour or wait.',2:'Inner: 1, 2, 3.',3:'Cube order beforehand.'},roles:[['Banished','Portal room, Cyclops.','runner'],['Outside','Chronons, crystals, damage.','']],
-  rules:['A wrong dunk kills the dunker.','Everyone exactly one cube.','Hide after the kill.'],wipes:['Not hidden after the win.','Two cubes taken (someone else dies).'],tips:['<b>Challenge (feat):</b> all six must deposit a Chronon into the hourglass.'],
-  calls:[['Farbe blau','Colour blue','Chronons'],['Innen eins','Inner one','crystal'],['Runter!','Jump off!','after the kill']],
-  L:{lChrLbl:'CHRONONS',lColor:'find the colour',lHide:'jump off + hide',fxK1Ban:'Two banished: Cyclops in the portal room',fxK1Color:'Find the Chronon colour',fxK1Dunk:'Dunk four',fxK2Outer:'Buffed: outer crystals',fxK2Inner:'Unbuffed: inner crystals',fxK2Dmg:'Damage',fxK3Cubes:'Six cubes, one each',fxK3Kill:'Kill',fxK3Hide:'Hide afterwards!'}});
-const RG_DPI=[{id:'ju',slots:['JU'],focus:[2,3],de:{name:'Springer',steps:['Kapseln lesen, Höhen ansagen.','Klettern.'],watch:['Am Boden bei Diastole-Tick: festgehalten (Epic).']},en:{name:'Jumper',steps:['Read capsules, call heights.','Climb.'],watch:['Grounded on the Diastole tick: suspended (Epic).']}},{id:'sh',slots:['S1','S2','S3'],focus:[2],de:{name:'Schützen',steps:['Säule nach Buff.','Höhe zusammen treffen.'],watch:['Buff-Tausch.']},en:{name:'Shooters',steps:['Pillar by buff.','Hit the height together.'],watch:['Buff swap.']}},{id:'ru',slots:['R1','R2'],focus:[1,3],de:{name:'Läufer',steps:['Minotaurus, Ring lesen, dunken.'],watch:['Ring wechselt nach ~3 s.']},en:{name:'Runners',steps:['Minotaur, read the ring, dunk.'],watch:['Ring changes after ~3 s.']}}];
-const RG_DPA=[{id:'rd',slots:['RD1','RD2'],focus:[1],de:{name:'Leser',steps:['Platten, Ringfarben ansagen.'],watch:['Reset neu kartieren.']},en:{name:'Readers',steps:['Plates, call hoop colours.'],watch:['Re-map after a reset.']}},{id:'ru',slots:['RU1','RU2'],focus:[2],de:{name:'Läufer',steps:['Richtige Farbe farmen, dunken.'],watch:['Nicht in die Mitte.']},en:{name:'Runners',steps:['Farm the right colour, dunk.'],watch:['Not into the centre.']}},{id:'fx',slots:['FX1','FX2'],focus:[2,3],de:{name:'Flex',steps:['Adds.','Laser reflektieren.'],watch:['Abstand halten.']},en:{name:'Flex',steps:['Adds.','Reflect the laser.'],watch:['Keep range.']}}];
-const RG_DPE=[{id:'in',slots:['IL','IR'],focus:[1],de:{name:'Innen',steps:['Im Licht stehen, Augen ansagen und brechen.'],watch:['Welches leuchtet nochmal?']},en:{name:'Inside',steps:['Stand in the light, call and break eyes.'],watch:['Which one glows again?']}},{id:'out',slots:['OL1','OL2','OR1','OR2'],focus:[2,3],de:{name:'Außen',steps:['Auge der Gegenseite brechen.','Schaden zwischen den Schilden.'],watch:['Seitenraum-Teleport.']},en:{name:'Outside',steps:['Break the opposite side’s eye.','Damage between the shields.'],watch:['Side room teleport.']}}];
-const RG_DPK=[{id:'ban',slots:['B1','B2'],focus:[1],de:{name:'Verbannt',steps:['Cyclops im Portal-Raum töten.'],watch:['Wer verbannt wird, ist zufällig.']},en:{name:'Banished',steps:['Kill the Cyclops in the portal room.'],watch:['Who gets banished is random.']}},{id:'out',slots:['O1','O2','O3','O4'],focus:[1,2,3],de:{name:'Außen',steps:['Farbe finden, vier dunken.','Kristalle, Schaden.','Ein Würfel.'],watch:['Nach dem Kill verstecken.']},en:{name:'Outside',steps:['Find the colour, dunk four.','Crystals, damage.','One cube.'],watch:['Hide after the kill.']}}];
+const SV_DP=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="40" y="10" width="340" height="190" rx="10" fill="#1a160e" stroke="#4a3d22"/><g font-family="Chakra Petch, sans-serif" font-size="11" font-weight="700" text-anchor="middle"><rect x="196" y="88" width="28" height="36" fill="#2a2214" stroke="#d9a441"/><text x="210" y="140" fill="#c9b98a" font-size="9">PREDESTINATION</text><circle cx="120" cy="106" r="9" fill="#ece8f4"/><text x="120" y="88" fill="#ece8f4">EPOPTES</text><circle cx="300" cy="106" r="9" fill="#ece8f4"/><text x="300" y="88" fill="#ece8f4">IATROS</text><circle cx="210" cy="40" r="9" fill="#ece8f4"/><text x="210" y="28" fill="#ece8f4">AGRAIOS</text><circle cx="210" cy="172" r="9" fill="#f6dc8e"/><text x="210" y="194" fill="#f6dc8e">KOREGOS</text></g></svg>`;
+const DP_NOTE_DE='Ablauf nach dem Normalmodus-Guide von Vaexil (Mechaniken geprüft am 30.07.2026) und gobble.tools. Die Karte ist eine schematische Draufsicht, Eingang/Rally unten.';
+const DP_NOTE_EN='Flow follows the Vaexil normal-mode guide (mechanics verified 30.07.2026) and gobble.tools. The map is a schematic top-down view, entrance/rally at the bottom.';
+const DP_HUB_DE='Hub „Predestination“: Podest Links = Epoptes, Rechts = Iatros, Hinten = Agraios, Vorne = Koregos. Die drei ersten Bosse frei wählbar, Koregos öffnet erst danach.';
+const DP_HUB_EN='Hub “Predestination”: podium Left = Epoptes, Right = Iatros, Back = Agraios, Forward = Koregos. The first three bosses in any order, Koregos opens only after them.';
+const DP_L={de:{lRally:'RALLY / EINGANG',lSchem:'schematisch',lChrLbl:'CHRONONS'},en:{lRally:'RALLY / ENTRANCE',lSchem:'schematic',lChrLbl:'CHRONONS'}};
+const dpEnc=(num,name,eng,order,slots,de,en)=>({num,name,eng,diags:[SV_DP],order,slots,
+ de:Object.assign({master:['Epic/Master: zusätzliche Regeln hier nicht abgebildet.'],m:{},diags:[['Hub',DP_HUB_DE,['hub']]]},de,{L:Object.assign({},DP_L.de,de.L)}),
+ en:Object.assign({master:['Epic/Master: extra rules not shown here.'],m:{},diags:[['Hub',DP_HUB_EN,['hub']]]},en,{L:Object.assign({},DP_L.en,en.L)})});
+const ENC_DPE=dpEnc(1,'Epoptes, Lord of Quanta',DPE,['LR','RR','LC','RC','M1','M2'],[['LR','Leser links (Lens-Raum)','Left reader (Lens room)'],['RR','Leser rechts (Lens-Raum)','Right reader (Lens room)'],['LC','Adds links','Left add clear'],['RC','Adds rechts','Right add clear'],['M1','Mitte-Leser','Middle reader'],['M2','Mitte-Leser','Middle reader']],
+ {kicker:'The Desert Perpetual · Epoptes (Hydra) · Podest Links',gear:{crit:['Präzise Waffen für die Augen.'],top:['Schaden: Thunderlord (einfach, auf Distanz) oder Refurbished A499 mit Aggregate Charge (laut gobble.tools).'],budget:['Wenig Ausrüstung? Adds links/rechts.']},
+  lede:'Links ein rautenförmiger, rechts ein rechteckiger Lens-Raum mit je einer Lens-Hydra: sechs äußere Augen (1–6 im Uhrzeigersinn ab oben) und ein Mittelauge. Erst die zwei Time’s Magistrates töten, dann gehen die Leser in ihren Raum ins projizierte Licht (das friert ihren Temporality-Countdown ein). Der Leser sagt die Zahl auf seinem Obelisken an, der Leser auf der anderen Seite zerstört dieses Auge an seiner eigenen Lens. Nach dem dritten Tausch kurz warten, bis die Mitte bereit ist. Nach dem vierten Auge: Function Collapse. Dann Augen 5, 6, Mittelauge, und die beiden Leser brechen Epoptes’ zwei Schildaugen. '+DP_NOTE_DE,
+  sc:[['Start','Magistrates töten, Leser ins Licht.'],['Augen-Tausch','Zahl ansagen, die andere Seite schießt. Pause nach dem dritten Tausch.'],['Function Collapse','Mitte liest den dunklen Knoten, Lens-Leser zerstört ihn, der andere Mitte-Spieler die zwei übrigen. Leser bleiben im Licht.'],['Lens beenden','Augen 5 + 6, Mittelauge, dann Schildaugen am Boss.'],['Schaden','Epoptes nennt zwei Namen: der erste nah, der zweite fern. Augen klären = etwa +10 s. Drei Paare.']],
+  tip:{1:'Leser zuerst ins Licht.',2:'Nicht zwei Augen hintereinander durch denselben Spieler (Challenge).',3:'Wer das Licht verlässt, stirbt am Timer.',4:'Schildaugen gleichzeitig.',5:'Erster Name = nah.'},
+  roles:[['Leser L/R','Obelisk-Zahl ansagen, Augen der anderen Seite schießen.','runner'],['Mitte','Collapse lesen und brechen.',''],['Adds','Seiten freihalten.','']],
+  rules:['Augen 1–6 im Uhrzeigersinn ab oben.','Im Licht bleiben während Collapse.','Erster Name nah, zweiter fern.'],wipes:['Leser verlässt während Function Collapse das Licht (Timer).'],
+  tips:['<b>Challenge:</b> Zwei Schützen pro Lens wechseln sich bei den äußeren Augen ab. Scheitert, wenn ein Hüter zwei Augen hintereinander zerstört.','Ein misslungenes Augen-Set im Schaden kostet nur die Verlängerung, kein Wipe.'],
+  calls:[['„Vier“','“Four”','Leser'],['„Mitte bereit“','“Middle ready”','Mitte'],['„Links unten dunkel“','“Lower left dark”','Mitte']],
+  L:{lLensL:'LENS-RAUM LINKS',lLensR:'LENS-RAUM RECHTS',lPillarPl:'Säulen-Platte',lDmgPl:'Schadens-Platte',lTemp:'TEMPORALITY (eingefroren)',lReady:'Mitte bereit',lPause:'Pause nach Tausch 3',lNodeL:'unten links dunkel',lNodeR:'unten rechts dunkel',lStayLight:'Leser: im Licht bleiben!',lClose:'nah',lFar:'fern',lDmgT:'SCHADEN',lPlus10:'+10 s',
+   fxE1Mag:'Time’s Magistrates töten, Platten öffnen',fxE1Light:'Leser ins projizierte Licht',fxE2Swap:'Zahl ansagen, die andere Seite zerstört das Auge',fxE2Pause:'Nach Tausch 3 auf die Mitte warten',fxE3ColL:'Function Collapse links',fxE3ColR:'Function Collapse rechts',fxE4Fin:'Augen 5, 6, dann Mittelauge',fxE4Shield:'Schildaugen am Boss brechen',fxE5Dmg:'Schaden, Paare klären die Augen'}},
+ {kicker:'The Desert Perpetual · Epoptes (Hydra) · Left podium',gear:{crit:['Precise weapons for the eyes.'],top:['Damage: Thunderlord (easy, ranged) or Refurbished A499 with Aggregate Charge (per gobble.tools).'],budget:['Short on gear? Left/right add clear.']},
+  lede:'A diamond-shaped Lens room on the left, a rectangular one on the right, each with a Lens Hydra: six outer eyes (1–6 clockwise from the top) and a centre eye. Kill the two Time’s Magistrates first, then the readers step into the projected light in their room (it freezes their Temporality countdown). A reader calls the number on their obelisk, the reader on the other side destroys that eye on their own Lens. After the third exchange wait until the middle is ready. After the fourth eye: Function Collapse. Then eyes 5, 6, the centre eye, and both readers break Epoptes’ two shield eyes. '+DP_NOTE_EN,
+  sc:[['Start','Kill the Magistrates, readers into the light.'],['Eye exchange','Call the number, the other side shoots. Pause after the third exchange.'],['Function Collapse','Middle reads the dark node, the Lens reader breaks it, the other middle player the other two. Readers stay in the light.'],['Finish the Lenses','Eyes 5 + 6, centre eye, then the boss’s shield eyes.'],['Damage','Epoptes names two players: first close, second far. Clearing the eyes = about +10 s. Three pairs.']],
+  tip:{1:'Readers into the light first.',2:'Never two eyes in a row by the same player (challenge).',3:'Leaving the light kills you on the timer.',4:'Shield eyes together.',5:'First name = close.'},
+  roles:[['Readers L/R','Call the obelisk number, shoot the other side’s eyes.','runner'],['Middle','Read and break the collapse.',''],['Adds','Keep the sides clear.','']],
+  rules:['Eyes 1–6 clockwise from the top.','Stay in the light during collapse.','First name close, second far.'],wipes:['A reader leaves the light during Function Collapse (timer).'],
+  tips:['<b>Challenge:</b> two shooters per Lens alternate on the outer eyes. Fails if one Guardian destroys two eyes in a row.','A failed eye set during damage only costs the extension, no wipe.'],
+  calls:[['„Vier“','“Four”','reader'],['„Mitte bereit“','“Middle ready”','middle'],['„Links unten dunkel“','“Lower left dark”','middle']],
+  L:{lLensL:'LENS ROOM LEFT',lLensR:'LENS ROOM RIGHT',lPillarPl:'pillar plate',lDmgPl:'damage plate',lTemp:'TEMPORALITY (frozen)',lReady:'middle ready',lPause:'pause after exchange 3',lNodeL:'lower left dark',lNodeR:'lower right dark',lStayLight:'Readers: stay in the light!',lClose:'close',lFar:'far',lDmgT:'DAMAGE',lPlus10:'+10 s',
+   fxE1Mag:'Kill Time’s Magistrates, plates open',fxE1Light:'Readers into the projected light',fxE2Swap:'Call the number, the other side breaks the eye',fxE2Pause:'After exchange 3 wait for the middle',fxE3ColL:'Function Collapse left',fxE3ColR:'Function Collapse right',fxE4Fin:'Eyes 5, 6, then the centre eye',fxE4Shield:'Break the boss’s shield eyes',fxE5Dmg:'Damage, pairs clear the eyes'}});
+const ENC_DPI=dpEnc(2,'Iatros, Inward-Turned',DPI,['B1','B2','B3','CL','R1','R2'],[['B1','Kisten Eingangs-Turm','Boxes entrance spire'],['B2','Kisten rechter Turm','Boxes right spire'],['B3','Kisten hinterer Turm','Boxes far spire'],['CL','Kletterer','Climber'],['R1','Reserve-Chronons + Adds','Reserve Chronons + adds'],['R2','Reserve-Chronons + Adds','Reserve Chronons + adds']],
+ {kicker:'The Desert Perpetual · Iatros (Wyvern) · Podest Rechts',gear:{crit:['Präzise Waffen für die Kisten.'],top:['Schaden: Grand Overture laut gobble.tools die sichere Wahl.'],budget:['Wenig Ausrüstung? Reserve-Chronons.']},
+  lede:'In der Raummitte steht die Sanduhr mit Ring darüber und weißem Vex-Diamanten darunter. Links liegen drei Start-Platten hintereinander: Eingang, Mitte, Hinten. Drei Kisten-Türme mit je unterer, mittlerer und oberer Kiste: am Eingang, rechts gegenüber der Mitte und hinten. Sechs Minotauren in der Mitte lassen Chronons fallen, alle durch den Ring in die Sanduhr. Dann den Diamanten schießen: eine Start-Platte leuchtet. Diastole zählt vier Ladungen, eine pro Sekunde; Bodenkontakt startet neu. Bei Ladung 4 schießen alle drei Türme dieselbe Reihe, daraus wird eine Plattform, der Kletterer steigt hoch und nimmt das Hologramm. Unten, Mitte, oben. '+DP_NOTE_DE,
+  sc:[['Sanduhr füllen','Sechs Minotauren, sechs Chronons durch den Ring, dann den Diamanten schießen.'],['Diastole','Kletterer auf die Start-Platte, bei Ladung 4 schießen alle die untere Reihe.'],['Treppe','Hologramm, dann mittlere und obere Reihe. Reserve-Chronons halten die Sanduhr voll.'],['Schaden','Iatros teleportiert auf die Start-Platte. Raus aus dem Stampfer, Sanduhr weiter füllen.']],
+  tip:{1:'Alle durch den Ring über der Sanduhr.',2:'Auf die 4 schießen, nicht früher.',3:'Reserve-Chronons nicht verschwenden.',4:'Leere Sanduhr = Neomutation.'},
+  roles:[['Kisten-Schützen','Ihre Reihe auf Ladung 4.',''],['Kletterer','Hologramme nehmen, ansagen.','runner'],['Reserve','Chronons, Adds, Sanduhr.','runner']],
+  rules:['Vier Ladungen, eine pro Sekunde.','Bodenkontakt = Neustart.','Unten → Mitte → oben.'],wipes:['Leere Sanduhr nach dem Diamanten → Neomutation.'],
+  tips:['<b>Challenge:</b> drei Kletterer, jeder nimmt nur ein Hologramm. Scheitert, wenn ein Hüter mehr als eins nimmt.','Imps unterbrechen das Halten am Hologramm.'],
+  calls:[['„Eins, zwei, drei, vier“','“One, two, three, four”','Kletterer'],['„Hologramm, bereit“','“Hologram, ready”','Kletterer']],
+  L:{lPlE:'Eingang',lPlC:'Mitte',lPlF:'Hinten',lSpE:'Turm Eingang',lSpR:'Turm rechts',lSpF:'Turm hinten',lRows:'Kisten: oben / Mitte / unten',lDia:'DIASTOLE',lOnPlate:'auf Platte',lNoGround:'Boden berühren = neu zählen',lHolo:'Hologramm',lHour:'SANDUHR',lNeo:'Leer = Neomutation (Wipe)',
+   fxI1Fill:'Minotauren → Chronons durch den Ring',fxI1Dia:'Weißen Diamanten schießen',fxI2Dia:'Diastole: vier Ladungen',fxI2Row:'Ladung 4: untere Reihe brechen',fxI3Climb:'Klettern: Hologramm, nächste Reihe',fxI3Keep:'Reserve-Chronons in die Sanduhr',fxI4Dmg:'Iatros auf der Start-Platte: Schaden'}},
+ {kicker:'The Desert Perpetual · Iatros (Wyvern) · Right podium',gear:{crit:['Precise weapons for the boxes.'],top:['Damage: Grand Overture is the safe pick per gobble.tools.'],budget:['Short on gear? Reserve Chronons.']},
+  lede:'The hourglass stands mid-room with a ring above it and a white Vex diamond below. On the left three starting plates run near to far: Entrance, Center, Far. Three box spires with a bottom, middle and top box: at the entrance, on the right across from Center, and at the far end. Six Minotaurs in the middle drop Chronons, everyone passes through the ring into the hourglass. Then shoot the diamond: a starting plate lights up. Diastole counts four charges, one per second; touching the ground restarts it. On charge 4 all three spires shoot the same row, it becomes a platform, the climber goes up and takes the hologram. Bottom, middle, top. '+DP_NOTE_EN,
+  sc:[['Fill the hourglass','Six Minotaurs, six Chronons through the ring, then shoot the diamond.'],['Diastole','Climber onto the starting plate, on charge 4 everyone shoots the bottom row.'],['Staircase','Hologram, then middle and top row. Reserve Chronons keep the hourglass full.'],['Damage','Iatros teleports onto the starting plate. Stay out of the stomp, keep filling the hourglass.']],
+  tip:{1:'Everyone through the ring above the hourglass.',2:'Shoot on 4, not earlier.',3:'Don’t waste reserve Chronons.',4:'Empty hourglass = Neomutation.'},
+  roles:[['Box shooters','Their row on charge 4.',''],['Climber','Take holograms, call.','runner'],['Reserve','Chronons, adds, hourglass.','runner']],
+  rules:['Four charges, one per second.','Touching the ground = restart.','Bottom → middle → top.'],wipes:['Empty hourglass after the diamond → Neomutation.'],
+  tips:['<b>Challenge:</b> three climbers, each takes only one hologram. Fails if a Guardian takes more than one.','Imps interrupt holding the hologram.'],
+  calls:[['„Eins, zwei, drei, vier“','“One, two, three, four”','climber'],['„Hologramm, bereit“','“Hologram, ready”','climber']],
+  L:{lPlE:'Entrance',lPlC:'Center',lPlF:'Far',lSpE:'spire entrance',lSpR:'spire right',lSpF:'spire far',lRows:'boxes: top / middle / bottom',lDia:'DIASTOLE',lOnPlate:'on plate',lNoGround:'touch the ground = recount',lHolo:'hologram',lHour:'HOURGLASS',lNeo:'Empty = Neomutation (wipe)',
+   fxI1Fill:'Minotaurs → Chronons through the ring',fxI1Dia:'Shoot the white diamond',fxI2Dia:'Diastole: four charges',fxI2Row:'Charge 4: break the bottom row',fxI3Climb:'Climb: hologram, next row',fxI3Keep:'Reserve Chronons into the hourglass',fxI4Dmg:'Iatros on the starting plate: damage'}});
+const ENC_DPA=dpEnc(3,'Agraios, Inherent',DPA,['RUN','H2','H3','C1','C2','C3'],[['RUN','Platte (Absolute) · hier Läufer','Plate (Absolute) · runner here'],['H2','Platte (Constant)','Plate (Constant)'],['H3','Platte (Cyclical)','Plate (Cyclical)'],['C1','Chronons + Adds','Chronons + adds'],['C2','Chronons + Adds','Chronons + adds'],['C3','Chronons + Adds','Chronons + adds']],
+ {kicker:'The Desert Perpetual · Agraios (Hobgoblin) · Podest Hinten',gear:{crit:['Präzise Waffen gegen die Hobgoblins.'],top:['Schaden: Thunderlord (verzeihend) oder Refurbished A499 mit Aggregate Charge (laut gobble.tools).'],budget:['Wenig Ausrüstung? Chronons + Adds.']},
+  lede:'Fünf Ringe auf einem Kreis, nummeriert im Uhrzeigersinn von vorne links über hinten nach vorne rechts; vorne in der Mitte fehlt der sechste. Innen stehen die Boss-Kopien auf Plattformen, noch weiter innen drei Temporality-Platten. Minotauren lassen Cobalt-Chronons fallen, damit die Ringe laden. Greift eine Kopie an, sieht der Plattenspieler mit der passenden Perspektive den roten Ring und aktiviert den Pylon unter der Kopie: Alignment Charge, er wird Läufer. Die zwei anderen sagen je zwei sichere Ringe an, dort kommt je ein Chronon hinein, der rote bleibt. Der Läufer läuft 1→5, die Granate wird zum Vex-Detain und landet bei etwa 3–2 Sekunden auf dem gesammelten Team. '+DP_NOTE_DE,
+  sc:[['Ringe laden','Minotauren → Cobalt-Chronons, durch die inaktiven Ringe.'],['Kopie + roter Ring','Passende Platte sieht den roten Ring, nimmt den Pylon = Läufer.'],['Stabilisieren','Vier sichere Ringe je ein Chronon, der rote bleibt.'],['Lauf + Detain','Läufer 1→5, Team bei Ring 4/5, Detain bei 3–2 s.'],['Schaden','Drei Abschnitte: zwei weitere Läufe im Schaden, drei Detains.']],
+  tip:{1:'Ringe in Reihenfolge zählen.',2:'Nur die passende Perspektive sieht Rot.',3:'Mit Temporality durch einen instabilen Ring = tot.',4:'Den niedrigsten Timer ansagen.',5:'Läufer früh losschicken.'},
+  roles:[['Läufer','Pylon, 1→5, Detain werfen.','runner'],['Platten','Rote/sichere Ringe ansagen.',''],['Chronons','Laden, stabilisieren, Adds.','runner']],
+  rules:['Ringe 1–5 im Uhrzeigersinn ab vorne links.','Rot bleibt instabil.','Detain bei 3–2 s.'],wipes:['Persönlicher Wipe-Timer läuft ab.','Plattenspieler mit Temporality durch einen instabilen Ring.'],
+  tips:['<b>Challenge:</b> Chronons gleichmäßig: alle sechs müssen eine Zahl erreicht haben, bevor jemand den nächsten aufhebt.','Der Strahl einer Kopie lässt sich hinter Deckung brechen, das stoppt den eigenen Countdown.','Zögert ihr, wählt Agraios die angreifende Kopie selbst.','<b>Unterschied in den Quellen:</b> Vaexil lässt den passenden Plattenspieler laufen, gobble.tools einen festen Läufer (P1). Hier wie bei Vaexil.'],
+  calls:[['„Rot ist drei“','“Red is three”','Platte'],['„Eins und zwei sicher“','“One and two safe”','Platte'],['„Drei … zwei“','“Three … two”','Team']],
+  L:{lNo6:'(vorne: kein 6. Ring)',lRings:'RINGE',lRed3:'Rot ist 3',lNoTemp:'Mit Temporality nicht durch!',lWipe:'WIPE-TIMER',lDet:'DETAINS',
+   fxA1Ring:'Cobalt-Chronons laden die Ringe',fxA2Match:'Kopie greift an: passende Platte sieht Rot',fxA2Pylon:'Pylon = Alignment Charge (Läufer)',fxA3Stab:'Vier sichere Ringe stabilisieren',fxA4Run:'Läufer 1 → 5, Team sammelt sich',fxA4Det:'Detain blockt, Kopie stirbt',fxA5Dmg:'Schaden mit zwei weiteren Läufen'}},
+ {kicker:'The Desert Perpetual · Agraios (Hobgoblin) · Back podium',gear:{crit:['Precise weapons for the Hobgoblins.'],top:['Damage: Thunderlord (forgiving) or Refurbished A499 with Aggregate Charge (per gobble.tools).'],budget:['Short on gear? Chronons + adds.']},
+  lede:'Five rings on a circle, numbered clockwise from front left around the back to front right; the sixth spot, front middle, is empty. Inside, boss copies stand on platforms, further in three Temporality plates. Minotaurs drop Cobalt Chronons that charge the rings. When a copy attacks, the plate holder with the matching perspective sees the red ring and activates the pylon under that copy: Alignment Charge, they become the runner. The other two each call two safe rings, each gets one Chronon, red stays. The runner crosses 1→5, the grenade becomes a Vex detain thrown onto the grouped team at about 3–2 seconds. '+DP_NOTE_EN,
+  sc:[['Charge the rings','Minotaurs → Cobalt Chronons, through the inactive rings.'],['Copy + red ring','The matching plate sees the red ring, takes the pylon = runner.'],['Stabilise','Four safe rings one Chronon each, red stays.'],['Run + detain','Runner 1→5, team at ring 4/5, detain at 3–2 s.'],['Damage','Three segments: two more runs during damage, three detains.']],
+  tip:{1:'Count rings in order.',2:'Only the matching perspective sees red.',3:'Through an unstable ring with Temporality = dead.',4:'Call the lowest timer.',5:'Send the runner early.'},
+  roles:[['Runner','Pylon, 1→5, throw the detain.','runner'],['Plates','Call red/safe rings.',''],['Chronons','Charge, stabilise, adds.','runner']],
+  rules:['Rings 1–5 clockwise from front left.','Red stays unstable.','Detain at 3–2 s.'],wipes:['Personal wipe timer runs out.','Plate holder crosses an unstable ring with Temporality.'],
+  tips:['<b>Challenge:</b> even Chronons: all six must reach a count before anyone picks up the next one.','A copy’s beam can be broken behind cover, which stops your own countdown.','Stall and Agraios picks the attacking copy himself.','<b>Sources differ:</b> Vaexil has the matching plate holder run, gobble.tools a fixed runner (P1). Shown here as Vaexil.'],
+  calls:[['„Rot ist drei“','“Red is three”','plate'],['„Eins und zwei sicher“','“One and two safe”','plate'],['„Drei … zwei“','“Three … two”','team']],
+  L:{lNo6:'(front: no 6th ring)',lRings:'RINGS',lRed3:'red is 3',lNoTemp:'Not through with Temporality!',lWipe:'WIPE TIMER',lDet:'DETAINS',
+   fxA1Ring:'Cobalt Chronons charge the rings',fxA2Match:'Copy attacks: matching plate sees red',fxA2Pylon:'Pylon = Alignment Charge (runner)',fxA3Stab:'Stabilise four safe rings',fxA4Run:'Runner 1 → 5, team groups up',fxA4Det:'Detain blocks, the copy dies',fxA5Dmg:'Damage with two more runs'}});
+const ENC_DPK=dpEnc(4,'Koregos, the Worldline',DPK,['K1','K2','K3','AB','Y1','Y2'],[['K1','Constant (Stunner)','Constant (stunner)'],['K2','Constant (Stunner)','Constant (stunner)'],['K3','Constant (Leser + Portal)','Constant (reader + portal)'],['AB','Absolute','Absolute'],['Y1','Cyclical','Cyclical'],['Y2','Cyclical','Cyclical']],
+ {kicker:'The Desert Perpetual · Koregos (Harpyie) · Podest Vorne',gear:{crit:['Präzise Waffen für Minen und Kanonen.'],top:['Schaden auf die roten Öffnungen.'],budget:['Wenig Ausrüstung? Cyclical.']},
+  lede:'Koregos in der Mitte, die Sanduhr auf demselben Boden. Hinten liegen die Platten: Constant links (drei Spieler), Absolute Mitte (einer), Cyclical rechts (zwei). Vier Säulen: L1 vorne links, L2 hinten links, R2 hinten rechts, R1 vorne rechts. Erst die drei Hydras über links, Mitte, rechts töten. Bei Time’s Arrow brechen die Stunner die vier Laserkanonen, an den Säulen entsteht für etwa 20 Sekunden Temporal Oculus. An einer Säule gehen Constant-Leser, Absolute und beide Cyclical gemeinsam durch: Absolute sagt die Farbe an, Constant zeigt die Minen dieser Farbe, Cyclical prüft das weiße Leuchten (ja/nein), Absolute bricht die gültigen. Zwei Chronons pro Säule, zusammen abgegeben; drei Säulen = sechs. Dann der Diamant, vier Totems, Schaden. '+DP_NOTE_DE,
+  sc:[['Platten','Drei Hydras töten, alle sechs auf die Platten.'],['Time’s Arrow','Stunner brechen die vier Kanonen → Oculus an den Säulen.'],['Info-Runde','Farbe ansagen, zeigen, Leuchten prüfen, gültige Minen brechen, zu zweit abgeben.'],['Totems','Sechs Chronons, Diamant. An jedem Totem nimmt Absolute den Würfel, den beide Paare sehen.'],['Schaden','Rote Öffnungen waagerecht; drei Portale nacheinander. Final Stand senkrecht. Danach sofort runter.']],
+  tip:{1:'Bei jedem Tod alle drei Platten neu besetzen.',2:'Kanonen schnell brechen.',3:'Falsche Mine = Sanduhr minus ein Chronon.',4:'A links, B innen, C rechts.',5:'Decoherence: auf den Boden!'},
+  roles:[['Constant','Kanonen, Minen zeigen, Portale.',''],['Absolute','Farbe, Minen brechen, Würfel.','runner'],['Cyclical','Leuchten prüfen, abgeben.','runner']],
+  rules:['Alle sechs auf den Platten.','Zwei Chronons pro Säule, drei Säulen.','Absolute nimmt den gemeinsamen Würfel.'],wipes:['Auf Koregos stehen bleiben, wenn Decoherence Imminent kommt.'],
+  tips:['<b>Challenge:</b> jeder Hüter gibt pro Mechanik-Phase genau ein Chronon ab. Scheitert, wenn die Sanduhr vorher voll ist.','Farben: Cobalt Blue, Cinnabar Red, Antimony White.','Einen Wipe-Timer für Koregos beschreibt die Quelle nicht.'],
+  calls:[['„Blau“','“Blue”','Absolute'],['„Ja, eins und fünf“','“Yes, one and five”','Cyclical'],['„A und B“','“A and B”','Constant']],
+  L:{lTCO:'Constant',lTAB:'Absolute',lTCY:'Cyclical',lOcu:'TEMPORAL OCULUS',lBlue:'Cobalt Blue',lThese:'diese drei',lYes15:'ja: 1 + 5',lNo2:'nein: 2',lPil23:'Säule 2 und 3 genauso',lPort:'PORTALE',lDeco:'Decoherence: runter!',
+   fxK1Hyd:'Drei Hydras töten',fxK1Pl:'Alle sechs auf die Platten',fxK2Las:'Time’s Arrow: Kanonen brechen',fxK2Oculus:'',fxK2Ocu:'Temporal Oculus an den Säulen',fxK3Call:'Absolute: Farbe · Constant: zeigen',fxK3Glow:'Cyclical: weißes Leuchten? Absolute bricht',fxK3Dep:'Zwei Chronons gleichzeitig abgeben',fxK4Dia:'Sechs Chronons, Diamant schießen',fxK4Tot:'Totems: gemeinsamer Würfel',fxK5Dmg:'Schaden + Portal-Läufer',fxK5Fin:'Final Stand: senkrechte Öffnungen',fxK5Deco:'Decoherence Imminent: auf den Boden'}},
+ {kicker:'The Desert Perpetual · Koregos (Harpy) · Forward podium',gear:{crit:['Precise weapons for mines and cannons.'],top:['Damage on the red apertures.'],budget:['Short on gear? Cyclical.']},
+  lede:'Koregos in the centre, the hourglass on the same floor. The plates are on the far side: Constant left (three players), Absolute middle (one), Cyclical right (two). Four pillars: L1 near left, L2 far left, R2 far right, R1 near right. Kill the three Hydras above left, middle and right first. On Time’s Arrow the stunners break the four laser cannons, the pillars get Temporal Oculus for about 20 seconds. At one pillar the Constant reader, Absolute and both Cyclicals cross together: Absolute calls the colour, Constant points at mines of that colour, Cyclical checks the white glow (yes/no), Absolute breaks the valid ones. Two Chronons per pillar, deposited together; three pillars = six. Then the diamond, four totems, damage. '+DP_NOTE_EN,
+  sc:[['Plates','Kill three Hydras, all six onto the plates.'],['Time’s Arrow','Stunners break the four cannons → Oculus on the pillars.'],['Info cycle','Call the colour, point, check the glow, break valid mines, deposit in pairs.'],['Totems','Six Chronons, diamond. At each totem Absolute takes the cube both pairs see.'],['Damage','Red apertures horizontal; three portals in sequence. Final stand vertical. Then drop down at once.']],
+  tip:{1:'After any death re-stand all three plates.',2:'Break the cannons fast.',3:'Wrong mine = hourglass minus one Chronon.',4:'A left, B inward, C right.',5:'Decoherence: to the ground!'},
+  roles:[['Constant','Cannons, point at mines, portals.',''],['Absolute','Colour, break mines, cube.','runner'],['Cyclical','Check glow, deposit.','runner']],
+  rules:['All six on the plates.','Two Chronons per pillar, three pillars.','Absolute takes the shared cube.'],wipes:['Staying on Koregos when Decoherence Imminent hits.'],
+  tips:['<b>Challenge:</b> every Guardian deposits exactly one Chronon per mechanic phase. Fails if the hourglass fills first.','Colours: Cobalt Blue, Cinnabar Red, Antimony White.','The source describes no wipe timer for Koregos.'],
+  calls:[['„Blau“','“Blue”','Absolute'],['„Ja, eins und fünf“','“Yes, one and five”','Cyclical'],['„A und B“','“A and B”','Constant']],
+  L:{lTCO:'Constant',lTAB:'Absolute',lTCY:'Cyclical',lOcu:'TEMPORAL OCULUS',lBlue:'Cobalt Blue',lThese:'these three',lYes15:'yes: 1 + 5',lNo2:'no: 2',lPil23:'pillars 2 and 3 the same',lPort:'PORTALS',lDeco:'Decoherence: drop!',
+   fxK1Hyd:'Kill three Hydras',fxK1Pl:'All six onto the plates',fxK2Las:'Time’s Arrow: break the cannons',fxK2Ocu:'Temporal Oculus on the pillars',fxK3Call:'Absolute: colour · Constant: point',fxK3Glow:'Cyclical: white glow? Absolute breaks',fxK3Dep:'Deposit two Chronons together',fxK4Dia:'Six Chronons, shoot the diamond',fxK4Tot:'Totems: the shared cube',fxK5Dmg:'Damage + portal runner',fxK5Fin:'Final stand: vertical apertures',fxK5Deco:'Decoherence Imminent: to the ground'}});
+const RG_DPE=[{id:'rd',slots:['LR','RR'],focus:[2,3,4],de:{name:'Leser',steps:['Ins Licht.','Obelisk-Zahl ansagen.','Auge der anderen Seite brechen.'],watch:['Im Licht bleiben.']},en:{name:'Readers',steps:['Into the light.','Call the obelisk number.','Break the other side’s eye.'],watch:['Stay in the light.']}},{id:'mid',slots:['M1','M2'],focus:[3],de:{name:'Mitte',steps:['Dunklen Knoten lesen.','Übrige Knoten brechen.'],watch:['Bereit erst nach Tausch 3 melden.']},en:{name:'Middle',steps:['Read the dark node.','Break the other nodes.'],watch:['Call ready after exchange 3.']}},{id:'add',slots:['LC','RC'],focus:[1,5],de:{name:'Adds',steps:['Magistrates, Seiten frei.'],watch:['Im Schaden: Paar-Aufruf.']},en:{name:'Adds',steps:['Magistrates, sides clear.'],watch:['In damage: pair call.']}}];
+const RG_DPI=[{id:'box',slots:['B1','B2','B3'],focus:[2,3],de:{name:'Kisten',steps:['Eigene Turm-Reihe auf Ladung 4.'],watch:['Nicht zu früh.']},en:{name:'Boxes',steps:['Own spire row on charge 4.'],watch:['Not too early.']}},{id:'cl',slots:['CL'],focus:[2,3],de:{name:'Kletterer',steps:['Start-Platte, zählen, klettern, Hologramm.'],watch:['Boden = neu zählen.']},en:{name:'Climber',steps:['Starting plate, count, climb, hologram.'],watch:['Ground = recount.']}},{id:'res',slots:['R1','R2'],focus:[1,3,4],de:{name:'Reserve',steps:['Minotauren, Chronons in die Sanduhr.'],watch:['Sanduhr nie leer.']},en:{name:'Reserve',steps:['Minotaurs, Chronons into the hourglass.'],watch:['Never let the hourglass empty.']}}];
+const RG_DPA=[{id:'run',slots:['RUN'],focus:[2,4],de:{name:'Läufer',steps:['Pylon nehmen.','1→5 laufen.','Detain bei 3–2 s.'],watch:['Den niedrigsten Timer hören.']},en:{name:'Runner',steps:['Take the pylon.','Run 1→5.','Detain at 3–2 s.'],watch:['Listen for the lowest timer.']}},{id:'pl',slots:['H2','H3'],focus:[2],de:{name:'Platten',steps:['Rot/sichere Ringe ansagen.'],watch:['Nicht durch instabile Ringe.']},en:{name:'Plates',steps:['Call red/safe rings.'],watch:['Not through unstable rings.']}},{id:'chr',slots:['C1','C2','C3'],focus:[1,3],de:{name:'Chronons',steps:['Minotauren, Ringe laden, stabilisieren.'],watch:['Challenge: gleichmäßig aufheben.']},en:{name:'Chronons',steps:['Minotaurs, charge rings, stabilise.'],watch:['Challenge: pick up evenly.']}}];
+const RG_DPK=[{id:'co',slots:['K1','K2','K3'],focus:[2,3,5],de:{name:'Constant',steps:['Kanonen brechen.','Minen zeigen.','Portale (Leser).'],watch:['Neue Kanonen unterdrücken.']},en:{name:'Constant',steps:['Break cannons.','Point at mines.','Portals (reader).'],watch:['Suppress new cannons.']}},{id:'ab',slots:['AB'],focus:[3,4],de:{name:'Absolute',steps:['Farbe ansagen.','Gültige Minen brechen.','Gemeinsamen Würfel nehmen.'],watch:['Falsche Mine kostet ein Chronon.']},en:{name:'Absolute',steps:['Call the colour.','Break valid mines.','Take the shared cube.'],watch:['A wrong mine costs a Chronon.']}},{id:'cy',slots:['Y1','Y2'],focus:[3],de:{name:'Cyclical',steps:['Weißes Leuchten prüfen.','Zusammen abgeben.'],watch:['Gleichzeitig abgeben.']},en:{name:'Cyclical',steps:['Check the white glow.','Deposit together.'],watch:['Deposit at the same time.']}}];
 
 const SV_DG=`<svg viewBox="0 0 420 210" aria-hidden="true"><rect x="40" y="10" width="340" height="190" rx="10" fill="#14121c" stroke="#3a3356"/><g font-family="Chakra Petch, sans-serif" font-size="11" text-anchor="middle"><text x="210" y="105" fill="#9c95b0">{0}</text></g></svg>`;
 const DG_SLOTS=[['P1','Spieler 1','Player 1'],['P2','Spieler 2','Player 2'],['P3','Spieler 3','Player 3']];
@@ -9899,7 +10044,7 @@ const ACT={
  gos:{name:'Garden of Salvation',encs:['gsevade','gssummon','gscons','gssanct'],src:[['Shacknews – Garden of Salvation raid guide','https://shacknews.com/article/114369/garden-of-salvation-raid-guide-destiny-2'],['Yardbarker – Garden of Salvation 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_garden_of_salvation_2026_raid_guide/s1_17456_43890120'],['Kyber’s Corner – Garden of Salvation','https://kyberscorner.com/destiny2/gardenofsalvation/'],['TheGamer – Enlightened title','https://www.thegamer.com/destiny-2-enlightened-title-triumphs-guide/'],['Destinypedia – Garden of Salvation','https://www.destinypedia.com/Garden_of_Salvation']]},
  vow:{name:'Vow of the Disciple',encs:['vwacq','vwcare','vwexh','vwrhulk'],src:[['Shacknews – Vow of the Disciple raid guide','https://shacknews.com/article/129163/vow-of-the-disciple-raid-guide-destiny-2'],['Yardbarker – Vow of the Disciple 2026 raid guide','https://www.yardbarker.com/entertainment/articles/destiny_2_vow_of_the_disciple_2026_raid_guide/s1_17456_43915072'],['DestinyTracker – Vow complete raid guide (Suttledge)','https://destinytracker.com/destiny-2/guides/vow-of-the-disciple-complete-raid-guide-by-suttledge-095cf690'],['Dot Esports – Vow glyphs and callouts','https://dotesports.com/destiny/guides/all-vow-of-the-disciple-glyphs-symbols-and-callouts-in-destiny-2'],['TheGamer – Vow weekly challenges','https://www.thegamer.com/destiny-2-vow-of-the-disciple-weekly-challenges-guide/'],['TheGamer – Disciple-Slayer title','https://www.thegamer.com/destiny-2-disciple-slayer-title-guide/'],['Shacknews – Rhulk extra chest symbols','https://shacknews.com/article/129266/vow-of-the-disciple-rhulk-extra-chest-symbol-locations-destiny-2']]},
  ce:{name:'Crota’s End',encs:['ceabyss','cebridge','ceiryut','cecrota'],src:[['Shacknews – Crota’s End raid guide','https://shacknews.com/article/136793/crotas-end-raid-guide-destiny-2'],['Yardbarker – Crota’s End 2026 raid guide','https://www.yardbarker.com/video_games/articles/destiny_2_crotas_end_2026_raid_guide/s1_17456_43929386'],['Destinypedia – Crota’s End','https://www.destinypedia.com/Crota%27s_End'],['The Game Post – Swordbearer title','https://thegamepost.com/destiny-2-swordbearer-title-guide/']]},
- dp:{name:'The Desert Perpetual',encs:['dpiat','dpagr','dpepo','dpkor'],src:[['The Game Post – Desert Perpetual Epic raid guide (Nov 2025)','https://thegamepost.com/destiny-2-desert-perpetual-epic-raid-guide/'],['Kyber’s Corner – The Desert Perpetual','https://kyberscorner.com/destiny-2-the-desert-perpetual-raid/'],['Sportskeeda – Feat: Encounter challenges','https://widgets.sportskeeda.com/mmo/all-feat-encounter-challenges-destiny-2-the-desert-perpetual-raid'],['Destinypedia – The Desert Perpetual','https://www.destinypedia.com/The_Desert_Perpetual']]},
+ dp:{name:'The Desert Perpetual',encs:['dpepo','dpiat','dpagr','dpkor'],src:[['Vaexil – The Desert Perpetual, Normal (mechanics verified 30.07.2026)','https://destiny2.vaexil.tv/guides/raids/desert-perpetual/normal'],['gobble.tools – The Desert Perpetual: a fireteam field guide','https://gobble.tools/pages/desert-perpetual-raid-guide/'],['TheGamer – Desert Perpetual encounters explained','https://www.thegamer.com/destiny-2-desert-perpetual-raid-encounters-explained/'],['Destinypedia – The Desert Perpetual','https://www.destinypedia.com/The_Desert_Perpetual']]},
  se:{name:'Salvation’s Edge',encs:['substratum','dissipation','repository','verity','zenith'],src:[['Shacknews – Salvation’s Edge raid guide','https://www.shacknews.com/article/140025/salvations-edge-raid-guide-destiny-2'],['PCGamesN – Salvation’s Edge guide','https://www.pcgamesn.com/destiny-2/salvations-edge-guide'],['Professionalism.gg – Salvation’s Edge','https://professionalism.gg/raid-guides/salvations-edge'],['Backdash – Salvation’s Edge raid guide','https://www.thebackdash.com/destiny/destiny-2-salvations-edge-raid-guide'],['Sportskeeda – Substratum guide','https://sportskeeda.com/mmo/destiny-2-salvation-s-edge-raid-first-encounter-guide-substratum'],['Paracausality – Salvation’s Edge guide','https://www.paracausality.com/se_guide'],['Destiny 2 Wiki – Salvation’s Edge','https://d2.destinygamewiki.com/wiki/Salvation%27s_Edge'],['Destructoid – Substratum map','https://www.destructoid.com/destiny-2-salvations-edge-first-encounter-raid-guide/'],['Destinypedia – Salvation’s Edge','https://www.destinypedia.com/Salvation%27s_Edge'],['Destructoid – Verity map','https://www.destructoid.com/destiny-2-salvations-edge-fourth-encounter-raid-guide-verity/'],['Destructoid – Zenith','https://www.destructoid.com/destiny-2-salvations-edge-5th-encounter-raid-guide-zenith/']]}
 ,
  st:{name:'The Shattered Throne',kind:'dungeon',encs:['stvorg','stdul'],src:[['Yardbarker – Shattered Throne dungeon guide 2026','https://www.yardbarker.com/video_games/articles/destiny_2_shattered_throne_dungeon_guide_2026/s1_17456_43886482'],['Shacknews – Shattered Throne dungeon guide','https://shacknews.com/article/107607/shattered-throne-dungeon-guide-destiny-2']]},
@@ -10177,16 +10322,16 @@ const XTRA={
   en:[['Exotic','Wish-Ender (bow); the statue on the second traversal belongs to the quest.'],['Note','No rally banners; thrallways without regeneration. Rushing the Phalanx area can soft-lock the encounter.'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
  ph:{de:[['Harrow-Labyrinth','Symbol oben = Wizard, der die Tür öffnet (laut Guide): Eistüte nah links, Zaun ganz links, Tisch mit drei Strichen Mitte links, Tisch mit zwei Strichen ganz rechts, „Praise“ Mitte, „A“ nah rechts.'],['Exotic','Xenophage (Machine Gun) über eine Quest im Dungeon (Details nicht geprüft).'],['2026','Seit 9. Juni 2026 gestufte Beute und eigenes Rüstungsset.']],
   en:[['Harrow labyrinth','Symbol above = the Wizard that opens the door (per the guide): ice cream cone close left, fence far left, table with three lines middle left, table with two lines far right, “Praise” middle, “A” close right.'],['Exotic','Xenophage (machine gun) via a quest in the dungeon (details not checked).'],['2026','Since June 9, 2026 tiered loot and its own armor set.']]},
- dp:{de:[['Reihenfolge','Die ersten drei Bosse frei wählbar (oben am Lift), Koregos zuletzt. Nach Koregos kann man direkt zu jedem Encounter springen.'],
+ dp:{de:[['Hub','„Predestination“: Turm in der Mitte, oben vier Podeste. Links = Epoptes, Rechts = Iatros, Hinten = Agraios, Vorne = Koregos. Die ersten drei frei wählbar (Vaexil empfiehlt Epoptes, Iatros, Agraios), Koregos öffnet erst danach. Auf dem Weg jeweils die Gegner mit gelber Leiste töten.'],
    ['Titel','„Atemporal“: alle Raid-Triumphe; sechs davon erhöhen die Exotic-Chance.'],
    ['Exotic','Whirling Ovation (Raketenwerfer), Zufallsdrop bei Koregos, einmal pro Woche.'],
    ['Feats','Fünf Encounter-Challenges als Feat; benannt sind u. a. Phase Race, Cutthroat Combat, Battalions, Token Limit. Drei aktive Feats garantieren Tier-2-Beute, kleine Chance auf Tier 3. Die Encounter-Challenges stehen in den Tipps jedes Bosses.'],
-   ['Hinweis','Die Abläufe stammen aus frühen Guides, größtenteils zur Epic-Version.']],
-  en:[['Order','Pick the first three bosses freely (at the top of the lift), Koregos last. After Koregos you can jump straight to any encounter.'],
+   ['Hinweis','Am 08.11.2026 neu aufgebaut nach dem Normalmodus-Guide von Vaexil (geprüft 30.07.2026) und gobble.tools. Karten sind schematische Draufsichten; Community-Draufsichten habe ich nicht gefunden.']],
+  en:[['Hub','“Predestination”: tower in the middle, four podiums on top. Left = Epoptes, Right = Iatros, Back = Agraios, Forward = Koregos. The first three in any order (Vaexil recommends Epoptes, Iatros, Agraios), Koregos opens only after them. On each path kill the yellow-bar enemies.'],
    ['Title','“Atemporal”: all raid triumphs; six of them raise the exotic chance.'],
    ['Exotic','Whirling Ovation (rocket launcher), random drop from Koregos, once per week.'],
    ['Feats','Five encounter challenges as a feat; named ones include Phase Race, Cutthroat Combat, Battalions, Token Limit. Three active feats guarantee tier-2 loot, small chance of tier 3. The encounter challenges are in each boss’s tips.'],
-   ['Note','The steps come from early guides, mostly for the Epic version.']]},
+   ['Note','Rebuilt on 08.11.2026 after the Vaexil normal-mode guide (verified 30.07.2026) and gobble.tools. Maps are schematic top-down views; I found no community overhead maps.']]},
  ce:{de:[['Titel','„Swordbearer“ (Raid-Triumphe inkl. Challenges).'],
    ['Exotic','Necrochasm (Kinetic-Auto-Rifle), Zufallsdrop vom Endboss; mit Triumphen steigt die Chance (Details nicht geprüft).'],
    ['Versteckte Truhe','Vor Ir Yût: zwei Enlightened töten die Shrieker hinter den Barrieren, der dritte Kelch-Träger legt am Podest ab, das öffnet den Zugang zur Truhe.'],
