@@ -909,3 +909,7 @@ main{padding:12px 16px 40px}
 .zf-skala{position:relative}.zf-skala input{position:relative;z-index:1}
 .zf-mitte{position:absolute;left:50%;top:50%;width:3px;height:22px;transform:translate(-50%,-50%);background:var(--text);border-radius:2px;opacity:.75;pointer-events:none;box-shadow:0 0 6px var(--gold)}
 .zf-glueck span:last-of-type{display:flex;gap:6px;align-items:center}
+/* Statistik-Blöcke: Innenabstand am Block selbst, damit kein Text am Rand klebt */
+.sblock{padding:0 16px 12px}.sblock>summary{margin:0 -16px;padding:10px 16px}.sblock>*:not(summary){margin:0 0 10px}
+.sblock .chips,.sblock .pliste{padding:2px 0}
+@media (max-width:760px){.sblock{padding:0 12px 10px}.sblock>summary{margin:0 -12px;padding:8px 12px}.sblock>*:not(summary){margin:0 0 8px}}
