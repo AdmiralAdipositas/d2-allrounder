@@ -11,7 +11,7 @@ const holen = async (pfad) => { const r = await fetch(BASIS + pfad, { headers: {
 const manifest = (await holen('/Platform/Destiny2/Manifest/')).Response;
 const pfade = manifest.jsonWorldComponentContentPaths.en;
 const alt = fs.existsSync('data/defs.json') ? JSON.parse(fs.readFileSync('data/defs.json', 'utf8')) : null;
-if (alt?.version === manifest.version && alt?.schema === 18) { console.log('Game data unchanged.'); process.exit(0); }
+if (alt?.version === manifest.version && alt?.schema === 19) { console.log('Game data unchanged.'); process.exit(0); }
 
 const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, typen, modifier, ziele, loNamen, loIcons, loFarben, knoten, records, ziele2, statGruppen, checklisten] = await Promise.all([
   'DestinyInventoryItemDefinition', 'DestinySandboxPerkDefinition', 'DestinyCollectibleDefinition', 'DestinyStatDefinition',
@@ -22,7 +22,7 @@ const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, ty
 ].map((n) => (pfade[n] ? holen(pfade[n]) : {})));
 
 const text = (item) => item.displayProperties?.description || (item.perks || []).map((p) => sandbox[p.perkHash]?.displayProperties?.description).find(Boolean) || '';
-const aus = { schema: 18, soz: {}, wtyp: {}, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
+const aus = { schema: 19, soz: {}, wtyp: {}, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
 for (const [hash, it] of Object.entries(items)) {
   const n = it.displayProperties?.name;
   // Nur, was die App braucht: Waffen, Rüstung, Subclasses, Plugs, Artefakte.
@@ -100,9 +100,11 @@ for (const [h, n] of Object.entries(knoten)) {
 { aus.dtri = {};
   const namen = new Set(Object.values(aus.akt).filter((x) => x.g === 'Raids' || x.g === 'Dungeons').map((x) => x.n.split(':')[0].trim()));
   for (const name of namen) {
-    const seal = Object.entries(aus.seal).find(([, sl]) => sl.n === name && !/legacy/i.test(sl.pn)) || Object.entries(aus.seal).find(([, sl]) => sl.n === name);
+    const gl = (x) => String(x || '').replace(/^the /i, '').trim() === name.replace(/^the /i, '').trim();
+    const seal = Object.entries(aus.seal).find(([, sl]) => gl(sl.n) && !/legacy/i.test(sl.pn)) || Object.entries(aus.seal).find(([, sl]) => gl(sl.n));
     let beste = [];
-    for (const n of Object.values(knoten)) { if (n.displayProperties?.name !== name) continue; const r = (n.children?.records || []).map((x) => x.recordHash).filter((x) => records[x]?.displayProperties?.name); if (r.length > beste.length) beste = r; }
+    const ohne = (x) => String(x || '').replace(/^the /i, '').trim();
+    for (const n of Object.values(knoten)) { if (ohne(n.displayProperties?.name) !== ohne(name)) continue; const r = (n.children?.records || []).map((x) => x.recordHash).filter((x) => records[x]?.displayProperties?.name); if (r.length > beste.length) beste = r; }
     const k = [...new Set([...(seal ? seal[1].k : []), ...beste])];
     if (!k.length) continue;
     aus.dtri[name] = { s: seal ? Number(seal[0]) : 0, k };
