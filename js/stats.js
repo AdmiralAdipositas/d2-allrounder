@@ -414,9 +414,9 @@ async function vergleichZeigen(box, ich, kIch) {
     ['Activities cleared', (x) => wv(x.d, 'activitiesCleared'), zahl], ['Titles earned (obtainable)', seals, zahl],
     ['Longest kill spree', (x) => wv(x.d, 'longestKillSpree'), zahl], ['Longest single life', (x) => wv(x.d, 'longestSingleLife'), dauer],
     ['Revives given', (x) => wv(x.d, 'resurrectionsPerformed'), zahl], ['Suicides', (x) => wv(x.d, 'suicides'), zahl, true],
-    ['Raids & dungeons'],
+    ['Raids'],
     ['Raid clears', (x) => sum(x, 'raid', 'clears'), zahl], ['Raid full clears', (x) => sum(x, 'raid', 'voll'), zahl], ['Raid flawless', (x) => sum(x, 'raid', 'flawless'), zahl], ['Raid master', (x) => sum(x, 'raid', 'master'), zahl], ['Raid lowman', (x) => sum(x, 'raid', 'trio') + sum(x, 'raid', 'duo') + sum(x, 'raid', 'solo'), zahl],
-    ['Dungeon clears', (x) => sum(x, 'dungeon', 'clears'), zahl], ['Dungeon flawless', (x) => sum(x, 'dungeon', 'flawless'), zahl], ['Dungeon solo', (x) => sum(x, 'dungeon', 'solo'), zahl], ['Dungeon solo flawless', (x) => sum(x, 'dungeon', 'soloFl'), zahl],
+    ['Dungeons'], ['Dungeon clears', (x) => sum(x, 'dungeon', 'clears'), zahl], ['Dungeon flawless', (x) => sum(x, 'dungeon', 'flawless'), zahl], ['Dungeon solo', (x) => sum(x, 'dungeon', 'solo'), zahl], ['Dungeon solo flawless', (x) => sum(x, 'dungeon', 'soloFl'), zahl],
     ['PvP'],
     ['PvP K/D', (x) => wert(x.d.pvp, 'killsDeathsRatio'), (v) => v.toFixed(2)], ['PvP KDA', (x) => wert(x.d.pvp, 'killsDeathsAssists'), (v) => v.toFixed(2)],
     ['Matches', (x) => wert(x.d.pvp, 'activitiesEntered'), zahl], ['Win rate', (x) => (wert(x.d.pvp, 'activitiesWon') / Math.max(1, wert(x.d.pvp, 'activitiesEntered'))) * 100, (v) => `${v.toFixed(0)}%`],
@@ -424,7 +424,8 @@ async function vergleichZeigen(box, ich, kIch) {
     ...['Super', 'Grenade', 'Melee', 'Hand Cannon', 'Auto Rifle', 'Pulse Rifle', 'Scout Rifle', 'Submachine Gun', 'Sidearm', 'Bow', 'Shotgun', 'Sniper Rifle', 'Fusion Rifle', 'Trace Rifle', 'Grenade Launcher', 'Rocket Launcher', 'Machine Gun', 'Sword', 'Glaive'].map((t) => [t, (x) => x.d.typen.find((y) => y.n === t)?.kills || 0, zahl]),
   ];
   const raidNamen = [...new Set(ok.flatMap((x) => ausw.get(x.name).map((e) => `${e.art}|${e.n}`)))].sort();
-  zeilen.push(['Clears per raid / dungeon'], ...raidNamen.map((rn) => { const [art, n] = rn.split('|'); return [n, (x) => ausw.get(x.name).find((e) => e.art === art && e.n === n)?.clears || 0, zahl]; }));
+  const proArt = (art) => raidNamen.filter((rn) => rn.startsWith(`${art}|`)).map((rn) => { const n = rn.split('|')[1]; return [n, (x) => ausw.get(x.name).find((e) => e.art === art && e.n === n)?.clears || 0, zahl]; });
+  zeilen.push(['Clears per raid'], ...proArt('raid'), ['Clears per dungeon'], ...proArt('dungeon'));
   setze(`<div class="vgl"><table class="vtab"><thead><tr><th></th>${daten.map((x) => `<th>${esc(x.name.split('#')[0])}${x.fehler || x.d?.fehler ? `<small>${esc(x.fehler || x.d.fehler)}</small>` : ''}</th>`).join('')}</tr></thead><tbody>
     ${zeilen.map((z) => { if (z.length === 1) return `<tr class="vgruppe"><td colspan="${daten.length + 1}">${esc(z[0])}</td></tr>`; const [t, f, fmt, weniger] = z; const werte = daten.map((x) => (x.d && !x.d.fehler ? f(x) : null)); const gut = werte.filter((v) => v != null); const best = gut.length ? (weniger ? Math.min(...gut) : Math.max(...gut)) : null; const max = Math.max(1, ...gut); return `<tr><td>${esc(t)}</td>${werte.map((v) => `<td class="${v === best && gut.length > 1 && v > 0 ? 'best' : ''}">${v == null ? '–' : fmt(v)}<i style="width:${(v / max) * 100}%"></i></td>`).join('')}</tr>`; }).join('')}</tbody></table></div>`);
 }

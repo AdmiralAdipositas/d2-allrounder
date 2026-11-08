@@ -131,8 +131,26 @@ async function shaderListe(eigene) {
 export const ZOOMS = [0.85, 1, 1.15, 1.3, 1.5];
 export function zoom() { return parseFloat(lies('d2a.zoom', '1')) || 1; }
 export function setzeZoom(z) { schreib('d2a.zoom', String(z)); document.documentElement.style.zoom = z === 1 ? '' : String(z); }
-export function zoomKnoepfe() { const an = zoom(); return `<div class="zoom-wahl" role="radiogroup" aria-label="App size">${ZOOMS.map((z) => `<button type="button" class="chip ${z === an ? 'an' : ''}" data-zoom="${z}" aria-checked="${z === an}">${Math.round(z * 100)} %</button>`).join('')}</div><p class="leer klein">Also works: pinch with two fingers, or Ctrl + mouse wheel / Ctrl + plus.</p>`; }
-export function verbindeZoom(el) { el.addEventListener('click', (e) => { const b = e.target.closest('[data-zoom]'); if (!b) return; setzeZoom(Number(b.dataset.zoom)); el.querySelectorAll('[data-zoom]').forEach((x) => { const a = x === b; x.classList.toggle('an', a); x.setAttribute('aria-checked', a); }); }); }
+export function textGroesse() { return parseFloat(lies('d2a.txt', '1')) || 1; }
+export function setzeText(t) { schreib('d2a.txt', String(t)); document.documentElement.style.setProperty('--txt', String(t)); }
+// Zwei Schieber: ganze App (Zoom) und nur die Schrift. Ein Klick auf „↺“ setzt zurück.
+export function zoomKnoepfe() {
+  const z = zoom(), t = textGroesse();
+  return `<div class="groesse"><label><span>App size</span><input type="range" min="0.7" max="1.5" step="0.05" value="${z}" data-zoomr aria-label="App size"><b data-zw>${Math.round(z * 100)} %</b><button type="button" class="chip klein" data-zoomreset title="Reset">↺</button></label>
+    <label><span>Text size</span><input type="range" min="0.85" max="1.4" step="0.05" value="${t}" data-txtr aria-label="Text size"><b data-tw>${Math.round(t * 100)} %</b><button type="button" class="chip klein" data-txtreset title="Reset">↺</button></label></div>
+    <p class="leer klein">App size scales everything, text size only the writing. Pinch or Ctrl + mouse wheel also works.</p>`;
+}
+export function verbindeZoom(el) {
+  const zr = el.querySelector('[data-zoomr]'), tr = el.querySelector('[data-txtr]');
+  // Zoom erst beim Loslassen anwenden (sonst springt der Schieber unter dem Finger weg), Text sofort.
+  zr?.addEventListener('input', () => { el.querySelector('[data-zw]').textContent = `${Math.round(zr.value * 100)} %`; });
+  zr?.addEventListener('change', () => setzeZoom(Number(zr.value)));
+  tr?.addEventListener('input', () => { el.querySelector('[data-tw]').textContent = `${Math.round(tr.value * 100)} %`; setzeText(Number(tr.value)); });
+  el.addEventListener('click', (e) => {
+    if (e.target.closest('[data-zoomreset]')) { setzeZoom(1); zr.value = 1; el.querySelector('[data-zw]').textContent = '100 %'; }
+    if (e.target.closest('[data-txtreset]')) { setzeText(1); tr.value = 1; el.querySelector('[data-tw]').textContent = '100 %'; }
+  });
+}
 
 // Ältere „Mein Shader“-Farben einmal mit der neuen Farbauswahl neu berechnen (kräftigere Akzente).
 try {
