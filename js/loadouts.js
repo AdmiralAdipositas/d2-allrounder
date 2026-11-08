@@ -30,6 +30,17 @@ async function bringe(k, it, ziel) {
   merkeAenderung(it.id, { ort: ziel, angelegt: false });
 }
 
+// Eigene Loadouts: unbegrenzt, auf diesem Gerät. Speichern Items per ID (+ Hash als Ersatz, falls das Teil weg ist).
+const appLos = () => { try { return JSON.parse(localStorage.getItem('d2a.appLoadouts') || '[]'); } catch { return []; } };
+const merkeLos = (l) => { try { localStorage.setItem('d2a.appLoadouts', JSON.stringify(l)); } catch {} };
+const GEAR_T = new Set([2, 3]);
+// DIM-Link lesen: ?loadout=<json> (auch kodiert) → { name, classType, equipped: [{hash, id?}] }
+function liesDim(text) {
+  const m = /[?&]loadout=([^&\s]+)/.exec(text || ''); const roh = m ? decodeURIComponent(m[1]) : (text || '').trim();
+  const j = JSON.parse(roh);
+  return { name: j.name || 'DIM loadout', klasse: j.classType ?? 3, items: (j.equipped || []).map((x) => ({ hash: Number(x.hash), id: x.id && x.id !== '0' ? String(x.id) : null })), mods: j.parameters?.mods || [] };
+}
+
 export function zeigeLoadouts(haupt, zustand) {
   const profil = zustand.profil;
   const chars = Object.values(profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
@@ -66,7 +77,20 @@ export function zeigeLoadouts(haupt, zustand) {
  ${leer ? '' : `<button data-teilen="${i}" ${laeuft ? 'disabled' : ''} title="Copy a DIM link">🔗 DIM link</button><button data-bild="${i}" title="Share as image">📸 Card</button>`}
             ${leer ? '' : `<button class="loeschen" data-clear="${i}" ${laeuft ? 'disabled' : ''}>${loeschen === i ? 'Click again to delete' : 'Delete'}</button>`}</div>
         </article>`;
-      }).join('') || '<p class="leer">No in-game loadouts on this character.</p>'}</div>`;
+      }).join('') || '<p class="leer">No in-game loadouts on this character.</p>'}</div>
+      ${eigeneHtml()}`;
+  };
+  const eigeneHtml = () => {
+    const ch = chars.find((c) => c.characterId === charWahl); const meine = appLos().filter((l) => l.klasse === ch?.classType || l.klasse === 3);
+    const alle = sammle(profil); const nachId = new Map(alle.map((x) => [x.id, x]));
+    const finde = (x) => nachId.get(x.id) || alle.filter((a) => a.hash === x.hash).sort((a, b) => b.power - a.power)[0];
+    return `<section class="lo-eigen"><div class="lo-ekopf"><h2>My loadouts <small>unlimited · saved on this device</small></h2><span class="platz"></span>
+      <button class="chip" data-appneu>＋ Save current gear</button><button class="chip" data-dimimport>⇩ Import DIM link</button></div>
+      ${meine.length ? `<div class="loraster">${meine.map((l) => { const teile = l.items.map((x) => [x, finde(x)]); const fehlt = teile.filter(([, f]) => !f).length; return `<article class="lo lo-app">
+        <div class="lo-kopf"><i class="lo-icon app">${esc((l.name || '?')[0])}</i><b>${esc(l.name)}</b><small>${l.quelle === 'dim' ? 'from DIM' : esc(new Date(l.zeit).toLocaleDateString())}${fehlt ? ` · <span class="rot">${fehlt} missing</span>` : ''}</small></div>
+        <div class="lo-items">${teile.map(([x, f]) => { const d = defs.items[x.hash]; return d ? `<i data-ih="${x.hash}" class="${d.q === 6 ? 'exo' : ''} ${f ? '' : 'fehlt'}" title="${esc(d.n)}" style="background-image:url(${BILD}${d.i})"></i>` : ''; }).join('')}</div>
+        <div class="lo-knoepfe"><button class="haupt-knopf" data-appequip="${l.id}" ${laeuft ? 'disabled' : ''}>Equip</button><button data-appbild="${l.id}">📸 Card</button><button data-appumben="${l.id}">✎ Rename</button><button class="loeschen" data-appweg="${l.id}">${loeschen === l.id ? 'Click again to delete' : 'Delete'}</button></div></article>`; }).join('')}</div>`
+        : '<p class="leer klein">Save as many loadouts as you like – no in-game slot limit. Or paste a DIM loadout link.</p>'}</section>`;
   };
   zeichne();
 
@@ -87,6 +111,51 @@ export function zeigeLoadouts(haupt, zustand) {
         } catch (err) { meldung(err.message, true); }
         laeuft = false; return zeichne();
       }
+    }
+    if (e.target.closest('[data-appneu]')) {
+      const an = (profil.characterEquipment?.data?.[charWahl]?.items || []).filter((x) => x.itemInstanceId && (GEAR_T.has(defs.items[x.itemHash]?.t) || defs.items[x.itemHash]?.t === 16));
+      const ch = chars.find((c2) => c2.characterId === charWahl); const l = appLos();
+      const sub = an.map((x) => defs.items[x.itemHash]).find((d) => d?.t === 16);
+      l.unshift({ id: Math.random().toString(36).slice(2, 10), name: `${sub?.n || KLASSE[ch.classType]} ${l.filter((x) => x.klasse === ch.classType).length + 1}`, klasse: ch.classType, zeit: Date.now(), items: an.map((x) => ({ id: x.itemInstanceId, hash: x.itemHash })) });
+      merkeLos(l); meldung('Saved to My loadouts.'); return zeichne();
+    }
+    if (e.target.closest('[data-dimimport]')) {
+      const box = document.createElement('dialog'); box.className = 'teil-dlg';
+      box.innerHTML = '<div class="teil-kopf"><b>⇩ Import a DIM loadout</b><button class="ikon" data-z>✕</button></div><textarea class="dim-feld" placeholder="Paste a DIM loadout link (app.destinyitemmanager.com/loadouts?loadout=…)"></textarea><div class="teil-knoepfe"><button class="haupt-knopf" data-ok>Import</button></div><small class="leer"></small>';
+      document.body.append(box); box.showModal(); box.addEventListener('close', () => box.remove());
+      box.onclick = (ev) => {
+        if (ev.target === box || ev.target.closest('[data-z]')) return box.close();
+        if (!ev.target.closest('[data-ok]')) return;
+        try {
+          const j = liesDim(box.querySelector('textarea').value);
+          const items = j.items.filter((x) => defs.items[x.hash]);
+          if (!items.length) throw new Error('No items found in that link.');
+          const l = appLos(); l.unshift({ id: Math.random().toString(36).slice(2, 10), name: j.name, klasse: j.klasse, zeit: Date.now(), quelle: 'dim', items }); merkeLos(l);
+          box.close(); meldung(`Imported “${j.name}” – ${items.length} items.`);
+          const ch = chars.find((c2) => c2.classType === j.klasse); if (ch) charWahl = ch.characterId; zeichne();
+        } catch (err) { box.querySelector('small').textContent = `That doesn't look like a DIM loadout link (${err.message}).`; }
+      };
+      return;
+    }
+    const ap = e.target.closest('[data-appequip],[data-appbild],[data-appumben],[data-appweg]');
+    if (ap) {
+      const id = ap.dataset.appequip || ap.dataset.appbild || ap.dataset.appumben || ap.dataset.appweg; const l = appLos(); const lo = l.find((x) => x.id === id); if (!lo) return;
+      const alle = sammle(profil); const nachId = new Map(alle.map((x) => [x.id, x]));
+      const finde = (x) => nachId.get(x.id) || alle.filter((a) => a.hash === x.hash).sort((a, b) => b.power - a.power)[0];
+      if (ap.dataset.appweg) { if (loeschen !== id) { loeschen = id; return zeichne(); } loeschen = null; merkeLos(l.filter((x) => x.id !== id)); return zeichne(); }
+      if (ap.dataset.appumben) { const neu = window.prompt?.('Name', lo.name); if (neu?.trim()) { lo.name = neu.trim().slice(0, 40); merkeLos(l); zeichne(); } return; }
+      if (ap.dataset.appbild) { const ch = chars.find((c2) => c2.characterId === charWahl); const ds = lo.items.map((x) => defs.items[x.hash]).filter(Boolean); return import('./teilen.js').then((m) => m.teileKarte({ art: 'LOADOUT', titel: lo.name, unter: KLASSE[lo.klasse] || '', hinter: ch?.emblemBackgroundPath, bilder: ds.filter((d) => GEAR_T.has(d.t)).map((d) => d.i), zeilen: ds.filter((d) => d.t === 3 || (d.t === 2 && d.q === 6)).map((d) => [d.t === 3 ? d.k : 'Exotic', d.n]) })); }
+      if (ap.dataset.appequip && !laeuft) {
+        laeuft = true; zeichne(); const fehler = []; const ids = [];
+        for (const x of lo.items) {
+          const it = finde(x); if (!it) { const d = defs.items[x.hash]; if (d && GEAR_T.has(d.t)) fehler.push(`${d.n} not found.`); else if (d?.t === 16) ids.push(x.id); continue; }
+          if (it.ort !== charWahl) { meldung(`Moving ${it.d.n}…`); try { await bringe(zustand.konto, it, charWahl); } catch (err) { fehler.push(err.message); continue; } }
+          ids.push(it.id);
+        }
+        try { if (ids.length) await bungie.ausruestenAlle(zustand.konto, ids.filter(Boolean), charWahl); meldung(fehler.length ? `Equipped, but: ${fehler.join(' ')}` : `${lo.name} equipped.`, fehler.length > 0); } catch (err) { meldung(err.message, true); }
+        laeuft = false; return zeichne();
+      }
+      return;
     }
     const c = e.target.closest('[data-char]');
     if (c) { charWahl = c.dataset.char; bestaetigen = loeschen = null; return zeichne(); }

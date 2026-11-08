@@ -1280,3 +1280,8 @@ html[data-modus=einfach] .kombi:nth-of-type(n+4),html[data-modus=einfach] .otab 
 .lauf-tab tr.weg{opacity:.5}.lauf-tab .rot{color:#ff6f6f}.lauf-tab .gruen{color:var(--gut)}
 .lk{position:relative;display:inline-block;min-width:70px;font-weight:800}.lk i{position:absolute;left:0;bottom:-3px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--violett))}
 .pkt{cursor:pointer}
+/* Eigene Loadouts */
+.lo-eigen{margin-top:22px}.lo-ekopf{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.lo-ekopf h2{margin:0}.lo-ekopf h2 small{font:500 .78rem var(--fliess);color:var(--matt);margin-left:6px}
+.lo-icon.app{display:grid;place-items:center;background:linear-gradient(135deg,var(--violett),var(--gold));color:#120d00;font:900 1.1rem var(--kopf);border-radius:8px}
+.lo-app .lo-kopf small{display:block;color:var(--matt);font-size:.72rem}.lo-app .lo-kopf small .rot{color:#ff8a5a}
+.dim-feld{width:100%;min-height:110px;padding:10px;border-radius:10px;border:1px solid var(--linie2);background:var(--bg);color:var(--text);font:500 .85rem ui-monospace,monospace}
