@@ -265,7 +265,13 @@ export function zeigeOptimizer(haupt, zustand) {
   const chars = Object.values(zustand.profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
   if (zustandO.klasse === null || !chars.some((c) => c.classType === zustandO.klasse)) zustandO.klasse = chars[0].classType;
   const zeichne = () => {
-    const liste = ruestung(zustand.profil, zustandO.klasse);
+    const roh = ruestung(zustand.profil, zustandO.klasse);
+    const aus = new Set(zustandO.aus || []); const fest = zustandO.fest || {};
+    // Gesperrte Teile: nur dieses Teil im Fach. Ausgeschlossen: fliegt raus.
+    const festIds = new Set(Object.values(fest));
+    const festFach = new Set(roh.filter((i) => festIds.has(i.id)).map((i) => i.d.b));
+    const liste = roh.filter((i) => !aus.has(i.id) && (!festFach.has(i.d.b) || festIds.has(i.id)));
+    const kurz = (id) => roh.find((i) => i.id === id);
     const exotics = [...new Map(liste.filter((i) => i.exo).map((i) => [i.d.n, i])).values()].sort((a, b) => a.d.n.localeCompare(b.d.n));
     if (zustandO.exotic && !liste.some((e) => e.hash === zustandO.exotic)) zustandO.exotic = 0;
     if (!zustandO.sets && zustandO.set) { zustandO.sets = [{ n: zustandO.set, stk: zustandO.setStk || 2 }]; delete zustandO.set; }
@@ -320,17 +326,20 @@ export function zeigeOptimizer(haupt, zustand) {
         <div class="obonus"><small>Extra stats you add yourself (e.g. font mods):</small>${ARMOR_STATS.map((n) => `<label>${n.slice(0, 3)} +<input type="number" step="5" data-bonus="${n}" value="${zustandO.bonus[n] || 0}"></label>`).join('')}</div>
       </details>
       <p class="anzahl"><b>${r.anzahl.toLocaleString()}</b> armor combinations reach your minimums.</p></section>
-    <section><h2>Best combinations</h2><details class="warum"><summary>How does the optimizer pick?</summary><p>It looks at every armor piece of this class you own (vault and characters), adds automatic stat mods and your fragments, and keeps the combinations that reach all your minimums.</p><p><b>Rank: ${esc(RANG[zustandO.rang || 'total'][0])}.</b> ${esc(RANG[zustandO.rang || 'total'][1])}</p>
+    <section><div class="okopf2"><h2>Best combinations</h2><span class="ansicht-w"><button class="chip ${zustandO.tabelle ? '' : 'an'}" data-oview="karten" title="Cards">▤ Cards</button><button class="chip ${zustandO.tabelle ? 'an' : ''}" data-oview="tabelle" title="Compact table">☰ Table</button></span></div>
+      ${festIds.size || aus.size ? `<div class="ofest">${[...festIds].map((id) => kurz(id)).filter(Boolean).map((i) => `<button class="chip" data-unfest="${i.id}" title="Unlock">📌 ${esc(i.d.n)} ✕</button>`).join('')}${aus.size ? `<button class="chip" data-unaus="1" title="Bring excluded pieces back">⛔ ${aus.size} excluded · reset</button>` : ''}</div>` : ''}
+      ${zustandO.tabelle && r.beste.length ? `<table class="otab"><thead><tr><th>#</th><th>Armor</th>${ARMOR_STATS.map((n) => `<th title="${n}">${n.slice(0, 3)}</th>`).join('')}<th>Tot</th><th></th></tr></thead><tbody>${r.beste.map((b, k) => `<tr><td class="onr">${k + 1}</td><td><span class="otitems">${b.items.map((i) => `<i class="ic ${i.exo ? 'exotic' : ''} ${festIds.has(i.id) ? 'fest' : ''}" data-oid="${k}:${i.id}" style="background-image:url(${BILD}${i.d.i})"></i>`).join('')}</span></td>${ARMOR_STATS.map((n, j) => `<td class="${b.werte[j] >= (zustandO.ziele[n] || 0) && zustandO.ziele[n] ? 'ok' : ''} ${b.werte[j] >= 100 ? 'hoch' : ''}">${b.werte[j]}</td>`).join('')}<td class="otot">${b.werte.reduce((a, v) => a + v, 0)}</td><td><button class="chip" data-equip="${k}" title="Equip">⇩</button></td></tr>`).join('')}</tbody></table><small class="klegende">Tap an armor piece to 📌 lock or ⛔ exclude it.</small>` : ''}
+      <div class="okarten" ${zustandO.tabelle && r.beste.length ? 'hidden' : ''}><details class="warum"><summary>How does the optimizer pick?</summary><p>It looks at every armor piece of this class you own (vault and characters), adds automatic stat mods and your fragments, and keeps the combinations that reach all your minimums.</p><p><b>Rank: ${esc(RANG[zustandO.rang || 'total'][0])}.</b> ${esc(RANG[zustandO.rang || 'total'][1])}</p>
       <p><b>Exotic:</b> ${zustandO.exotic ? 'only the exotic you picked.' : { any: 'the one that gives the best result wins. If the same exotic shows up every time, it simply has the best stats — use “Compare exotics” or pick one.', vary: 'one card per exotic (and one without), best combination each.', none: 'legendary pieces only.' }[zustandO.exoModus || 'any']}</p>
       <p><b>Sets:</b> ${zustandO.sets.length ? zustandO.sets.map((x) => `${esc(x.n)} ×${x.stk}`).join(' + ') : 'no requirement. Pick a set (2 pieces) and a second set (2 pieces) for two 2-piece bonuses, or 4 pieces for both bonuses of one set.'}</p>
       <p>Per slot the best ~14 pieces for your minimums are compared; every combination that reaches all minimums (with up to one stat mod per piece) is counted.</p></details>${ersatzHinweis}${r.beste.map((b, k) => `<article class="kombi"><div class="krang"><b>#${k + 1}</b><span>Total ${b.werte.reduce((a, v) => a + v, 0)}</span>${zustandO.exoModus === 'vary' && !zustandO.exotic ? `<em class="schip an" style="--sf:#e9c46a">${esc(b.exoName === '—' ? 'No exotic' : b.exoName)}</em>` : ''}${(() => { const w = b.items.filter((i) => i.ort !== zustandO.cid).length; return `<small class="kweg">${w ? `${w} of 5 pieces come from the vault or another character – moved for you when you equip` : 'All pieces are already on this character'}</small>`; })()}${(() => { const z = new Map(); b.items.forEach((i) => i.set && z.set(i.set.n, (z.get(i.set.n) || 0) + 1)); return [...z].sort((a, c) => c[1] - a[1]).map(([n, c]) => `<em class="schip ${c >= 2 ? 'an' : ''}" style="--sf:${setFarbe(n)}">${esc(n)} ${c}/4</em>`).join(''); })()}</div>
-      ${(() => { const z = zuteilung(b); return `<div class="kitems">${b.items.map((i) => { const m = z.get(i.id); return `<div class="kteil"><i class="ic ${i.exo ? 'exotic' : ''}" data-oid="${k}:${i.id}" style="background-image:url(${BILD}${i.d.i})"><i class="ort ${i.ort === 'tresor' ? 'tresor' : 'char'}"></i></i>${m ? `<span class="kmodl" title="${esc(m.name)} goes on this piece"><i style="background-image:url(${BILD}${m.icon})"></i>+${m.wert} ${esc(m.name.replace(/ Mod$/, ''))}</span>` : '<span class="kmodl leer">no stat mod</span>'}<small style="--sf:${i.set ? setFarbe(i.set.n) : 'transparent'}" class="kset-l ${i.set && b.items.filter((x) => x.set?.n === i.set.n).length >= 2 ? 'aktivset' : ''}">${i.exo ? 'Exotic' : i.set ? `${esc(i.set.n)} ${b.items.filter((x) => x.set?.n === i.set.n).length}/4` : '–'}</small></div>`; }).join('')}</div>`; })()}
+      ${(() => { const z = zuteilung(b); return `<div class="kitems">${b.items.map((i) => { const m = z.get(i.id); return `<div class="kteil"><i class="ic ${i.exo ? 'exotic' : ''} ${festIds.has(i.id) ? 'fest' : ''}" data-oid="${k}:${i.id}" style="background-image:url(${BILD}${i.d.i})"><i class="ort ${i.ort === 'tresor' ? 'tresor' : 'char'}"></i></i>${m ? `<span class="kmodl" title="${esc(m.name)} goes on this piece"><i style="background-image:url(${BILD}${m.icon})"></i>+${m.wert} ${esc(m.name.replace(/ Mod$/, ''))}</span>` : '<span class="kmodl leer">no stat mod</span>'}<small style="--sf:${i.set ? setFarbe(i.set.n) : 'transparent'}" class="kset-l ${i.set && b.items.filter((x) => x.set?.n === i.set.n).length >= 2 ? 'aktivset' : ''}">${i.exo ? 'Exotic' : i.set ? `${esc(i.set.n)} ${b.items.filter((x) => x.set?.n === i.set.n).length}/4` : '–'}</small></div>`; }).join('')}</div>`; })()}
       <div class="kwerte">${ARMOR_STATS.map((n, j) => { const basis = b.items.reduce((a, i) => a + ((zustandO.mods ? i.basis : i.st)[n] || 0), 0); const mod = b.werte[j] - basis - (zustandO.frag?.[n] || 0) - (Number(zustandO.bonus[n]) || 0); const fr = zustandO.frag?.[n] || 0; const ok = b.werte[j] >= (zustandO.ziele[n] || 0); return `<span class="${zustandO.ziele[n] ? (ok ? 'erreicht' : '') : ''}" title="${n}: armor ${basis}${mod ? ` + mods ${mod}` : ''}${fr ? ` ${fr > 0 ? '+' : '−'} fragments ${Math.abs(fr)}` : ''}${zustandO.bonus[n] ? ` + extra ${zustandO.bonus[n]}` : ''}${zustandO.ziele[n] ? ` · your minimum ${zustandO.ziele[n]}` : ''}"><small>${n}</small><b>${b.werte[j]}</b><i><u style="width:${Math.min(100, b.werte[j] / 2)}%"></u></i>${mod || fr ? `<em>${basis}${mod ? `<ins>+${mod}</ins>` : ''}${fr ? `<ins class="${fr < 0 ? 'minus' : ''}">${fr > 0 ? '+' : '−'}${Math.abs(fr)}</ins>` : ''}</em>` : ''}</span>`; }).join('')}</div>
       <small class="klegende">Small numbers: armor + <ins>mods</ins> + <ins>fragments</ins>. Hover a stat for details.</small>
       ${b.modsJeStat.some(Boolean) ? `<div class="kmods">${ARMOR_STATS.map((n, j) => { const k5 = b.klein?.[j] || 0, k10 = (b.modsJeStat[j] || 0) - k5; const m5 = statMods(5)[n]; return `${k10 ? `<span><i style="background-image:url(${BILD}${mods[n]?.icon || ''})"></i>${k10}× ${esc(mods[n]?.name || n)} <b>+${mods[n]?.wert || ''}</b></span>` : ''}${k5 ? `<span><i style="background-image:url(${BILD}${m5?.icon || ''})"></i>${k5}× ${esc(m5?.name || n)} <b>+5</b></span>` : ''}`; }).join('')}</div>` : ''}
       ${(() => { const z = new Map(); b.items.forEach((i) => i.set && z.set(i.set.n, (z.get(i.set.n) || 0) + 1)); const aktiv = [...z].filter(([, n]) => n >= 2); return aktiv.length ? '' : '<small class="kmods">No set bonus active (no 2 pieces of the same set). Pick a set above to force one.</small>'; })()}
       ${setBoni(b.items).map((p) => `<div class="kset"><b>${esc(p.set)} ${p.c}-piece · ${esc(p.n)}</b><span>${esc(p.d)}</span></div>`).join('')}
-      <button class="haupt-knopf" data-equip="${k}">${bd ? 'Equip full build' : 'Equip on'} ${KLASSE[zustandO.klasse]}</button></article>`).join('') || `<p class="leer">${grundLeer(liste, zustandO)}</p>`}</section></div>`;
+      <button class="haupt-knopf" data-equip="${k}">${bd ? 'Equip full build' : 'Equip on'} ${KLASSE[zustandO.klasse]}</button></article>`).join('') || `<p class="leer">${grundLeer(liste, zustandO)}</p>`}</div></section></div>`;
   };
   zeichne();
 
@@ -339,8 +348,32 @@ export function zeigeOptimizer(haupt, zustand) {
     if (kl) { zustandO.klasse = Number(kl.dataset.kl); return zeichne(); }
     if (e.target.id === 'reset') { zustandO.ziele = {}; return zeichne(); }
     if (e.target.closest('#ohneBuild')) { zustandO.build = null; if (zustandO.fragQuelle === 'build') zustandO.fragQuelle = 'an'; return zeichne(); }
+    const ov = e.target.closest('[data-oview]');
+    if (ov) { zustandO.tabelle = ov.dataset.oview === 'tabelle'; return zeichne(); }
+    const uf = e.target.closest('[data-unfest]');
+    if (uf) { for (const [b, id] of Object.entries(zustandO.fest || {})) if (id === uf.dataset.unfest) delete zustandO.fest[b]; return zeichne(); }
+    if (e.target.closest('[data-unaus]')) { zustandO.aus = []; return zeichne(); }
+    const pa = e.target.closest('[data-opop]');
+    if (pa) {
+      const [was, id] = pa.dataset.opop.split(':'); document.querySelector('.opop')?.remove();
+      const it = ruestung(zustand.profil, zustandO.klasse).find((i) => i.id === id); if (!it) return;
+      if (was === 'fest') { zustandO.fest = { ...(zustandO.fest || {}) }; if (zustandO.fest[it.d.b] === id) delete zustandO.fest[it.d.b]; else zustandO.fest[it.d.b] = id; }
+      if (was === 'aus') { zustandO.aus = [...new Set([...(zustandO.aus || []), id])]; for (const [b, f] of Object.entries(zustandO.fest || {})) if (f === id) delete zustandO.fest[b]; }
+      return zeichne();
+    }
     const teil = e.target.closest('[data-oid]');
-    if (teil && e.pointerType !== 'mouse') return zeigeTeil(teil, true);
+    if (teil) {
+      if (e.pointerType !== 'mouse') zeigeTeil(teil, true);
+      document.querySelector('.opop')?.remove();
+      const id = teil.dataset.oid.split(':')[1]; const istFest = Object.values(zustandO.fest || {}).includes(id);
+      const pop = document.createElement('div'); pop.className = 'opop';
+      pop.innerHTML = `<button data-opop="fest:${id}">📌 ${istFest ? 'Unlock' : 'Lock this piece'}</button><button data-opop="aus:${id}">⛔ Exclude</button>`;
+      haupt.append(pop); if (tipp && e.pointerType === 'mouse') tipp.hidden = true;
+      const r = teil.getBoundingClientRect(), h = haupt.getBoundingClientRect();
+      pop.style.left = `${(r.left - h.left) / d2aZ()}px`; pop.style.top = `${(r.bottom - h.top + 4) / d2aZ()}px`;
+      return;
+    }
+    if (!e.target.closest('.opop')) document.querySelector('.opop')?.remove();
     const eq = e.target.closest('[data-equip]');
     if (eq) vorschau(ergebnisse[Number(eq.dataset.equip)], zustand, chars.find((c) => c.classType === zustandO.klasse), eq);
   };

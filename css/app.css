@@ -1244,3 +1244,25 @@ html[data-kachel=gross] .ck{width:48px;height:48px}html[data-kachel=gross] .ck.g
 .rb.pve i b.an{background:var(--gut)}.rb.pvp i b.an{background:var(--arc)}.rb em{font-style:normal;font-weight:800}
 .rb.voll{border-color:var(--gut);box-shadow:0 0 10px color-mix(in srgb,var(--gut) 35%,transparent)}.rb.pvp.voll{border-color:var(--arc)}
 .it-perks .wunsch i{box-shadow:0 0 0 2px var(--gut),0 0 10px color-mix(in srgb,var(--gut) 50%,transparent);border-radius:50%}.it-perks .wunsch b{color:var(--gut)}
+/* Optimizer: Tabelle, Sperren/Ausschließen */
+main{position:relative}
+.okopf2{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.okopf2 h2{margin:0}.ansicht-w{display:inline-flex;gap:4px;margin-left:auto}.ansicht-w .chip.an{border-color:var(--gold);color:var(--gold)}
+.ofest{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.otab{width:100%;border-collapse:separate;border-spacing:0 4px;font-variant-numeric:tabular-nums;margin-top:8px}
+.otab th{font:700 .68rem var(--fliess);letter-spacing:.08em;text-transform:uppercase;color:var(--matt);text-align:center;padding:2px 4px}.otab th:nth-child(2){text-align:left}
+.otab td{background:var(--bg2);padding:6px 6px;text-align:center;font-weight:700;color:var(--text2);border-top:1px solid var(--linie2);border-bottom:1px solid var(--linie2)}
+.otab td:first-child{border-left:1px solid var(--linie2);border-radius:10px 0 0 10px}.otab td:last-child{border-right:1px solid var(--linie2);border-radius:0 10px 10px 0}
+.otab tr:hover td{border-color:var(--gold)}.otab td.ok{color:var(--gut)}.otab td.hoch{color:var(--gold)}.otab .otot{color:var(--text);font-size:1.05rem}.otab .onr{color:var(--gold)}
+.otitems{display:flex;gap:3px}.otitems .ic{width:34px;height:34px;border-width:1px}
+.ic.fest{outline:2px solid var(--gold);outline-offset:1px}.ic.fest::after{content:'📌';position:absolute;right:-6px;top:-8px;font-size:.7rem}
+.opop{position:absolute;z-index:70;display:flex;flex-direction:column;gap:4px;padding:6px;border:1px solid var(--gold);border-radius:12px;background:var(--bg2);box-shadow:0 12px 30px #000b;animation:mfRein2 .15s ease}
+@keyframes mfRein2{from{opacity:0;transform:translateY(-4px)}}
+.opop button{all:unset;cursor:pointer;padding:7px 12px;border-radius:8px;font-weight:700;white-space:nowrap}.opop button:hover{background:var(--bg3)}
+@media(max-width:760px){.otab th:nth-child(n+3):nth-child(-n+8),.otab td:nth-child(n+3):nth-child(-n+8){padding:6px 2px;font-size:.8rem}.otitems .ic{width:26px;height:26px}}
+.optgrid>*{min-width:0}
+@media(max-width:760px){.otab th:first-child,.otab td:first-child{display:none}.otab td:nth-child(2){border-left:1px solid var(--linie2);border-radius:10px 0 0 10px;padding-left:4px}.otitems{gap:2px}.otitems .ic{width:24px;height:24px}.otab td:last-child .chip{padding:4px 6px}.otab td{padding:6px 1px}.otab th{padding:2px 1px;font-size:.6rem;letter-spacing:0}}
+/* Einfache Ansicht: auch Waffen, Rüstung und Optimizer ruhiger */
+html[data-modus=einfach] #filter details:not([data-gruppe=ort]):not([data-gruppe=element]):not([data-gruppe=art]):not([data-gruppe=set]):not([data-gruppe=selten]){display:none}
+html[data-modus=einfach] .statmin,html[data-modus=einfach] .vsort,html[data-modus=einfach] #gruppieren{display:none}
+html[data-modus=einfach] .ohilfe,html[data-modus=einfach] .warum,html[data-modus=einfach] .klegende,html[data-modus=einfach] .omehr,html[data-modus=einfach] .kmods,html[data-modus=einfach] .kset{display:none}
+html[data-modus=einfach] .kombi:nth-of-type(n+4),html[data-modus=einfach] .otab tr:nth-child(n+6){display:none}
