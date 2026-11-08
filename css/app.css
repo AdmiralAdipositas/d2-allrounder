@@ -675,3 +675,6 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .checkpunkt{display:grid;grid-template-columns:auto 1fr;gap:0 8px;align-items:center;padding:8px 10px;border:1px solid var(--linie);border-radius:8px;background:var(--bg2)}
 .checkpunkt span{font-weight:700;color:var(--gold)}.checkpunkt.ok{opacity:.55}.checkpunkt.ok span{color:var(--gut)}
 .checkpunkt small{grid-column:2;color:var(--matt);font-size:.72rem}
+.wchance{border:1px solid var(--linie);border-left:3px solid var(--gold);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--bg2);max-width:760px}
+.wchance>b{font-family:var(--kopf);letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-size:.85rem}
+.wchance p{margin:4px 0;font-size:.88rem}.wchance small{color:var(--matt);font-size:.72rem}

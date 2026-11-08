@@ -7,7 +7,7 @@ import { sammle } from './vault.js';
 import { CHALLENGES } from './challenges.js';
 import { empfehlung } from './rolls.js';
 import { quelle, KLASSEN_EXO } from './quellen.js';
-import { anzeige, vergleiche } from './sprache.js';
+import { anzeige, vergleiche, sprache } from './sprache.js';
 import { guideId } from './guidelinks.js';
 import { VOW, VOW_DE } from './symbole.js';
 import * as bungie from './bungie.js';
@@ -296,6 +296,32 @@ async function zeigeSeals(x, zustand) {
     ${alt.length ? `<details class="wquelle"><summary><b>Legacy seals</b><small>${alt.length} · no longer earnable</small></summary>${alt.map(karte).join('')}</details>` : ''}`;
 }
 
+// ---------- Drop-Chance ----------
+// Bungie veröffentlicht keine Prozentwerte. Gezeigt wird, was belegt ist: wie oft und aus wie vielen Teilen gewürfelt wird.
+function dropChance(d, x) {
+  const T = (en, de) => (sprache === 'de' ? de : en);
+  const f = x.fundorte.get(d.n) || [];
+  const zeilen = [];
+  const a = f[0] && x.loot[f[0].akt];
+  if (a && (d.t === 3 || d.t === 2)) {
+    const enc = a.enc.find(([e]) => e === f[0].enc);
+    const pool = enc ? enc[1].length : 0;
+    const raid = a.art === 'Raid';
+    if (d.q === 6) {
+      zeilen.push(T(`${raid ? 'Raid' : 'Dungeon'} exotic: random drop at ${esc(f[0].enc)}. No published rate.`, `${raid ? 'Raid' : 'Dungeon'}-Exotic: Zufallsdrop bei ${esc(f[0].enc)}. Keine veröffentlichte Rate.`));
+      zeilen.push(T('Your chance rises with the activity\'s “increased drop chance” triumphs and challenges (account-wide). Bungie confirmed bad-luck protection for Eyes of Tomorrow.', 'Deine Chance steigt mit den Triumphen und Challenges der Aktivität, die eine „erhöhte Drop-Chance“ geben (kontoweit). Bungie hat einen Pech-Schutz für Eyes of Tomorrow bestätigt.'));
+      zeilen.push(raid ? T('One try per character per week; in the featured week every clear rolls.', 'Ein Versuch pro Charakter und Woche; in der Featured-Woche würfelt jeder Abschluss.') : T('Newer dungeons: one try per character per week; in the featured week every clear rolls.', 'Neuere Dungeons: ein Versuch pro Charakter und Woche; in der Featured-Woche würfelt jeder Abschluss.'));
+    } else {
+      const wo = f.length > 1 ? T('Each listed encounter', 'Jeder genannte Encounter') : esc(f[0].enc);
+      if (pool > 1) zeilen.push(T(`${wo} rolls from ${pool} weapons${enc[2]?.length ? ' and its armor' : ''}, all equally likely as far as known: roughly <b>1 in ${pool}</b> per weapon drop.`, `${wo} würfelt aus ${pool} Waffen${enc[2]?.length ? ' und seiner Rüstung' : ''}, soweit bekannt gleich wahrscheinlich: etwa <b>1 zu ${pool}</b> pro Waffen-Drop.`));
+      else if (pool === 1) zeilen.push(T('The only weapon in this encounter\'s pool: <b>it drops whenever a weapon drops</b> there.', 'Einzige Waffe im Pool dieses Encounters: <b>sie kommt, sobald dort eine Waffe droppt</b>.'));
+      zeilen.push(raid ? T('Raids: loot once per encounter per character per week (3 characters = 3 tries), every clear in the featured week.', 'Raids: Beute einmal pro Encounter, Charakter und Woche (3 Charaktere = 3 Versuche), in der Featured-Woche bei jedem Abschluss.') : T('Dungeons: loot on every clear; checkpoints let you repeat one encounter.', 'Dungeons: Beute bei jedem Abschluss; mit Checkpoints wiederholst du einen Encounter.'));
+    }
+  } else if (d.q === 6 && d.t === 2) zeilen.push(T('Exotic armor: no published rate. Engrams and Lost Sector rewards roll among the exotics you can get.', 'Exotic-Rüstung: keine veröffentlichte Rate. Engramme und Lost-Sector-Belohnungen würfeln unter den Exotics, die du bekommen kannst.'));
+  else zeilen.push(T('Bungie publishes no drop rate for this item.', 'Bungie veröffentlicht für dieses Item keine Drop-Rate.'));
+  return `<div class="wchance"><b>${T('Drop chance', 'Drop-Chance')}</b>${zeilen.map((z) => `<p>${z}</p>`).join('')}<small>${T('Bungie doesn\'t publish drop percentages for Destiny 2. Numbers here are counted from the loot pool, not official rates.', 'Bungie veröffentlicht für Destiny 2 keine Drop-Prozente. Die Zahlen hier sind aus dem Loot-Pool gezählt, keine offiziellen Raten.')}</small></div>`;
+}
+
 // ---------- Detailseiten ----------
 function woDropt(name, x) {
   const f = x.fundorte.get(name);
@@ -334,11 +360,13 @@ async function seiteItem(h, x) {
       ${ws.length ? `<h3>Base stats</h3><p class="leer klein">Without perks, mods or masterwork, as Bungie lists them.</p><div class="wstats">${ws.map(zeile).join('')}</div>` : ''}`;
   }
   const fund = woDropt(d.n, x);
+  const chance = dropChance(d, x);
   const allgemein = d.q === 6 && d.t === 2 && !q ? '<p>Exotic armor: exotic engrams, Legend/Master Lost Sectors played solo (the exotic armor reward rotates), Xûr, or the Monument to Lost Lights in the Tower.</p>' : '';
   return `<div class="wseite-kopf">${ic(h, d, true)}<div><h2>${esc(d.n)}</h2><small>${esc([d.k, d.t === 2 ? KLASSE[d.c] : SLOT[d.b], d.q === 6 ? 'Exotic' : 'Legendary'].filter(Boolean).join(' · '))}</small>${x.besitz.get(d.n) ? `<small class="hat">✓ You own ${x.besitz.get(d.n)}</small>` : ''}</div></div>
     ${d.xd ? `<p class="tt"><b class="tgold">${esc(d.xp || 'Exotic perk')}</b> ${esc(d.xd)}</p>` : ''}
     ${details}
     <h3>Where it drops</h3>${fund}${q ? `<p class="wm">${esc(q.text)} <span>(${esc(q.von)})</span></p>` : ''}${allgemein}${!fund && !q && !allgemein ? '<p class="leer">No confirmed source.</p>' : ''}
+    ${chance}
     <div class="wlinks"><button class="chip" data-farm="${esc(d.n)}">🌾 Farm plan</button><a class="chip" href="https://www.light.gg/db/items/${h}/" target="_blank" rel="noopener">light.gg ↗</a>${set ? `<button class="chip" data-seite="set:${d.e}">Set: ${esc(set.n)}</button>` : ''}</div>
     ${set ? `<h3>Set bonus</h3><div class="tset"><b>${esc(set.n)}</b>${set.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}${perks}`;
 }

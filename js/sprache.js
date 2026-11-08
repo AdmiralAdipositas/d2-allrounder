@@ -8,6 +8,7 @@ export const SPRACHEN = [
   ['pl', 'Polski'], ['ru', 'Русский'], ['ja', '日本語'], ['ko', '한국어'], ['zh-chs', '简体中文'],
 ];
 const UI_DE = {
+  "New game data is available. Reload the page to use it.": "Neue Spieldaten sind da. Lade die Seite neu, um sie zu nutzen.",
   "Checklists": "Checklisten",
   "Only missing": "Nur fehlende",
   "↻ Refresh": "↻ Aktualisieren",

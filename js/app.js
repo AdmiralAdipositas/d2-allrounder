@@ -211,6 +211,14 @@ async function start() {
     const hatte = Boolean(navigator.serviceWorker.controller);
     navigator.serviceWorker.addEventListener('controllerchange', () => { if (hatte && !window.d2aWeg && !sessionStorage.getItem('d2a.neu')) { sessionStorage.setItem('d2a.neu', '1'); location.reload(); } });
     setTimeout(() => sessionStorage.removeItem('d2a.neu'), 30_000);
+    // Spieldaten wurden im Hintergrund erneuert: kurz nach dem Start einmal neu laden, später nur Hinweis.
+    const startZeit = Date.now();
+    navigator.serviceWorker.addEventListener('message', (e) => {
+      if (e.data?.typ !== 'daten-neu' || !/\/data\//.test(e.data.pfad || '')) return;
+      if (Date.now() - startZeit < 20_000 && !sessionStorage.getItem('d2a.datenNeu')) { sessionStorage.setItem('d2a.datenNeu', '1'); location.reload(); return; }
+      meldung('New game data is available. Reload the page to use it.');
+    });
+    setTimeout(() => sessionStorage.removeItem('d2a.datenNeu'), 60_000);
     navigator.serviceWorker.register('sw.js').then((r) => { r.update().catch(() => {}); setInterval(() => r.update().catch(() => {}), 15 * 60_000); }).catch(() => {});
   }
   try { await bungie.rueckkehr(); } catch (e) { meldung(e.message, true); }

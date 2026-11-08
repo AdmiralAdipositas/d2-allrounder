@@ -1,5 +1,5 @@
 // Offline-Hülle: App-Dateien aus dem Cache, Spieldaten im Hintergrund frisch, Bungie-API nie aus dem Cache.
-const CACHE = 'd2a-v3';
+const CACHE = 'd2a-v4';
 const HUELLE = ['./', 'index.html', 'css/app.css', 'js/app.js', 'js/bungie.js', 'js/defs.js', 'js/vault.js', 'js/config.js', 'icons/icon.svg', 'manifest.webmanifest'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(HUELLE))); self.skipWaiting(); });
 const DATEN = 'd2a-daten';
@@ -11,7 +11,15 @@ self.addEventListener('fetch', (e) => {
   if (/\/data\/[^/]+\.json$/.test(url.pathname) || url.pathname.includes('/guide/')) {
     e.respondWith(caches.open(DATEN).then(async (c) => {
       const alt = await c.match(e.request);
-      const neu = fetch(e.request, { cache: 'no-cache' }).then((r) => { if (r.ok) c.put(e.request, r.clone()); return r; }).catch(() => alt);
+      const neu = fetch(e.request, { cache: 'no-cache' }).then((r) => {
+        if (r.ok) {
+          c.put(e.request, r.clone());
+          // Neue Spieldaten im Hintergrund geholt: der App Bescheid geben, damit sie nicht erst beim übernächsten Start frisch ist.
+          const kennung = (x) => x && (x.headers.get('etag') || x.headers.get('last-modified') || x.headers.get('content-length'));
+          if (alt && kennung(alt) !== kennung(r)) self.clients.matchAll().then((l) => l.forEach((k) => k.postMessage({ typ: 'daten-neu', pfad: url.pathname })));
+        }
+        return r;
+      }).catch(() => alt);
       return alt || neu;
     }));
     return;
