@@ -15,6 +15,13 @@ const P = {
   pokal: '<path d="M8 4h8v5a4 4 0 01-8 0z"/><path d="M8 6H5a3 3 0 003 4M16 6h3a3 3 0 01-3 4M12 13v4M8 20h8"/>',
   ziel: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".8"/>',
   flamme: '<path d="M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2.5 1.5-4 2.5-5 .3 2 1.3 3 2.5 3-1-3 0-6 0-8z"/>',
+  schild: '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/>',
+  schwerter: '<path d="M5 3l9 9M3 5l2-2M14 12l2 2-2 2-2-2M19 3l-9 9M21 5l-2-2M10 12l-2 2 2 2 2-2M7 17l-3 3M17 17l3 3"/>',
+  planet: '<circle cx="12" cy="12" r="6"/><path d="M3 15c3 2 15-1 18-5"/>',
+  orden: '<circle cx="12" cy="15" r="5"/><path d="M8 3l4 7 4-7M10 15l1.5 1.5L14 13"/>',
+  stapel: '<path d="M4 7l8-4 8 4-8 4z"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4"/>',
+  haken: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/>',
+  aehre: '<path d="M12 21V8"/><path d="M12 8c-3 0-4-3-4-5 3 0 4 2 4 5zM12 8c3 0 4-3 4-5-3 0-4 2-4 5zM12 13c-3 0-4-3-4-5 3 0 4 2 4 5zM12 13c3 0 4-3 4-5-3 0-4 2-4 5z"/>',
   kamera: '<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/>',
 };
 export const ikon = (n, k = '') => `<svg class="ikon-svg ${k}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ''}</svg>`;

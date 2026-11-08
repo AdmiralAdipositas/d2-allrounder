@@ -1416,3 +1416,4 @@ html[data-modus=einfach] .st-heute-reihe{grid-template-columns:repeat(auto-fit,m
 @media(max-width:900px){.ktyp{grid-template-columns:120px minmax(0,1fr)}.kdonut{width:120px;height:120px;-webkit-mask:radial-gradient(circle,transparent 36px,#000 37px);mask:radial-gradient(circle,transparent 36px,#000 37px)}.kfaehig{grid-column:1/-1}}
 .kdonut-w{position:relative;width:150px;height:150px}.kdonut-w>span{position:absolute;inset:0;display:grid;place-content:center;text-align:center}.kdonut-w b{font:800 1.1rem var(--kopf)}.kdonut-w small{color:var(--matt);font-size:.68rem}
 @media(max-width:900px){.kdonut-w{width:120px;height:120px}}
+.wnav .ikon-svg{width:16px;height:16px;color:var(--gold);vertical-align:-3px}

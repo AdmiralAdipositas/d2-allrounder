@@ -3,6 +3,7 @@
 // Daten: Bungies Spieldaten (defs, Sammlungs-Quellen, Triumphe), data/loot.json (Loot je Begegnung, Quellen dort),
 // data/perks.json (Perk-Pools aus Bungies Plug-Sets), data/sets.json (Farm-Orte), DIM-Community-Daten.
 import { defs } from './defs.js';
+import { ikon } from './ikonen.js';
 import { sammle } from './vault.js';
 import { CHALLENGES } from './challenges.js';
 import { empfehlung } from './rolls.js';
@@ -19,8 +20,8 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(
 const norm = (s) => String(s || '').replace(/[’']/g, "'").toLowerCase();
 const ORTE = ['EDZ', 'Cosmodrome', 'Nessus', 'Dreaming City', 'Moon', 'Europa', 'Throne World', 'Neomuna', 'Pale Heart', 'Kepler', 'Tangled Shore', 'Mars', 'Mercury', 'Titan', 'Io', 'Eternity', 'Tower'];
 const KATEGORIEN = [
-  ['exo', 'Exotics', '⭐'], ['waffe', 'Weapons', '🔫'], ['set', 'Armor sets', '🛡'], ['akt', 'Raids & dungeons', '⚔'],
-  ['ort', 'Destinations', '🪐'], ['seal', 'Seals', '🎖'], ['chal', 'Raid challenges', '🏆'], ['quelle', 'Collections', '📚'], ['check', 'Checklists', '🥚'], ['farm', 'Farm planner', '🌾'],
+  ['exo', 'Exotics', ikon('stern')], ['waffe', 'Weapons', ikon('ziel')], ['set', 'Armor sets', ikon('schild')], ['akt', 'Raids & dungeons', ikon('schwerter')],
+  ['ort', 'Destinations', ikon('planet')], ['seal', 'Seals', ikon('orden')], ['chal', 'Raid challenges', ikon('pokal')], ['quelle', 'Collections', ikon('stapel')], ['check', 'Checklists', ikon('haken')], ['farm', 'Farm planner', ikon('aehre')],
 ];
 // Begegnungen, die nicht in der Loot-Tabelle stehen (Challenge-Namen), ihrem Raid zuordnen.
 const ENC_EXTRA = { Dissipation: "Salvation's Edge", 'The Abyss': "Crota's End", 'The Bridge': "Crota's End", 'Ir Yut': "Crota's End", Crota: "Crota's End", 'Taniks': 'Deep Stone Crypt', Evade: 'Garden of Salvation', Summon: 'Garden of Salvation', Gatekeeper: 'Vault of Glass' };
