@@ -1385,3 +1385,13 @@ body.abgemeldet #lichtfaden,body.abgemeldet #panelGriff,body.abgemeldet #handyLe
 .kring{display:inline-block;width:30px;height:30px;margin-right:8px;vertical-align:-6px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p)*1%),var(--flaeche3,#2c2650) 0);-webkit-mask:radial-gradient(circle,transparent 9px,#000 10px);mask:radial-gradient(circle,transparent 9px,#000 10px);animation:kringRein 1.2s ease-out}
 @keyframes kringRein{from{transform:rotate(-120deg);opacity:0}}
 .lo-sub{display:block;font:500 .74rem var(--fliess);color:var(--matt);text-transform:none;letter-spacing:0;margin-top:2px}
+/* Fixes: Chip-Inhalt mittig, „Got it“ im Fenster */
+.st-chip{display:inline-flex;align-items:center;gap:6px;line-height:1.1}
+#neuFenster #wkLos{width:auto;align-self:stretch}
+/* Sterne in der Leiste → Schnellzugriff auf Start */
+#rail button[data-tab]{position:relative}
+.rstern{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-style:normal;font-size:.95rem;color:var(--matt);opacity:0;transition:opacity .12s,color .12s;padding:4px;cursor:pointer}
+#rail:hover .rstern,#rail.offen .rstern{opacity:.7}.rstern:hover{opacity:1!important;color:var(--gold)}.rstern.an{color:var(--gold)}
+.st-quick b svg{width:22px;height:22px;fill:none;stroke:var(--gold);stroke-width:1.7}
+.st-quick-tipp{align-self:center;font-size:.72rem;color:var(--matt)}
+.st-auf-knoepfe .st-chip,.st-serie{height:34px;box-sizing:border-box;display:inline-flex;align-items:center}.st-chip .ikon-svg{width:15px;height:15px;vertical-align:0}

@@ -14,6 +14,13 @@ const lies = (k, s) => { try { return JSON.parse(localStorage.getItem(k)) ?? s; 
 const tab = (t) => window.dispatchEvent(new CustomEvent('d2a-tab', { detail: t }));
 
 let truppCache = null;
+// Schnellzugriffe = die per ☆ in der Leiste markierten Seiten (gleiches Symbol wie in der Leiste).
+function schnellKnoepfe() {
+  let l; try { l = JSON.parse(localStorage.getItem('d2a.schnell')) || ['optimizer', 'finder', 'guide', 'stats', 'wiki']; } catch { l = []; }
+  const rail = document.querySelector('#rail');
+  const k = l.map((t) => { const b = rail?.querySelector(`[data-tab="${t}"]`); return b ? `<button class="st-quick" data-ziel="tab:${t}"><b>${b.querySelector('svg')?.outerHTML || ''}</b><span>${esc(b.querySelector('span')?.textContent || t)}</span></button>` : ''; }).join('');
+  return k + '<span class="st-quick-tipp">☆ in the side menu adds pages here</span>';
+}
 let rotCache = null, xurCache = null;
 
 // Tagesaufgabe: jeden Tag eine andere, für alle gleich (aus dem Datum gewürfelt).
@@ -73,7 +80,7 @@ export function zeigeStart(el, zustand) {
         ${karte(`st-post ${postMax >= 18 ? 'warn' : ''}`, 'panel:post', `<span class="st-ic">${ikon('post')}</span><small>Postmaster</small><div class="st-post">${post.map((x) => `<span class="${x.n >= 18 ? 'voll' : ''}" title="${x.k}">${x.k[0]} <b>${x.n}</b>/21</span>`).join('')}</div>${postMax >= 18 ? '<span class="st-klein warn">⚠ almost full</span>' : ''}`)}
       </div>
       <div class="st-schnell">
-        ${[['zufall', 'wuerfel', 'Randomizer'], ['tab:optimizer', 'regler', 'Optimizer'], ['tab:finder', 'lupe', 'Build Finder'], ['tab:guide', 'stern', 'Raid Guide'], ['tab:stats', 'kurve', 'Stats'], ['tab:wiki', 'buch', 'Wiki']].map(([z, e, t]) => `<button class="st-quick" data-ziel="${z}"><b>${ikon(e)}</b><span>${t}</span></button>`).join('')}
+        ${schnellKnoepfe()}
       </div></div>`;
   };
   // Neu-Zähler aus data/neu.json (was du noch nicht gesehen hast).

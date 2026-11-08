@@ -145,7 +145,14 @@ function wechsle(tab) {
 }
 const titelVon = (tab) => rail.querySelector(`[data-tab="${tab}"] span`)?.textContent || ANSICHTEN[tab]?.[0] || '';
 
+// Sternchen in der Leiste: markierte Seiten erscheinen als Schnellzugriff auf der Startseite.
+const SCHNELL_STD = ['optimizer', 'finder', 'guide', 'stats', 'wiki'];
+export const schnellListe = () => { try { return JSON.parse(localStorage.getItem('d2a.schnell')) || SCHNELL_STD; } catch { return SCHNELL_STD; } };
+const malSterne = () => { const l = schnellListe(); rail.querySelectorAll('button[data-tab]').forEach((b) => { if (b.dataset.tab === 'start') return; let st = b.querySelector('.rstern'); if (!st) { st = document.createElement('em'); st.className = 'rstern'; st.title = 'Show on Home'; b.append(st); } st.textContent = l.includes(b.dataset.tab) ? '★' : '☆'; st.classList.toggle('an', l.includes(b.dataset.tab)); }); };
+malSterne();
 rail.addEventListener('click', (e) => {
+  const stern = e.target.closest('.rstern');
+  if (stern) { e.stopPropagation(); const t = stern.closest('[data-tab]').dataset.tab; const l = schnellListe(); const neu = l.includes(t) ? l.filter((x) => x !== t) : [...l, t]; try { localStorage.setItem('d2a.schnell', JSON.stringify(neu)); } catch {} malSterne(); if (zustand.tab === 'start') wechsle('start'); return; }
   const b = e.target.closest('button');
   if (!b) return;
   if (b.dataset.tab) wechsle(b.dataset.tab);
