@@ -258,7 +258,7 @@ async function start() {
     if (!alt || !klicks) wechsle(zustand.tab); else meldung('Data refreshed from Bungie.');
     if (pz.fest && !matchMedia('(max-width: 760px)').matches) zeigePanel();
     if (!schonGesehen(zustand.konto)) zeigeWillkommen(zustand.konto);
-    else zeigeNeues((ziel) => { if (ziel.build) try { localStorage.setItem('d2a.finderFokus', ziel.build); } catch {} if (ziel.tab) wechsle(ziel.tab); });
+    else zeigeNeues((ziel) => { if (ziel.build) try { localStorage.setItem('d2a.finderFokus', ziel.build); } catch {} if (ziel.tab) wechsle(ziel.tab); if (ziel.zufall) import('./zufall.js').then((m) => m.oeffneZufall(zustand)); });
     // Xûr steckt im This-week-Panel, sobald Bungie sagt, dass er da ist.
     xurDa(zustand).then((bis) => {
       zustand.xur = bis;
