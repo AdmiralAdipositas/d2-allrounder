@@ -258,6 +258,22 @@ function zeigeKat(k, x) {
   return '';
 }
 
+// Titel/Siegel und Triumphe einer Aktivität mit Fortschritt (Karte im Wiki).
+async function fuelleTri(el, zustand) {
+  const t = defs.dtri?.[el.dataset.tri]; if (!t) return;
+  const st = zustand?.konto ? await ladeStand(zustand) : {};
+  const ok = (h) => { const r = st[h]; return Boolean(r) && (r.state & 4) === 0; };
+  const sl = defs.seal?.[t.s];
+  const sealK = new Set(sl ? sl.k : []);
+  const fertig = t.k.filter(ok).length;
+  const zeile = (h) => { const r = defs.rec?.[h] || {}; const p = st[h]?.objectives?.[0]; return `<div class="wtri-z ${ok(h) ? 'ok' : ''}"><span>${ok(h) ? '✓' : '○'}</span><div><b>${esc(r.n)}</b>${sealK.has(h) ? ' <em>title</em>' : ''}<small>${esc(r.d)}</small></div>${p && p.completionValue > 1 && !ok(h) ? `<i>${p.progress}/${p.completionValue}</i>` : ''}</div>`; };
+  const fuerTitel = t.k.filter((h) => sealK.has(h)), rest = t.k.filter((h) => !sealK.has(h));
+  el.innerHTML = `<h3>Title & triumphs</h3>${sl ? `<div class="wtri-kopf"><i class="wic" style="background-image:url(${BILD}${sl.i})"></i><div><b>${esc(sl.t || sl.n)}</b><small>${zustand?.konto ? `${fuerTitel.filter(ok).length}/${fuerTitel.length} for the title` : `${fuerTitel.length} triumphs for the title`}</small></div>${zustand?.konto && fuerTitel.length && fuerTitel.every(ok) ? '<span class="gold">Title earned</span>' : ''}</div>` : '<p class="leer klein">No title for this one.</p>'}
+    <div class="wtri-liste">${fuerTitel.map(zeile).join('')}</div>
+    ${rest.length ? `<details><summary>Other triumphs (${rest.filter(ok).length}/${rest.length})</summary><div class="wtri-liste">${rest.map(zeile).join('')}</div></details>` : ''}
+    ${zustand?.konto ? `<p class="leer klein">${fertig} of ${t.k.length} done in total.</p>` : '<p class="leer klein">Sign in to see your progress.</p>'}`;
+}
+
 // ---------- Seals ----------
 async function zeigeSeals(x, zustand) {
   const st = await ladeStand(zustand);
@@ -393,6 +409,7 @@ function seiteAkt(n, x) {
   const chals = x.chals.filter((c) => c.raid === n);
   return `<div class="wseite-kopf">${a.icon ? `<i class="wic gross" style="background-image:url(${BILD}${a.icon})"></i>` : ''}<div><h2>${esc(n)}</h2><small>${esc(a.a.art)}${a.set.length ? ` · armor: ${esc(a.set.map((s) => s.s.n).join(', '))}` : ''}</small></div>${guideKnopf(n, n, 'Open raid guide ↗')}</div>
     ${n === 'Vow of the Disciple' ? '<div class="wlinks"><a href="#" class="chip an" data-zu="symbole">🔣 Symbols & callouts</a></div>' : ''}${a.d ? `<p class="leer">${esc(a.d)}</p>` : ''}${a.a.frei ? `<p class="wm">${esc(a.a.frei)}</p>` : ''}${a.a.alleText ? `<p class="wm">${esc(a.a.alleText)}</p>` : ''}
+    ${defs.dtri?.[n] ? `<div class="wtri" data-tri="${esc(n)}"><h3>Title & triumphs</h3><p class="leer klein">Loading progress…</p></div>` : ''}
     ${a.a.exo ? `<div class="wfund exo"><span>⭐</span><div><b>${esc(a.a.exo[0])}</b><small>${esc(a.a.exo[1])}</small></div></div>` : ''}
     ${a.a.feats ? `<h3>Feats</h3><p class="leer klein">${esc(a.a.feats.text)} <a href="${a.a.feats.q}" target="_blank" rel="noopener">Source ↗</a></p><div class="wlinks">${a.a.feats.liste.map(([f, t]) => `<span class="chip" title="Triumph: ${esc(t)}">${esc(f)} <small>→ ${esc(t)}</small></span>`).join('')}</div>` : ''}
     <h3>Loot by encounter</h3>${a.a.enc.map(([enc, ws, r]) => `<div class="wenc"><div class="wenc-kopf"><b>${esc(enc)}</b>${guideKnopf(enc, n)}</div><div class="wenc-loot">${ws.map((w) => (/^any /.test(w) ? `<span class="wmini"><span>${esc(w)}</span></span>` : waffeIc(w))).join('')}</div>${r.length ? `<small>Armor: ${esc(r.join(', '))}</small>` : ''}
@@ -506,6 +523,7 @@ export async function zeigeWiki(el, zustand) {
     else if (ansicht.kat) html = zeigeKat(ansicht.kat, x);
     else { ansicht.kat = 'exo'; html = zeigeKat('exo', x); el.querySelectorAll('.wnav button').forEach((b) => b.classList.toggle('an', b.dataset.kat === 'exo')); }
     box.innerHTML = html;
+    const tri = box.querySelector('[data-tri]'); if (tri) fuelleTri(tri, zustand);
     if (ansicht.kat === 'farm' && !ansicht.seite) verbindeFarm();
   };
   // Vorschläge unter einem Eingabefeld (Pfeiltasten + Enter).
