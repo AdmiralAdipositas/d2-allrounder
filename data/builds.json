@@ -1,5 +1,5 @@
 {
- "stand": "2026-11-07",
+ "stand": "2026-11-08",
  "builds": [
   {
    "id": "well-swap-eunoia",
@@ -1564,7 +1564,6 @@
    "artefaktPerks": [
     "Fever and Chill",
     "Shieldcrush",
-    "Cauterizing Darkness",
     "Elemental Daze",
     "Elemental Overdrive",
     "Elemental Coalescence"
@@ -4192,6 +4191,132 @@
    "link": "https://mobalytics.gg/destiny-2/builds/hunter/prismatic/divide-hunter-prismatic-dps-god-mode",
    "warum": "Liar's Handshake: after your Arc melee (or getting hit by a melee) you get a huge healing counterpunch. Combination Blow stacks make the punches even stronger.",
    "datum": "Jun 2026"
+  },
+  {
+   "id": "contraverse-hold-grenades",
+   "name": "Literally Broken Contraverse",
+   "aktivitaet": [
+    "Raid & dungeon DPS",
+    "Endgame ad-clear"
+   ],
+   "subclass": "Voidwalker",
+   "exotics": [
+    "Contraverse Hold",
+    "Praxic Blade"
+   ],
+   "waffen": [
+    "Praxic Blade"
+   ],
+   "artefakt": null,
+   "aspekte": [
+    "Chaos Accelerant",
+    "Feed the Void"
+   ],
+   "fragmente": [
+    "Echo of Expulsion",
+    "Echo of Harvest",
+    "Echo of Vigilance",
+    "Echo of Persistence"
+   ],
+   "stats": [
+    "Grenade",
+    "Super",
+    "Weapons",
+    "Class"
+   ],
+   "ziele": {},
+   "hinweis": "Hold the grenade to charge it with Chaos Accelerant – that is the whole build.",
+   "quelle": "Rick Kackis on Mobalytics (Nov 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/void/rick-kackis-broken-contraverse",
+   "warum": "Charged Magnetic Grenades hit very hard, Contraverse Hold gives damage resistance while charging and returns grenade energy on hit; Praxic Blade adds damage and boss DPS.",
+   "faehigkeiten": [
+    "Nova Bomb: Cataclysm",
+    "Magnetic Grenade",
+    "Pocket Singularity",
+    "Healing Rift",
+    "Strafe Glide"
+   ],
+   "artefaktPerks": [
+    "Power from Pain",
+    "Elemental Siphon",
+    "Void Infestation"
+   ],
+   "mods": [],
+   "plan": [
+    {
+     "set": "Ferropotent",
+     "rolle": "Strongest",
+     "stuecke": 4,
+     "grund": "Damage and flinch resistance when shields regenerate; extra ammo when reserves are low."
+    },
+    {
+     "set": "Lustrous",
+     "rolle": "Alternative",
+     "stuecke": 2,
+     "grund": "Healing from the rift boosts handling and reload."
+    }
+   ]
+  },
+  {
+   "id": "manacle-mayhem",
+   "name": "Manacle Mayhem",
+   "aktivitaet": [
+    "Endgame ad-clear",
+    "Solo"
+   ],
+   "subclass": "Voidwalker",
+   "exotics": [
+    "Nothing Manacles"
+   ],
+   "waffen": [],
+   "artefakt": null,
+   "aspekte": [
+    "Chaos Accelerant",
+    "Feed the Void"
+   ],
+   "fragmente": [
+    "Echo of Expulsion",
+    "Echo of Undermining",
+    "Echo of Harvest",
+    "Echo of Reprisal"
+   ],
+   "stats": [
+    "Grenade",
+    "Super",
+    "Class",
+    "Weapons"
+   ],
+   "ziele": {},
+   "hinweis": "Works without any weapons – easy to play.",
+   "quelle": "RestAssured on Mobalytics (Nov 2026)",
+   "link": "https://mobalytics.gg/destiny-2/builds/warlock/void/rest-manacle-mayhem",
+   "warum": "Nothing Manacles gives a second tracking Scatter Grenade and more projectiles on kills; Feed the Void and Echo of Harvest keep you healed and the orbs flowing.",
+   "faehigkeiten": [
+    "Nova Warp",
+    "Scatter Grenade",
+    "Pocket Singularity",
+    "Empowering Rift",
+    "Burst Glide"
+   ],
+   "artefaktPerks": [],
+   "mods": [
+    "Firepower",
+    "Ashes to Assets"
+   ],
+   "plan": [
+    {
+     "set": "Smoke Jumper Set",
+     "rolle": "Strongest",
+     "stuecke": 2,
+     "grund": "Orb pickups give brief damage reduction."
+    },
+    {
+     "set": "AION Adapter",
+     "rolle": "Alternative",
+     "stuecke": 2,
+     "grund": "Less area damage taken after heavy-weapon kills."
+    }
+   ]
   }
  ],
  "neutral": [
