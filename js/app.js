@@ -131,7 +131,30 @@ const modusText = () => { const t = rail.querySelector('[data-modustext]'); if (
 modusText();
 window.addEventListener('d2a-modus', () => { modusText(); if (zustand.profil) wechsle(zustand.tab); });
 window.addEventListener('d2a-tab', (e) => { if (TABS[e.detail]) wechsle(e.detail); });
+// Zurück-Knopf: merkt sich, wo man war (anderer Tab oder Sprung innerhalb der Seite) und bringt einen dorthin zurück.
+const zurueck = []; let zurueckLaeuft = false;
+const zKnopf = document.createElement('button'); zKnopf.id = 'zurueckKnopf'; zKnopf.hidden = true; zKnopf.setAttribute('aria-label', 'Back to where you were'); zKnopf.innerHTML = '<span>↩</span>';
+document.body.append(zKnopf);
+const zeigeZurueck = () => { const hoch = !zurueck.length && scrollY > 1200; zKnopf.hidden = !zurueck.length && !hoch; zKnopf.dataset.art = hoch ? 'hoch' : 'zurueck'; zKnopf.firstChild.textContent = hoch ? '↑' : '↩'; zKnopf.title = hoch ? 'Back to top' : 'Back to where you were'; };
+addEventListener('scroll', () => { if (!zurueck.length) zeigeZurueck(); }, { passive: true });
+function merkeStelle(tab, y) { const l = zurueck[zurueck.length - 1]; if (l && l.tab === tab && Math.abs(l.y - y) < 200) return; zurueck.push({ tab, y }); if (zurueck.length > 25) zurueck.shift(); zeigeZurueck(); }
+zKnopf.onclick = () => {
+  if (zKnopf.dataset.art === 'hoch') { scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  const z = zurueck.pop(); zeigeZurueck(); if (!z) return;
+  zurueckLaeuft = true; if (z.tab !== zustand.tab) wechsle(z.tab); zurueckLaeuft = false;
+  [60, 350, 900, 1800].forEach((ms) => setTimeout(() => { if (Math.abs(scrollY - z.y) > 40 && document.documentElement.scrollHeight > z.y) scrollTo({ top: z.y, behavior: ms < 100 ? 'smooth' : 'auto' }); }, ms));
+};
+// Sprung innerhalb einer Seite (Aufklappen, „alles zeigen“, Sprung-Chips): Stelle vor dem Klick merken, wenn die Seite ohne eigenes Scrollen weit wegspringt.
+let selbstGescrollt = false;
+['wheel', 'touchmove', 'keydown'].forEach((ev) => addEventListener(ev, () => { selbstGescrollt = true; }, { passive: true }));
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#zurueckKnopf')) return;
+  const y0 = scrollY, tab0 = zustand.tab; selbstGescrollt = false;
+  setTimeout(() => { if (!selbstGescrollt && zustand.tab === tab0 && Math.abs(scrollY - y0) > 450) merkeStelle(tab0, y0); }, 900);
+}, true);
+
 function wechsle(tab) {
+  if (!zurueckLaeuft && zustand.tab && zustand.tab !== tab && zustand.profil) merkeStelle(zustand.tab, scrollY);
   zustand.tab = tab;
   hl?.querySelectorAll('[data-hl]').forEach((b) => b.classList.toggle('an', b.dataset.hl === tab || (b.dataset.hl === 'vault' && tab === 'armor')));
   rail.querySelectorAll('[data-tab]').forEach((b) => { const an = b.dataset.tab === tab; b.classList.toggle('an', an); b.setAttribute('aria-selected', an); });
