@@ -918,3 +918,4 @@ main{padding:12px 16px 40px}
 .futter-modus[aria-pressed=true]{background:#ff6a2a;color:#120800;border-color:#ff6a2a}
 .datei-knopf{cursor:pointer}
 .raktic{display:inline-block;width:20px;height:20px;background:center/contain no-repeat;vertical-align:-5px;margin-right:6px;filter:drop-shadow(0 0 2px #0008)}
+img.d1ammo{display:inline-block;width:20px;height:20px;border-radius:0;box-shadow:none;background:none;vertical-align:-5px;margin-right:6px;object-fit:contain;filter:drop-shadow(0 0 3px #0009)}

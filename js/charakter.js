@@ -18,6 +18,29 @@ const tierPips = (t) => (t > 0 ? `<span class="ck-tier" title="Gear Tier ${t}">$
 const WTYP_SVG = { 'Auto Rifle': 'auto', 'Combat Bow': 'bow', 'Fusion Rifle': 'fusion', 'Grenade Launcher': 'gl', 'Hand Cannon': 'hc', 'Linear Fusion Rifle': 'lfr', 'Pulse Rifle': 'pulse', 'Scout Rifle': 'scout', 'Shotgun': 'shotgun', 'Sidearm': 'sidearm', 'Sniper Rifle': 'sniper', 'Submachine Gun': 'smg', 'Trace Rifle': 'trace', 'Glaive': 'glaive', 'Rocket Launcher': 'rocket', 'Machine Gun': 'mg', 'Sword': 'sword' };
 // Nostalgie: Munitions-Synthese aus Destiny 1 neben den Waffen-Slots im Tresor.
 const AMMO_D1 = { 1498876634: ['Ammo Synthesis', '/common/destiny_content/icons/898503d21982fe4101a3e6e1374ad43c.jpg'], 2465295065: ['Special Ammo Synthesis', '/common/destiny_content/icons/7ecb6e289d773ac39e6f425abf651f70.jpg'], 953998645: ['Heavy Ammo Synthesis', '/common/destiny_content/icons/b67087079a950013dfbdf6e0ebaeb245.jpg'] };
+// D1-Icons haben einen hellen Kasten: Hintergrund per Flutfüllung von den Rändern aus entfernen (einmal, dann gemerkt).
+const frei = (() => { try { return JSON.parse(localStorage.getItem('d2a.d1frei2') || '{}'); } catch { return {}; } })();
+function freistellen(pfad) {
+  return new Promise((ok) => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const n = img.naturalWidth, m = img.naturalHeight, c = document.createElement('canvas'); c.width = n; c.height = m;
+        const g = c.getContext('2d'); g.drawImage(img, 0, 0); const bild = g.getImageData(0, 0, n, m), p = bild.data;
+        const bg = [p[0], p[1], p[2]];
+        const ab = (i) => Math.hypot(p[i * 4] - bg[0], p[i * 4 + 1] - bg[1], p[i * 4 + 2] - bg[2]);
+        const weg = new Uint8Array(n * m), q = [];
+        for (let x = 0; x < n; x++) q.push(x, (m - 1) * n + x); for (let y = 0; y < m; y++) q.push(y * n, y * n + n - 1);
+        while (q.length) { const i = q.pop(); if (weg[i] || ab(i) > 28 || p[i * 4] - p[i * 4 + 2] < 9) continue; // nur der warme, beige Kasten, nicht das graue Metall weg[i] = 1; const x = i % n, y = (i / n) | 0; if (x > 0) q.push(i - 1); if (x < n - 1) q.push(i + 1); if (y > 0) q.push(i - n); if (y < m - 1) q.push(i + n); }
+        for (let i = 0; i < n * m; i++) if (weg[i]) p[i * 4 + 3] = 0;
+        g.putImageData(bild, 0, 0); frei[pfad] = c.toDataURL('image/png');
+        try { localStorage.setItem('d2a.d1frei2', JSON.stringify(frei)); } catch {}
+        ok(frei[pfad]);
+      } catch { ok(null); }
+    };
+    img.onerror = () => ok(null); img.src = `${BILD}${pfad}?f=1`;
+  });
+}
 // Infusions-Futter: eigene Markierung (nur in diesem Browser, sicherbar über Konto → Backup).
 const futter = new Set((() => { try { return JSON.parse(localStorage.getItem('d2a.futter') || '[]'); } catch { return []; } })());
 let markieren = false;
@@ -97,7 +120,7 @@ export function zeigeCharakter(haupt, zustand) {
     const KL_DATEI = { 0: 'titan', 1: 'hunter', 2: 'warlock' };
     const tresorBlock = ([b, name]) => {
       const l = tresorItems.filter((x) => x.d.b === b); if (!l.length) return '';
-      const kopf = `<small>${AMMO_D1[b] ? `<i class="d1ammo" style="background-image:url(${BILD}${AMMO_D1[b][1]})" title="${AMMO_D1[b][0]} (Destiny 1)"></i>` : ''}${name} <span>${l.length}</span></small>`;
+      const kopf = `<small>${AMMO_D1[b] ? `<img class="d1ammo" src="${frei[AMMO_D1[b][1]] || `${BILD}${AMMO_D1[b][1]}`}" data-frei="${AMMO_D1[b][1]}" alt="" title="${AMMO_D1[b][0]} (Destiny 1)" ${frei[AMMO_D1[b][1]] ? '' : 'style="opacity:0"'}>` : ''}${name} <span>${l.length}</span></small>`;
       let gruppen = null;
       if (WAFFEN.some(([w]) => w === b)) gruppen = [...new Set(l.map((x) => x.d.k))].sort().map((t) => [t, t, WTYP_SVG[t], l.filter((x) => x.d.k === t)]);
       else if (RUESTUNG.some(([w]) => w === b)) gruppen = [0, 1, 2, 3].map((c) => [String(c), KLASSE[c] || 'Any class', KL_DATEI[c], l.filter((x) => x.d.c === c)]).filter((g) => g[3].length);
@@ -114,6 +137,7 @@ export function zeigeCharakter(haupt, zustand) {
       ${breit
         ? `<div class="inv inv-alle b-${bereich}" style="--n:${chars.length}">${chars.map(spalte).join('')}${tresor}</div>`
         : `<div class="inv inv-fokus b-${bereich}">${spalte(c)}<div class="cstreifen-box">${chars.filter((x) => x.characterId !== wahl).map(streifen).join('')}</div></div>${tresor}`}`;
+    haupt.querySelectorAll('img.d1ammo[style]').forEach((el) => freistellen(el.dataset.frei).then((u) => { if (u) el.src = u; el.style.opacity = ''; }));
     const si = haupt.querySelector('#invSuche');
     si?.addEventListener('input', () => { suche = si.value; const pos = si.selectionStart; zeichne(); const n = haupt.querySelector('#invSuche'); n.focus(); n.setSelectionRange(pos, pos); });
   };
