@@ -108,7 +108,7 @@ function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class
 // Handy: 5 beschriftete Knöpfe unten, „Mehr“ öffnet ein Blatt mit allem anderen.
 const hl = $('#handyLeiste'), mb = $('#mehrBlatt');
 hl?.querySelectorAll('[data-ico]').forEach((i) => { const svg = rail.querySelector(`[data-tab="${i.dataset.ico}"] svg`); if (svg) i.innerHTML = svg.outerHTML; });
-const MEHR = [['tab:armor', 'Armor'], ['tab:loadouts', 'Loadouts'], ['tab:optimizer', 'Optimizer'], ['tab:stats', 'Stats'], ['tab:hueter', 'Guardians'], ['tab:wiki', 'Wiki'], ['tab:guide', 'Raid Guide'], ['zufall', 'Randomizer'], ['panel:woche', 'This week'], ['panel:xur', 'Xûr'], ['panel:post', 'Postmaster'], ['panel:konto', 'Settings'], ['modus', 'Simple / Detailed']];
+const MEHR = [['panel:konto', 'Settings'], ['tab:armor', 'Armor'], ['tab:loadouts', 'Loadouts'], ['tab:optimizer', 'Optimizer'], ['tab:stats', 'Stats'], ['tab:hueter', 'Guardians'], ['tab:wiki', 'Wiki'], ['tab:guide', 'Raid Guide'], ['zufall', 'Randomizer'], ['panel:woche', 'This week'], ['panel:xur', 'Xûr'], ['panel:post', 'Postmaster'], ['modus', 'Simple / Detailed']];
 const EMO2 = { zufall: ikon('wuerfel'), 'panel:woche': ikon('kalender'), 'panel:xur': ikon('koffer'), 'panel:post': ikon('post'), 'panel:konto': ikon('regler'), modus: ikon('ziel') };
 function zeigeMehr() {
   mb.querySelector('.mb-raster').innerHTML = MEHR.map(([z, n]) => { const t = z.startsWith('tab:') ? z.slice(4) : ''; const svg = t ? rail.querySelector(`[data-tab="${t}"] svg`)?.outerHTML : ''; return `<button data-mz="${z}">${svg ? `<i>${svg}</i>` : `<b>${EMO2[z] || '•'}</b>`}<span>${n}</span></button>`; }).join('');
@@ -157,6 +157,7 @@ rail.addEventListener('click', (e) => {
   if (!b) return;
   if (b.dataset.tab) wechsle(b.dataset.tab);
   else if (b.dataset.panel) schaltePanel();
+  else if ('einst' in b.dataset) { if (zustand.profil) oeffnePanel('konto'); else bungie.anmelden(); }
   else if ('modusknopf' in b.dataset) import('./konto.js').then((m) => { const neu = m.modus() === 'einfach' ? 'voll' : 'einfach'; m.setzeModus(neu); modusText(); meldung(neu === 'einfach' ? 'Simple view: only the key cards, numbers and filters.' : 'Detailed view: all cards, numbers, filters and options.'); });
   else if ('zufall' in b.dataset) { if (!zustand.profil) meldung('Sign in first – the randomizer uses your own gear.', true); else import('./zufall.js').then((m) => m.oeffneZufall(zustand)).catch((err) => { console.error(err); meldung(`Randomizer: ${err.message}`, true); }); }
   else if (b.id === 'konto') kontoKlick();

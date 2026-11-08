@@ -602,6 +602,7 @@ function unitS(u,L){const o=u.o==null?1:u.o;if(o<=0)return'';const sc=u.sc==null
    let orbs='';if(st==='active'){const a=(u.ang||0)+Math.PI/2;for(let n=0;n<3;n++){const bl=(u.bl||[0,0,0])[n];if(bl<=0)continue;const off=(n-1)*15;const ox=Math.cos(a)*off,oy=Math.sin(a)*off-14;orbs+=`<circle cx="${ox}" cy="${oy}" r="${7*bl}" fill="#050508" stroke="#ffffff" stroke-width="1.8" opacity="${bl}"/><circle cx="${ox}" cy="${oy}" r="${2*bl}" fill="#fff" opacity="${bl}"/>`;}}
    s+=`<defs><clipPath id="${cid}"><circle r="24"/></clipPath></defs><circle cy="4" r="26" fill="#0e0c16"/><g clip-path="url(#${cid})"><g transform="rotate(${rot})">${w}</g></g><circle r="24" fill="none" stroke="${st==='done'?C.good:'#4a4370'}" stroke-width="1.6"/>`+orbs+(st==='done'?`<circle r="${27+2*Math.sin(now*5)}" fill="none" stroke="${C.good}" stroke-width="1.5" opacity=".7"/>`:'')+(u.odd?`<path d="M-16 -16 L16 16 M16 -16 L-16 16" stroke="${C.danger}" stroke-width="3" opacity="${u.odd}"/>`:'');break;}
   case'glyph':{const ink='#15161c';let g='';
+   if(u.real&&typeof LW_ECHT!=='undefined'&&LW_ECHT[u.g]){const p=LW_POS[LW_ECHT[u.g]];s+=`<circle r="${17+1.2*Math.sin(now*3)}" fill="rgba(127,224,208,.18)"/><circle r="15.5" fill="#0d0f14" stroke="#dcefe9" stroke-width="1.6"/><svg x="-13" y="-13" width="26" height="26" viewBox="${p[0]-68} ${p[1]-68} 136 136"><image href="${LW_IMG}" width="896" height="676"/></svg>`+(u.x2?`<path d="M-14 -14 L14 14 M14 -14 L-14 14" stroke="${C.danger}" stroke-width="3" opacity="${u.x2}"/>`:'');break;}
    if(u.g==='D')g=`<path d="M7 -10 C1 -14 -9 -12 -9 -5 C-9 1 8 -2 8 5 C8 10 2 12 -3 11" fill="none" stroke="${ink}" stroke-width="3.2" stroke-linecap="round"/><ellipse cx="8" cy="-10" rx="3.2" ry="2.4" fill="${ink}"/>`;
    else if(u.g==='E')g=`<path d="M-7 -9 C-2 -13 5 -6 0 0 C-5 6 -3 12 0 12 C3 12 5 6 0 0 C-5 -6 2 -13 7 -9" fill="none" stroke="${ink}" stroke-width="2.8" stroke-linecap="round"/><ellipse cx="-8" cy="-9" rx="3" ry="2.2" fill="${ink}"/><ellipse cx="8" cy="-9" rx="3" ry="2.2" fill="${ink}"/>`;
    else if(u.g==='I')g=`<path d="M-11 0 C-11 -7 -3 -7 0 0 C3 7 11 7 11 0 C11 -7 3 -7 0 0 C-3 7 -11 7 -11 0" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round"/><path d="M0 2 L1 8" stroke="${ink}" stroke-width="2"/>`;
@@ -2509,8 +2510,8 @@ const LWK=(function(){
  ];
  function finish(s,L){
   const units=[];
-  PL.forEach((p,i)=>{const pl=s.pl[i];units.push({t:'lplate',id:i,x:p.x,y:p.y,st:pl.st,bl:pl.bl,det:pl.det,ang:Math.atan2(CEN.y-p.y,CEN.x-p.x),odd:SYM[i]==='I'?s.odd:0});units.push({t:'glyph',x:p.x,y:p.y-34,g:SYM[i],o:SYM[i]==='I'&&s.odd?1-.6*s.odd:1,x2:SYM[i]==='I'?s.odd:0});});
-  CS.forEach((c,i)=>units.push({t:'glyph',x:c.x,y:c.y,g:c.t,o:s.newRound?s.csym[i]:s.csym[i],sc:.8}));
+  PL.forEach((p,i)=>{const pl=s.pl[i];units.push({t:'lplate',id:i,x:p.x,y:p.y,st:pl.st,bl:pl.bl,det:pl.det,ang:Math.atan2(CEN.y-p.y,CEN.x-p.x),odd:SYM[i]==='I'?s.odd:0});units.push({t:'glyph',real:1,x:p.x,y:p.y-34,g:SYM[i],o:SYM[i]==='I'&&s.odd?1-.6*s.odd:1,x2:SYM[i]==='I'?s.odd:0});});
+  CS.forEach((c,i)=>units.push({t:'glyph',real:1,x:c.x,y:c.y,g:c.t,o:s.newRound?s.csym[i]:s.csym[i],sc:.8}));
   if(s.allDoors)['B','L','R'].forEach(sd=>doors(sd).slots.forEach(d=>units.push({t:'ldoor',x:d.x,y:d.y,open:0,o:s.allDoors})));
   if(s.doorsSide&&s.doorO>0){const D=doors(s.doorsSide);const openSet=new Set(OPEN[s.doorsSide]);let num=0;
    D.slots.forEach((d,j)=>{if(!openSet.has(j))units.push({t:'ldoor',x:d.x,y:d.y,open:0,o:s.doorO});});
@@ -10520,6 +10521,8 @@ const SYMB={
 // Last Wish: einzelne Symbole live aus der Symbol-Tafel geschnitten (4×4-Raster, Reihenfolge wie in fam).
 const LW_IMG=SYMB.vault.bild.src, LW_CX=[111,332,561,788], LW_CY=[61,221,393,567];
 const LW_POS={};SYMB.vault.fam.forEach(([,l],r)=>l.forEach(([en],c)=>{LW_POS[en]=[LW_CX[c],LW_CY[r]];}));
+// Kalli: die Platten-Symbole sind jede Runde zufällig – bei jedem Laden vier echte Symbole zufällig auf O/E/I/D verteilen.
+const LW_ECHT=(()=>{const n=Object.keys(LW_POS).sort(()=>Math.random()-.5);return{O:n[0],E:n[1],I:n[2],D:n[3]};})();
 const lwIcon=(en,g)=>{const p=LW_POS[en];if(!p)return'';g=g||34;return`<svg class="lwsym" width="${g}" height="${g}" viewBox="${p[0]-68} ${p[1]-68} 136 136" aria-hidden="true"><image href="${LW_IMG}" width="896" height="676"/></svg>`;};
 SYMB.kalli={...SYMB.vault,t:{de:'Symbole & Callouts (Platten)',en:'Symbols & callouts (plates)'},
   p:{de:'Alle neun Platten tragen eines dieser Symbole – dieselben wie später im Vault und an der Wunschmauer. Ruft Platten beim Symbolnamen statt „links/rechts“ aus, dann weiß jeder sofort, welche gemeint ist.',en:'All nine plates carry one of these symbols – the same ones used later in the Vault and at the Wish Wall. Call plates by symbol name instead of “left/right” so everyone knows which one is meant.'}};

@@ -1402,3 +1402,17 @@ html[data-modus=einfach] .st-heute-reihe{grid-template-columns:repeat(auto-fit,m
 #zoomPille{position:fixed;left:8px;bottom:8px;z-index:200;display:flex;align-items:center;gap:6px;padding:6px 8px 6px 12px;border:1px solid var(--gold);border-radius:999px;background:var(--bg2);box-shadow:0 8px 24px #000b;font-size:.8rem}
 #zoomPille[hidden]{display:none}#zoomPille button{width:28px;height:28px;border-radius:50%;border:1px solid var(--linie2);background:var(--bg);color:var(--text);cursor:pointer;font-weight:800}
 @media(max-width:760px){#zoomPille{bottom:72px}}
+/* Kills nach Typ: Ring + kompakte Liste mit % statt langer Balken */
+.ktyp{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.kdonut{position:relative;width:150px;height:150px;border-radius:50%;-webkit-mask:radial-gradient(circle,transparent 46px,#000 47px);mask:radial-gradient(circle,transparent 46px,#000 47px);animation:kringRein 1s ease-out}
+.kdonut span{position:absolute;inset:0;display:grid;place-content:center;text-align:center;-webkit-mask:none}
+.ktyp>.kdonut{background-clip:padding-box}
+.kdonut+.kliste{margin:0}
+.kliste{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:.84rem}
+.kliste li{display:grid;grid-template-columns:10px minmax(0,1fr) auto 40px 70px;gap:8px;align-items:center;padding:3px 6px;border-radius:6px}.kliste li:hover{background:var(--bg3)}
+.kliste li i{width:10px;height:10px;border-radius:3px}.kliste span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kliste b{font-variant-numeric:tabular-nums}.kliste em{font-style:normal;color:var(--gold);font-weight:800;text-align:right}.kliste small{color:var(--matt);font-size:.7rem}
+.kliste.klein li{grid-template-columns:10px minmax(0,1fr) auto 40px}.kliste.klein small{display:none}
+.kfaehig h4{margin:0 0 6px}.kstapel{display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:8px}.kstapel i{display:block;height:100%}
+@media(max-width:900px){.ktyp{grid-template-columns:120px minmax(0,1fr)}.kdonut{width:120px;height:120px;-webkit-mask:radial-gradient(circle,transparent 36px,#000 37px);mask:radial-gradient(circle,transparent 36px,#000 37px)}.kfaehig{grid-column:1/-1}}
+.kdonut-w{position:relative;width:150px;height:150px}.kdonut-w>span{position:absolute;inset:0;display:grid;place-content:center;text-align:center}.kdonut-w b{font:800 1.1rem var(--kopf)}.kdonut-w small{color:var(--matt);font-size:.68rem}
+@media(max-width:900px){.kdonut-w{width:120px;height:120px}}
