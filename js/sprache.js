@@ -8,6 +8,12 @@ export const SPRACHEN = [
   ['pl', 'Polski'], ['ru', 'Русский'], ['ja', '日本語'], ['ko', '한국어'], ['zh-chs', '简体中文'],
 ];
 const UI_DE = {
+  "Check before equipping": "Vor dem Anlegen prüfen",
+  "Nothing happens until you confirm. Untick what should stay as it is.": "Es passiert nichts, bis du bestätigst. Nimm den Haken weg bei allem, was bleiben soll.",
+  "Equip selected": "Ausgewähltes anlegen",
+  "Cancel": "Abbrechen",
+  "already equipped": "schon angelegt",
+  "Artifact perks": "Artefakt-Perks",
   "🎲 Randomizer & wheel": "🎲 Zufall & Glücksrad",
   "🎲 Loadout randomizer": "🎲 Loadout-Zufall",
   "🎡 Lucky wheel": "🎡 Glücksrad",

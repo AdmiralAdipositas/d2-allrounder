@@ -342,7 +342,7 @@ export function zeigeOptimizer(haupt, zustand) {
     const teil = e.target.closest('[data-oid]');
     if (teil && e.pointerType !== 'mouse') return zeigeTeil(teil, true);
     const eq = e.target.closest('[data-equip]');
-    if (eq) await ausruesten(ergebnisse[Number(eq.dataset.equip)], zustand, chars.find((c) => c.classType === zustandO.klasse), eq);
+    if (eq) vorschau(ergebnisse[Number(eq.dataset.equip)], zustand, chars.find((c) => c.classType === zustandO.klasse), eq);
   };
   // Leisten ziehen oder klicken, rastet in 5er-Schritten ein; gerechnet wird beim Loslassen.
   const wertAus = (leiste, x) => { const r = leiste.getBoundingClientRect(); return Math.max(0, Math.min(SKALA, Math.round((((x - r.left) / r.width) * SKALA) / 5) * 5)); };
@@ -400,11 +400,46 @@ export function zeigeOptimizer(haupt, zustand) {
   };
 }
 
-async function ausruesten(b, zustand, char, knopf) {
+// Vorschau vor dem Anlegen: was getauscht wird, alles einzeln abwählbar, erst dann bestätigen.
+function vorschau(b, zustand, char, knopf) {
+  document.querySelector('#ovorschau')?.remove();
+  const cid = char.characterId;
+  const jetzt = sammle(zustand.profil).filter((x) => x.ort === cid && x.angelegt);
+  const bd = zustandO.build;
+  const z = zuteilung(b);
+  const anz = new Map(); for (const m of z.values()) { const n = m?.n || m?.name; if (n) anz.set(n, (anz.get(n) || 0) + 1); }
+  const modText = [...anz].map(([n, c]) => `${c}× ${n}`);
+  const box = document.createElement('div'); box.id = 'ovorschau'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
+  const zeile = (it) => { const alt = jetzt.find((x) => x.d.b === it.d.b); const gleich = alt?.id === it.id; return `<label class="ov-teil ${gleich ? 'gleich' : ''}"><input type="checkbox" data-teil="${it.id}" ${gleich ? 'disabled' : 'checked'}><i style="background-image:url(https://www.bungie.net${alt?.d.i || ''})" title="${esc(alt?.d.n || 'empty')}"></i><span class="ov-pfeil">→</span><i style="background-image:url(https://www.bungie.net${it.d.i})"></i><span><b>${esc(it.d.n)}</b><small>${gleich ? 'already equipped' : `replaces ${esc(alt?.d.n || 'nothing')}${it.ort !== cid ? ` · comes from ${it.ort === 'tresor' ? 'the vault' : it.ort.startsWith('post:') ? 'the postmaster' : 'another character'}` : ''}`}</small></span></label>`; };
+  box.innerHTML = `<div class="wk-box ov-box"><h2>Check before equipping</h2><p class="leer klein">Nothing happens until you confirm. Untick what should stay as it is.</p>
+    <h3>Armor on ${KLASSE[zustandO.klasse]}</h3>${b.items.map(zeile).join('')}
+    <label class="ov-opt"><input type="checkbox" data-o="mods" checked> Set stat mods${modText.length ? ` (${esc(modText.join(', '))})` : ''}</label>
+    ${bd ? `<h3>Build “${esc(bd.name)}”</h3>
+      <label class="ov-opt"><input type="checkbox" data-o="waffen" checked> Weapons of the build (${esc([...(bd.exotics || []), ...((bd.legendaries || []).map((l) => l[0]))].filter(Boolean).join(', ') || 'none listed')})</label>
+      <label class="ov-opt"><input type="checkbox" data-o="buildmods" checked> Build mods (non-build mods on these pieces are removed first)</label>
+      <label class="ov-opt"><input type="checkbox" data-o="sub" checked> Subclass ${esc(bd.subclass || '')}: ${esc([...(bd.faehigkeiten || []), ...(bd.aspekte || []), ...(bd.fragmente || [])].join(', '))}</label>
+      <label class="ov-opt"><input type="checkbox" data-o="artefakt" checked> Artifact perks</label>
+      ${Number(zustandO.slot ?? -1) >= 0 ? `<label class="ov-opt"><input type="checkbox" data-o="slot" checked> Save as in-game loadout ${Number(zustandO.slot) + 1}${zustandO.leeren ? ' (slot is cleared first)' : ''}</label>` : ''}` : ''}
+    <div class="konto-knoepfe"><button data-ov="nein">Cancel</button><button class="haupt-knopf" data-ov="ja">Equip selected</button></div></div>`;
+  document.body.append(box);
+  box.querySelector('[data-ov="ja"]').focus();
+  box.onclick = async (e) => {
+    if (e.target === box || e.target.closest('[data-ov="nein"]')) { box.remove(); return; }
+    if (!e.target.closest('[data-ov="ja"]')) return;
+    const teile = new Set([...box.querySelectorAll('[data-teil]:checked')].map((x) => x.dataset.teil));
+    const o = Object.fromEntries([...box.querySelectorAll('[data-o]')].map((x) => [x.dataset.o, x.checked]));
+    box.remove();
+    await ausruesten({ ...b, items: b.items.filter((it) => teile.has(it.id) || jetzt.some((j) => j.id === it.id)) }, zustand, char, knopf, { mods: true, waffen: true, buildmods: true, sub: true, artefakt: true, slot: true, ...o, teile });
+  };
+  box.onkeydown = (e) => { if (e.key === 'Escape') box.remove(); };
+}
+
+async function ausruesten(b, zustand, char, knopf, opt = {}) {
   const k = zustand.konto;
   const cid = char.characterId;
   knopf.disabled = true;
   try {
+    if (!b.items.length && !zustandO.build) { knopf.disabled = false; return; }
     for (const it of b.items) {
       if (it.ort === cid) continue;
       meldung(`Moving ${it.d.n}…`);
@@ -416,16 +451,17 @@ async function ausruesten(b, zustand, char, knopf) {
       }
       merkeAenderung(it.id, { ort: cid, angelegt: false });
     }
-    await bungie.ausruestenAlle(k, b.items.map((i) => i.id), cid);
+    if (b.items.length) await bungie.ausruestenAlle(k, b.items.map((i) => i.id), cid);
     // Mods stecken: Stat-Mods in den allgemeinen Sockel, beim Build zusätzlich alle Build-Mods (Firepower, Siphons, Surges …)
     // in die Slot-Sockel, mit Energie-Grenze. Was nicht zum Build gehört, wird beim Build vorher geleert, damit Energie frei ist.
-    const bdM = zustandO.build;
+    const bdM = opt.buildmods === false ? null : zustandO.build;
     const z = zuteilung(b);
     const el = bdM?.element || '';
     const wunsch = bdM ? (bdM.mods?.length ? bdM.mods : modplan.vorschlag(el, bdM.stats || [], [bdM.subclass, ...(bdM.faehigkeiten || [])].join(' '))) : [];
     const { plan, uebrig } = modplan.plane(b.items, z, wunsch, el);
     const modFehler = [];
-    for (const { teil, sockel, soll } of plan) {
+    for (const { teil, sockel, soll } of (opt.mods === false && !bdM ? [] : plan)) {
+      if (opt.mods === false) for (const [i, m] of [...soll]) if (/Mod$/.test(m.n || m.name || '') && !(bdM?.mods || []).includes(m.n || m.name)) soll.delete(i);
       if (bdM) {
         for (const so of sockel) {
           const ziel = soll.get(so.i);
@@ -446,8 +482,8 @@ async function ausruesten(b, zustand, char, knopf) {
     for (const it of b.items) merkeAenderung(it.id, { ort: cid, angelegt: true });
     const bd = zustandO.build;
     const probleme = [...modFehler];
-    if (bd) await baueBuild(bd, zustand, cid, probleme);
-    const slot = bd ? Number(zustandO.slot ?? -1) : -1;
+    if (bd) await baueBuild(bd, zustand, cid, probleme, opt);
+    const slot = bd && opt.slot !== false ? Number(zustandO.slot ?? -1) : -1;
     if (slot >= 0) {
       const lo = zustand.profil.characterLoadouts?.data?.[cid]?.loadouts?.[slot] || {};
       const erst = (o) => Number(Object.keys(o || {}).find((h) => o[h]) || 0);
@@ -461,14 +497,14 @@ async function ausruesten(b, zustand, char, knopf) {
 }
 
 // Exotic-Waffe, Subclass, Super, Fähigkeiten, Aspekte und Fragmente des Builds anlegen.
-async function baueBuild(bd, zustand, cid, probleme) {
+async function baueBuild(bd, zustand, cid, probleme, opt = {}) {
   const k = zustand.konto;
   const profil = zustand.profil;
   // Exotic-Waffe des Builds und je Slot die erste empfohlene Legendary, die du besitzt.
   const liste = sammle(profil);
   const exoW = (bd.exotics || []).map((n) => liste.find((x) => x.d.t === 3 && x.d.n === n)).filter(Boolean)[0];
-  const ziele = exoW ? [exoW] : [];
-  for (const slot of bd.legendaries || []) {
+  const ziele = exoW && opt.waffen !== false ? [exoW] : [];
+  for (const slot of opt.waffen === false ? [] : bd.legendaries || []) {
     const w = slot.map((n) => liste.filter((x) => x.d.t === 3 && x.d.n === n).sort((a, b) => (/god/.test(b.m?.roll || '') - /god/.test(a.m?.roll || '')) || b.power - a.power)[0]).find(Boolean);
     if (w && !ziele.some((z) => z.d.b === w.d.b)) ziele.push(w);
   }
@@ -486,7 +522,7 @@ async function baueBuild(bd, zustand, cid, probleme) {
   // Legendaries zusammen ausrüsten (nach der Exotic, damit kein zweites Exotic stört).
   const leg = ziele.filter((w) => w.d.q !== 6).map((w) => w.id);
   if (leg.length) await bungie.ausruestenAlle(k, leg, cid).catch((e) => probleme.push(`Weapons: ${e.message}`));
-  if (!bd.subclass) return;
+  if (!bd.subclass || opt.sub === false) { if (opt.artefakt !== false) await artefakt(bd, zustand, cid, probleme); return; }
   const alle = [...(profil.characterInventories?.data?.[cid]?.items || []), ...(profil.characterEquipment?.data?.[cid]?.items || [])];
   const sub = alle.find((i) => defs.items[i.itemHash]?.t === 16 && defs.items[i.itemHash].n === bd.subclass);
   if (!sub) { probleme.push(`Subclass ${bd.subclass} not found on this character.`); return; }
@@ -516,7 +552,7 @@ async function baueBuild(bd, zustand, cid, probleme) {
       try { await bungie.plugSetzen(k, { id: sub.itemInstanceId }, cid, i, Number(ph)); } catch (e) { probleme.push(`${name}: ${e.message}`); }
     }
   } catch (e) { probleme.push(e.message); }
-  await artefakt(bd, zustand, cid, probleme);
+  if (opt.artefakt !== false) await artefakt(bd, zustand, cid, probleme);
 }
 
 // Artefakt-Perks: gewünschte aus dem Build, sonst die am besten passenden aus deinem aktuellen Artefakt.
