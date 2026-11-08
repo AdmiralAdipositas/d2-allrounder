@@ -1,4 +1,6 @@
-<!doctype html><html><head><meta charset=utf8><meta name=referrer content=no-referrer><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script>/* Raid Guide folgt dem Aussehen der App (Bunt / OG / eigener Shader / Photo Finish). */
+<!doctype html><html><head><meta charset=utf8><meta name=referrer content=no-referrer><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+.sfam .sz{display:flex;align-items:center;justify-content:flex-start;gap:8px}.sfam .sz>div{display:flex;flex-direction:column}.lwsym{flex:none;border-radius:50%;background:#fff}
+</style><script>/* Raid Guide folgt dem Aussehen der App (Bunt / OG / eigener Shader / Photo Finish). */
 (function(){try{var t=localStorage.getItem('d2a.theme')||'bunt',r=document.documentElement.style,m={'--bg':'--bg','--bg2':'--panel','--flaeche':'--panel-2','--linie':'--line','--text':'--fg','--matt':'--muted','--gold':'--light','--violett':'--dark'};
 if(t==='og'){var o={'--bg':'#0b0d10','--panel':'#111418','--panel-2':'#161a1f','--line':'#2a3038','--fg':'#eceef1','--muted':'#8d949e','--dark':'#c9ced6'};for(var k in o)r.setProperty(k,o[k])}
 if(t==='shader'){var v=JSON.parse(localStorage.getItem('d2a.shaderVars')||'{}');for(var a in m)if(v[a])r.setProperty(m[a],v[a]);
@@ -10513,6 +10515,10 @@ const SYMB={
   p:{de:'Zwei 2D-Formen einer Statue ergeben eine 3D-Form. Kreis, Quadrat, Dreieck.',en:'Two 2D shapes held by a statue make one 3D shape. Circle, square, triangle.'},
   formen:[['circle','circle','Sphere','Kugel'],['square','square','Cube','Würfel'],['triangle','triangle','Pyramid','Pyramide'],['circle','square','Cylinder','Zylinder'],['circle','triangle','Cone','Kegel'],['square','triangle','Prism','Prisma']]}
 };
+// Last Wish: einzelne Symbole live aus der Symbol-Tafel geschnitten (4×4-Raster, Reihenfolge wie in fam).
+const LW_IMG=SYMB.vault.bild.src, LW_CX=[111,332,561,788], LW_CY=[61,221,393,567];
+const LW_POS={};SYMB.vault.fam.forEach(([,l],r)=>l.forEach(([en],c)=>{LW_POS[en]=[LW_CX[c],LW_CY[r]];}));
+const lwIcon=(en,g)=>{const p=LW_POS[en];if(!p)return'';g=g||34;return`<svg class="lwsym" width="${g}" height="${g}" viewBox="${p[0]-68} ${p[1]-68} 136 136" aria-hidden="true"><image href="${LW_IMG}" width="896" height="676"/></svg>`;};
 SYMB.kalli={...SYMB.vault,t:{de:'Symbole & Callouts (Platten)',en:'Symbols & callouts (plates)'},
   p:{de:'Alle neun Platten tragen eines dieser Symbole – dieselben wie später im Vault und an der Wunschmauer. Ruft Platten beim Symbolnamen statt „links/rechts“ aus, dann weiß jeder sofort, welche gemeint ist.',en:'All nine plates carry one of these symbols – the same ones used later in the Vault and at the Wish Wall. Call plates by symbol name instead of “left/right” so everyone knows which one is meant.'}};
 SYMB.vault.p={de:'Jeder Bildschirm (Fels, Baum, Eingang) zeigt drei Symbole. Ruft das mittlere aus. Liegt das passende Symbol rechts → Antumbra-Reinigung, links → Penumbra. Dieselben Symbole kennt ihr schon von Kallis Platten.',en:'Each screen (Rock, Tree, Entrance) shows three symbols. Call out the middle one. Match on the right → Antumbra cleanse, on the left → Penumbra. Same symbols as on Kalli\u2019s plates.'};
@@ -10523,7 +10529,7 @@ function renderSymb(){
  const L=lang==='de';
  let h=`<p>${esc(S.p[lang])}</p>`;
  if(S.bild)h+=`<figure class="sbild"><img src="${S.bild.src}" alt="${esc(S.bild.alt)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').hidden=true"><figcaption style="font-size:12px;color:var(--muted)">${L?'Symbol-Übersicht':'Symbol key'}<details class="quelle"><summary aria-label="Source">i</summary><div>${esc(S.bild.q)} <a href="${S.bild.u}" target="_blank" rel="noopener">${L?'Quelle':'Source'} ↗</a></div></details></figcaption></figure>`;
- if(S.fam)h+=`<div class="sgrid">${S.fam.map(([f,l])=>`<div class="sfam"><h4>${f}</h4>${l.map(([en,de])=>`<div class="sz"><b>${esc(L?de:en)}</b><span>${esc(L?en:de)}</span></div>`).join('')}</div>`).join('')}</div>`;
+ if(S.fam)h+=`<div class="sgrid">${S.fam.map(([f,l])=>`<div class="sfam"><h4>${f}</h4>${l.map(([en,de])=>`<div class="sz">${lwIcon(en)}<div><b>${esc(L?de:en)}</b><span>${esc(L?en:de)}</span></div></div>`).join('')}</div>`).join('')}</div>`;
  if(S.formen)h+=`<div class="sgrid">${S.formen.map(([a,b,en,de])=>`<div class="sfam"><div class="sz"><span class="sform"><svg viewBox="0 0 32 32">${FORM2D[a]}</svg>+<svg viewBox="0 0 32 32">${FORM2D[b]}</svg></span><b>${esc(L?de:en)}</b><span>${esc(L?en:de)}</span></div></div>`).join('')}</div>`;
  $g('symbB').innerHTML=h;
 }
