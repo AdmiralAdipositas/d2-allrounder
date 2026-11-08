@@ -110,7 +110,11 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
   const d = await lade();
   const chars = Object.values(zustand.profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
   if (wahl.klasse === null) wahl.klasse = chars[0].classType;
-  const alle = [...d.builds];
+  // Ausgeblendete Builds („Not for me“ im Neu-Fenster) weglassen; ein Build aus dem Neu-Fenster wird aufgeklappt und angesprungen.
+  const weg = new Set((() => { try { return JSON.parse(localStorage.getItem('d2a.buildsWeg') || '[]'); } catch { return []; } })());
+  let fokus = null; try { fokus = localStorage.getItem('d2a.finderFokus'); localStorage.removeItem('d2a.finderFokus'); } catch {}
+  const alle = d.builds.filter((b) => !weg.has(b.id));
+  if (fokus) { const fb = alle.find((b) => b.id === fokus); if (fb) { offen.add(fokus); wahl.klasse = fb.klasse ?? wahl.klasse; wahl.suche = ''; setTimeout(() => haupt.querySelector(`.feed-karte[data-id="${CSS.escape(fokus)}"]`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 400); } }
   const merke = () => { try { localStorage.setItem('d2a.finder', JSON.stringify(wahl)); } catch {} };
   let liste = [];
   let gezeigt = 0;

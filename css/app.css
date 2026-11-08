@@ -926,3 +926,30 @@ img.d1ammo{display:inline-block;width:20px;height:20px;border-radius:0;box-shado
 .tk-kopf{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.tk-kopf b{font-family:var(--kopf)}.tk-kopf span{color:var(--gold);font-size:.8rem}
 .tk-zeile{display:flex;align-items:center;gap:4px;margin:6px 0;flex-wrap:wrap}.tk-zeile .wic{width:26px;height:26px}.tk-zeile small{color:var(--matt);font-size:.72rem;flex-basis:100%}
 .tk-werte{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.78rem;color:var(--matt)}.tk-werte b{color:var(--text)}
+/* Willkommen & Neu: animierte Vorschauen */
+.wk-teile{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.wk-teil{display:flex;flex-direction:column;gap:4px}.wk-vor{height:72px;border-radius:6px;background:var(--bg3);display:grid;place-items:center;overflow:hidden;position:relative}.wk-vor svg{width:100%;height:100%}
+.wk-vor.gross{height:140px}
+.wk-vor svg *{vector-effect:non-scaling-stroke}
+.v-rahmen{fill:none;stroke:var(--linie2);stroke-width:1.5}.v-item{fill:var(--gold)}.v-item2{fill:var(--violett);opacity:.6}.v-pfeil{stroke:var(--matt);stroke-width:1.5;stroke-dasharray:3 3}
+.v-zieh{animation:vZieh 2.6s ease-in-out infinite}@keyframes vZieh{0%,15%{transform:translate(0,0)}55%,80%{transform:translate(68px,14px)}100%{transform:translate(0,0)}}
+.v-zeilen rect{fill:var(--flaeche3)}.v-mark{fill:none;stroke:var(--gold);stroke-width:1.5;animation:vMark 3s ease-in-out infinite}.v-stern{fill:var(--gold);font-size:9px;animation:vMark 3s ease-in-out infinite}
+@keyframes vMark{0%{transform:translateY(0)}33%{transform:translateY(14px)}66%{transform:translateY(28px)}100%{transform:translateY(0)}}
+.v-spur{fill:var(--flaeche3)}.v-spur-r{fill:none;stroke:var(--flaeche3);stroke-width:9}
+.v-balken{fill:var(--gold);transform-origin:bottom;transform-box:fill-box;animation:vHoch 2.4s ease-in-out infinite alternate}@keyframes vHoch{from{transform:scaleY(.15)}to{transform:scaleY(1)}}
+.v-quer{fill:var(--arc,#7fd5ff);transform-origin:left;transform-box:fill-box;animation:vQuer 2.6s ease-in-out infinite alternate}@keyframes vQuer{from{transform:scaleX(.2)}to{transform:scaleX(.75)}}
+.v-ziel{stroke:var(--gold);stroke-width:1.5;stroke-dasharray:3 2}
+.v-karte{fill:var(--flaeche3);stroke:var(--linie2);animation:vKarte 1.8s ease-in-out infinite}@keyframes vKarte{0%,100%{stroke:var(--linie2);transform:translateY(0)}30%{stroke:var(--gold);transform:translateY(-4px)}}
+.v-lupe{fill:none;stroke:var(--gold);stroke-width:2;animation:vLupe 3.2s ease-in-out infinite}@keyframes vLupe{0%,100%{transform:translate(22px,30px)}50%{transform:translate(98px,30px)}}
+.v-text{fill:var(--matt);transform-origin:left;transform-box:fill-box;animation:vText 3s ease-out infinite}@keyframes vText{0%{transform:scaleX(0)}40%,100%{transform:scaleX(1)}}
+.v-dot{fill:var(--gold)}.v-boss{fill:#ff6a5a}.v-d1{animation:vKreis 4s linear infinite}.v-d2{animation:vKreis 4s linear infinite -1.33s}.v-d3{animation:vKreis 4s linear infinite -2.66s}
+@keyframes vKreis{0%{transform:translate(110px,32px)}25%{transform:translate(60px,55px)}50%{transform:translate(10px,32px)}75%{transform:translate(60px,9px)}100%{transform:translate(110px,32px)}}
+.v-ring{fill:none;stroke:var(--gold);stroke-width:9;stroke-dasharray:138;transform:rotate(-90deg);transform-origin:34px 32px;animation:vRing 3s ease-out infinite}@keyframes vRing{from{stroke-dashoffset:138}to{stroke-dashoffset:30}}
+.v-rad{transform-origin:60px 32px;animation:vRad 3s cubic-bezier(.33,.67,.67,1) infinite}@keyframes vRad{from{transform:rotate(0)}to{transform:rotate(720deg)}}.v-speiche{stroke:var(--gold);stroke-width:1.5}.v-zeiger{fill:var(--text)}
+.v-puls{animation:vPuls 2s ease-in-out infinite;transform-origin:60px 32px}@keyframes vPuls{50%{transform:scale(1.12);stroke:var(--gold)}}.v-stern2{fill:var(--gold);transform-origin:60px 32px;animation:vRad 6s linear infinite}
+@media (prefers-reduced-motion:reduce){.wk-vor svg *{animation:none!important}}
+/* „What’s new“-Fenster */
+.neues .wk-box{max-width:980px}.neu-karten{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin:10px 0 14px}
+.neu-karte{border:1px solid var(--linie);border-radius:10px;overflow:hidden;background:var(--bg2);display:flex;flex-direction:column}.neu-karte.weg{opacity:.45}
+.neu-text{padding:10px 12px}.neu-text small{color:var(--gold);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}.neu-text b{display:block;font-family:var(--kopf);font-size:1.1rem;margin:2px 0}.neu-text p{color:var(--text2);font-size:.86rem;margin:0 0 8px}
+.neu-exo{position:absolute;right:8px;bottom:8px;display:flex;gap:4px}.neu-exo i{width:40px;height:40px;border-radius:4px;background:center/cover;box-shadow:0 0 0 1px var(--gold)}
