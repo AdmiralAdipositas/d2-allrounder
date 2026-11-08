@@ -8,6 +8,13 @@ export const SPRACHEN = [
   ['pl', 'Polski'], ['ru', 'Русский'], ['ja', '日本語'], ['ko', '한국어'], ['zh-chs', '简体中文'],
 ];
 const UI_DE = {
+  "Inventory": "Inventar",
+  "General": "Allgemein",
+  "Weapon list & filters": "Waffenliste & Filter",
+  "Armor list & stats": "Rüstungsliste & Stats",
+  "Highlight: name or type…": "Hervorheben: Name oder Typ …",
+  "Nothing of this kind in the vault.": "Nichts davon im Tresor.",
+  "Drag any weapon or armor piece onto another guardian, the vault, or a guardian's equipped slot to move or equip it. Phone: hold an item, then drag; the narrow guardian strips open under your finger. Click for details.": "Zieh eine Waffe oder Rüstung auf einen anderen Hüter, den Tresor oder ein angelegtes Feld, um sie zu verschieben oder anzulegen. Handy: Item gedrückt halten, dann ziehen; die schmalen Hüter-Streifen klappen unter dem Finger auf. Klick für Details.",
   "App size": "App-Größe",
   "Also works: pinch with two fingers, or Ctrl + mouse wheel / Ctrl + plus.": "Geht auch: mit zwei Fingern ziehen oder Strg + Mausrad / Strg + Plus.",
   "New game data is available. Reload the page to use it.": "Neue Spieldaten sind da. Lade die Seite neu, um sie zu nutzen.",

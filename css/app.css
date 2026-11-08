@@ -722,3 +722,26 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .stab.links td{text-align:left}.stab.links td:last-child{text-align:right}
 .pgcrstand{animation:pul 1.6s ease-in-out infinite}@keyframes pul{50%{opacity:.5}}
 @media(max-width:760px){.rkopf{display:none}.rzeile>summary{grid-template-columns:repeat(4,1fr);text-align:left}.rzeile .rn{grid-column:1/-1}.rzeile summary span small{display:inline;margin-left:3px;color:var(--matt)}}
+
+/* Inventar: alle Charaktere + Tresor (breit), Fokus + Streifen (Handy) */
+.invleiste{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:4px 0 12px}.invleiste .wsub{margin:0}
+.invleiste input{flex:1;min-width:160px;max-width:300px;padding:7px 10px;background:var(--bg2);color:var(--text);border:1px solid var(--linie);border-radius:6px}
+.invlinks{display:flex;gap:6px;flex-wrap:wrap}
+.inv{display:grid;gap:10px;align-items:start}
+.inv-alle{grid-template-columns:repeat(var(--n),minmax(190px,max-content)) minmax(220px,1fr)}
+.cspalte,.ctresorbox{border:1px solid var(--linie);border-radius:10px;background:var(--bg2);padding:0 10px 8px;min-width:0}
+.cspalte.an{border-color:var(--gold)}
+.ckopf{display:flex;justify-content:space-between;align-items:center;margin:0 -10px 6px;padding:8px 10px;border-radius:9px 9px 0 0;background:var(--flaeche) left center/cover;text-shadow:0 1px 3px #000;color:#fff}
+.ckopf b{font-family:var(--kopf);letter-spacing:.05em}.ckopf em{font-style:normal;color:var(--gold);font-family:var(--kopf);font-weight:700}
+.ckopf.tres{background:var(--flaeche2)}
+.treihe{padding:6px 0;border-top:1px solid var(--flaeche3)}.treihe>small{display:block;font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--matt);margin-bottom:3px}.treihe small span{color:var(--text2)}
+.ck.dim{opacity:.18;filter:grayscale(1)}
+.cgrid.unten{margin-top:12px}
+.inv-fokus{grid-template-columns:minmax(0,6fr) minmax(0,2fr)}
+.cstreifen-box{display:flex;gap:6px;align-items:stretch;height:100%}
+.cstreifen{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 3px;border:1px solid var(--linie);border-radius:10px;background:var(--bg2);transition:flex .2s ease,box-shadow .2s;overflow:hidden;cursor:pointer}
+.cstreifen .cs-kopf{display:flex;flex-direction:column;align-items:center;gap:2px}.cstreifen .cs-kopf i{width:30px;height:30px;border-radius:4px;background:var(--emb) center/cover}
+.cstreifen .cs-kopf b{font-family:var(--kopf);font-size:.8rem}.cstreifen .cs-slot .ck{width:30px;height:30px}
+.cstreifen.auf{flex:3;border-color:var(--gold);box-shadow:0 0 18px #e8c35a88}
+.inv-fokus + .ctresorbox{margin-top:10px}
+@media(max-width:760px){.inv-fokus .cgitter{grid-template-columns:repeat(3,32px)}.inv-fokus .ck{width:32px;height:32px}.inv-fokus .ck.gross{width:52px;height:52px}.invleiste input{max-width:none}}
