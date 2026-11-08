@@ -844,3 +844,32 @@ html[data-pf] .cspalte.an{box-shadow:0 0 18px hsl(calc(var(--pfh) * 1deg) 95% 55
 .ck.gross .ck-tier{top:14px;gap:2px}.ck.gross .ck-tier b{width:6px;height:6px}
 .ck-shaped{position:absolute;left:1px;bottom:1px;width:11px;height:11px;background:#ff4f3a;-webkit-mask:url(../img/wtyp/shaped.svg) center/contain no-repeat;mask:url(../img/wtyp/shaped.svg) center/contain no-repeat;filter:drop-shadow(0 0 1px #000);pointer-events:none}
 .ck.gross .ck-shaped{width:15px;height:15px}
+/* „Mein Shader“ lebendiger: treibende Farbschleier, leuchtende Überschriften und Rahmen */
+@keyframes shtreib{0%{background-position:0% 0%,100% 100%,50% 50%}50%{background-position:30% 20%,70% 80%,40% 60%}100%{background-position:0% 0%,100% 100%,50% 50%}}
+:root[data-theme=shader] body{background:radial-gradient(1100px 700px at 85% -10%,color-mix(in srgb,var(--sh1) 30%,transparent),transparent 60%),radial-gradient(900px 650px at -10% 110%,color-mix(in srgb,var(--sh2) 26%,transparent),transparent 60%),radial-gradient(700px 500px at 50% 50%,color-mix(in srgb,var(--sh3) 10%,transparent),transparent 70%),var(--bg);background-size:140% 140%,140% 140%,160% 160%,auto;background-attachment:fixed;animation:shtreib 26s ease-in-out infinite}
+:root[data-theme=shader] h1{background:linear-gradient(90deg,var(--sh1),var(--sh2),var(--sh3),var(--sh1));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:pfwelle 10s linear infinite}
+:root[data-theme=shader] .sblock,:root[data-theme=shader] .cspalte,:root[data-theme=shader] .ctresorbox{border-color:color-mix(in srgb,var(--sh1) 35%,var(--linie));box-shadow:0 0 0 1px color-mix(in srgb,var(--sh2) 10%,transparent),0 8px 30px -18px var(--sh1)}
+:root[data-theme=shader] .cspalte.an{box-shadow:0 0 22px -6px var(--sh1)}
+:root[data-theme=shader] .haupt-knopf{background:linear-gradient(90deg,var(--sh1),var(--sh2));color:#0b0a1a}
+@keyframes pfwelle{to{background-position:300% 0}}
+
+/* Photo Finish (Premium): Carbon-Untergrund, laufender RGB-Verlauf in Schrift, Leiste und Rahmen, rotierende Lichtkante */
+@property --pfa{syntax:'<angle>';inherits:true;initial-value:0deg}
+@keyframes pfdrehwinkel{to{--pfa:360deg}}
+html[data-pf]{animation:pfdreh 9s linear infinite,pfdrehwinkel 4s linear infinite;
+  --bg:#0c0d0f!important;--bg0:#08090a!important;--bg2:#121316!important;--bg3:#0f1012!important;--bg4:#0e0f11!important;--bg5:#101113!important;--bg6:#131417!important;
+  --flaeche:#16171a!important;--flaeche2:#1c1d21!important;--flaeche3:#1a1b1f!important;--linie:#2a2c31!important;--linie2:#33363c!important;
+  --text:#f1f2f4!important;--text2:#d0d3d8!important;--matt:#9298a2!important;--det1:#16171a!important;--det2:#0d0e10!important;--rail1:#101113f2!important;--rail2:#0a0b0cf2!important;
+  --p110e25:#141518!important;--p07051a:#0b0c0d!important;--p050310:#08090a!important;--p120c22:#121316!important;--p2a2450:#2b2d33!important;--p5b3a8f:#55585f!important;--p3b2560:#34363c!important;--p0b0920:#101113!important;--p16123a:#1a1b1f!important;--p0b0a1a:#0c0d0f!important;
+  --pf-regen:linear-gradient(90deg,#ff2d55,#ff9f0a,#ffd60a,#30d158,#64d2ff,#0a84ff,#bf5af2,#ff2d55)}
+/* Carbon-Gewebe */
+html[data-pf] body{background:radial-gradient(900px 600px at 80% -10%,hsl(calc(var(--pfh) * 1deg) 90% 50% / .14),transparent 60%),radial-gradient(800px 600px at -10% 110%,hsl(calc((var(--pfh) + 180) * 1deg) 90% 50% / .12),transparent 60%),
+  repeating-linear-gradient(45deg,#ffffff06 0 2px,transparent 2px 6px),repeating-linear-gradient(-45deg,#00000040 0 2px,transparent 2px 6px),linear-gradient(180deg,#121316,#0a0b0c)!important;background-attachment:fixed!important;animation:none!important}
+html[data-pf] h1,html[data-pf] .sblock>summary h3,html[data-pf] .ckopf.tres b,html[data-pf] h3{background:var(--pf-regen)!important;background-size:300% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;animation:pfwelle 3.5s linear infinite;filter:drop-shadow(0 0 6px #ffffff22)}
+html[data-pf] #rail{border-right:0!important;box-shadow:inset -2px 0 0 0 transparent}
+html[data-pf] #rail::after{content:'';position:absolute;top:0;right:0;width:2px;height:100%;background:linear-gradient(180deg,#ff2d55,#ff9f0a,#ffd60a,#30d158,#64d2ff,#0a84ff,#bf5af2,#ff2d55);background-size:100% 300%;animation:pfrunter 3s linear infinite;box-shadow:0 0 12px #ffffff40}
+@keyframes pfrunter{to{background-position:0 300%}}
+html[data-pf] .cspalte,html[data-pf] .ctresorbox,html[data-pf] .sblock,html[data-pf] .wk-box{border:1.5px solid transparent!important;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(from var(--pfa),#ff2d55,#ff9f0a,#ffd60a,#30d158,#64d2ff,#0a84ff,#bf5af2,#ff2d55) border-box!important}
+html[data-pf] .cspalte.an,html[data-pf] .ctresorbox{box-shadow:0 0 24px -6px hsl(calc(var(--pfh) * 1deg) 95% 55% / .6)}
+html[data-pf] .haupt-knopf,html[data-pf] .chip[aria-pressed=true],html[data-pf] .preiter button.an{background:var(--pf-regen)!important;background-size:300% 100%!important;animation:pfwelle 4s linear infinite;color:#0a0a0a!important;border-color:transparent!important}
+@media (prefers-reduced-motion:reduce){html[data-pf],html[data-pf] *,:root[data-theme=shader] body{animation-duration:60s!important}}

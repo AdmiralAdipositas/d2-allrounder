@@ -33,14 +33,14 @@ export async function palette(url) {
   const c = document.createElement('canvas'); c.width = c.height = 48; const x = c.getContext('2d'); x.drawImage(img, 0, 0, 48, 48);
   const d = x.getImageData(0, 0, 48, 48).data; const px = [];
   for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) px.push([d[i], d[i + 1], d[i + 2]]);
-  let zentren = Array.from({ length: 7 }, (_, i) => px[Math.floor((i + 0.5) * px.length / 7)]);
+  let zentren = Array.from({ length: 10 }, (_, i) => px[Math.floor((i + 0.5) * px.length / 10)]);
   let gruppen = [];
   for (let it = 0; it < 12; it++) {
     gruppen = zentren.map(() => []);
     for (const p of px) { let bi = 0, bd = 1e9; zentren.forEach((z, i) => { const dd = (p[0] - z[0]) ** 2 + (p[1] - z[1]) ** 2 + (p[2] - z[2]) ** 2; if (dd < bd) { bd = dd; bi = i; } }); gruppen[bi].push(p); }
     zentren = gruppen.map((g, i) => (g.length ? [0, 1, 2].map((k) => g.reduce((a, p) => a + p[k], 0) / g.length) : zentren[i]));
   }
-  const farben = zentren.map((z, i) => ({ rgb: z.map(Math.round), anteil: gruppen[i].length / px.length, hsl: hsl(z) })).filter((f) => f.anteil > 0.02);
+  const farben = zentren.map((z, i) => ({ rgb: z.map(Math.round), anteil: gruppen[i].length / px.length, hsl: hsl(z) })).filter((f) => f.anteil > 0.008);
   // Fast gleiche Farben zusammenlegen.
   const raus = [];
   for (const f of farben.sort((a, b) => b.anteil - a.anteil)) { const n = raus.find((g) => Math.hypot(...g.rgb.map((v, k) => v - f.rgb[k])) < 28); if (n) n.anteil += f.anteil; else raus.push(f); }
@@ -48,11 +48,14 @@ export async function palette(url) {
 }
 // Aus der Palette die App-Farben: Flächen aus der Grundfarbe (dunkel), Akzente aus den kräftigen Farben, Navigation durch alle Farben.
 export function varsAus(pal) {
-  const bunt = pal.filter((f) => f.hsl[1] > 0.18 && f.hsl[2] > 0.12 && f.hsl[2] < 0.9);
+  const bunt = pal.filter((f) => f.hsl[1] > 0.2 && f.hsl[2] > 0.07 && f.hsl[2] < 0.92);
   const basis = (bunt.length ? bunt : pal).slice().sort((a, b) => b.anteil - a.anteil)[0];
-  const [bh, bs0] = basis.hsl; const neutral = bs0 < 0.15; const bs = neutral ? bs0 : Math.min(0.75, Math.max(0.45, bs0));
-  const akzente = (bunt.length ? bunt : pal).slice().sort((a, b) => (b.hsl[1] * (0.4 + b.anteil)) - (a.hsl[1] * (0.4 + a.anteil)));
-  const a1 = akzente[0]; const a2 = akzente.find((f) => Math.abs(((f.hsl[0] - a1.hsl[0] + 540) % 360) - 180) > 35) || akzente[1] || a1;
+  const chroma = (f) => f.hsl[1] * (1 - Math.abs(2 * f.hsl[2] - 1)); // wie „bunt“ eine Farbe wirklich aussieht
+  const akzente = (bunt.length ? bunt : pal).slice().sort((a, b) => (chroma(b) + b.hsl[1] * 0.5) * (0.6 + Math.sqrt(b.anteil)) - (chroma(a) + a.hsl[1] * 0.5) * (0.6 + Math.sqrt(a.anteil)));
+  const a1 = akzente[0];
+  // Flächen im Farbton der kräftigsten Shader-Farbe tönen (sonst wirken z. B. lila Shader mit grauer Basis leblos).
+  const tonQuelle = bunt.length && a1.hsl[1] > 0.35 ? a1 : basis;
+  const bh = tonQuelle.hsl[0], bs0 = tonQuelle.hsl[1]; const neutral = bs0 < 0.15; const bs = neutral ? bs0 : Math.min(0.7, Math.max(0.4, bs0)); const a2 = akzente.find((f) => Math.abs(((f.hsl[0] - a1.hsl[0] + 540) % 360) - 180) > 35) || akzente[1] || a1;
   // Neutrale Shader (Schwarz/Weiß/Grau) bleiben neutral: keine erfundene Farbe.
   // Akzente als Neon: volle Sättigung, mittlere Helligkeit. Neutrale Farben bleiben neutral.
   const hell = (f, l) => css(f.hsl[0], f.hsl[1] < 0.15 ? f.hsl[1] : Math.max(0.9, f.hsl[1]), f.hsl[1] < 0.15 ? Math.max(l, 0.8) : l);
@@ -78,6 +81,7 @@ export async function waehleShader(h, d) {
   schreib('d2a.shaderVars', JSON.stringify(v));
   schreib('d2a.shaderWahl', JSON.stringify({ h, n: d.n, i: d.i, pal: pal.map((f) => f.rgb) }));
   setzeThema('shader');
+  schreib('d2a.shaderV', '3');
   return pal;
 }
 
@@ -129,3 +133,11 @@ export function zoom() { return parseFloat(lies('d2a.zoom', '1')) || 1; }
 export function setzeZoom(z) { schreib('d2a.zoom', String(z)); document.documentElement.style.zoom = z === 1 ? '' : String(z); }
 export function zoomKnoepfe() { const an = zoom(); return `<div class="zoom-wahl" role="radiogroup" aria-label="App size">${ZOOMS.map((z) => `<button type="button" class="chip ${z === an ? 'an' : ''}" data-zoom="${z}" aria-checked="${z === an}">${Math.round(z * 100)} %</button>`).join('')}</div><p class="leer klein">Also works: pinch with two fingers, or Ctrl + mouse wheel / Ctrl + plus.</p>`; }
 export function verbindeZoom(el) { el.addEventListener('click', (e) => { const b = e.target.closest('[data-zoom]'); if (!b) return; setzeZoom(Number(b.dataset.zoom)); el.querySelectorAll('[data-zoom]').forEach((x) => { const a = x === b; x.classList.toggle('an', a); x.setAttribute('aria-checked', a); }); }); }
+
+// Ältere „Mein Shader“-Farben einmal mit der neuen Farbauswahl neu berechnen (kräftigere Akzente).
+try {
+  if (lies('d2a.theme', '') === 'shader' && lies('d2a.shaderV', '') !== '3') {
+    const sw = shaderWahl();
+    if (sw?.i) waehleShader(sw.h, { n: sw.n, i: sw.i }).then(() => schreib('d2a.shaderV', '3')).catch(() => {});
+  }
+} catch {}
