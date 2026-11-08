@@ -101,7 +101,7 @@ function karte(b, besitz, besitzSets, sets) {
         ${b.stats?.length ? `<h3>Stat focus</h3><p class="fliste">${esc(b.stats.join(' › '))}</p>` : ''}
         <p class="fquelle">Source: ${b.link ? `<a href="${esc(b.link)}" target="_blank" rel="noopener">${esc(b.quelle || 'Source')} ↗</a>` : esc(b.quelle || '')}</p>
         <h3>More builds with ${esc(b.exotics[0])}</h3><div class="fquellen">${quellen(b.exotics[0]).map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n} ↗</a>`).join('')}</div>
-        <div class="fb-fuss"><button class="haupt-knopf" data-opt="${esc(b.id)}">Build it: pick armor & equip all</button><button class="fk-klapp" data-klapp="${esc(b.id)}" aria-expanded="true">Collapse ▴</button></div></div>` : ''}
+        <div class="fb-fuss"><button class="haupt-knopf" data-opt="${esc(b.id)}">Build it: pick armor & equip all</button><button class="chip" data-teil="${esc(b.id)}" title="Share as image">📸 Share</button><button class="fk-klapp" data-klapp="${esc(b.id)}" aria-expanded="true">Collapse ▴</button></div></div>` : ''}
     </div></article>`;
 }
 
@@ -190,6 +190,13 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
       const neuK = haupt.querySelector(`.feed-karte[data-id="${CSS.escape(id)}"]`);
       if (!offen.has(id) && neuK && neuK.getBoundingClientRect().top < 0) neuK.scrollIntoView({ block: 'start', behavior: 'smooth' });
       return;
+    }
+    const tl = e.target.closest('[data-teil]');
+    if (tl) {
+      const b = liste.find((x) => x.id === tl.dataset.teil); if (!b) return;
+      const ex = b.empf?.exotic; const finde2 = (n) => Object.values(defs.items).find((d) => d.n === n && d.q === 6);
+      return import('./teilen.js').then((m) => m.teileKarte({ art: 'BUILD', titel: b.name, unter: [b.subclass, b.aktivitaet].filter(Boolean).join(' · '), chips: [...(b.faehigkeiten || []).slice(0, 2), ...(b.aspekte || [])],
+        bilder: [ex?.i, ...(b.exotics || []).map((n) => finde2(n)?.i)].filter(Boolean).slice(0, 4), ersteGold: true, text: b.warum || b.hinweis || '', zeilen: [['Fragments', (b.fragmente || []).join(' · ')], ['Weapons', (b.waffen || []).join(' · ')]].filter(([, v]) => v) }));
     }
     const o = e.target.closest('[data-opt]');
     if (o) {

@@ -217,7 +217,7 @@ export function oeffneZufall(zustand) {
   };
   let aktuell = [];
   const ergebnisHtml = (e, mitKnopf = true) => `<div class="zf-erg">${e.info?.length ? `<p>${e.info.map(([a, b]) => `${esc(a)}: <b>${esc(b)}</b>`).join(' · ')}</p>` : ''}${e.sub ? `<p>Subclass: <b>${esc(e.sub)}</b>${e.set ? ` · Set: <b>${esc(setName(e.set))}</b>` : ''}</p>` : ''}<div class="zf-teile">${e.teile.map(({ x, slot }) => `<div class="zf-teil ${x.d.q === 6 ? 'exo' : ''}"><i style="background-image:url(${BILD}${x.d.i})" data-ih="${x.hash}"></i><span><small>${esc(slot)}${kills?.[x.id] ? ` · ${kills[x.id].toLocaleString()} kills` : ''}${x.mw ? ' · MW' : ''}</small><b>${esc(x.d.n)}</b><small>${esc(x.d.k)}${x.st?.Total ? ` · ${x.st.Total} stats` : ''}</small></span></div>`).join('') || '<p class="leer">Nothing fits these settings.</p>'}</div>
-    ${mitKnopf && e.teile.length ? '<div class="konto-knoepfe"><button data-anlegen>Equip on this guardian</button><button data-temp>Save as temporary loadout</button><button data-wuerfeln>Reroll</button></div>' : ''}</div>`;
+    ${mitKnopf && e.teile.length ? '<div class="konto-knoepfe"><button data-anlegen>Equip on this guardian</button><button data-temp>Save as temporary loadout</button><button data-wuerfeln>Reroll</button><button data-zfteilen>📸 Share</button></div>' : ''}</div>`;
   const hebelText = () => (opt.glueck > 0 ? `Luck +${opt.glueck}: favours masterworked, locked, high-kill and high-stat gear` : opt.glueck < 0 ? `Bad luck ${opt.glueck}: favours dusty, low-stat and blue/white gear` : 'Neutral: every item equally likely');
   const zeichne = () => {
     const v = vorlagen(zustand);
@@ -275,6 +275,7 @@ export function oeffneZufall(zustand) {
     if (e.target === box || e.target.closest('[data-zu]')) { box.remove(); return; }
     const t = e.target.closest('[data-tab]'); if (t) { tab = t.dataset.tab; return zeichne(); }
     if (e.target.closest('[data-wuerfeln]') && tab === 'rad' && kette?.e) { ketteFertig(); return zeichne(); }
+    if (e.target.closest('[data-zfteilen]') && ergebnis) { const e2 = ergebnis; const ch = zustand.profil.characters?.data?.[cid]; return import('./teilen.js').then((m) => m.teileKarte({ art: 'RANDOMIZER', titel: 'The dice have spoken', unter: `${KLASSE[ch?.classType] || ''}${e2.sub ? ` · ${e2.sub}` : ''}`, hinter: ch?.emblemBackgroundPath, bilder: e2.teile.map(({ x }) => x.d.i), chips: (e2.info || []).map(([a, b]) => `${a}: ${b}`), zeilen: e2.teile.slice(0, 8).map(({ x, slot }) => [slot, x.d.n]) })); }
     if (e.target.closest('[data-wuerfeln]')) { if (opt.glueck) await ladeKills(zustand); ergebnis = wuerfle(zustand, cid); return zeichne(); }
     if (e.target.closest('[data-neutral]')) { opt.glueck = 0; schreib('d2a.zufallOpt', opt); return zeichne(); }
     if (e.target.closest('[data-anlegen]')) { e.target.disabled = true; await anlegen(zustand, tab === 'rad' ? kette.e : ergebnis); return; }

@@ -1266,3 +1266,9 @@ html[data-modus=einfach] #filter details:not([data-gruppe=ort]):not([data-gruppe
 html[data-modus=einfach] .statmin,html[data-modus=einfach] .vsort,html[data-modus=einfach] #gruppieren{display:none}
 html[data-modus=einfach] .ohilfe,html[data-modus=einfach] .warum,html[data-modus=einfach] .klegende,html[data-modus=einfach] .omehr,html[data-modus=einfach] .kmods,html[data-modus=einfach] .kset{display:none}
 html[data-modus=einfach] .kombi:nth-of-type(n+4),html[data-modus=einfach] .otab tr:nth-child(n+6){display:none}
+/* Teilen-Karte */
+.teil-dlg{max-width:min(760px,94vw);width:100%;padding:14px;border:1px solid var(--gold);border-radius:18px;background:var(--bg2);color:var(--text)}
+.teil-dlg::backdrop{background:#000b}
+.teil-kopf{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.teil-kopf .ikon{background:none;border:0;color:var(--text);font-size:1.1rem;cursor:pointer}
+.teil-dlg img{display:block;width:100%;border-radius:10px;box-shadow:0 10px 30px #000a}
+.teil-knoepfe{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}

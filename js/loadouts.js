@@ -63,7 +63,7 @@ export function zeigeLoadouts(haupt, zustand) {
           <div class="lo-items">${items.map((x) => { const d = defs.items[hashes.get(x.itemInstanceId)]; return d ? `<i data-ih="${hashes.get(x.itemInstanceId)}" class="${d.q === 6 ? 'exo' : ''}" style="background-image:url(${BILD}${d.i})"></i>` : '<i class="fehlt" title="Item no longer exists"></i>'; }).join('')}</div>
           <div class="lo-knoepfe">${leer ? '' : `<button class="haupt-knopf" data-equip="${i}" ${laeuft ? 'disabled' : ''}>Equip</button>`}
             <button data-snap="${i}" data-leer="${leer ? 1 : 0}" ${laeuft ? 'disabled' : ''}>${bestaetigen === i ? 'Click again to overwrite' : 'Save current gear here'}</button>
- ${leer ? '' : `<button data-teilen="${i}" ${laeuft ? 'disabled' : ''}>Share</button>`}
+ ${leer ? '' : `<button data-teilen="${i}" ${laeuft ? 'disabled' : ''} title="Copy a DIM link">🔗 DIM link</button><button data-bild="${i}" title="Share as image">📸 Card</button>`}
             ${leer ? '' : `<button class="loeschen" data-clear="${i}" ${laeuft ? 'disabled' : ''}>${loeschen === i ? 'Click again to delete' : 'Delete'}</button>`}</div>
         </article>`;
       }).join('') || '<p class="leer">No in-game loadouts on this character.</p>'}</div>`;
@@ -90,6 +90,15 @@ export function zeigeLoadouts(haupt, zustand) {
     }
     const c = e.target.closest('[data-char]');
     if (c) { charWahl = c.dataset.char; bestaetigen = loeschen = null; return zeichne(); }
+    const bi = e.target.closest('[data-bild]');
+    if (bi) {
+      const lo = profil.characterLoadouts.data[charWahl].loadouts[Number(bi.dataset.bild)];
+      const ds = (lo.items || []).map((x) => defs.items[hashes.get(x.itemInstanceId)]).filter(Boolean);
+      const ch = chars.find((c) => c.characterId === charWahl);
+      const sub = ds.find((d) => d.t === 16);
+      return import('./teilen.js').then((m) => m.teileKarte({ art: 'LOADOUT', titel: defs.lo?.n?.[lo.nameHash] || 'Loadout', unter: `${KLASSE[ch?.classType] || ''}${sub ? ` · ${sub.n}` : ''}`, hinter: ch?.emblemBackgroundPath,
+        bilder: ds.filter((d) => d.t === 3 || d.t === 2).map((d) => d.i), zeilen: ds.filter((d) => d.t === 3 || (d.t === 2 && d.q === 6)).map((d) => [d.t === 3 ? d.k : 'Exotic', d.n]) }));
+    }
     const te = e.target.closest('[data-teilen]');
     if (te) {
       // DIM-Link ohne Instanz-IDs: der Empfänger setzt seine eigenen Items ein. Subclass mit Aspekten/Fragmenten, Rüstungs-Mods als Parameter.
