@@ -823,3 +823,8 @@ html[data-pf] #rail svg{stroke:hsl(calc(var(--pfh) * 1deg) 90% 66%)}html[data-pf
 html[data-pf] .cspalte,html[data-pf] .ctresorbox,html[data-pf] .sblock{border:1.5px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(from calc(var(--pfh) * 1deg),#ff3b3b,#ffb03b,#f5ff3b,#3bff72,#3bf0ff,#3b6bff,#b23bff,#ff3bd2,#ff3b3b) border-box}
 html[data-pf] .cspalte.an{box-shadow:0 0 18px hsl(calc(var(--pfh) * 1deg) 95% 55% / .45)}
 @media (prefers-reduced-motion:reduce){html[data-pf]{animation-duration:120s}}
+/* Seitenpanel: Reiter, „This week“ zuerst und hervorgehoben; PC: Profil-Knopf = Panel-Knopf */
+.preiter{display:flex;gap:4px;padding:6px 10px;border-bottom:1px solid var(--linie);flex-wrap:wrap}
+.preiter button{background:none;border:1px solid var(--linie);color:var(--matt);border-radius:999px;padding:3px 10px;font-size:.78rem;cursor:pointer}
+.preiter button.erst{border-color:var(--gold);color:var(--gold)}.preiter button.an{background:var(--gold);color:#0b0a1a;border-color:var(--gold);font-weight:700}
+@media (min-width:761px){#rail [data-panel]{display:none}}

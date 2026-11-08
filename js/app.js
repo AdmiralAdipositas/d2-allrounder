@@ -118,6 +118,7 @@ panel.addEventListener('pointerover', (e) => {
 });
 haupt.addEventListener('click', (e) => { const p = e.target.closest('[data-panelart]'); if (p) oeffnePanel(p.dataset.panelart); });
 addEventListener('message', (e) => { if (e.origin === location.origin && e.data?.d2a === 'squad') oeffnePanel('squad'); });
+panel.addEventListener('click', (e) => { const r = e.target.closest('[data-part]'); if (r) oeffnePanel(r.dataset.part); });
 panel.addEventListener('click', (e) => { const g = e.target.closest('[data-geh]'); if (g) wechsle(g.dataset.geh); const gd = e.target.closest('[data-guide]'); if (gd) springeGuide(gd.dataset.guide); });
 panel.addEventListener('click', (e) => { const w = e.target.closest('[data-wiki]'); if (w) { setzeWikiSuche(w.dataset.wiki); wechsle('wiki'); } });
 panel.addEventListener('pointerout', (e) => { if (e.target.closest('[data-tn]')) $('#tipp').hidden = true; });
@@ -130,19 +131,20 @@ function zeigePanel() {
   panel.classList.toggle('lang', Boolean(pz.text));
   if (pz.w && !matchMedia('(max-width: 760px)').matches) panel.style.width = `${pz.w}px`;
   document.body.classList.toggle('panel-fest', pz.fest);
-  rail.querySelector('[data-panel]').classList.add('panel-an');
+  rail.querySelector('[data-panel]').classList.add('panel-an'); $('#konto').classList.add('panel-an');
   panel.innerHTML = `<div class="pkopf"><select id="pArt" aria-label="Panel content">${Object.entries(ANSICHTEN).map(([k, [n]]) => `<option value="${k}" ${k === pz.art ? 'selected' : ''}>${n}</option>`).join('')}</select>
     <button id="pText" class="pknopf" title="${pz.text ? 'Names only' : 'Show short descriptions (modifiers, challenges)'}" aria-pressed="${Boolean(pz.text)}">${pz.text ? '☰' : 'ⓘ'}</button>
     <button id="pFest" class="pknopf" title="${pz.fest ? 'Unpin' : 'Pin: keep open'}" aria-pressed="${pz.fest}">📌</button>
-    <button id="pZu" class="pknopf" title="Close">✕</button></div><div id="pInhalt"></div>`;
+    <button id="pZu" class="pknopf" title="Close">✕</button></div>
+    <div class="preiter">${[['woche', 'This week'], ['xur', 'Xûr'], ['post', 'Postmaster'], ['konto', 'Account']].map(([k, n]) => `<button data-part="${k}" class="${k === pz.art ? 'an' : ''} ${k === 'woche' ? 'erst' : ''}">${n}</button>`).join('')}</div><div id="pInhalt"></div>`;
   const inhalt = panel.querySelector('#pInhalt');
   if (!zustand.profil) { inhalt.innerHTML = '<p class="leer">Sign in first.</p>'; return; }
   ANSICHTEN[pz.art][1](inhalt);
 }
 export function oeffnePanel(art) { pz.art = art; merkePanel(); zeigePanel(); }
 export const postZahl = () => postAnzahl(zustand.profil);
-function schliessePanel() { panel.hidden = true; rail.querySelector('[data-panel]').classList.remove('panel-an'); document.body.classList.remove('panel-fest'); }
-function schaltePanel() { if (!panel.hidden) { pz.fest = false; merkePanel(); schliessePanel(); } else zeigePanel(); }
+function schliessePanel() { panel.hidden = true; rail.querySelector('[data-panel]').classList.remove('panel-an'); $('#konto').classList.remove('panel-an'); document.body.classList.remove('panel-fest'); }
+function schaltePanel() { if (!panel.hidden) { pz.fest = false; merkePanel(); schliessePanel(); } else { pz.art = 'woche'; merkePanel(); zeigePanel(); } }
 // Logo = Home: zurück zum ersten Tab, nach oben, Inventar frisch von Bungie laden.
 $('#logo').addEventListener('click', async () => {
   const l = $('#logo');
@@ -174,7 +176,8 @@ griff.ondblclick = () => { delete pz.w; panel.style.width = ''; merkePanel(); se
 
 function kontoKlick() {
   if (!bungie.eingerichtet()) return meldung('The app is not connected to Bungie yet.', true);
-  if (zustand.konto) return oeffnePanel('konto');
+  // PC: Profil und Seitenpanel sind ein Knopf – öffnet immer „This week“, Konto ist ein Reiter im Panel.
+  if (zustand.konto) { if (matchMedia('(min-width: 761px)').matches) { if (!panel.hidden && !pz.fest) return schliessePanel(); return oeffnePanel('woche'); } return oeffnePanel('konto'); }
   bungie.anmelden();
 }
 function abmelden() {
@@ -249,7 +252,7 @@ async function start() {
     zustand.konto = await bungie.konto();
     await starteSprache(zustand.konto);
     $('#kontoName').textContent = zustand.konto.name;
-    $('#konto').title = 'Account';
+    $('#konto').title = 'This week, Xûr, Postmaster & account';
     await ladeProfil();
     // Frisch neu zeichnen, solange du noch nichts angeklickt hast; sonst nur die Daten tauschen.
     if (!alt || !klicks) wechsle(zustand.tab); else meldung('Data refreshed from Bungie.');
