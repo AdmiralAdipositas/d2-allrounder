@@ -132,7 +132,10 @@ export const ZOOMS = [0.85, 1, 1.15, 1.3, 1.5];
 export function zoom() { return parseFloat(lies('d2a.zoom', '1')) || 1; }
 export function setzeZoom(z) {
   z = Math.round(Math.max(0.7, Math.min(1.3, z)) * 100) / 100;
-  schreib('d2a.zoom', String(z)); document.documentElement.style.zoom = z === 1 ? '' : String(z);
+  schreib('d2a.zoom', String(z));
+  // Touch-Geräte (iPhone): CSS-zoom lässt dort rechts einen schwarzen Rand – stattdessen alles über die Schriftgröße skalieren.
+  if (matchMedia('(hover: none)').matches) { document.documentElement.style.zoom = ''; document.documentElement.style.setProperty('--txt', String(textGroesse() * z)); }
+  else document.documentElement.style.zoom = z === 1 ? '' : String(z);
   // Kleine Leiste unten links, die immer im Bild bleibt – falls der Schieber aus dem Bild rutscht.
   let p = document.querySelector('#zoomPille');
   if (!p) { p = document.createElement('div'); p.id = 'zoomPille'; document.body.append(p);
@@ -141,7 +144,7 @@ export function setzeZoom(z) {
   p.hidden = false; clearTimeout(p._t); p._t = setTimeout(() => { p.hidden = true; }, 8000);
 }
 export function textGroesse() { return parseFloat(lies('d2a.txt', '1')) || 1; }
-export function setzeText(t) { schreib('d2a.txt', String(t)); document.documentElement.style.setProperty('--txt', String(t)); }
+export function setzeText(t) { schreib('d2a.txt', String(t)); document.documentElement.style.setProperty('--txt', String(t * (matchMedia('(hover: none)').matches ? zoom() : 1))); }
 // Zwei Schieber: ganze App (Zoom) und nur die Schrift. Ein Klick auf „↺“ setzt zurück.
 export function zoomKnoepfe() {
   const z = zoom(), t = textGroesse();
