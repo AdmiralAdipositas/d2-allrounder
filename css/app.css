@@ -1161,3 +1161,29 @@ html[data-modus=einfach] .sblock[data-blk=seal] .srast{max-height:260px;overflow
 .nf-ok{margin:10px;padding:10px;border:0;border-radius:10px;background:var(--gold);color:#120d00;font-weight:800;cursor:pointer}
 @media (max-width:760px){#neuFenster{right:8px;left:8px;bottom:70px;width:auto}}
 .nf-ok{width:calc(100% - 20px);box-sizing:border-box}
+/* Handy-Leiste: 5 beschriftete Ziele + „Mehr“-Blatt */
+#handyLeiste,#mehrBlatt{display:none}
+@media (max-width:760px){
+  #rail{display:none!important}
+  #handyLeiste{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;height:62px;padding:4px 4px calc(4px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--bg3) 96%,transparent);border-top:1px solid var(--linie2)}
+  #handyLeiste button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:0;color:var(--matt);font-size:.66rem;font-weight:700;border-radius:10px;cursor:pointer}
+  #handyLeiste i{font-style:normal;font-size:1.2rem;line-height:1}#handyLeiste svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  #handyLeiste button.an{color:var(--gold);background:color-mix(in srgb,var(--gold) 12%,transparent)}
+  #mehrBlatt{display:block;position:fixed;inset:0;z-index:45;background:#0008;opacity:0;transition:opacity .2s}
+  #mehrBlatt.auf{opacity:1}#mehrBlatt[hidden]{display:none}
+  #mehrBlatt .mb-raster{position:absolute;left:0;right:0;bottom:62px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:16px 12px 14px;border-radius:18px 18px 0 0;background:var(--bg3);border-top:1px solid var(--gold);transform:translateY(20px);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+  #mehrBlatt.auf .mb-raster{transform:none}
+  .mb-raster button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border:1px solid var(--linie2);border-radius:12px;background:var(--bg2);color:var(--text);font-size:.7rem;font-weight:700;cursor:pointer}
+  .mb-raster b{font-size:1.3rem;line-height:1}.mb-raster svg{width:22px;height:22px;fill:none;stroke:var(--gold);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  #panel{inset:0 0 62px 0!important}
+}
+.gast-wahl{margin-top:18px}.gast-wahl small{display:block;color:var(--matt);margin-bottom:8px}
+.gast-wahl>div{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gast-wahl button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border:1px solid var(--linie2);border-radius:12px;background:var(--bg2);color:var(--text);cursor:pointer;text-align:left;transition:transform .15s,border-color .15s}
+.gast-wahl button:hover{transform:translateY(-2px);border-color:var(--gold)}.gast-wahl b{font-size:1.4rem}.gast-wahl span{font-weight:800}.gast-wahl button small{margin:0;font-size:.74rem}
+.gast-hinweis{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+@media (max-width:760px){.gast-wahl>div{grid-template-columns:1fr}}
+/* Gastmodus: kein Besitz bekannt – keine roten „fehlt“-Hinweise */
+html[data-gast] .fz em,html[data-gast] .fk-tags .tag:last-child,html[data-gast] .fk-vorschau em,html[data-gast] [data-schalter="besitz"]{display:none}
+html[data-gast] .fz.fehlt span,html[data-gast] .fz.fehlt b{color:inherit}
+html[data-gast] .fz.fehlt{color:var(--text)}

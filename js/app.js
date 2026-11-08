@@ -91,8 +91,38 @@ setzeNav({
 export const springeGuide = (id) => { zustand.guideZiel = id; wechsle('guide'); };
 export const springeWiki = (kat, suche) => { if (suche) setzeWikiSuche(suche); else setzeWikiKat(kat); wechsle('wiki'); };
 const TABS = Object.fromEntries(['start', 'char', 'vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats', 'hueter', 'squad'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
-function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
+// Ohne Anmeldung nutzbar: Raid Guide, Wiki, Build Finder (mit leerem Profil, ohne „besitzt du“).
+const OEFFENTLICH = ['guide', 'wiki', 'finder'];
+let gastLaedt = null;
+async function gastStart(tab) {
+  haupt.innerHTML = '<div class="start-lade"><i class="spinner gross"></i><p>Loading…</p></div>';
+  gastLaedt ??= Promise.all([ladeDefs(), ladeRolls(), ladeQuellen()]);
+  await gastLaedt;
+  zustand.gast = true; document.documentElement.dataset.gast = '1';
+  zustand.profil = { characters: { data: {} }, characterInventories: { data: {} }, characterEquipment: { data: {} }, profileInventory: { data: { items: [] } }, itemComponents: {}, profileRecords: { data: { records: {} } } };
+  wechsle(tab);
+}
+function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; haupt.querySelector('[data-anmelden]')?.addEventListener('click', () => bungie.anmelden()); }
 
+// Handy: 5 beschriftete Knöpfe unten, „Mehr“ öffnet ein Blatt mit allem anderen.
+const hl = $('#handyLeiste'), mb = $('#mehrBlatt');
+hl?.querySelectorAll('[data-ico]').forEach((i) => { const svg = rail.querySelector(`[data-tab="${i.dataset.ico}"] svg`); if (svg) i.innerHTML = svg.outerHTML; });
+const MEHR = [['tab:armor', 'Armor'], ['tab:loadouts', 'Loadouts'], ['tab:optimizer', 'Optimizer'], ['tab:stats', 'Stats'], ['tab:hueter', 'Guardians'], ['tab:wiki', 'Wiki'], ['tab:guide', 'Raid Guide'], ['zufall', 'Randomizer'], ['panel:woche', 'This week'], ['panel:xur', 'Xûr'], ['panel:post', 'Postmaster'], ['panel:konto', 'Settings'], ['modus', 'Simple / Detailed']];
+const EMO2 = { zufall: '🎲', 'panel:woche': '🗓', 'panel:xur': '🧳', 'panel:post': '📮', 'panel:konto': '⚙', modus: '👁' };
+function zeigeMehr() {
+  mb.querySelector('.mb-raster').innerHTML = MEHR.map(([z, n]) => { const t = z.startsWith('tab:') ? z.slice(4) : ''; const svg = t ? rail.querySelector(`[data-tab="${t}"] svg`)?.outerHTML : ''; return `<button data-mz="${z}">${svg ? `<i>${svg}</i>` : `<b>${EMO2[z] || '•'}</b>`}<span>${n}</span></button>`; }).join('');
+  mb.hidden = false; requestAnimationFrame(() => mb.classList.add('auf'));
+}
+const schliesseMehr = () => { mb.classList.remove('auf'); setTimeout(() => { mb.hidden = true; }, 200); };
+hl?.addEventListener('click', (e) => { const b = e.target.closest('[data-hl]'); if (!b) return; if (b.dataset.hl === 'mehr') return mb.hidden ? zeigeMehr() : schliesseMehr(); schliesseMehr(); schliessePanel(); wechsle(b.dataset.hl); });
+mb?.addEventListener('click', (e) => {
+  const z = e.target.closest('[data-mz]')?.dataset.mz; if (!z) { if (e.target === mb) schliesseMehr(); return; }
+  schliesseMehr();
+  if (z.startsWith('tab:')) { schliessePanel(); wechsle(z.slice(4)); }
+  else if (z.startsWith('panel:')) oeffnePanel(z.slice(6));
+  else if (z === 'zufall') import('./zufall.js').then((m) => m.oeffneZufall(zustand));
+  else if (z === 'modus') import('./konto.js').then((m) => { m.setzeModus(m.modus() === 'einfach' ? 'voll' : 'einfach'); });
+});
 // Andere Module springen über ein Ereignis zu einer Seite (z. B. Hüter → Squad-Check).
 $('#panelGriff')?.addEventListener('click', () => oeffnePanel('woche'));
 // Ansicht „Einfach / Ausführlich“: Beschriftung in der Leiste und Seite neu zeichnen.
@@ -102,9 +132,14 @@ window.addEventListener('d2a-modus', () => { modusText(); if (zustand.profil) we
 window.addEventListener('d2a-tab', (e) => { if (TABS[e.detail]) wechsle(e.detail); });
 function wechsle(tab) {
   zustand.tab = tab;
+  hl?.querySelectorAll('[data-hl]').forEach((b) => b.classList.toggle('an', b.dataset.hl === tab || (b.dataset.hl === 'vault' && tab === 'armor')));
   rail.querySelectorAll('[data-tab]').forEach((b) => { const an = b.dataset.tab === tab; b.classList.toggle('an', an); b.setAttribute('aria-selected', an); });
   try { localStorage.setItem('d2a.tab', tab); } catch {}
-  if (!zustand.profil) return platzhalter(titelVon(tab), 'Sign in with Bungie first.');
+  try { history.replaceState(null, '', tab === 'start' ? location.pathname : `#${tab}`); } catch {}
+  if (!zustand.profil || (zustand.gast && !OEFFENTLICH.includes(tab))) {
+    if (OEFFENTLICH.includes(tab)) return gastStart(tab);
+    return platzhalter(titelVon(tab), `<span class="gast-hinweis">🔒 This needs your Bungie account. <button class="haupt-knopf" data-anmelden>Sign in with Bungie</button></span>`);
+  }
   TABS[tab]();
 }
 const titelVon = (tab) => rail.querySelector(`[data-tab="${tab}"] span`)?.textContent || ANSICHTEN[tab]?.[0] || '';
@@ -224,9 +259,11 @@ function anmeldeSeite() {
   const bereit = bungie.eingerichtet();
   haupt.innerHTML = `<div class="anmelden karte"><h1>D2 Allrounder</h1>
     <p>Vault, loadouts, armor optimizer and weekly rotation for every class, on phone and PC.</p>
-    ${bereit ? '<button class="haupt-knopf" id="los">Sign in with Bungie</button>' : '<p>Setup is not finished yet: the Bungie app keys are missing.</p>'}<p class="leer klein">Your sign-in stays in this browser. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></p>
+    ${bereit ? '<button class="haupt-knopf" id="los">Sign in with Bungie</button>' : '<p>Setup is not finished yet: the Bungie app keys are missing.</p>'}
+    <div class="gast-wahl"><small>Look around first – no account needed</small><div>${[['guide', '⭐', 'Raid Guide', 'Animated encounters'], ['wiki', '📖', 'Wiki', 'Drops, perks, seals'], ['finder', '🔎', 'Builds', 'Community builds']].map(([t, e, n, x]) => `<button data-gast="${t}"><b>${e}</b><span>${n}</span><small>${x}</small></button>`).join('')}</div></div><p class="leer klein">Your sign-in stays in this browser. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></p>
     <p class="leer klein anm-hinweis">Unofficial fan app, not affiliated with Bungie. Destiny content © Bungie, Inc. Mostly built by Claude, Anthropic’s AI.</p></div>`;
   $('#los')?.addEventListener('click', () => bungie.anmelden());
+  haupt.querySelectorAll('[data-gast]').forEach((b) => b.addEventListener('click', () => wechsle(b.dataset.gast)));
 }
 
 async function start() {
@@ -252,13 +289,27 @@ async function start() {
   // Abgelaufene Anmeldung: Bungie kennt die Freigabe schon und leitet ohne Rückfrage zurück.
   if (bungie.eingerichtet() && !bungie.angemeldet() && bungie.warAngemeldet() && !new URLSearchParams(location.search).has('error') && Date.now() - Number(sessionStorage.getItem('d2a.auto') || 0) > 120_000) {
     sessionStorage.setItem('d2a.auto', String(Date.now())); haupt.innerHTML = '<p class="leer">Renewing your Bungie sign-in…</p>'; return bungie.anmelden(); }
-  if (!bungie.eingerichtet() || !bungie.angemeldet()) { wechsleNurLeiste(); starteSprache(null); return anmeldeSeite(); }
+  // Teilen-Links: #guide, #wiki, #finder, #build/<id>
+  const link = location.hash.slice(1); const [lTab, lArg] = link.split('/');
+  if (lTab === 'build' && lArg) try { localStorage.setItem('d2a.finderFokus', decodeURIComponent(lArg)); } catch {}
+  if (lTab === 'guide' && lArg) zustand.guideZiel = decodeURIComponent(link.slice(6));
+  const linkTab = lTab === 'build' ? 'finder' : lTab;
+  // Link in einem schon offenen Tab (nur der #-Teil ändert sich): direkt hinspringen.
+  window.addEventListener('hashchange', () => {
+    const l = location.hash.slice(1); const [t, a] = l.split('/');
+    if (t === 'build' && a) try { localStorage.setItem('d2a.finderFokus', decodeURIComponent(a)); } catch {}
+    if (t === 'guide' && a) zustand.guideZiel = decodeURIComponent(l.slice(6));
+    const z = t === 'build' ? 'finder' : t;
+    if (TABS[z] && (zustand.profil || OEFFENTLICH.includes(z))) wechsle(z);
+  });
+  if (!bungie.eingerichtet() || !bungie.angemeldet()) { wechsleNurLeiste(); starteSprache(null); if (OEFFENTLICH.includes(linkTab)) return wechsle(linkTab); return anmeldeSeite(); }
+  if (TABS[linkTab]) zustand.linkTab = linkTab;
   haupt.innerHTML = '<div class="start-lade"><i class="spinner gross"></i><p>Loading your guardians…</p><small>Game data and your last inventory come from this device, fresh data from Bungie follows.</small></div>';
   try {
     await Promise.all([ladeDefs(), ladeRolls(), ladeQuellen()]);
     zustand.oeffnePanel = oeffnePanel; zustand.postZahl = postZahl;
-    // Jeder Start beginnt mit der Übersicht.
-    zustand.tab = 'start';
+    // Jeder Start beginnt mit der Übersicht – außer ein Teilen-Link zeigt woandershin.
+    zustand.tab = zustand.linkTab || 'start';
     // Schnellstart: letztes Profil sofort zeigen, frische Daten kommen im Hintergrund.
     const alt = await gespeichertesProfil();
     let klicks = 0;

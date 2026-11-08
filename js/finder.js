@@ -109,7 +109,7 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
   haupt.innerHTML = '<h1>Build Finder</h1><p class="leer">Loading builds…</p>';
   const d = await lade();
   const chars = Object.values(zustand.profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
-  if (wahl.klasse === null) wahl.klasse = chars[0].classType;
+  if (wahl.klasse === null) wahl.klasse = chars[0]?.classType ?? 2;
   // Ausgeblendete Builds („Not for me“ im Neu-Fenster) weglassen; ein Build aus dem Neu-Fenster wird aufgeklappt und angesprungen.
   const weg = new Set((() => { try { return JSON.parse(localStorage.getItem('d2a.buildsWeg') || '[]'); } catch { return []; } })());
   let fokus = null; try { fokus = localStorage.getItem('d2a.finderFokus'); localStorage.removeItem('d2a.finderFokus'); } catch {}
