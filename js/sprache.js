@@ -8,6 +8,7 @@ export const SPRACHEN = [
   ['pl', 'Polski'], ['ru', 'Русский'], ['ja', '日本語'], ['ko', '한국어'], ['zh-chs', '简体中文'],
 ];
 const UI_DE = {
+  '⟳ Track my fireteam now': '⟳ Meinen Einsatztrupp jetzt tracken', 'automatic (checks every minute)': 'automatisch (prüft jede Minute)', 'Checking fireteam…': 'Prüfe Einsatztrupp…', 'Not in a fireteam right now': 'Gerade in keinem Einsatztrupp', 'Profile is private – only account stats.': 'Profil ist privat – nur Konto-Stats.',
   '⬇ Backup settings & marks': '⬇ Einstellungen & Markierungen sichern', '⬆ Restore backup': '⬆ Sicherung laden', '🔥 Mark fodder': '🔥 Futter markieren', '🔥 Fodder': '🔥 Futter',
   'Weapons & armor': 'Waffen & Rüstung',
   "Check before equipping": "Vor dem Anlegen prüfen",

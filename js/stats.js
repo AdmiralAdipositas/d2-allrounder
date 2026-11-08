@@ -318,11 +318,15 @@ async function loeseName(name) {
   try { localStorage.setItem(NAME_KEY, JSON.stringify(c)); } catch {}
   return c[name];
 }
-let trupp = null;
+let trupp = null, truppAkt = '', truppKey = '', truppInfo = {}, truppTimer = 0;
+let truppAuto = (() => { try { return localStorage.getItem('d2a.truppAuto') !== '0'; } catch { return true; } })();
 async function aktuellerTrupp(k) {
   try {
-    const r = await bungie.get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/?components=1000`);
+    const r = await bungie.get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/?components=1000,204`);
     const leute = r.profileTransitoryData?.data?.partyMembers || [];
+    // Was gerade gespielt wird (falls Bungie es verrät).
+    const ca = Object.values(r.characterActivities?.data || {}).sort((a, b) => new Date(b.dateActivityStarted) - new Date(a.dateActivityStarted))[0];
+    const ah = ca?.currentActivityHash; truppAkt = ah ? (defs.akt?.[ah]?.n || (await bungie.get(`/Destiny2/Manifest/DestinyActivityDefinition/${ah}/`).catch(() => null))?.displayProperties?.name || '') : '';
     const out = [];
     for (const p of leute) {
       if (p.membershipId === k.membershipId) continue;
@@ -332,6 +336,45 @@ async function aktuellerTrupp(k) {
     }
     return out;
   } catch { return []; }
+}
+// Kurzprofil je Mitspieler: aktueller Charakter, Licht, Subclass, angelegte Exotics, Kills/KD/Raids – alles öffentlich.
+const KL = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
+async function truppKarte(name) {
+  if (truppInfo[name]?.zeit > Date.now() - 5 * 60e3) return truppInfo[name];
+  const k = await loeseName(name);
+  const [pr, st] = await Promise.all([
+    bungie.get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/?components=100,200,205`).catch(() => null),
+    bungie.get(`/Destiny2/${k.membershipType}/Account/${k.membershipId}/Stats/?groups=1`).catch(() => null),
+  ]);
+  const c = Object.values(pr?.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed))[0];
+  const eq = c ? pr.characterEquipment?.data?.[c.characterId]?.items || [] : [];
+  const sub = eq.map((i) => defs.items[i.itemHash]).find((x) => x?.b === 3284755031);
+  const exo = eq.map((i) => defs.items[i.itemHash]).filter((x) => x?.q === 6 && (x.t === 2 || x.t === 3));
+  const a = st?.mergedAllCharacters?.merged?.allTime || {};
+  const pve = st?.mergedAllCharacters?.results?.allPvE?.allTime || {};
+  const v = (o, x) => o?.[x]?.basic?.value || 0;
+  truppInfo[name] = { zeit: Date.now(), k, privat: !pr?.characters?.data, klasse: c ? KL[c.classType] : '', licht: c?.light || 0, emblem: c?.emblemBackgroundPath || '', sub, exo,
+    std: v(a, 'secondsPlayed') / 3600, kills: v(a, 'kills'), kd: v(a, 'killsDeathsRatio'), pveKd: v(pve, 'killsDeathsRatio'), clears: v(pve, 'activitiesCleared') };
+  return truppInfo[name];
+}
+function truppKartenHtml() {
+  if (!trupp?.length) return '';
+  return `<div class="tkarten">${trupp.map((n) => { const t = truppInfo[n]; if (!t) return `<div class="tkarte"><b>${esc(n.split('#')[0])}</b><small>Loading…</small></div>`;
+    return `<div class="tkarte" style="${t.emblem ? `--emb:url(${BILD}${t.emblem})` : ''}"><div class="tk-kopf"><b>${esc(n.split('#')[0])}</b><span>${esc(t.klasse)} ${t.licht ? `✦ ${t.licht}` : ''}</span></div>
+      ${t.privat ? '<small>Profile is private – only account stats.</small>' : `<div class="tk-zeile">${t.sub ? `<i class="wic" style="background-image:url(${BILD}${t.sub.i})" title="${esc(t.sub.n)}"></i>` : ''}${t.exo.map((x) => `<i class="wic" style="background-image:url(${BILD}${x.i})" title="${esc(x.n)}"></i>`).join('')}<small>${esc([t.sub?.n, ...t.exo.map((x) => x.n)].filter(Boolean).join(' · '))}</small></div>`}
+      <div class="tk-werte"><span><b>${zahl(t.std)}</b> h</span><span><b>${zahl(t.kills)}</b> kills</span><span>K/D <b>${t.kd.toFixed(2)}</b></span><span>PvE K/D <b>${t.pveKd.toFixed(2)}</b></span><span><b>${zahl(t.clears)}</b> clears</span></div></div>`; }).join('')}</div>`;
+}
+// Einsatztrupp verfolgen: übernimmt alle Mitglieder in den Vergleich, lädt Kurzprofile und den großen Vergleich.
+async function truppVerfolgen(haupt, k, erzwingen) {
+  const t = await aktuellerTrupp(k); trupp = t;
+  const key = [...t].sort().join('|');
+  const neu = key !== truppKey; truppKey = key;
+  if (t.length && (erzwingen || (truppAuto && neu))) {
+    vergleich = new Set(t); truppNeu(haupt);
+    await Promise.all(t.map((n) => truppKarte(n).catch(() => null)));
+    truppNeu(haupt);
+    const box = haupt.querySelector('.vglbox'); if (box) vergleichZeigen(box, tipDaten.ich, tipDaten.k);
+  } else truppNeu(haupt);
 }
 function mitspieler(d, ich) {
   const z = new Map();
@@ -345,7 +388,7 @@ function truppBlock(d, ich, eigen) {
   const fav = favs();
   const mit = mitspieler(d, ich);
   const chip = (n, extra = '') => `<span class="pchip ${vergleich.has(n) ? 'an' : ''}"><button data-ansehen="${esc(n)}" title="View stats">${esc(n.split('#')[0])}<small>#${esc(n.split('#')[1] || '')}</small>${extra}</button><button data-fav="${esc(n)}" title="Favorite">${fav.includes(n) ? '★' : '☆'}</button><button data-vgl="${esc(n)}" title="Compare">⇄</button></span>`;
-  return `${eigen ? `<h4>Fireteam right now</h4><div class="chips" data-truppjetzt>${trupp == null ? '<span class="leer klein">Checking…</span>' : trupp.length ? trupp.map((n) => chip(n)).join('') : '<span class="leer klein">Not in a fireteam (or offline).</span>'}</div>` : ''}
+  return `${eigen ? `<h4>Fireteam right now ${truppAkt ? `<small>· ${esc(truppAkt)}</small>` : ''}</h4><div class="trupp-steuer"><button class="haupt-knopf" data-truppjetzt-los>⟳ Track my fireteam now</button><label class="zf-cb"><input type="checkbox" data-truppauto ${truppAuto ? 'checked' : ''}> automatic (checks every minute)</label></div>${truppKartenHtml()}<div class="chips" data-truppjetzt>${trupp == null ? '<span class="leer klein">Checking…</span>' : trupp.length ? trupp.map((n) => chip(n)).join('') : '<span class="leer klein">Not in a fireteam (or offline).</span>'}</div>` : ''}
     ${fav.length ? `<h4>Favorites</h4><div class="chips">${fav.map((n) => chip(n)).join('')}</div>` : ''}
     <h4>Played with most <small>${mit.length} guardians in your raid & dungeon reports</small></h4><div class="chips pliste">${mit.map(([n, c]) => chip(n, `<em>${c}</em>`)).join('') || '<span class="leer klein">Appears once your reports are loaded.</span>'}</div>
     ${vergleich.size ? `<p><button class="haupt-knopf" data-vergleich>Compare ${vergleich.size + 1} guardians</button> <button class="chip klein" data-vglweg>clear</button></p>` : '<p class="leer klein">⇄ adds a guardian to the comparison.</p>'}
@@ -441,7 +484,11 @@ export async function zeigeStats(haupt, zustand) {
   zeichne();
   verbinde(haupt, zustand);
   truppNeu = (h) => { const b = h.querySelector('[data-blk=trupp]'); if (!b) return; const sum = b.querySelector('summary').outerHTML; b.innerHTML = sum + truppBlock(d, tipDaten.ich, !fremd); };
-  if (!fremd && trupp == null) aktuellerTrupp(k).then((t) => { trupp = t; if (haupt.dataset.lauf === lauf) truppNeu(haupt); });
+  clearInterval(truppTimer);
+  if (!fremd) {
+    truppVerfolgen(haupt, k, false);
+    truppTimer = setInterval(() => { if (haupt.dataset.lauf !== lauf || !haupt.querySelector('[data-blk=trupp]')) { clearInterval(truppTimer); return; } if (truppAuto && !document.hidden) truppVerfolgen(haupt, k, false); }, 60e3);
+  }
   // Spielberichte im Hintergrund nachladen, Ansicht ab und zu auffrischen.
   pgcrNachladen(d, () => { if (haupt.dataset.lauf !== lauf) return; const offen = [...haupt.querySelectorAll('details.rzeile[open] .rn')].map((x) => x.firstChild?.textContent); const y = scrollY; zeichne(); haupt.querySelectorAll('details.rzeile').forEach((z) => { if (offen.includes(z.querySelector('.rn')?.firstChild?.textContent)) z.open = true; }); scrollTo({ top: y }); }, lauf, haupt);
 }
@@ -505,6 +552,9 @@ function verbinde(haupt, zustand) {
     const vg = e.target.closest('[data-vgl]');
     if (vg) { const n = vg.dataset.vgl; vergleich.has(n) ? vergleich.delete(n) : vergleich.add(n); truppNeu(haupt); return; }
     if (e.target.closest('[data-vglweg]')) { vergleich.clear(); truppNeu(haupt); return; }
+    if (e.target.matches('[data-truppauto]')) { truppAuto = e.target.checked; try { localStorage.setItem('d2a.truppAuto', truppAuto ? '1' : '0'); } catch {} if (truppAuto) { truppKey = ''; truppVerfolgen(haupt, tipDaten.k, false); } return; }
+    const tj = e.target.closest('[data-truppjetzt-los]');
+    if (tj) { tj.disabled = true; tj.textContent = 'Checking fireteam…'; truppVerfolgen(haupt, tipDaten.k, true).then(() => { if (!trupp?.length) { const b = haupt.querySelector('[data-truppjetzt-los]'); if (b) b.textContent = 'Not in a fireteam right now'; } }); return; }
     if (e.target.closest('[data-vergleich]')) { vergleichZeigen(haupt.querySelector('.vglbox'), tipDaten.ich, tipDaten.k); return; }
     if (!e.target.closest('#stip') && tip()) tip().hidden = true;
   };
