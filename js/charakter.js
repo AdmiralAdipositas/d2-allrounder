@@ -31,7 +31,7 @@ function freistellen(pfad) {
         const ab = (i) => Math.hypot(p[i * 4] - bg[0], p[i * 4 + 1] - bg[1], p[i * 4 + 2] - bg[2]);
         const weg = new Uint8Array(n * m), q = [];
         for (let x = 0; x < n; x++) q.push(x, (m - 1) * n + x); for (let y = 0; y < m; y++) q.push(y * n, y * n + n - 1);
-        while (q.length) { const i = q.pop(); if (weg[i] || ab(i) > 28 || p[i * 4] - p[i * 4 + 2] < 9) continue; // nur der warme, beige Kasten, nicht das graue Metall weg[i] = 1; const x = i % n, y = (i / n) | 0; if (x > 0) q.push(i - 1); if (x < n - 1) q.push(i + 1); if (y > 0) q.push(i - n); if (y < m - 1) q.push(i + n); }
+        while (q.length) { const i = q.pop(); if (weg[i] || ab(i) > 28 || p[i * 4] - p[i * 4 + 2] < 9) continue; /* nur der warme, beige Kasten, nicht das graue Metall */ weg[i] = 1; const x = i % n, y = (i / n) | 0; if (x > 0) q.push(i - 1); if (x < n - 1) q.push(i + 1); if (y > 0) q.push(i - n); if (y < m - 1) q.push(i + n); }
         for (let i = 0; i < n * m; i++) if (weg[i]) p[i * 4 + 3] = 0;
         g.putImageData(bild, 0, 0); frei[pfad] = c.toDataURL('image/png');
         try { localStorage.setItem('d2a.d1frei2', JSON.stringify(frei)); } catch {}
