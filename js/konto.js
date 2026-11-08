@@ -1,5 +1,5 @@
 import { SPRACHEN, sprache, waehle } from './sprache.js';
-import { themaKnoepfe, verbindeThema } from './thema.js';
+import { themaKnoepfe, verbindeThema, zoomKnoepfe, verbindeZoom } from './thema.js';
 import { zeigeWillkommen } from './willkommen.js';
 // Konto: Bungie-Name, Plattform, Charaktere mit Emblem, Spielzeit, Abmelden, App-Einstellungen.
 import { defs } from './defs.js';
@@ -36,6 +36,7 @@ export function zeigeKonto(el, zustand, aktionen) {
     ${chars.map((c) => `<div class="kchar" style="background-image:linear-gradient(90deg,color-mix(in srgb,var(--bg) 87%,transparent),color-mix(in srgb,var(--bg) 33%,transparent)),url(${BILD}${c.emblemBackgroundPath || ''})">
       <i style="background-image:url(${BILD}${c.emblemPath || ''})"></i><div><b>${KLASSE[c.classType]}</b><small>${RASSE[c.raceType] || ''} · ${zeit(c.minutesPlayedTotal || 0)} · last played ${vor(c.dateLastPlayed)}</small></div><span class="klicht">${c.light}</span></div>`).join('')}
     <section class="karte konto-look"><h3>Look</h3>${themaKnoepfe()}</section>
+    <section class="karte konto-zoom"><h3>App size</h3>${zoomKnoepfe()}</section>
     <section class="karte konto-sprache"><h3>Language</h3><select id="sprachWahl" aria-label="Language" data-roh>${SPRACHEN.map(([c, n]) => `<option value="${c}" ${c === sprache ? 'selected' : ''}>${n}</option>`).join('')}</select>
       <p class="leer klein">Item names, perks and descriptions use Bungie's own translations. App texts are available in English and German. Saved for this Bungie account.</p></section>
     <section class="karte konto-app"><h3>App</h3>
@@ -45,6 +46,7 @@ export function zeigeKonto(el, zustand, aktionen) {
       <p class="leer klein">Install on your phone: open this page in Safari or Chrome → Share → “Add to Home Screen”.</p>
       <p class="leer klein"><a href="privacy.html" target="_blank" rel="noopener">Privacy</a> · Unofficial fan app, not affiliated with Bungie. Destiny content © Bungie, Inc. · Mostly built by Claude (Anthropic).</p></section>`;
   verbindeThema(el.querySelector('.konto-look'), () => eigeneShader(k));
+  verbindeZoom(el.querySelector('.konto-zoom'));
   el.querySelector('#sprachWahl')?.addEventListener('change', (e) => waehle(k, e.target.value));
   el.onclick = (e) => {
     const b = e.target.closest('[data-k]');

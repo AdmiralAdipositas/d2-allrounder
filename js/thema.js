@@ -48,24 +48,25 @@ export async function palette(url) {
 export function varsAus(pal) {
   const bunt = pal.filter((f) => f.hsl[1] > 0.18 && f.hsl[2] > 0.12 && f.hsl[2] < 0.9);
   const basis = (bunt.length ? bunt : pal).slice().sort((a, b) => b.anteil - a.anteil)[0];
-  const [bh, bs0] = basis.hsl; const bs = Math.min(0.45, bs0 * 0.8);
+  const [bh, bs0] = basis.hsl; const neutral = bs0 < 0.15; const bs = neutral ? bs0 : Math.min(0.75, Math.max(0.45, bs0));
   const akzente = (bunt.length ? bunt : pal).slice().sort((a, b) => (b.hsl[1] * (0.4 + b.anteil)) - (a.hsl[1] * (0.4 + a.anteil)));
   const a1 = akzente[0]; const a2 = akzente.find((f) => Math.abs(((f.hsl[0] - a1.hsl[0] + 540) % 360) - 180) > 35) || akzente[1] || a1;
   // Neutrale Shader (Schwarz/Weiß/Grau) bleiben neutral: keine erfundene Farbe.
-  const hell = (f, l) => css(f.hsl[0], f.hsl[1] < 0.15 ? f.hsl[1] : Math.max(0.35, f.hsl[1]), l);
+  // Akzente als Neon: volle Sättigung, mittlere Helligkeit. Neutrale Farben bleiben neutral.
+  const hell = (f, l) => css(f.hsl[0], f.hsl[1] < 0.15 ? f.hsl[1] : Math.max(0.9, f.hsl[1]), f.hsl[1] < 0.15 ? Math.max(l, 0.8) : l);
   const v = {
-    '--bg': css(bh, bs, 0.06), '--bg2': css(bh, bs, 0.085), '--flaeche': css(bh, bs, 0.11), '--flaeche2': css(bh, bs, 0.15), '--linie': css(bh, bs, 0.22),
+    '--bg': css(bh, bs, 0.07), '--bg2': css(bh, bs, 0.1), '--flaeche': css(bh, bs, 0.13), '--flaeche2': css(bh, bs, 0.18), '--linie': css(a1.hsl[0], neutral ? 0.1 : 0.6, 0.3),
     '--text': css(bh, 0.2, 0.94), '--matt': css(bh, 0.18, 0.66), '--text2': css(bh, 0.2, 0.84), '--text3': css(bh, 0.2, 0.88),
-    '--violett': hell(a1, 0.68), '--gold': hell(a2, 0.66), '--violett33': css(a1.hsl[0], a1.hsl[1] < 0.15 ? a1.hsl[1] : Math.max(0.35, a1.hsl[1]), 0.68, 0.2), '--violett55': css(a1.hsl[0], a1.hsl[1] < 0.15 ? a1.hsl[1] : Math.max(0.35, a1.hsl[1]), 0.68, 0.33),
-    '--flaeche3': css(bh, bs, 0.17), '--bg3': css(bh, bs, 0.075), '--linie2': css(bh, bs, 0.28), '--bg0': css(bh, bs, 0.05), '--bg4': css(bh, bs, 0.07), '--bg5': css(bh, bs, 0.08), '--bg6': css(bh, bs, 0.1),
+    '--violett': hell(a1, 0.62), '--gold': hell(a2, 0.62), '--violett33': css(a1.hsl[0], a1.hsl[1] < 0.15 ? a1.hsl[1] : Math.max(0.35, a1.hsl[1]), 0.68, 0.2), '--violett55': css(a1.hsl[0], a1.hsl[1] < 0.15 ? a1.hsl[1] : Math.max(0.35, a1.hsl[1]), 0.68, 0.33),
+    '--flaeche3': css(bh, bs, 0.17), '--bg3': css(bh, bs, 0.075), '--linie2': css(a1.hsl[0], neutral ? 0.1 : 0.6, 0.36), '--bg0': css(bh, bs, 0.05), '--bg4': css(bh, bs, 0.07), '--bg5': css(bh, bs, 0.08), '--bg6': css(bh, bs, 0.1),
     '--det1': css(bh, bs, 0.12), '--det2': css(bh, bs, 0.065), '--rail1': css(bh, bs, 0.09, 0.95), '--rail2': css(bh, bs, 0.055, 0.95),
-    '--glow1': css(a1.hsl[0], a1.hsl[1], 0.35, 0.3), '--glow2': css(a2.hsl[0], a2.hsl[1], 0.3, 0.25),
+    '--glow1': css(a1.hsl[0], Math.max(0.8, a1.hsl[1]), 0.4, 0.45), '--glow2': css(a2.hsl[0], Math.max(0.8, a2.hsl[1]), 0.4, 0.35),
   };
   // Restliche fest eingetragene Flächenfarben (--p…): gleiche Helligkeit, Farbton des Shaders.
   for (const [k, l] of [['--p110e25', 0.1], ['--p07051a', 0.06], ['--p050310', 0.04], ['--p120c22', 0.09], ['--p2a2450', 0.24], ['--p5b3a8f', 0.4], ['--p3b2560', 0.26], ['--p0b0920', 0.08], ['--p16123a', 0.15], ['--p0b0a1a', 0.07]]) v[k] = css(bh, bs, l);
   // Alle Shader-Farben für die Navigation und Akzente (--sh1 … --sh6), hell genug für dunkle Flächen.
   const alle = [...akzente, ...pal.filter((f) => !akzente.includes(f))];
-  for (let i = 0; i < 6; i++) { const f = alle[i % alle.length]; v[`--sh${i + 1}`] = f.hsl[1] < 0.12 ? css(bh, 0.15, Math.max(0.7, f.hsl[2])) : hell(f, 0.66); }
+  for (let i = 0; i < 6; i++) { const f = alle[i % alle.length]; v[`--sh${i + 1}`] = f.hsl[1] < 0.12 ? css(bh, 0.15, Math.max(0.7, f.hsl[2])) : hell(f, 0.62); }
   v['--shpal'] = pal.map((f) => `rgb(${f.rgb.join(' ')})`).join(',');
   return v;
 }
@@ -119,3 +120,10 @@ async function shaderListe(eigene) {
   return `<input class="shader-suche" type="search" placeholder="Search your shaders…" aria-label="Search shaders"><p class="leer klein">${hashes ? `${alle.length} shaders in your collection.` : 'Your collection could not be read, showing all shaders.'} Tap one: the whole app takes on its colors.</p>
     <div class="shader-gitter">${alle.map(([h, d]) => `<button type="button" data-shader="${h}" data-n="${d.n.toLowerCase().replace(/"/g, '')}" class="${String(an) === h ? 'an' : ''}" title="${d.n.replace(/"/g, '&quot;')}"><i style="background-image:url(https://www.bungie.net${d.i})"></i><span>${d.n}</span></button>`).join('')}</div>`;
 }
+
+// App-Größe: Zoom für die ganze App (zusätzlich zu Pinch/Strg+Mausrad), pro Gerät gespeichert.
+export const ZOOMS = [0.85, 1, 1.15, 1.3, 1.5];
+export function zoom() { return parseFloat(lies('d2a.zoom', '1')) || 1; }
+export function setzeZoom(z) { schreib('d2a.zoom', String(z)); document.documentElement.style.zoom = z === 1 ? '' : String(z); }
+export function zoomKnoepfe() { const an = zoom(); return `<div class="zoom-wahl" role="radiogroup" aria-label="App size">${ZOOMS.map((z) => `<button type="button" class="chip ${z === an ? 'an' : ''}" data-zoom="${z}" aria-checked="${z === an}">${Math.round(z * 100)} %</button>`).join('')}</div><p class="leer klein">Also works: pinch with two fingers, or Ctrl + mouse wheel / Ctrl + plus.</p>`; }
+export function verbindeZoom(el) { el.addEventListener('click', (e) => { const b = e.target.closest('[data-zoom]'); if (!b) return; setzeZoom(Number(b.dataset.zoom)); el.querySelectorAll('[data-zoom]').forEach((x) => { const a = x === b; x.classList.toggle('an', a); x.setAttribute('aria-checked', a); }); }); }

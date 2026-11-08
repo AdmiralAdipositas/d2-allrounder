@@ -592,7 +592,7 @@ body.zieht .ctresor{border-color:var(--gold);color:var(--text);background:#e8c35
 .ck.geist{position:fixed;z-index:200;width:48px;height:48px;pointer-events:none;opacity:.9;box-shadow:0 8px 24px #000c;transform:scale(1.1)}
 .ck.quelle{opacity:.35}
 body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
-.ck[data-cid]{touch-action:pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.ck[data-cid]{touch-action:pan-y pinch-zoom;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 @media(max-width:760px){.ctresor{position:sticky;top:0;z-index:15;background:var(--bg)}}
 @media(max-width:760px){.cwahl{grid-template-columns:repeat(3,1fr)!important;gap:6px}.cbanner{background-position:12% center}.cbanner{height:auto}.cb-kopf{height:50px;padding:5px 8px;grid-template-columns:1fr}.cbanner b{font-size:.85rem}.cb-kopf small{display:none}.cb-kopf em{grid-row:2;grid-column:1;font-size:.95rem}.cb-stats i{width:13px;height:13px}.cb-stats b{font-size:.75rem}.ctresor small{font-size:.7rem}}
 /* In-Game-Hover für Items */
@@ -678,3 +678,15 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .wchance{border:1px solid var(--linie);border-left:3px solid var(--gold);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--bg2);max-width:760px}
 .wchance>b{font-family:var(--kopf);letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-size:.85rem}
 .wchance p{margin:4px 0;font-size:.88rem}.wchance small{color:var(--matt);font-size:.72rem}
+
+/* App-Größe (Zoom) */
+.zoom-wahl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.zoom-wahl button{min-width:52px}.zoom-wahl button.an{border-color:var(--gold);color:var(--gold)}
+
+/* „My shader“: Neon-Akzente, kräftige Balken, Leuchten */
+:root[data-theme=shader] body{background:radial-gradient(1200px 700px at 85% -10%,var(--glow1),transparent 60%),radial-gradient(900px 600px at -10% 110%,var(--glow2),transparent 60%),var(--bg)}
+:root[data-theme=shader] :is(.tbar b,.sealbar i,.st b,.xstats b,.sbar2 i,.wstat u,.tage i,.smax,.cbar i,.obar i){background:linear-gradient(90deg,var(--sh1),var(--sh2),var(--sh3));box-shadow:0 0 8px var(--sh1),0 0 2px var(--sh2)}
+:root[data-theme=shader] :is(h2,h3,.wk-kicker,.wh,.wchance>b){text-shadow:0 0 10px color-mix(in srgb,var(--gold) 70%,transparent)}
+:root[data-theme=shader] :is(.karte,.kpi,.fb,.xk,.lo,.wkachel,.checkpunkt){box-shadow:0 0 0 1px color-mix(in srgb,var(--violett) 18%,transparent),0 0 18px -8px var(--violett)}
+:root[data-theme=shader] :is(button.an,.chip[aria-pressed=true],.thema-wahl button.an,.cbanner.an){box-shadow:0 0 12px var(--violett),inset 0 0 0 1px var(--violett)}
+:root[data-theme=shader] #rail button svg{filter:drop-shadow(0 0 4px var(--ak))}
+:root[data-theme=shader] .haupt-knopf{box-shadow:0 0 16px var(--gold)}
