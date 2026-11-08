@@ -1360,3 +1360,28 @@ body.abgemeldet #lichtfaden,body.abgemeldet #panelGriff,body.abgemeldet #handyLe
 @media(max-width:700px){.f1 .wk-app{position:relative;right:auto;top:auto;width:430px;transform:scale(.72);transform-origin:left top;margin:-6px 0 -86px}.f1 .wk-app .lv-karte:nth-child(n+3){display:none}.f1>:not(.wk-app):not(.wk-glanz){max-width:none}}
 .lo-mehr>summary::before,.lo-mehr>summary::after{content:none!important;display:none!important}
 @media(max-width:760px){.sbar{grid-template-columns:70px minmax(0,1fr) 64px;gap:12px}.sname{font-size:.68rem;letter-spacing:0;overflow:hidden;text-overflow:ellipsis}.sleiste{margin-left:6px}}
+#rail:hover,#rail.offen{background:linear-gradient(180deg,var(--rail1),var(--rail2)),var(--bg)}
+.tresorzahl .tz-l{font-weight:700;color:var(--text2)}
+.vlegende{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap;margin-left:auto;font-size:.72rem;color:var(--matt)}
+.vlegende .ort{position:static;display:inline-block;width:9px;height:9px;border:0;margin-left:6px}
+.vlegende .lg-god{color:var(--gut);margin-left:6px}.vlegende .lg-mw{display:inline-block;width:12px;height:12px;border:2px solid #e8c35a;border-radius:2px;margin-left:6px}
+@media(max-width:760px){.vkopf{gap:6px}.vkopf h1{flex:1 0 100%}.vkopf #suche{flex:1 1 100%}.vkopf .vsort{order:2}.vlegende{margin-left:0}}
+/* Wiki: Klassen-Wahl und Sprungleiste in einer Zeile, Scroll-Hinweis an abgeschnittenen Leisten */
+.wkombi{display:flex;align-items:center;gap:10px;margin-bottom:8px;min-width:0}.wkombi .wsub{flex:none;margin:0}.wkombi .wsprung{flex:1;min-width:0;margin:0!important}
+.wsprung,.wnav{mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)}
+@media(min-width:761px){.wnav{mask-image:none}}
+@media(max-width:760px){.wkombi{flex-direction:column;align-items:stretch;gap:6px}.wkombi .wsub{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)}}
+/* Inventar: Stat-Namen, Handy-Reiter statt Streifen */
+.ck-sn{display:block;font-size:.55rem;letter-spacing:.04em;text-transform:uppercase;color:var(--matt);line-height:1;margin-top:1px}
+.ck-stats>span{display:inline-flex;flex-direction:column;align-items:center}
+.chandy-tabs{display:none}
+@media(max-width:760px){
+  .chandy-tabs{display:flex;gap:6px;margin:0 0 8px}.chandy-tabs button{flex:1;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;border:1px solid var(--linie2);background:var(--bg2);color:var(--text2);cursor:pointer;min-width:0}
+  .chandy-tabs button i{width:22px;height:22px;border-radius:4px;background:var(--emb) center/cover,var(--bg3);flex:none}.chandy-tabs b{font-size:.85rem}.chandy-tabs small{font-size:.7rem;color:var(--gold);margin-left:auto}
+  .chandy-tabs button.an{border-color:var(--gold);color:var(--text);background:color-mix(in srgb,var(--gold) 12%,var(--bg2))}
+  .inv-fokus .cstreifen-box{display:none}.inv-fokus{grid-template-columns:1fr!important}
+  .cspalte .leer-k{display:none}
+}
+.kring{display:inline-block;width:30px;height:30px;margin-right:8px;vertical-align:-6px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p)*1%),var(--flaeche3,#2c2650) 0);-webkit-mask:radial-gradient(circle,transparent 9px,#000 10px);mask:radial-gradient(circle,transparent 9px,#000 10px);animation:kringRein 1.2s ease-out}
+@keyframes kringRein{from{transform:rotate(-120deg);opacity:0}}
+.lo-sub{display:block;font:500 .74rem var(--fliess);color:var(--matt);text-transform:none;letter-spacing:0;margin-top:2px}

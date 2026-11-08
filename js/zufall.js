@@ -276,7 +276,7 @@ export function oeffneZufall(zustand) {
     const t = e.target.closest('[data-tab]'); if (t) { tab = t.dataset.tab; return zeichne(); }
     if (e.target.closest('[data-wuerfeln]') && tab === 'rad' && kette?.e) { ketteFertig(); return zeichne(); }
     if (e.target.closest('[data-zfteilen]') && ergebnis) { const e2 = ergebnis; const ch = zustand.profil.characters?.data?.[cid]; return import('./teilen.js').then((m) => m.teileKarte({ art: 'RANDOMIZER', titel: 'The dice have spoken', unter: `${KLASSE[ch?.classType] || ''}${e2.sub ? ` · ${e2.sub}` : ''}`, hinter: ch?.emblemBackgroundPath, bilder: e2.teile.map(({ x }) => x.d.i), chips: (e2.info || []).map(([a, b]) => `${a}: ${b}`), zeilen: e2.teile.slice(0, 8).map(({ x, slot }) => [slot, x.d.n]) })); }
-    if (e.target.closest('[data-wuerfeln]')) { if (opt.glueck) await ladeKills(zustand); ergebnis = wuerfle(zustand, cid); return zeichne(); }
+    if (e.target.closest('[data-wuerfeln]')) { if (opt.glueck) await ladeKills(zustand); ergebnis = wuerfle(zustand, cid); zeichne(); requestAnimationFrame(() => box.querySelector('.zf-erg')?.scrollIntoView({ behavior: 'smooth', block: 'center' })); return; }
     if (e.target.closest('[data-neutral]')) { opt.glueck = 0; schreib('d2a.zufallOpt', opt); return zeichne(); }
     if (e.target.closest('[data-anlegen]')) { e.target.disabled = true; await anlegen(zustand, tab === 'rad' ? kette.e : ergebnis); return; }
     if (e.target.closest('[data-temp]')) { const x = tab === 'rad' ? kette.e : ergebnis; merkeTemp(x, x.info?.[0]?.[1]); meldung('Saved under “Saved rolls”.'); return zeichne(); }

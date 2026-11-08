@@ -496,7 +496,7 @@ export async function zeigeStats(haupt, zustand) {
         ${kachel('Kills', zahl(killsAlle), `PvE ${zahl(wert(d.pve, 'kills'))} · PvP ${zahl(wert(d.pvp, 'kills'))}`)}
         ${kachel('Deaths', zahl(wert(d.alle, 'deaths')), `K/D ${wert(d.alle, 'killsDeathsRatio').toFixed(2)} · ${Math.round((wert(d.alle, 'precisionKills') / Math.max(1, killsAlle)) * 100)}% precision`)}
         ${kachel('Activities cleared', zahl(wert(d.alle, 'activitiesCleared')), `${zahl(wert(d.alle, 'activitiesEntered'))} entered`)}
-        ${kachel('Seals', `${sg.okJetzt}/${sg.nJetzt}`, `obtainable titles · +${sg.okAlt} legacy`)}
+        ${kachel('Seals', `<span class="kring" style="--p:${Math.round((sg.okJetzt / Math.max(1, sg.nJetzt)) * 100)}"></span>${sg.okJetzt}/${sg.nJetzt}`, `obtainable titles · +${sg.okAlt} legacy`)}
         ${kachel('PvP', `${sieg}% wins`, `K/D ${wert(d.pvp, 'killsDeathsRatio').toFixed(2)} · ${zahl(wert(d.pvp, 'activitiesEntered'))} matches`)}</div>
       ${offen ? `<p class="leer klein pgcrstand">Checking ${zahl(offen)} raid/dungeon reports for full clears, flawless and teams… (saved in this browser, only once)</p>` : ''}
       ${block('seal', 'Seals & titles', `${sg.okJetzt}/${sg.nJetzt} obtainable · ${sg.okAlt}/${sg.nAlt} legacy · <span class="t-maus">hover for what's missing, click for all triumphs</span><span class="t-touch">tap a seal for all triumphs</span>`, sg.html, istOffen('seal', true))}

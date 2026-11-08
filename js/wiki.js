@@ -213,7 +213,7 @@ function zeigeKat(k, x) {
     const subs = [['alle', 'All'], ['waffen', 'Weapons'], ['0', 'Titan'], ['1', 'Hunter'], ['2', 'Warlock']];
     const gr = gruppiert(liste, (e) => (e.d.t === 3 ? `${SLOT[e.d.b] || 'Weapon'} weapons` : `${KLASSE[e.d.c]} · ${SLOT[e.d.b] || 'Armor'}`), [
       'Kinetic weapons', 'Energy weapons', 'Power weapons', ...['Titan', 'Hunter', 'Warlock', 'Any class'].flatMap((c) => ['Helmet', 'Arms', 'Chest', 'Legs', 'Class Item'].map((s) => `${c} · ${s}`))]);
-    return `${subnav(subs, sub)}${sprung(gr)}${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid">${l.sort((a, b) => vergleiche(a.d.n, b.d.n)).map((e) => kachel(e, besitz)).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
+    return `<div class="wkombi">${subnav(subs, sub)}${sprung(gr)}</div>${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid">${l.sort((a, b) => vergleiche(a.d.n, b.d.n)).map((e) => kachel(e, besitz)).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
   }
   if (k === 'waffe') {
     const sub = ansicht.sub === 'alle' ? 'quelle' : ansicht.sub;
