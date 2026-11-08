@@ -1203,3 +1203,15 @@ html[data-gast] .fz.fehlt{color:var(--text)}
 .st-auf.ok{border-color:color-mix(in srgb,var(--gut) 60%,var(--linie2))}
 .st-xurfehlt{cursor:pointer;transition:border-color .15s,transform .15s}.st-xurfehlt:hover{border-color:var(--gold);transform:translateY(-2px)}
 .st-exos{display:flex;gap:6px;flex-wrap:wrap}.st-exos i{width:44px;height:44px;border-radius:6px;background:center/cover;border:2px solid var(--gold);box-shadow:0 0 12px color-mix(in srgb,var(--gold) 30%,transparent)}
+/* Item-Kacheln: Masterwork-Rand, God-Roll-Stern, Element-Leiste, groß/kompakt */
+.ic.mw,.ck.mw{border-color:#e8c35a;box-shadow:inset 0 0 0 1px #e8c35a66,0 0 8px #e8c35a40}
+.ic.mw::before,.ck.mw::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(120deg,transparent 40%,#fff3 50%,transparent 60%);background-size:250% 100%;background-position:120% 0;pointer-events:none;transition:background-position .6s}
+.ic.mw:hover::before,.ck.mw:hover::before{background-position:-20% 0}
+.ic .god{width:auto;height:auto;padding:0 2px;border-radius:3px;background:#000b;color:var(--gut);font:900 .62rem/1.15 var(--fliess);box-shadow:none}.ic .god.pvp{background:#000b;color:var(--arc)}
+.ic.el-2 .pow{color:var(--arc)}.ic.el-3 .pow{color:var(--solar)}.ic.el-4 .pow{color:var(--void)}.ic.el-6 .pow{color:var(--stasis)}.ic.el-7 .pow{color:var(--strand)}
+.ic[class*="el-"]:not(.el-0):not(.el-1)::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:0 0 2px 2px;background:currentColor;pointer-events:none}
+.ic.el-2{color:var(--arc)}.ic.el-3{color:var(--solar)}.ic.el-4{color:var(--void)}.ic.el-6{color:var(--stasis)}.ic.el-7{color:var(--strand)}
+.ck[class*="elr-"]::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;pointer-events:none}
+.ck.elr-arc::after{background:var(--arc)}.ck.elr-solar::after{background:var(--solar)}.ck.elr-void::after{background:var(--void)}.ck.elr-stasis::after{background:var(--stasis)}.ck.elr-strand::after{background:var(--strand)}
+html[data-kachel=gross] .ic{width:68px;height:68px}html[data-kachel=gross] .ic .pow{font-size:.74rem}html[data-kachel=gross] .ic .god{font-size:.78rem}
+html[data-kachel=gross] .ck{width:48px;height:48px}html[data-kachel=gross] .ck.gross{width:72px;height:72px}
