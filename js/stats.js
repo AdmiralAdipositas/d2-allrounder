@@ -111,7 +111,8 @@ async function lade(k, eigenes, zustand) {
       for (const it of items) {
         const d = defs.items[it.itemHash]; if (!d || d.t !== 3 || !it.itemInstanceId) continue;
         let kills = 0;
-        for (const l of Object.values(obj[it.itemInstanceId]?.objectivesPerPlug || {})) for (const o of l) if (o.progress > kills && o.completionValue <= 1) kills = o.progress;
+        // Nur echte Kill-Tracker-Sockel (PvE + PvP), keine Waffen-Erfahrung oder Muster-Fortschritte.
+        for (const [ph, l] of Object.entries(obj[it.itemInstanceId]?.objectivesPerPlug || {})) { if (!/tracker/i.test(defs.items[ph]?.pc || '') && !/Tracker$/.test(defs.items[ph]?.n || '')) continue; for (const o of l) kills += o.progress || 0; }
         const e = waffen.get(d.n) || { h: it.itemHash, name: d.n, icon: d.i, kills: 0, praez: 0, exotic: d.q === 6, quelle: 'Kill tracker', kopien: 0, tracker: 0 };
         e.kopien = (e.kopien || 0) + 1; e.tracker = (e.tracker || 0) + kills;
         if (e.quelle !== 'Bungie') e.kills = e.tracker;
@@ -230,22 +231,18 @@ function sealDetail(h, d) {
 function spass(d) {
   const a = d.alle, w = (k) => wert(a, k);
   const zeilen = [];
-  const add = (t, v, x) => { if (v || v === 0) zeilen.push([t, v, x || '']); };
+  const add = (t, v, x) => { if (v && !/^0( |$)|^0:00$|^0 \/ 0$/.test(String(v))) zeilen.push([t, v, x || '']); };
   const tode = w('deaths'), zeit = w('secondsPlayed');
   add('Deaths', zahl(tode), tode && zeit ? `one every ${dauer(zeit / tode)} of play` : '');
   add('Suicides', zahl(w('suicides')), w('suicides') ? 'falling, your own rockets, the Vex milk…' : '');
   add('Longest single life', dauer(w('longestSingleLife')));
   add('Average life', dauer(w('averageLifespan')));
   add('Longest kill spree', zahl(w('longestKillSpree')));
-  add('Longest kill distance', `${zahl(w('longestKillDistance'))} m`);
-  add('Total distance from your killers', `${(w('totalDeathDistance') / 1000).toFixed(1)} km`, 'added up over every death');
-  add('Total kill distance', `${(w('totalKillDistance') / 1000).toFixed(1)} km`);
   add('Most kills in one activity', zahl(w('bestSingleGameKills')));
   add('Most precision kills in one activity', zahl(w('mostPrecisionKills')));
   add('Revives given / received', `${zahl(w('resurrectionsPerformed'))} / ${zahl(w('resurrectionsReceived'))}`, w('resurrectionsReceived') > w('resurrectionsPerformed') ? 'you got picked up more than you picked up' : 'the team medic');
   add('Orbs made / picked up', `${zahl(w('orbsDropped'))} / ${zahl(w('orbsGathered'))}`);
   add('Public events (heroic)', `${zahl(w('publicEventsCompleted'))} (${zahl(w('heroicPublicEventsCompleted'))})`);
-  add('Adventures', zahl(w('adventuresCompleted')));
   add('Medals earned (PvP)', zahl(w('allMedalsEarned')));
   // Aus dem Aktivitäts-Aggregat: einmal gespielt, nie wieder; meistgespielt.
   const akt = d.aktivitaeten.filter((x) => x.n);
@@ -320,7 +317,7 @@ export async function zeigeStats(haupt, zustand) {
   zeichne();
   verbinde(haupt, zustand);
   // Spielberichte im Hintergrund nachladen, Ansicht ab und zu auffrischen.
-  pgcrNachladen(d, () => { if (haupt.dataset.lauf === lauf && !haupt.querySelector('details.rzeile[open]')) { const y = scrollY; zeichne(); scrollTo({ top: y }); } }, lauf, haupt);
+  pgcrNachladen(d, () => { if (haupt.dataset.lauf !== lauf) return; const offen = [...haupt.querySelectorAll('details.rzeile[open] .rn')].map((x) => x.firstChild?.textContent); const y = scrollY; zeichne(); haupt.querySelectorAll('details.rzeile').forEach((z) => { if (offen.includes(z.querySelector('.rn')?.firstChild?.textContent)) z.open = true; }); scrollTo({ top: y }); }, lauf, haupt);
 }
 const suchzeile = () => `<form class="ssuche" data-suche><input name="n" placeholder="View another Guardian: Name#1234" autocomplete="off" aria-label="Bungie name"><button class="chip">View</button></form>`;
 function rest(d) {
@@ -335,16 +332,17 @@ let ladeLauf = null;
 async function pgcrNachladen(d, auffrischen, lauf, haupt) {
   if (ladeLauf === lauf) return; ladeLauf = lauf;
   const c = pgcrLies();
-  const offen = d.laeufe.filter((l) => l.ok && !c[l.id]);
+  // Kandidaten für Flawless zuerst (eigene Tode 0), dann der Rest – neueste zuerst.
+  const offen = d.laeufe.filter((l) => l.ok && !c[l.id]).sort((a, b) => (a.tode === 0 ? 0 : 1) - (b.tode === 0 ? 0 : 1));
   let i = 0, seit = 0;
   const arbeiter = async () => {
     while (i < offen.length && haupt.dataset.lauf === lauf) {
       const l = offen[i++];
       try { await pgcrKurz(l.id); } catch { await new Promise((r) => setTimeout(r, 1500)); }
-      if (++seit >= 40) { seit = 0; auffrischen(); }
+      if (++seit >= 25) { seit = 0; auffrischen(); }
     }
   };
-  await Promise.all(Array.from({ length: 6 }, arbeiter));
+  await Promise.all(Array.from({ length: 12 }, arbeiter));
   if (haupt.dataset.lauf === lauf && offen.length) auffrischen();
 }
 

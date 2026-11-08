@@ -20,6 +20,17 @@ const ENGRAMME = 375726501, POST = 215593132;
 const ELEMENT = { 1: 'kinetic', 2: 'arc', 3: 'solar', 4: 'void', 6: 'stasis', 7: 'strand' };
 
 let wahl = null, bereich = 'waffen', suche = '';
+// Allgemeine Items (Ghost, Sparrow, Schiff, Emblem, Subclass) – nicht in sammle(); eigene Liste + lokale Änderungen nach dem Verschieben.
+const ALLG = new Set([4023194814, 2025709351, 284967655, 4274335291, 3284755031]);
+const allgAend = new Map();
+function allgemein(p) {
+  const out = [];
+  const add = (i, ort, angelegt) => { const d = defs.items[i.itemHash]; if (!d || !i.itemInstanceId || !ALLG.has(d.b)) return; const a = allgAend.get(i.itemInstanceId); out.push({ id: i.itemInstanceId, hash: i.itemHash, d, ort: a?.ort ?? ort, angelegt: a?.angelegt ?? angelegt, allg: true, locked: Boolean(i.state & 1), power: 0 }); };
+  for (const [cid, c] of Object.entries(p.characterEquipment?.data || {})) for (const i of c.items || []) add(i, cid, true);
+  for (const [cid, c] of Object.entries(p.characterInventories?.data || {})) for (const i of c.items || []) add(i, cid, false);
+  for (const i of p.profileInventory?.data?.items || []) add(i, 'tresor', false);
+  return out;
+}
 try { wahl = localStorage.getItem('d2a.charWahl'); bereich = localStorage.getItem('d2a.invBereich') || 'waffen'; } catch {}
 const BEREICHE = [['waffen', 'Weapons'], ['ruestung', 'Armor'], ['sonst', 'General'], ['alle', 'All']];
 
@@ -34,12 +45,13 @@ export function zeigeCharakter(haupt, zustand) {
 
   const zeichne = () => {
     // Waffen und Rüstung kommen aus der Item-Liste mit deinen letzten Änderungen, damit Verschobenes sofort umzieht.
-    items = sammle(p); proId = new Map(items.map((x) => [x.id, x]));
+    items = sammle(p); const allg = allgemein(p); proId = new Map([...items, ...allg].map((x) => [x.id, x]));
     const alsRoh = (x) => ({ itemHash: x.hash, itemInstanceId: x.id, bucketHash: x.d.b, quantity: 1 });
     const gear = new Set(items.map((x) => x.d.b));
     const q = suche.trim().toLowerCase();
-    const anVon = (cid) => [...(p.characterEquipment?.data?.[cid]?.items || []).filter((i) => !gear.has(i.bucketHash)), ...items.filter((x) => x.ort === cid && x.angelegt).map(alsRoh)];
-    const invVon = (cid) => [...(p.characterInventories?.data?.[cid]?.items || []).filter((i) => !gear.has(i.bucketHash) || i.bucketHash === POST), ...items.filter((x) => x.ort === cid && !x.angelegt).map(alsRoh)];
+    const istAllg = (i) => i.itemInstanceId && ALLG.has(defs.items[i.itemHash]?.b);
+    const anVon = (cid) => [...(p.characterEquipment?.data?.[cid]?.items || []).filter((i) => !gear.has(i.bucketHash) && !istAllg(i)), ...items.filter((x) => x.ort === cid && x.angelegt).map(alsRoh), ...allg.filter((x) => x.ort === cid && x.angelegt).map(alsRoh)];
+    const invVon = (cid) => [...(p.characterInventories?.data?.[cid]?.items || []).filter((i) => (!gear.has(i.bucketHash) || i.bucketHash === POST) && !istAllg(i)), ...items.filter((x) => x.ort === cid && !x.angelegt).map(alsRoh), ...allg.filter((x) => x.ort === cid && !x.angelegt).map(alsRoh)];
     const kachel = (i, gross) => {
       const d = defs.items[i.itemHash];
       if (!d) return `<span class="ck leer-k ${gross ? 'gross' : ''}" title="Unknown item"></span>`;
@@ -61,7 +73,7 @@ export function zeigeCharakter(haupt, zustand) {
     const spalte = (x) => { const an = anVon(x.characterId), inv = invVon(x.characterId); return `<section class="cspalte ${x.characterId === wahl ? 'an' : ''}" data-ziel="${x.characterId}">${kopfVon(x)}${reihen.map(reihe(x.characterId, an, inv)).join('')}</section>`; };
     // Schmaler Streifen (Handy): Emblem + angelegte Teile; beim Ziehen klappt er auf.
     const streifen = (x) => { const an = anVon(x.characterId); return `<section class="cstreifen" data-ziel="${x.characterId}" data-wahl="${x.characterId}" style="--emb:url(${BILD}${x.emblemPath || x.emblemBackgroundPath || ''})"><span class="cs-kopf"><i></i><b>${KLASSE[x.classType][0]}</b></span>${reihen.map(([b]) => { const e = an.find((i) => i.bucketHash === b); return `<span class="cs-slot">${e ? kachel(e) : '<span class="ck leer-k"></span>'}</span>`; }).join('')}</section>`; };
-    const tresorItems = items.filter((x) => x.ort === 'tresor' && reihen.some(([b]) => b === x.d.b));
+    const tresorItems = [...items, ...allg].filter((x) => x.ort === 'tresor' && reihen.some(([b]) => b === x.d.b));
     const tresor = `<section class="ctresorbox" data-ziel="tresor"><div class="ckopf tres"><b>Vault</b><em>${tresorItems.length} shown</em></div>${reihen.filter(([b]) => tresorItems.some((x) => x.d.b === b)).map(([b, name]) => { const l = tresorItems.filter((x) => x.d.b === b).sort((a, c) => (c.d.q === 6) - (a.d.q === 6) || (a.d.c - c.d.c) || a.d.n.localeCompare(c.d.n)); return `<div class="treihe"><small>${name} <span>${l.length}</span></small><div class="cgitter breit">${l.map((x) => kachel(alsRoh(x))).join('')}</div></div>`; }).join('') || '<p class="leer klein">Nothing of this kind in the vault.</p>'}</section>`;
     const c = chars.find((x) => x.characterId === wahl);
     const an = anVon(wahl), inv = invVon(wahl);
@@ -92,6 +104,7 @@ export function zeigeCharakter(haupt, zustand) {
   async function bewege(x, ziel) {
     if (laeuft) return; laeuft = true;
     const k = zustand.konto;
+    if (x.allg) { try { await bewegeAllg(x, ziel); } catch (e) { meldung(e.message, true); } laeuft = false; zeichne(); return; }
     try {
       let ort = x.ort;
       if (ziel.startsWith('anlegen')) {
@@ -114,6 +127,33 @@ export function zeigeCharakter(haupt, zustand) {
       zustand.alleItems = null;
     } catch (e) { meldung(e.message, true); }
     laeuft = false; zeichne();
+  }
+
+  // Allgemeine Items: Ghost, Sparrow, Schiff, Emblem zwischen Hütern/Tresor; Subclass nur am eigenen Hüter anlegen.
+  async function bewegeAllg(x, ziel) {
+    const k = zustand.konto;
+    const zielCid = ziel.startsWith('anlegen') ? ziel.split(':')[1] : ziel;
+    if (x.d.b === 3284755031 && zielCid !== x.ort) throw new Error('Subclasses stay on their guardian.');
+    const ersatz = async () => {
+      if (!x.angelegt) return;
+      const alle = allgemein(p);
+      const neu = alle.find((y) => y.ort === x.ort && !y.angelegt && y.d.b === x.d.b);
+      if (!neu) throw new Error(`${x.d.n} is equipped and there is nothing else in that slot to swap in.`);
+      await bungie.ausruesten(k, neu, x.ort); allgAend.set(neu.id, { ort: x.ort, angelegt: true }); x.angelegt = false; allgAend.set(x.id, { ort: x.ort, angelegt: false });
+    };
+    if (zielCid !== x.ort) {
+      if (zielCid !== 'tresor') { const voll = allgemein(p).filter((y) => y.ort === zielCid && !y.angelegt && y.d.b === x.d.b).length >= 9; if (voll) throw new Error(`No free ${x.d.k || 'slot'} space on that guardian.`); }
+      meldung(`Moving ${x.d.n}…`);
+      if (x.ort !== 'tresor') { await ersatz(); await bungie.verschiebe(k, x, x.ort, true); }
+      if (zielCid !== 'tresor') await bungie.verschiebe(k, x, zielCid, false);
+      allgAend.set(x.id, { ort: zielCid, angelegt: false }); x.ort = zielCid; x.angelegt = false;
+    }
+    if (ziel.startsWith('anlegen')) {
+      await bungie.ausruesten(k, x, zielCid);
+      for (const y of allgemein(p)) if (y.ort === zielCid && y.angelegt && y.d.b === x.d.b && y.id !== x.id) allgAend.set(y.id, { ort: zielCid, angelegt: false });
+      allgAend.set(x.id, { ort: zielCid, angelegt: true });
+      meldung(`${x.d.n} equipped.`);
+    } else meldung(`${x.d.n} → ${zielCid === 'tresor' ? 'vault' : KLASSE[chars.find((c) => c.characterId === zielCid)?.classType]}.`);
   }
 
   // Ziehen mit Maus und Finger (Pointer Events). Maus: ab 6 px Bewegung. Finger: erst 300 ms halten, dann ziehen.
@@ -181,7 +221,7 @@ export function zeigeCharakter(haupt, zustand) {
   haupt.oncontextmenu = (e) => { if (e.target.closest('.ck[data-cid]') && (zug?.finger || e.pointerType === 'touch')) e.preventDefault(); };
 
   // In-Game-Hover für Waffen und Rüstung.
-  haupt.onpointerover = (e) => { if (e.pointerType !== 'mouse' || zug?.aktiv) return; const t = e.target.closest('.ck[data-cid]'); if (t) zeigeItemTipp(proId.get(t.dataset.cid), p, e.clientX, e.clientY); };
+  haupt.onpointerover = (e) => { if (e.pointerType !== 'mouse' || zug?.aktiv) return; const t = e.target.closest('.ck[data-cid]'); const it = t && proId.get(t.dataset.cid); if (it && !it.allg) zeigeItemTipp(it, p, e.clientX, e.clientY); };
   haupt.onpointerout = (e) => { if (e.target.closest('.ck[data-cid]') && !e.relatedTarget?.closest?.('.ck[data-cid]') && !document.querySelector('#tippFest:checked')) { const tp = document.querySelector('#tipp'); if (tp) tp.hidden = true; } };
   haupt.onclick = (e) => {
     if (haupt.dataset.keinKlick) return;
@@ -195,6 +235,6 @@ export function zeigeCharakter(haupt, zustand) {
     if (w) { wahl = w.dataset.wahl; try { localStorage.setItem('d2a.charWahl', wahl); } catch {} return zeichne(); }
     if (e.target.closest('[data-postpanel]')) return zustand.oeffnePanel?.('post');
     const k = e.target.closest('[data-cid]');
-    if (k) { const x = proId.get(k.dataset.cid); if (x) oeffneDetail(x, zustand, () => zeichne()); }
+    if (k) { const x = proId.get(k.dataset.cid); if (x && !x.allg) oeffneDetail(x, zustand, () => zeichne()); }
   };
 }
