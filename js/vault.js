@@ -364,8 +364,9 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
     if (!it) return;
     zeigeItemTipp(it, zustand.profil, x, y);
   };
-  haupt.onpointerover = (e) => { if (auswahl) return; const el = e.target.closest('.ic'); if (el) zeige(el, e.clientX, e.clientY); };
+  haupt.oncontextmenu = (e) => { if (e.target.closest('.ic')) e.preventDefault(); };
+  haupt.onpointerover = (e) => { if (auswahl || e.pointerType !== 'mouse') return; const el = e.target.closest('.ic'); if (el) zeige(el, e.clientX, e.clientY); };
   haupt.onpointerout = (e) => { if (e.target.closest('.ic') && !e.relatedTarget?.closest?.('.ic')) tipp.hidden = true; };
-  haupt.onfocusin = (e) => { const el = e.target.closest('.ic'); if (el) { const r = el.getBoundingClientRect(); zeige(el, r.right, r.top); } };
+  haupt.onfocusin = (e) => { if (!matchMedia('(hover: hover)').matches) return; const el = e.target.closest('.ic'); if (el) { const r = el.getBoundingClientRect(); zeige(el, r.right, r.top); } };
   haupt.onfocusout = () => { tipp.hidden = true; };
 }

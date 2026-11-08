@@ -145,6 +145,9 @@ function wechsle(tab) {
 }
 const titelVon = (tab) => rail.querySelector(`[data-tab="${tab}"] span`)?.textContent || ANSICHTEN[tab]?.[0] || '';
 
+// Am Handy: jede Berührung außerhalb schließt ein offenes Item-Fenster (#tipp), damit es nicht hängen bleibt.
+document.addEventListener('touchstart', (e) => { const t = document.querySelector('#tipp'); if (t && !t.hidden && !e.target.closest('#tipp')) t.hidden = true; }, { passive: true });
+addEventListener('scroll', () => { const t = document.querySelector('#tipp'); if (t && !t.hidden && !matchMedia('(hover: hover)').matches) t.hidden = true; }, { passive: true });
 // Sternchen in der Leiste: markierte Seiten erscheinen als Schnellzugriff auf der Startseite.
 const SCHNELL_STD = ['optimizer', 'finder', 'guide', 'stats', 'wiki'];
 export const schnellListe = () => { try { return JSON.parse(localStorage.getItem('d2a.schnell')) || SCHNELL_STD; } catch { return SCHNELL_STD; } };

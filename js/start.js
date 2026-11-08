@@ -34,7 +34,7 @@ function tagesAufgabe(profil) {
     [ikon('sonne'), `${el[h % el.length]} only`, 'Subclass and all weapons in one element.'],
     [ikon('ziel'), 'Primaries only', 'No special ammo – heavy is allowed.'],
     [ikon('stern'), 'No exotic armor', 'Legendary armor only, your build has to carry.'],
-    [ikon('flamme'), 'Melee day', 'Sword or glaive as heavy, melee build.'],
+    [ikon('flamme'), 'Melee only', 'Play today with a sword or glaive as heavy and a melee build.'],
     ...(exos.length ? [[ikon('funke'), exos[h % exos.length], 'Dust it off and run it all day.']] : []),
     [ikon('wuerfel'), 'Let the dice decide', 'Spin the randomizer and play what it says.'],
   ];

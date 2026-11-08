@@ -29,7 +29,7 @@ export const ikon = (n, k = '') => `<svg class="ikon-svg ${k}" viewBox="0 0 24 2
 // Lebendige Mini-Vorschau der App (Landing + Willkommen): Tresor, Würfel, Raid-Läufer, Optimizer-Leisten.
 export const vorschauKarten = (k = '') => `<div class="l-vorschau ${k}" aria-hidden="true">
     <div class="lv-karte lv-vault"><small>Vault</small><div class="lv-raster">${['mw exo', '', 'mw', 'el-a', '', 'mw el-s', 'exo', '', 'el-v', 'mw', '', 'el-a'].map((x) => `<i class="lv-k ${x}"></i>`).join('')}</div><span class="lv-such">is:dupe <em>perk:</em></span></div>
-    <div class="lv-karte lv-zufall"><small>Randomizer</small><div class="lv-wuerfel">${ikon('wuerfel')}</div><b>Melee day</b></div>
+    <div class="lv-karte lv-zufall"><small>Randomizer</small><div class="lv-wuerfel">${ikon('wuerfel')}</div><b>Random loadout</b></div>
     <div class="lv-karte lv-raid"><small>Raid guide</small><div class="lv-platten"><i></i><i></i><i></i><i></i><span class="lv-laeufer"></span></div><b>Cataclysm</b></div>
     <div class="lv-karte lv-opt"><small>Optimizer</small>${[78, 52, 90, 64, 40, 70].map((w, n) => `<i class="lv-bar" style="--w:${w}%;--d:${n * 0.15}s"></i>`).join('')}</div>
   </div>`;
