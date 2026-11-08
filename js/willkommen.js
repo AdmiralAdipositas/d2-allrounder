@@ -52,7 +52,8 @@ export function zeigeWillkommen(konto) {
   </div>`;
   document.body.append(d);
   verbindeThema(d, () => import('./konto.js').then((m) => m.eigeneShader(konto)));
-  const zu = () => { try { localStorage.setItem(schluessel(konto), String(Date.now())); } catch {} d.remove(); };
+  // Wer die App gerade erst kennenlernt, bekommt danach kein „Neu seit deinem letzten Besuch“ mit alten Einträgen.
+  const zu = () => { try { localStorage.setItem(schluessel(konto), String(Date.now())); } catch {} d.remove(); fetch('data/neu.json').then((r) => r.json()).then((j) => { try { const g = new Set(JSON.parse(localStorage.getItem('d2a.neuGesehen') || '[]')); (j.eintraege || []).forEach((e) => g.add(e.id)); localStorage.setItem('d2a.neuGesehen', JSON.stringify([...g])); } catch {} }).catch(() => {}); };
   d.querySelector('#wkSprache').addEventListener('change', (e) => { zu(); waehle(konto, e.target.value); });
   d.querySelector('#wkLos').addEventListener('click', zu);
   d.addEventListener('keydown', (e) => { if (e.key === 'Escape') zu(); });

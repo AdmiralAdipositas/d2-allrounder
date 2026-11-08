@@ -18,7 +18,7 @@ import { zeigeHueter } from './hueter.js';
 import { zeigeStart } from './start.js';
 import { setzeNav } from './info.js';
 import { zeigeCharakter } from './charakter.js';
-import { starte as starteSprache } from './sprache.js';
+import { starte as starteSprache, gewaehlt } from './sprache.js';
 import { zeigeWillkommen, schonGesehen, zeigeNeues } from './willkommen.js';
 import { sammle } from './vault.js';
 
@@ -79,7 +79,7 @@ const ANSICHTEN = {
   guide: ['Raid Guide', (el) => {
     // Der Guide bringt alles selbst mit: Raid-/Encounter-Wahl, Sprungleiste, Symbole in der Begegnung, Squad-Knopf.
     const ziel = zustand.guideZiel; zustand.guideZiel = null;
-    el.innerHTML = `<iframe class="guide" src="guide/index.html${ziel ? `#${ziel}` : ''}" title="Raid briefing"></iframe>`;
+    el.innerHTML = `<iframe class="guide" src="guide/index.html?lang=${gewaehlt(zustand.konto) === 'de' ? 'de' : 'en'}${ziel ? `#${ziel}` : ''}" title="Raid briefing"></iframe>`;
   }],
 };
 // Sprünge aus Info-Karten: Wiki (Suche oder Farm-Planer) und Raid Guide (Begegnung).

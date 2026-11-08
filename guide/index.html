@@ -10178,7 +10178,7 @@ for(const id in RG)if(ENC[id])ENC[id].rg=RG[id];
 
 /* =================== state =================== */
 let lang='de',mode='normal',encId='cataclysm';
-try{const l=localStorage.getItem('ron-lang');if(l==='de'||l==='en')lang=l;const m=localStorage.getItem('ron-mode');if(m==='normal'||m==='master')mode=m;}catch(e){}
+try{const l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('ron-lang');if(l==='de'||l==='en')lang=l;const m=localStorage.getItem('ron-mode');if(m==='normal'||m==='master')mode=m;}catch(e){}
 const hp=(location.hash||'').slice(1).toLowerCase().split('-');
 if(hp.includes('en'))lang='en';if(hp.includes('de'))lang='de';if(hp.includes('master'))mode='master';if(hp.includes('normal'))mode='normal';
 for(const id in ENC)if(hp.includes(id)&&!ENC[id].soon)encId=id;

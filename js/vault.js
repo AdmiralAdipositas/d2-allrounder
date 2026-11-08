@@ -173,9 +173,11 @@ const merkmale = (x, anzahl, nachChar) => ({
   perk: x.d.t === 3 ? [...new Set(x.plugs.map((p) => defs.items[p]).filter((p) => p && /^(frames|origins)$/.test(p.pc)).map((p) => p.n))] : [],
   quelle: (quelle(x.hash, x.d)?.text || '').replace(/^Source:\s*/i, '').slice(0, 48),
 });
-let filter = (() => { try { return JSON.parse(localStorage.getItem('d2a.filter') || '{}'); } catch { return {}; } })();
+// Filter getrennt je Seite (Waffen / Rüstung), damit ein Waffen-Filter nicht die Rüstung leert.
+const fAlle = (() => { try { return JSON.parse(localStorage.getItem('d2a.filter2') || '{}'); } catch { return {}; } })();
+let filter = {}, letzteArt = null;
 let suche = '';
-const merke = () => { try { localStorage.setItem('d2a.filter', JSON.stringify(filter)); } catch {} };
+const merke = () => { try { localStorage.setItem('d2a.filter2', JSON.stringify(fAlle)); } catch {} };
 
 function passt(x) {
   if (x.st) for (const [n, v] of Object.entries(statMin)) if (v && x.st[n] < v) return false;
@@ -200,6 +202,8 @@ const zuRaw = (() => { try { return JSON.parse(localStorage.getItem('d2a.zu') ||
 const zu = new Set(zuRaw);
 
 export function zeigeVault(haupt, zustand, art = 'waffen') {
+  if (art !== letzteArt) { suche = ''; letzteArt = art; }
+  filter = fAlle[art] || (fAlle[art] = {});
   const istWaffe = art === 'waffen';
   const profil = zustand.profil;
   const chars = Object.values(profil.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed));
@@ -262,7 +266,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
       }
       return `<section class="reihe ${offenR ? '' : 'zu'}" id="slot-${name.replace(/\s/g, '')}"><h3><button class="klapp" data-reihe="${name}" aria-expanded="${offenR}">${offenR ? '▾' : '▸'} ${name} <small>${st.length}</small></button></h3>${inhalt}</section>`;
     }).join('');
-    rBox.innerHTML = reihen || '<p class="leer">Nothing matches these filters.</p>';
+    rBox.innerHTML = reihen || `<p class="leer">${Object.values(filter).some((l) => l.length) || suche || Object.values(statMin || {}).some(Boolean) ? 'Nothing matches these filters.' : 'Nothing here for this class yet.'}</p>`;
     haupt.querySelectorAll('[data-klasse]').forEach((c) => c.setAttribute('aria-pressed', Number(c.dataset.klasse) === klasse));
   };
   zeichne();
@@ -290,7 +294,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
       merke();
       return zeichne();
     }
-    if (e.target.id === 'leeren') { filter = {}; merke(); return zeichne(); }
+    if (e.target.id === 'leeren') { filter = fAlle[art] = {}; merke(); return zeichne(); }
     if (e.target.closest('#gruppieren')) { ansicht.typ = !ansicht.typ; merkeAnsicht(); e.target.closest('#gruppieren').setAttribute('aria-pressed', ansicht.typ); return zeichne(); }
     const sp = e.target.closest('[data-spring]');
     if (sp) { const n = sp.dataset.spring; if (zu.has(n)) { zu.delete(n); zeichne(); } return haupt.querySelector(`#slot-${n.replace(/\s/g, '')}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }

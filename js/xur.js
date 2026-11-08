@@ -19,8 +19,10 @@ export async function xurDa(zustand) {
     const cid = letzterChar(zustand.profil).characterId;
     const [haupt, strange] = await Promise.allSettled([bungie.get(vendorPfad(k, cid, XUR)), bungie.get(vendorPfad(k, cid, STRANGE))]);
     if (haupt.status !== 'fulfilled' || haupt.value.vendor?.data?.enabled === false) return null;
-    daten = { zeit: Date.now(), teile: [haupt.value, strange.status === 'fulfilled' ? strange.value : null].filter(Boolean) };
-    return new Date(haupt.value.vendor.data.nextRefreshDate);
+    // Erst prüfen, dann merken: eine kaputte Antwort darf nicht jeden weiteren Aufruf mitreißen.
+    if (!haupt.value?.vendor?.data) return null;
+    daten = { zeit: Date.now(), teile: [haupt.value, strange.status === 'fulfilled' ? strange.value : null].filter((t) => t?.vendor?.data) };
+    return new Date(haupt.value.vendor.data.nextRefreshDate || Date.now());
   } catch { return null; }
 }
 
@@ -52,8 +54,10 @@ function karte(x) {
 
 export async function zeigeXur(haupt, zustand, eingebettet = false) {
   haupt.innerHTML = '<h1>Xûr</h1><p class="leer">Asking Xûr what he brought…</p>';
-  const bis = !daten || Date.now() - daten.zeit > 10 * 60_000 ? await xurDa(zustand) : new Date(daten.teile[0].vendor.data.nextRefreshDate);
-  if (!bis) { haupt.innerHTML = '<h1>Xûr</h1><p class="leer">Xûr is not here right now. He arrives on Friday at the daily reset.</p>'; return; }
+  let bis = null;
+  try { bis = !daten || Date.now() - daten.zeit > 10 * 60_000 ? await Promise.race([xurDa(zustand), new Promise((r) => setTimeout(() => r(null), 12000))]) : new Date(daten.teile[0]?.vendor?.data?.nextRefreshDate || Date.now()); } catch { bis = null; }
+  if (!bis && daten?.teile?.length === 0) daten = null;
+  if (!bis) { haupt.innerHTML = `<h1>Xûr</h1><p class="leer">${[5, 6, 0, 1].includes(new Date().getDay()) || (new Date().getDay() === 2 && new Date().getUTCHours() < 17) ? 'Bungie didn’t answer about Xûr’s stock right now. <button class="chip klein" data-xurnochmal>↻ try again</button>' : 'Xûr is away – he’s back on Friday at the reset.'}</p>`; haupt.querySelector('[data-xurnochmal]')?.addEventListener('click', () => { daten = null; zeigeXur(haupt, zustand, eingebettet); }); return; }
   const alle = [];
   for (const teil of daten.teile) {
     for (const [idx, sale] of Object.entries(teil.sales?.data || {})) {

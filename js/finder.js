@@ -152,9 +152,11 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
 
   const mehr = () => {
     const feed = haupt.querySelector('#feed');
-    if (!feed || gezeigt >= liste.length) return;
-    feed.insertAdjacentHTML('beforeend', liste.slice(gezeigt, gezeigt + PAKET).map((b) => karte(b, besitz, besitzSets, d.sets)).join(''));
-    gezeigt = Math.min(liste.length, gezeigt + PAKET);
+    if (!feed) return;
+    if (gezeigt < liste.length) {
+      feed.insertAdjacentHTML('beforeend', liste.slice(gezeigt, gezeigt + PAKET).map((b) => karte(b, besitz, besitzSets, d.sets)).join(''));
+      gezeigt = Math.min(liste.length, gezeigt + PAKET);
+    }
     haupt.querySelector('#feedEnde').textContent = gezeigt >= liste.length ? (liste.length ? `That's all · ${liste.length} builds` : 'No build matches. Try fewer filters.') : 'Loading more…';
   };
   const neu = () => {

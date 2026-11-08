@@ -236,7 +236,8 @@ function siegel(d) {
 }
 function sealTip(h, d) {
   const s = defs.seal?.[h]; if (!s) return '';
-  const fehlt = fertig(d.records, s.c) ? [] : s.k.filter((r) => !fertig(d.records, r));
+  const nam = new Set();
+  const fehlt = fertig(d.records, s.c) ? [] : s.k.filter((r) => !fertig(d.records, r)).filter((r) => { const n = defs.rec?.[r]?.n; if (nam.has(n)) return false; nam.add(n); return true; });
   return `<b>${esc(s.t)}</b> · ${esc(s.n)}<br>${fertig(d.records, s.c) ? '<span class=gold>Title earned</span>' : `${s.k.length - fehlt.length}/${s.k.length} done`}${fehlt.length ? `<br><small>Still needed:</small><br>${fehlt.slice(0, 8).map((r) => `○ ${esc(defs.rec?.[r]?.n || '?')}`).join('<br>')}${fehlt.length > 8 ? `<br>… and ${fehlt.length - 8} more` : ''}` : ''}`;
 }
 function sealDetail(h, d) {

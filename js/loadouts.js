@@ -62,7 +62,7 @@ export function zeigeLoadouts(haupt, zustand) {
           ${bearbeite?.i === i ? editor() : ''}
           <div class="lo-items">${items.map((x) => { const d = defs.items[hashes.get(x.itemInstanceId)]; return d ? `<i data-ih="${hashes.get(x.itemInstanceId)}" class="${d.q === 6 ? 'exo' : ''}" style="background-image:url(${BILD}${d.i})"></i>` : '<i class="fehlt" title="Item no longer exists"></i>'; }).join('')}</div>
           <div class="lo-knoepfe">${leer ? '' : `<button class="haupt-knopf" data-equip="${i}" ${laeuft ? 'disabled' : ''}>Equip</button>`}
-            <button data-snap="${i}" ${laeuft ? 'disabled' : ''}>${bestaetigen === i ? 'Click again to overwrite' : 'Save current gear here'}</button>
+            <button data-snap="${i}" data-leer="${leer ? 1 : 0}" ${laeuft ? 'disabled' : ''}>${bestaetigen === i ? 'Click again to overwrite' : 'Save current gear here'}</button>
  ${leer ? '' : `<button data-teilen="${i}" ${laeuft ? 'disabled' : ''}>Share</button>`}
             ${leer ? '' : `<button class="loeschen" data-clear="${i}" ${laeuft ? 'disabled' : ''}>${loeschen === i ? 'Click again to delete' : 'Delete'}</button>`}</div>
         </article>`;
@@ -150,7 +150,7 @@ export function zeigeLoadouts(haupt, zustand) {
     const sn = e.target.closest('[data-snap]');
     if (sn && !laeuft) {
       const i = Number(sn.dataset.snap);
-      if (bestaetigen !== i) { bestaetigen = i; loeschen = null; return zeichne(); }
+      if (sn.dataset.leer !== '1' && bestaetigen !== i) { bestaetigen = i; loeschen = null; return zeichne(); } // leerer Platz: ohne Rückfrage speichern
       bestaetigen = null;
       const lo = profil.characterLoadouts.data[charWahl].loadouts[i];
       const erst = (o) => Number(Object.keys(o || {}).find((h) => o[h]) || 0);

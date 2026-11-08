@@ -1103,3 +1103,7 @@ html[data-modus=einfach] .invfilter .invlinks{display:none}
 @media (max-width:760px){.st-held{min-height:96px;padding:14px}.st-held b{font-size:1.4rem}.st-raster{grid-template-columns:1fr 1fr}.st-karte{min-height:104px;padding:12px}.st-schnell{grid-template-columns:repeat(3,1fr)}.st-quick{flex-direction:column;gap:2px;font-size:.78rem}}
 @media (prefers-reduced-motion:reduce){.st-ic{animation:none}}
 .st-post span{white-space:nowrap}.pchip .hz-info{margin-left:6px;height:18px;min-width:22px;font-size:.66rem}
+/* Kleinkram aus dem Testbericht */
+.st-post{flex-wrap:wrap;gap:4px}.st-post span{padding:2px 6px;font-size:.74rem}
+.feed-karte h2,.feed-karte h3,.feed-karte .fk-kopf b{word-break:normal;overflow-wrap:normal;hyphens:manual}
+.modus-wahl button b{min-width:1em;font-size:1.1rem}
