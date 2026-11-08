@@ -6,7 +6,7 @@ import { defs } from './defs.js';
 import { sammle } from './vault.js';
 import { CHALLENGES } from './challenges.js';
 import { empfehlung } from './rolls.js';
-import { quelle } from './quellen.js';
+import { quelle, KLASSEN_EXO } from './quellen.js';
 import { guideId } from './guidelinks.js';
 import { VOW, VOW_DE } from './symbole.js';
 import * as bungie from './bungie.js';
@@ -322,7 +322,7 @@ async function farmKarte(ziel, x, zustand, rotation) {
   } else {
     const q = ziel.h ? quelle(ziel.h, ziel.d) : null;
     teile.push(`<div class="fschritt"><b>1 · Where</b><p>${q ? esc(q.text) : 'No confirmed source.'}</p></div>`);
-    if (ziel.d?.q === 6 && ziel.d.t === 2) {
+    if (ziel.d?.q === 6 && ziel.d.t === 2 && !KLASSEN_EXO.has(ziel.d.n)) {
       const ls = await ladeSektoren(zustand);
       teile.push(`<div class="fschritt"><b>2 · Exotic armor</b><p>Play a Legend or Master Lost Sector solo; the exotic armor slot reward rotates. Also: exotic engrams, Xûr, Monument to Lost Lights.</p>${ls.length ? `<p>Lost Sectors open right now:</p><div class="wlinks">${ls.map((l) => `<span class="chip">${esc(l.n)}${l.o ? ` · ${esc(l.o)}` : ''}</span>`).join('')}</div>` : '<p class="wm">Today\'s Lost Sectors are shown here once Bungie lists them for your characters.</p>'}</div>`);
     }

@@ -8,6 +8,7 @@ export const SPRACHEN = [
   ['pl', 'Polski'], ['ru', 'Русский'], ['ja', '日本語'], ['ko', '한국어'], ['zh-chs', '简体中文'],
 ];
 const UI_DE = {
+  "Exotic mission “Dual Destiny” in the Pale Heart (The Final Shape), fireteam of exactly two. Your first one only comes from there; replays and the weekly challenge give more. Also: Pale Heart Overthrow chests and Xûr.": "Exotic-Mission „Dual Destiny“ im Bleichen Herz (The Final Shape), Einsatztrupp aus genau zwei Hütern. Das erste gibt es nur dort; Wiederholungen und die Wochen-Challenge geben weitere. Außerdem: Overthrow-Truhen im Bleichen Herz und Xûr.",
   played: "gespielt", characters: "Charaktere",
   "Look": "Aussehen",
   "Colorful": "Bunt",

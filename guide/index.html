@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=referrer content=no-referrer><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Destiny Raid Briefing</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5691,9 +5691,13 @@ const GSM=(function(){
 
 
 /* =================== VOW OF THE DISCIPLE (shared) =================== */
-// Glyphs drawn as small labelled tokens (no copyrighted art): first letters of the callout name.
+// Glyphs: real art cropped from the linked glyph sheet (see vowSym); abbreviations stay as fallback.
 const VOW_ABK={Pyramid:'PY',Traveler:'TR',Light:'LI',Darkness:'DA',Guardian:'GU',Witness:'WI',Kill:'KI',Hive:'HI',Savathun:'SA',Worship:'WO',Commune:'CO',Give:'GV',Drink:'DR',Stop:'ST',Remember:'RE',Grief:'GR',Enter:'EN',Fleet:'FL',Knowledge:'KN',Neutral:'NE',Scorn:'SC',Ascendant:'AS',Tower:'TO',Black:'BL',Truth:'TU',Darkness2:'DA'};
-const vowSym=(p,n,o,c)=>({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><rect x="-13" y="-11" width="26" height="22" rx="4" fill="#1a1426" stroke="${c||'#c9b6ff'}" stroke-width="1.8"/><text y="4" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" font-weight="700" fill="${c||'#e7dbff'}">${VOW_ABK[n]||n.slice(0,2).toUpperCase()}</text></g>`});
+// Real glyph art: cropped live from Bungie's glyph sheet on Destinypedia (linked, not copied); the abbreviation sits underneath as a fallback.
+const VOW_IMG='https://www.destinypedia.com/images/e/e4/VotD_Glyphs.jpg';
+const VOW_GRID={Worm:[0,0],Earth:[1,0],Hive:[2,0],Kill:[3,0],Remember:[4,0],Guardian:[5,0],Activate:[6,0],'Black Garden':[0,1],Worship:[1,1],Drink:[2,1],Pyramid:[3,1],Give:[4,1],Fleet:[5,1],Enter:[6,1],Tower:[0,2],Traveler:[1,2],Scorn:[2,2],Stop:[3,2],'Black Heart':[4,2],Light:[5,2],Darkness:[6,2],Savathun:[0,3],Redacted:[1,3],Love:[2,3],Grieve:[3,3],Grief:[3,3],Ascendant:[4,3],Witness:[5,3]};
+const VOW_GX=[173,432,696,960,1224,1488,1747],VOW_GY=[185,461,737,1013];
+const vowSym=(p,n,o,c)=>{const g=VOW_GRID[n];return{t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><rect x="-14" y="-14" width="28" height="28" rx="5" fill="#1a1426" stroke="${c||'#c9b6ff'}" stroke-width="2"/><text y="4" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-size="9" font-weight="700" fill="${c||'#e7dbff'}">${VOW_ABK[n]||n.slice(0,2).toUpperCase()}</text>${g?`<svg x="-12" y="-12" width="24" height="24" viewBox="${VOW_GX[g[0]]-90} ${VOW_GY[g[1]]-90} 180 180"><image href="${VOW_IMG}" width="1920" height="1274"/></svg>`:''}</g>`};};
 const vowObel=(p,o,hl,fill)=>({t:'raw',x:0,y:0,svg:`<g transform="translate(${p.x} ${p.y})" opacity="${o==null?1:o}"><path d="M-14 22 L-9 -26 L9 -26 L14 22 Z" fill="#14101e" stroke="${hl?'#f6dc8e':'#6b5a9a'}" stroke-width="${hl?2.6:1.6}"/>${fill!=null?`<rect x="-9" y="${22-48*fill}" width="18" height="${48*fill}" fill="rgba(255,97,86,.35)"/>`:''}</g>`});
 function vowFinish(keys,floor){return function(s,L){const units=[{t:'raw',x:0,y:0,svg:floor(s)}];
   s.adds.forEach(a=>units.push(a));s.units.forEach(u=>units.push(u));

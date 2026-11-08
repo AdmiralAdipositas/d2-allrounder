@@ -31,6 +31,23 @@ export function fragmentBonus(plugs) {
   return b;
 }
 const SUBCLASS_BUCKET = 3284755031;
+// Loadouts liefern keine Sockel-Freigabe: nur so viele Fragmente zählen, wie die Aspekte Plätze öffnen (falls bekannt).
+function nurFreie(plugs) {
+  const cap = plugs.reduce((a, h) => a + (defs.items[h]?.ec || 0), 0);
+  if (!cap) return plugs;
+  let n = 0;
+  return plugs.filter((h) => !/fragments$/.test(defs.items[h]?.pc || '') || ++n <= cap);
+}
+// Jedes Fragment einzeln mit seinen Stat-Änderungen (für die Anzeige).
+export function fragmentListe(plugs) {
+  const out = [];
+  for (const p of plugs || []) {
+    const d = defs.items[p];
+    if (!d || !/fragments$/.test(d.pc || '')) continue;
+    for (const [h, v] of d.s || []) { const n = defs.stats?.[h]?.n; if (ARMOR_STATS.includes(n)) out.push([d.n, n, v]); }
+  }
+  return out;
+}
 // Woher die Fragmente kommen: angelegte Subclass, ein Ingame-Loadout oder der Build aus dem Finder.
 function fragmentQuelle(profil, cid, quelleWahl, build) {
   if (quelleWahl === 'aus') return { plugs: [], text: '' };
@@ -41,7 +58,8 @@ function fragmentQuelle(profil, cid, quelleWahl, build) {
   const sockets = profil.itemComponents?.sockets?.data || {};
   if (quelleWahl === 'an') {
     const sub = (profil.characterEquipment?.data?.[cid]?.items || []).find((i) => i.bucketHash === SUBCLASS_BUCKET);
-    const plugs = (sockets[sub?.itemInstanceId]?.sockets || []).map((x) => x.plugHash).filter(Boolean);
+    // Nur freigeschaltete Sockel zählen: ausgegraute Fragment-Plätze (zu wenig Aspekt-Kapazität) wirken im Spiel nicht.
+    const plugs = (sockets[sub?.itemInstanceId]?.sockets || []).filter((x) => x.isEnabled !== false).map((x) => x.plugHash).filter(Boolean);
     return { plugs, text: sub ? `fragments of your equipped ${defs.items[sub.itemHash]?.n || 'subclass'}` : '' };
   }
   if (/^lo\d+$/.test(quelleWahl)) {
@@ -49,7 +67,7 @@ function fragmentQuelle(profil, cid, quelleWahl, build) {
     const alle = [...(profil.characterEquipment?.data?.[cid]?.items || []), ...(profil.characterInventories?.data?.[cid]?.items || [])];
     const hashVon = new Map(alle.map((y) => [y.itemInstanceId, y.itemHash]));
     const sub = (l?.items || []).find((x) => defs.items[hashVon.get(x.itemInstanceId)]?.b === SUBCLASS_BUCKET);
-    return { plugs: sub?.plugItemHashes || [], text: `fragments of loadout ${defs.lo?.n?.[l?.nameHash] || Number(quelleWahl.slice(2)) + 1}` };
+    return { plugs: nurFreie(sub?.plugItemHashes || []), text: `fragments of loadout ${defs.lo?.n?.[l?.nameHash] || Number(quelleWahl.slice(2)) + 1}` };
   }
   return { plugs: [], text: '' };
 }
@@ -256,6 +274,7 @@ export function zeigeOptimizer(haupt, zustand) {
     const charF = chars.find((c) => c.classType === zustandO.klasse);
     const fq = fragmentQuelle(zustand.profil, charF?.characterId, zustandO.fragQuelle, zustandO.build);
     zustandO.frag = fragmentBonus(fq.plugs);
+    const fragL = fragmentListe(fq.plugs);
     let r = rechne(liste, zustandO);
     // Kein Ergebnis wegen des Sets? Dann automatisch die beste Lösung mit weniger Set-Teilen zeigen und das ehrlich sagen.
     let ersatzHinweis = '';
@@ -281,7 +300,7 @@ export function zeigeOptimizer(haupt, zustand) {
     <div class="optgrid"><section class="karte optlinks">
       <div class="oschritt"><h3><span>1</span>What you bring</h3>
         <label class="ozeile">Subclass & fragments from <select id="fragWahl"><option value="an" ${zustandO.fragQuelle === 'an' ? 'selected' : ''}>What ${KLASSE[zustandO.klasse]} has equipped now</option>${bd?.fragmente?.length ? `<option value="build" ${zustandO.fragQuelle === 'build' ? 'selected' : ''}>The build “${esc(bd.name)}”</option>` : ''}${slots.map((l, i) => ((l.items || []).some((x) => x.itemInstanceId && x.itemInstanceId !== '0') ? `<option value="lo${i}" ${zustandO.fragQuelle === `lo${i}` ? 'selected' : ''}>In-game loadout ${i + 1} · ${esc(defs.lo?.n?.[l.nameHash] || '')}</option>` : '')).join('')}<option value="aus" ${zustandO.fragQuelle === 'aus' ? 'selected' : ''}>Nothing (ignore fragments)</option></select></label>
-        <p class="ohilfe">${ARMOR_STATS.some((n) => zustandO.frag?.[n]) ? `Fragments change your stats: ${ARMOR_STATS.filter((n) => zustandO.frag?.[n]).map((n) => `<b class="${zustandO.frag[n] < 0 ? 'minus' : 'plus'}">${zustandO.frag[n] > 0 ? '+' : ''}${zustandO.frag[n]} ${n}</b>`).join(', ')}. Already counted below.` : fq.text ? 'These fragments don\'t change any stat.' : 'No fragments counted.'}</p></div>
+        <p class="ohilfe">${fragL.length ? `Fragments change your stats: ${fragL.map(([f, n, v]) => `<b class="${v < 0 ? 'minus' : 'plus'}" title="${esc(f)}">${v > 0 ? '+' : ''}${v} ${n}</b>`).join(', ')}${ARMOR_STATS.filter((n) => fragL.filter((x) => x[1] === n).length > 1).length ? ` · net: ${ARMOR_STATS.filter((n) => fragL.some((x) => x[1] === n)).map((n) => `${zustandO.frag[n] > 0 ? '+' : ''}${zustandO.frag[n]} ${n}`).join(', ')}` : ''}. Already counted below. <small>(${esc([...new Set(fragL.map((x) => x[0]))].join(', '))})</small>` : fq.text ? 'These fragments don\'t change any stat.' : 'No fragments counted.'}</p></div>
       <div class="oschritt"><h3><span>2</span>Minimum stats</h3><p class="ohilfe">Drag a bar to the value you need (steps of 5). Gold = your minimum, violet = the most you can still reach.</p>
       ${ARMOR_STATS.map((n, k) => {
         const z = zustandO.ziele[n] || 0;

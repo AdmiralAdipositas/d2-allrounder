@@ -45,6 +45,8 @@ for (const [hash, it] of Object.entries(items)) {
     e.d = text(it);
     const st = (it.investmentStats || []).filter((v) => v.value).map((v) => [v.statTypeHash, v.value]);
     if (st.length) e.s = st;
+    // Aspekte: wie viele Fragment-Plätze sie öffnen (für Loadouts, die keine Socket-Freigabe mitliefern).
+    const cap = it.plug?.energyCapacity?.capacityValue; if (cap && /aspects|totems|trinkets/.test(e.pc)) e.ec = cap;
   }
   if (it.iconWatermark) e.w = it.iconWatermark;
   aus.items[hash] = e;
