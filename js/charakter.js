@@ -109,8 +109,8 @@ export function zeigeCharakter(haupt, zustand) {
       <div class="invleiste"><div class="wsub">${BEREICHE.map(([k, t]) => `<button class="chip" data-bereich="${k}" aria-pressed="${k === bereich}">${t}</button>`).join('')}</div><input id="invSuche" type="search" placeholder="Highlight: name or type…" value="${esc(suche)}" aria-label="Highlight items"></div>
       <div class="invfilter">${FILTER.map(([k, t]) => `<button class="chip klein ${k.startsWith('el:') ? `el-${k.slice(3)}` : ''}" data-filter="${k}" aria-pressed="${filter.has(k)}">${t}</button>`).join('')}${filter.size || q ? '<button class="chip klein" data-filterweg>✕ clear</button>' : ''}<span class="invlinks"><button class="chip klein" data-tabweiter="vault" title="All weapons with every filter">Weapon list ↗</button><button class="chip klein" data-tabweiter="armor" title="All armor with stats">Armor list ↗</button></span></div>
       ${breit
-        ? `<div class="inv inv-alle" style="--n:${chars.length}">${chars.map(spalte).join('')}${tresor}</div>`
-        : `<div class="inv inv-fokus">${spalte(c)}<div class="cstreifen-box">${chars.filter((x) => x.characterId !== wahl).map(streifen).join('')}</div></div>${tresor}`}`;
+        ? `<div class="inv inv-alle b-${bereich}" style="--n:${chars.length}">${chars.map(spalte).join('')}${tresor}</div>`
+        : `<div class="inv inv-fokus b-${bereich}">${spalte(c)}<div class="cstreifen-box">${chars.filter((x) => x.characterId !== wahl).map(streifen).join('')}</div></div>${tresor}`}`;
     const si = haupt.querySelector('#invSuche');
     si?.addEventListener('input', () => { suche = si.value; const pos = si.selectionStart; zeichne(); const n = haupt.querySelector('#invSuche'); n.focus(); n.setSelectionRange(pos, pos); });
   };

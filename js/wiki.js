@@ -483,8 +483,11 @@ const treffer = (k) => `<button class="wkachel" ${k.seite ? `data-seite="${esc(k
 export async function zeigeWiki(el, zustand) {
   el.innerHTML = '<h1>Wiki</h1><p class="leer">Building the index…</p>';
   const x = await baue(zustand);
+  // Keine eigene Startseite mehr (war doppelt zur Leiste): ohne Auswahl öffnen die Exotics.
+  if (!ansicht.kat && !ansicht.suche && !ansicht.seite) ansicht.kat = 'exo';
+  const anz = { check: Object.keys(defs.cl || {}).length, exo: x.exos.length, waffe: x.waffen.length, set: x.sets.length, akt: x.akts.length, ort: ORTE.length, seal: Object.keys(defs.seal || {}).length, chal: x.chals.length };
   el.innerHTML = `<div class="kopf"><h1>Wiki</h1><div class="wsuchbox"><input id="wsuche" type="search" autocomplete="off" placeholder="Search weapons, exotics, sets, raids, planets…" value="${esc(ansicht.suche)}"><div id="wVor" class="vorschlag" hidden></div></div></div>
-    <div class="wlayout"><nav class="wnav" aria-label="Wiki sections"><button data-kat="" class="${!ansicht.kat && !ansicht.suche ? 'an' : ''}"><span>🏠</span>Start</button>${KATEGORIEN.map(([k, n, e]) => `<button data-kat="${k}" class="${ansicht.kat === k ? 'an' : ''}"><span>${e}</span>${n}</button>`).join('')}</nav><div id="wInhalt" class="winhalt"></div></div>`;
+    <div class="wlayout"><nav class="wnav" aria-label="Wiki sections">${KATEGORIEN.map(([k, n, e]) => `<button data-kat="${k}" class="${ansicht.kat === k ? 'an' : ''}"><span>${e}</span>${n}${anz[k] ? `<small>${anz[k]}</small>` : ''}</button>`).join('')}</nav><div id="wInhalt" class="winhalt"></div></div>`;
   const box = el.querySelector('#wInhalt');
   const zeichne = async () => {
     el.querySelectorAll('.wnav button').forEach((b) => b.classList.toggle('an', (b.dataset.kat || null) === (ansicht.kat || null) && !ansicht.suche));
@@ -497,14 +500,11 @@ export async function zeigeWiki(el, zustand) {
     } else if (ansicht.suche) {
       const t = sucheAlle(x, ansicht.suche);
       html = t.length ? `<h2 class="wh">Results <small>${t.length}</small></h2><div class="wgrid breit">${t.slice(0, 60).map(treffer).join('')}</div>` : '<p class="leer">Nothing found. Try a weapon, set, raid or planet name.</p>';
-    } else if (ansicht.kat === 'seal') html = `<h2 class="wh">Seals</h2>${await zeigeSeals(x, zustand)}`;
-    else if (ansicht.kat === 'check') html = `<h2 class="wh">Checklists</h2>${await zeigeChecklisten(x, zustand)}`;
-    else if (ansicht.kat === 'farm') html = `<h2 class="wh">Farm planner</h2>${await zeigeFarm(x, zustand)}`;
-    else if (ansicht.kat) html = `<h2 class="wh">${esc(KATEGORIEN.find((k) => k[0] === ansicht.kat)[1])}</h2>${zeigeKat(ansicht.kat, x)}`;
-    else {
-      html = `<div class="wkat">${KATEGORIEN.map(([k, n, e]) => `<button data-kat="${k}"><span>${e}</span><b>${n}</b><small>${{ check: Object.keys(defs.cl || {}).length, exo: x.exos.length, waffe: x.waffen.length, set: x.sets.length, akt: x.akts.length, ort: ORTE.length, seal: Object.keys(defs.seal || {}).length, chal: x.chals.length, quelle: new Set(x.waffen.map((w) => w.q)).size, farm: '' }[k]}</small></button>`).join('')}</div>
-        <p class="leer klein">Tip: hover any icon in the app for details, click it for jump links. Try the farm planner for “where exactly does it drop”.</p>`;
-    }
+    } else if (ansicht.kat === 'seal') html = `${await zeigeSeals(x, zustand)}`;
+    else if (ansicht.kat === 'check') html = `${await zeigeChecklisten(x, zustand)}`;
+    else if (ansicht.kat === 'farm') html = `${await zeigeFarm(x, zustand)}`;
+    else if (ansicht.kat) html = zeigeKat(ansicht.kat, x);
+    else { ansicht.kat = 'exo'; html = zeigeKat('exo', x); el.querySelectorAll('.wnav button').forEach((b) => b.classList.toggle('an', b.dataset.kat === 'exo')); }
     box.innerHTML = html;
     if (ansicht.kat === 'farm' && !ansicht.seite) verbindeFarm();
   };

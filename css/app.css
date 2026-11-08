@@ -873,3 +873,21 @@ html[data-pf] .cspalte,html[data-pf] .ctresorbox,html[data-pf] .sblock,html[data
 html[data-pf] .cspalte.an,html[data-pf] .ctresorbox{box-shadow:0 0 24px -6px hsl(calc(var(--pfh) * 1deg) 95% 55% / .6)}
 html[data-pf] .haupt-knopf,html[data-pf] .chip[aria-pressed=true],html[data-pf] .preiter button.an{background:var(--pf-regen)!important;background-size:300% 100%!important;animation:pfwelle 4s linear infinite;color:#0a0a0a!important;border-color:transparent!important}
 @media (prefers-reduced-motion:reduce){html[data-pf],html[data-pf] *,:root[data-theme=shader] body{animation-duration:60s!important}}
+/* Wiki: eine Leiste oben statt Spalte + Startseite; dichter */
+.wlayout{display:block}
+.wnav{position:sticky;top:0;z-index:5;flex-direction:row;flex-wrap:wrap;gap:4px;padding:6px 0;margin-bottom:8px;background:var(--bg);border-bottom:1px solid var(--linie)}
+.wnav button{flex:none;padding:4px 10px;border:1px solid var(--linie);border-radius:999px;font-size:.8rem;gap:6px}
+.wnav button span{width:auto}.wnav button small{color:var(--matt);font-size:.68rem}
+.wnav button.an{box-shadow:none;border-color:var(--gold);background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--text)}
+@media (max-width:760px){.wnav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}}
+/* Weniger Leerraum überall */
+main{padding:12px 16px 40px}
+.kopf{margin-bottom:8px;gap:10px}h1{font-size:1.4rem}
+.kpis{gap:6px;margin-bottom:8px}
+.sblock{margin-bottom:6px}.sblock>summary{padding:8px 12px}.sblock>*:not(summary){margin:0 12px 10px}.sblock h4{margin:8px 0 4px}
+.zwei{gap:8px}
+.inv{gap:8px}.creihe{padding:4px 0}
+/* „Alle“: leere Platzhalter weg, nur echte Teile */
+.b-alle .cgitter .leer-k{display:none}.b-alle .creihe .cr-in{min-height:0}
+@media (max-width:760px){main{padding:8px 8px 70px}.sblock>summary{padding:7px 9px}.sblock>*:not(summary){margin:0 8px 8px}.kpis{grid-template-columns:repeat(2,1fr)}}
+.wkachel{padding:3px 8px 3px 3px;gap:8px}.wgrid{gap:4px}.wgrid.breit{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
