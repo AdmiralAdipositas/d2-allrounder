@@ -1,5 +1,6 @@
 // Willkommen: einmal nach der ersten Anmeldung (pro Bungie-Konto). Kurz zeigen, was die App kann,
 // wo man Aussehen und Sprache ändert, und den Hinweis „inoffiziell, nicht von Bungie“.
+import { vorschauKarten } from './ikonen.js';
 import { themaKnoepfe, verbindeThema } from './thema.js';
 import { SPRACHEN, sprache, waehle } from './sprache.js';
 
@@ -42,7 +43,7 @@ export function zeigeWillkommen(konto) {
   d.innerHTML = `<div class="wk-box">
     <div class="wk-spur" style="--f:0">
       <section class="wk-folie f1"><div class="wk-glanz"></div><p class="wk-kicker">D2 Allrounder</p><h1 id="wkTitel">Welcome, Guardian</h1><p class="wk-lede">Your vault, builds, raids and stats – one app, phone and PC.</p>
-        <div class="wk-orbit"><i></i><i></i><i></i><b>✦</b></div></section>
+        ${vorschauKarten('wk-app')}</section>
       <section class="wk-folie f2"><h2>What you can do</h2><div class="wk-sechs">${HAUPT.map(([t, n, x]) => `<div class="wk-mini"><span class="wk-mic">${icon(t) || '🎲'}</span><b>${n}</b><small>${x}</small></div>`).join('')}</div></section>
       <section class="wk-folie f3"><h2>Make it yours</h2><div class="wk-einst"><section><h3>Look</h3>${themaKnoepfe()}</section>
         <section><h3>Language</h3><select id="wkSprache" aria-label="Language" data-roh>${SPRACHEN.map(([c, n]) => `<option value="${c}" ${c === sprache ? 'selected' : ''}>${n}</option>`).join('')}</select><p class="leer klein">Change both anytime in ⚙ Settings.</p></section></div>

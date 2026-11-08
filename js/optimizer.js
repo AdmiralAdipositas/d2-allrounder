@@ -325,7 +325,7 @@ export function zeigeOptimizer(haupt, zustand) {
         <p class="ohilfe">Automatic: the optimizer adds one stat mod per piece where it helps and uses the cheaper +5 version whenever that already reaches your minimum, leaving energy for Firepower, Siphons and co.</p>
         <div class="obonus"><small>Extra stats you add yourself (e.g. font mods):</small>${ARMOR_STATS.map((n) => `<label>${n.slice(0, 3)} +<input type="number" step="5" data-bonus="${n}" value="${zustandO.bonus[n] || 0}"></label>`).join('')}</div>
       </details>
-      <p class="anzahl"><b>${r.anzahl.toLocaleString()}</b> armor combinations reach your minimums.</p></section>
+      <p class="anzahl"><b>${r.anzahl.toLocaleString()}</b> armor combinations reach your minimums.</p><div class="opt-sprung"><button class="haupt-knopf" data-zuerg>Show results (${r.anzahl.toLocaleString()}) ↓</button></div></section>
     <section><div class="okopf2"><h2>Best combinations</h2><span class="ansicht-w"><button class="chip ${zustandO.tabelle ? '' : 'an'}" data-oview="karten" title="Cards">▤ Cards</button><button class="chip ${zustandO.tabelle ? 'an' : ''}" data-oview="tabelle" title="Compact table">☰ Table</button></span></div>
       ${festIds.size || aus.size ? `<div class="ofest">${[...festIds].map((id) => kurz(id)).filter(Boolean).map((i) => `<button class="chip" data-unfest="${i.id}" title="Unlock">📌 ${esc(i.d.n)} ✕</button>`).join('')}${aus.size ? `<button class="chip" data-unaus="1" title="Bring excluded pieces back">⛔ ${aus.size} excluded · reset</button>` : ''}</div>` : ''}
       ${zustandO.tabelle && r.beste.length ? `<table class="otab"><thead><tr><th>#</th><th>Armor</th>${ARMOR_STATS.map((n) => `<th title="${n}">${n.slice(0, 3)}</th>`).join('')}<th>Tot</th><th></th></tr></thead><tbody>${r.beste.map((b, k) => `<tr><td class="onr">${k + 1}</td><td><span class="otitems">${b.items.map((i) => `<i class="ic ${i.exo ? 'exotic' : ''} ${festIds.has(i.id) ? 'fest' : ''}" data-oid="${k}:${i.id}" style="background-image:url(${BILD}${i.d.i})"></i>`).join('')}</span></td>${ARMOR_STATS.map((n, j) => `<td class="${b.werte[j] >= (zustandO.ziele[n] || 0) && zustandO.ziele[n] ? 'ok' : ''} ${b.werte[j] >= 100 ? 'hoch' : ''}">${b.werte[j]}</td>`).join('')}<td class="otot">${b.werte.reduce((a, v) => a + v, 0)}</td><td><button class="chip" data-equip="${k}" title="Equip">⇩</button></td></tr>`).join('')}</tbody></table><small class="klegende">Tap an armor piece to 📌 lock or ⛔ exclude it.</small>` : ''}
@@ -348,6 +348,7 @@ export function zeigeOptimizer(haupt, zustand) {
     if (kl) { zustandO.klasse = Number(kl.dataset.kl); return zeichne(); }
     if (e.target.id === 'reset') { zustandO.ziele = {}; return zeichne(); }
     if (e.target.closest('#ohneBuild')) { zustandO.build = null; if (zustandO.fragQuelle === 'build') zustandO.fragQuelle = 'an'; return zeichne(); }
+    if (e.target.closest('[data-zuerg]')) return haupt.querySelector('.okopf2')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     const ov = e.target.closest('[data-oview]');
     if (ov) { zustandO.tabelle = ov.dataset.oview === 'tabelle'; return zeichne(); }
     const uf = e.target.closest('[data-unfest]');

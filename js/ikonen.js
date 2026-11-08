@@ -18,3 +18,11 @@ const P = {
   kamera: '<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/>',
 };
 export const ikon = (n, k = '') => `<svg class="ikon-svg ${k}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ''}</svg>`;
+
+// Lebendige Mini-Vorschau der App (Landing + Willkommen): Tresor, Würfel, Raid-Läufer, Optimizer-Leisten.
+export const vorschauKarten = (k = '') => `<div class="l-vorschau ${k}" aria-hidden="true">
+    <div class="lv-karte lv-vault"><small>Vault</small><div class="lv-raster">${['mw exo', '', 'mw', 'el-a', '', 'mw el-s', 'exo', '', 'el-v', 'mw', '', 'el-a'].map((x) => `<i class="lv-k ${x}"></i>`).join('')}</div><span class="lv-such">is:dupe <em>perk:</em></span></div>
+    <div class="lv-karte lv-zufall"><small>Randomizer</small><div class="lv-wuerfel">${ikon('wuerfel')}</div><b>Melee day</b></div>
+    <div class="lv-karte lv-raid"><small>Raid guide</small><div class="lv-platten"><i></i><i></i><i></i><i></i><span class="lv-laeufer"></span></div><b>Cataclysm</b></div>
+    <div class="lv-karte lv-opt"><small>Optimizer</small>${[78, 52, 90, 64, 40, 70].map((w, n) => `<i class="lv-bar" style="--w:${w}%;--d:${n * 0.15}s"></i>`).join('')}</div>
+  </div>`;

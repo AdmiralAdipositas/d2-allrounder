@@ -499,10 +499,10 @@ export async function zeigeStats(haupt, zustand) {
         ${kachel('Seals', `${sg.okJetzt}/${sg.nJetzt}`, `obtainable titles · +${sg.okAlt} legacy`)}
         ${kachel('PvP', `${sieg}% wins`, `K/D ${wert(d.pvp, 'killsDeathsRatio').toFixed(2)} · ${zahl(wert(d.pvp, 'activitiesEntered'))} matches`)}</div>
       ${offen ? `<p class="leer klein pgcrstand">Checking ${zahl(offen)} raid/dungeon reports for full clears, flawless and teams… (saved in this browser, only once)</p>` : ''}
-      ${block('trupp', 'Fireteam & compare', 'view or compare everyone you play with', truppBlock(d, ichName, !fremd), istOffen('trupp', true))}
       ${block('seal', 'Seals & titles', `${sg.okJetzt}/${sg.nJetzt} obtainable · ${sg.okAlt}/${sg.nAlt} legacy · <span class="t-maus">hover for what's missing, click for all triumphs</span><span class="t-touch">tap a seal for all triumphs</span>`, sg.html, istOffen('seal', true))}
-      <div class="sbreit">${block('raid', 'Raids', `${zahl(raids.reduce((a, e) => a + e.clears, 0))} clears · click a raid for every run`, tabelleLaeufe('Raids', raids, d, 'raid'), istOffen('raid', true))}
+      <div class="sbreit">${block('raid', 'Raids', `${zahl(raids.reduce((a, e) => a + e.clears, 0))} clears · tap a raid for every run`, tabelleLaeufe('Raids', raids, d, 'raid'), istOffen('raid', true))}
       ${block('dungeon', 'Dungeons', `${zahl(dungeons.reduce((a, e) => a + e.clears, 0))} clears`, tabelleLaeufe('Dungeons', dungeons, d, 'dungeon'), istOffen('dungeon', true))}</div>
+      ${block('trupp', truppAkt ? 'Fireteam now & compare' : 'Compare with others', truppAkt ? esc(truppAkt) : 'favorites, teammates, side-by-side compare', truppBlock(d, ichName, !fremd), truppAkt ? true : istOffen('trupp', false))}
       ${block('waffen', 'Weapons', meist ? `most used: ${esc(meist.name)}` : '', `<div class="zwei"><div><h4>Top exotics <small>Bungie counts every kill</small></h4><div class="twaffen">${exo.slice(0, 12).map(wkachel).join('')}</div></div>
           <div><h4>Top legendaries <small>${fremd ? 'only visible for your own account' : 'from the kill trackers on copies you own'}</small></h4><div class="twaffen">${leg.slice(0, 12).map(wkachel).join('') || '<p class="leer klein">No kill trackers found.</p>'}</div></div></div>
           ${staub.length ? `<h4>Collecting dust <small>legendaries you keep but never got a kill with (on these copies)</small></h4><div class="chips">${staub.map((w) => `<span class="chip" data-ih="${w.h}">${esc(w.name)}</span>`).join('')}</div>` : ''}`, istOffen('waffen', true))}

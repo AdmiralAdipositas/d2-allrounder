@@ -201,7 +201,9 @@ body:not(.is-master) .master-only{display:none!important}
 .act[aria-pressed="true"]{background:var(--light);color:#1b1505;border-color:var(--light)}
 .act[disabled]{opacity:.5;cursor:default}
 .acts-lab{flex-basis:100%;font-family:var(--font-display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px}
-.acts-lab:first-child{margin-top:0}.act .soon{font-weight:400;font-size:12px}
+.acts-lab:first-child{margin-top:0}
+#actSel{display:none;width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--gold,#e8c35a);background:var(--panel,#15122b);color:inherit;font:700 16px var(--font-display,system-ui);margin-bottom:10px}
+@media(max-width:700px){#acts{display:none!important}#actSel{display:block}}.act .soon{font-weight:400;font-size:12px}
 .rolebar{margin-top:16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
 .rb-l{font-family:var(--font-display);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--champ)}
 .rb-chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -10545,7 +10547,9 @@ document.addEventListener('click',e=>{const a=e.target.closest('#sprung [data-zu
 if(window.parent!==window){const sq=$g('btnSquad'),fu=$g('btnFull');if(sq){sq.hidden=false;sq.onclick=()=>window.parent.postMessage({d2a:'squad'},location.origin);}if(fu)fu.hidden=false;}
 function buildActs(){const n=$('acts');n.innerHTML='';let lastK='';Object.keys(ACT).forEach(a=>{const A=ACT[a];const kd=A.kind||'raid';if(kd!==lastK){lastK=kd;const lb=document.createElement('span');lb.className='acts-lab';lb.textContent=kd==='dungeon'?'Dungeons':'Raids';n.appendChild(lb);}const b=document.createElement('button');b.type='button';b.className='act';b.setAttribute('aria-pressed',a===actId);b.textContent=A.name;
  if(A.soon){b.disabled=true;const sp=document.createElement('span');sp.className='soon';sp.textContent=' · '+ui('soon');b.appendChild(sp);}
- else b.onclick=()=>{if(a===actId)return;actId=a;encId=ACT[a].encs.find(id=>!ENC[id].soon);cur=0;el_t=0;playing=!reduce;hold=false;eng().bg(BG);fillText();};n.appendChild(b);});}
+ else b.onclick=()=>{if(a===actId)return;actId=a;encId=ACT[a].encs.find(id=>!ENC[id].soon);cur=0;el_t=0;playing=!reduce;hold=false;eng().bg(BG);fillText();};n.appendChild(b);});
+ let sel=document.getElementById('actSel');if(!sel){sel=document.createElement('select');sel.id='actSel';sel.setAttribute('aria-label','Raid or dungeon');n.parentNode.insertBefore(sel,n);sel.onchange=()=>{const a=sel.value;if(a===actId)return;actId=a;encId=ACT[a].encs.find(id=>!ENC[id].soon);cur=0;el_t=0;playing=!reduce;hold=false;eng().bg(BG);fillText();};}
+ sel.innerHTML=['raid','dungeon'].map(k=>'<optgroup label="'+(k==='dungeon'?'Dungeons':'Raids')+'">'+Object.keys(ACT).filter(a=>(ACT[a].kind||'raid')===k&&!ACT[a].soon).map(a=>'<option value="'+a+'"'+(a===actId?' selected':'')+'>'+ACT[a].name+'</option>').join('')+'</optgroup>').join('');}
 function buildTabs(){const t=$('tabs');t.innerHTML='';ACT[actId].encs.forEach(id=>{const e=ENC[id];const b=document.createElement('button');b.type='button';b.className='enc-tab';b.setAttribute('role','tab');b.setAttribute('aria-selected',id===encId);
  b.innerHTML=`<span class="n">Encounter ${e.num}</span><span class="t"></span>`+(e.soon?`<span class="soon"></span>`:'');b.querySelector('.t').textContent=e.name;if(e.soon){b.disabled=true;b.querySelector('.soon').textContent=ui('soon');}
  else b.onclick=()=>{encId=id;cur=0;el_t=0;playing=!reduce;hold=false;eng().bg(BG);fillText();};t.appendChild(b);});}

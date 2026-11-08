@@ -64,7 +64,7 @@ export function zeigeLoadouts(haupt, zustand) {
   const zeichne = () => {
     const los = profil.characterLoadouts?.data?.[charWahl]?.loadouts || [];
     haupt.innerHTML = `<div class="kopf"><h1>Loadouts</h1><span class="platz"></span><div class="chips">${chars.map((c) => `<button class="chip" data-char="${c.characterId}" aria-pressed="${c.characterId === charWahl}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}</div></div>
-      <div class="loraster">${los.map((l, i) => {
+      <h2 class="lo-h">In-game slots <small>synced with Destiny</small></h2><div class="loraster">${los.map((l, i) => {
         const items = (l.items || []).filter((x) => x.itemInstanceId && x.itemInstanceId !== '0');
         const leer = !items.length;
         const name = defs.lo?.n?.[l.nameHash] || `Slot ${i + 1}`;
@@ -72,10 +72,11 @@ export function zeigeLoadouts(haupt, zustand) {
           <div class="lo-kopf"><i class="lo-icon" style="background-image:url(${BILD}${defs.lo?.i?.[l.iconHash] || ''}),url(${BILD}${defs.lo?.f?.[l.colorHash] || ''})"></i><b>${leer ? `Empty slot ${i + 1}` : esc(name)}</b><small>#${i + 1}</small>${leer ? '' : `<button class="lo-edit" data-edit="${i}" title="Change name, icon and color" aria-label="Edit">✎</button>`}</div>
           ${bearbeite?.i === i ? editor() : ''}
           <div class="lo-items">${items.map((x) => { const d = defs.items[hashes.get(x.itemInstanceId)]; return d ? `<i data-ih="${hashes.get(x.itemInstanceId)}" class="${d.q === 6 ? 'exo' : ''}" style="background-image:url(${BILD}${d.i})"></i>` : '<i class="fehlt" title="Item no longer exists"></i>'; }).join('')}</div>
-          <div class="lo-knoepfe">${leer ? '' : `<button class="haupt-knopf" data-equip="${i}" ${laeuft ? 'disabled' : ''}>Equip</button>`}
-            <button data-snap="${i}" data-leer="${leer ? 1 : 0}" ${laeuft ? 'disabled' : ''}>${bestaetigen === i ? 'Click again to overwrite' : 'Save current gear here'}</button>
- ${leer ? '' : `<button data-teilen="${i}" ${laeuft ? 'disabled' : ''} title="Copy a DIM link">🔗 DIM link</button><button data-bild="${i}" title="Share as image">📸 Card</button>`}
-            ${leer ? '' : `<button class="loeschen" data-clear="${i}" ${laeuft ? 'disabled' : ''}>${loeschen === i ? 'Click again to delete' : 'Delete'}</button>`}</div>
+          <div class="lo-knoepfe">${leer ? `<button class="haupt-knopf" data-snap="${i}" data-leer="1" ${laeuft ? 'disabled' : ''}>＋ Save current gear here</button>` : `<button class="haupt-knopf" data-equip="${i}" ${laeuft ? 'disabled' : ''}>Equip</button>
+            <details class="lo-mehr" ${bestaetigen === i || loeschen === i ? 'open' : ''}><summary aria-label="More">⋯</summary><div class="lo-menue">
+              <button data-snap="${i}" data-leer="0" ${laeuft ? 'disabled' : ''}>${bestaetigen === i ? 'Click again to overwrite' : '⟳ Overwrite with current gear'}</button>
+              <button data-bild="${i}">📸 Share as image</button><button data-teilen="${i}" ${laeuft ? 'disabled' : ''}>🔗 Copy DIM link</button>
+              <button class="loeschen" data-clear="${i}" ${laeuft ? 'disabled' : ''}>${loeschen === i ? 'Click again to delete' : '🗑 Delete'}</button></div></details>`}</div>
         </article>`;
       }).join('') || '<p class="leer">No in-game loadouts on this character.</p>'}</div>
       ${eigeneHtml()}`;
@@ -89,7 +90,7 @@ export function zeigeLoadouts(haupt, zustand) {
       ${meine.length ? `<div class="loraster">${meine.map((l) => { const teile = l.items.map((x) => [x, finde(x)]); const fehlt = teile.filter(([, f]) => !f).length; return `<article class="lo lo-app">
         <div class="lo-kopf"><i class="lo-icon app">${esc((l.name || '?')[0])}</i><b>${esc(l.name)}</b><small>${l.quelle === 'dim' ? 'from DIM' : esc(new Date(l.zeit).toLocaleDateString())}${fehlt ? ` · <span class="rot">${fehlt} missing</span>` : ''}</small></div>
         <div class="lo-items">${teile.map(([x, f]) => { const d = defs.items[x.hash]; return d ? `<i data-ih="${x.hash}" class="${d.q === 6 ? 'exo' : ''} ${f ? '' : 'fehlt'}" title="${esc(d.n)}" style="background-image:url(${BILD}${d.i})"></i>` : ''; }).join('')}</div>
-        <div class="lo-knoepfe"><button class="haupt-knopf" data-appequip="${l.id}" ${laeuft ? 'disabled' : ''}>Equip</button><button data-appbild="${l.id}">📸 Card</button><button data-appumben="${l.id}">✎ Rename</button><button class="loeschen" data-appweg="${l.id}">${loeschen === l.id ? 'Click again to delete' : 'Delete'}</button></div></article>`; }).join('')}</div>`
+        <div class="lo-knoepfe"><button class="haupt-knopf" data-appequip="${l.id}" ${laeuft ? 'disabled' : ''}>Equip</button><details class="lo-mehr" ${loeschen === l.id ? 'open' : ''}><summary aria-label="More">⋯</summary><div class="lo-menue"><button data-appbild="${l.id}">📸 Share as image</button><button data-appumben="${l.id}">✎ Rename</button><button class="loeschen" data-appweg="${l.id}">${loeschen === l.id ? 'Click again to delete' : '🗑 Delete'}</button></div></details></div></article>`; }).join('')}</div>`
         : '<p class="leer klein">Save as many loadouts as you like – no in-game slot limit. Or paste a DIM loadout link.</p>'}</section>`;
   };
   zeichne();

@@ -2,6 +2,7 @@
 // „oft zusammen gespielt“ (aus deinen Raid-/Dungeon-Berichten, Einmal-Begegnungen ausgeblendet).
 // Von hier aus: Stats ansehen, vergleichen, Squad-Check, „Hinzufügen zu …“.
 import * as bungie from './bungie.js';
+import { ikon } from './ikonen.js';
 import { mitspielerVon, vergleicheMit, zeigeFremd, aktuellerTruppNamen } from './stats.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -64,11 +65,12 @@ export async function zeigeHueter(el, zustand) {
         <span class="hz-info" tabindex="0" data-info="${x.mal ? `${x.mal} raid & dungeon runs together${x.zuletzt ? ` · last ${datum(x.zuletzt)}` : ''}` : 'No shared raid or dungeon report yet'}">${x.mal ? `${x.mal}×` : 'i'}</span>
         <div class="hz-akt"><button class="chip klein" data-stats="${esc(x.name)}" title="Open their stats">📊 Stats</button><button class="chip klein ${x.fav ? 'an' : ''}" data-fav="${esc(x.name)}" title="Favorite">${x.fav ? '★' : '☆'}</button><button class="chip klein" data-add="${esc(x.name)}" title="Add to…">＋</button></div>
       </div>`;
-    el.innerHTML = `<div class="kopf"><h1>Guardians</h1><form class="hz-suche"><input id="hzName" placeholder="Add someone: Name#1234" autocomplete="off"><button class="chip">Add</button></form></div>
+    el.innerHTML = `<div class="kopf"><h1>Guardians</h1><form class="hz-suche"><input id="hzName" type="search" placeholder="＋ Add someone: Name#1234" autocomplete="off"><button class="chip">Add</button></form></div>
       <div class="wsub hz-chips">${chips.map(([k, t]) => `<button class="chip" data-ansicht="${esc(k)}" aria-pressed="${opt.ansicht === k}">${esc(t)} <small>${zaehl(k)}</small></button>`).join('')}<button class="chip klein" data-neugruppe title="Create a group like “Raid squad”">＋ Group</button></div>
       ${opt.ansicht === 'freunde' && freundeFehler ? `<p class="leer klein">${esc(freundeFehler)}</p>` : ''}
       ${opt.ansicht.startsWith('g:') ? `<p class="leer klein"><button class="chip klein" data-gruppeweg="${esc(opt.ansicht.slice(2))}">Delete group</button></p>` : ''}
-      <div class="hz-liste">${liste.slice(0, opt.mehr).map(zeile).join('') || `<p class="leer">${mit == null ? 'Loading…' : 'Nobody here yet.'}</p>`}</div>
+      <div class="hz-liste">${liste.slice(0, opt.mehr).map(zeile).join('') || (mit == null ? '<p class="leer"><i class="spinner"></i> Loading…</p>' : `<div class="hz-leer"><span class="hz-leer-ic">${ikon('trupp')}</span><b>${{ trupp: 'Nobody in your fireteam right now', freunde: 'No Bungie friends found', fav: 'No favorites yet', oft: 'No regular teammates yet' }[opt.ansicht] || (opt.ansicht.startsWith('g:') ? 'This group is empty' : 'Your people show up here')}</b><span>${{ fav: 'Tap ☆ next to anyone to keep them here.', oft: 'Run a raid or dungeon with others – they appear after a few runs together.' }[opt.ansicht] || 'Friends, fireteam and everyone you raid with – in one list.'}</span>
+        <div class="hz-leer-k">${opt.ansicht !== 'freunde' ? '<button class="haupt-knopf" data-ansicht="freunde">Show my Bungie friends</button>' : ''}${opt.ansicht !== 'oft' ? '<button class="chip" data-ansicht="oft">People from my raids</button>' : ''}<button class="chip" data-fokus-add>＋ Add by Bungie name</button></div></div>`)}</div>
       ${liste.length > opt.mehr ? `<button class="chip" data-mehr>Show ${Math.min(30, liste.length - opt.mehr)} more (${liste.length - opt.mehr} left)</button>` : ''}
       <p class="leer klein hz-fuss">“Played with” counts guardians from at least <select data-min>${[2, 3, 5, 10].map((n) => `<option ${n === opt.min ? 'selected' : ''}>${n}</option>`).join('')}</select> shared raid/dungeon runs${einmal ? ` – ${einmal} quick encounters (LFG, one-off help) are hidden` : ''}.${mit?.laedt ? ' Still reading reports…' : ''}</p>
       ${auswahl.size ? `<div class="hz-leiste"><b>${auswahl.size} selected</b><button class="haupt-knopf" data-vergleich>⇄ Compare with me</button><button class="chip" data-squad>🛡 Squad check</button><button class="chip" data-addalle>＋ Add to…</button><button class="chip klein" data-wahlweg>clear</button></div>` : ''}`;
@@ -100,6 +102,7 @@ export async function zeigeHueter(el, zustand) {
     if (e.target.closest('[data-mehr]')) { opt.mehr += 30; return zeichne(); }
     const s = e.target.closest('[data-stats]'); if (s) { zeigeFremd(s.dataset.stats); return geh('stats'); }
     const fv = e.target.closest('[data-fav]'); if (fv) { const f = new Set(lies(FAV, [])); const n = fv.dataset.fav; f.has(n) ? f.delete(n) : f.add(n); schreib(FAV, [...f]); return zeichne(); }
+    if (e.target.closest('[data-fokus-add]')) { const i = el.querySelector('#hzName'); i?.focus(); i?.scrollIntoView({ block: 'center' }); return; }
     const ad = e.target.closest('[data-add]'); if (ad) return addMenue(ad, [ad.dataset.add]);
     if (e.target.closest('[data-addalle]')) return addMenue(e.target.closest('[data-addalle]'), [...auswahl]);
     if (e.target.closest('[data-wahlweg]')) { auswahl.clear(); return zeichne(); }

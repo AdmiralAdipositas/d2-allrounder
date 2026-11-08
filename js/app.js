@@ -1,5 +1,5 @@
 // Rahmen der App: Seitenleiste, Tabs, Seitenpanel, Anmeldung.
-import { ikon } from './ikonen.js';
+import { ikon, vorschauKarten } from './ikonen.js';
 import * as bungie from './bungie.js';
 import { ladeDefs } from './defs.js';
 import { ladeRolls } from './rolls.js';
@@ -220,6 +220,7 @@ const griff = document.createElement('div');
 griff.className = 'pgriff'; griff.title = 'Drag to resize · double-click to reset';
 document.body.append(griff);
 const setzeGriff = () => { const r = panel.getBoundingClientRect(); griff.hidden = panel.hidden || matchMedia('(max-width: 760px)').matches; griff.style.left = `${(r.left - 4) / d2aZ()}px`; };
+griff.hidden = true; setTimeout(setzeGriff, 0);
 new MutationObserver(setzeGriff).observe(panel, { attributes: true, attributeFilter: ['hidden', 'style'] });
 addEventListener('resize', setzeGriff);
 griff.onpointerdown = (e) => {
@@ -258,11 +259,16 @@ async function gespeichertesProfil() {
 
 function anmeldeSeite() {
   const bereit = bungie.eingerichtet();
-  haupt.innerHTML = `<div class="anmelden karte"><h1>D2 Allrounder</h1>
-    <p>Vault, loadouts, armor optimizer and weekly rotation for every class, on phone and PC.</p>
-    ${bereit ? '<button class="haupt-knopf" id="los">Sign in with Bungie</button>' : '<p>Setup is not finished yet: the Bungie app keys are missing.</p>'}
-    <div class="gast-wahl"><small>Look around first – no account needed</small><div>${[['guide', '⭐', 'Raid Guide', 'Animated encounters'], ['wiki', '📖', 'Wiki', 'Drops, perks, seals'], ['finder', '🔎', 'Builds', 'Community builds']].map(([t, e, n, x]) => `<button data-gast="${t}"><b>${e}</b><span>${n}</span><small>${x}</small></button>`).join('')}</div></div><p class="leer klein">Your sign-in stays in this browser. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></p>
-    <p class="leer klein anm-hinweis">Unofficial fan app, not affiliated with Bungie. Destiny content © Bungie, Inc. Mostly built by Claude, Anthropic’s AI.</p></div>`;
+  document.body.classList.add('abgemeldet');
+  haupt.innerHTML = `<div class="landing"><section class="l-text">
+    <small class="l-kicker">Destiny 2 companion · phone & PC</small>
+    <h1>Your whole Guardian.<br><span>One app.</span></h1>
+    <p>Vault & loadouts, armor optimizer, builds, raid guides, stats and a randomizer for when you can't decide.</p>
+    ${bereit ? '<button class="haupt-knopf l-los" id="los">Sign in with Bungie</button>' : '<p>Setup is not finished yet: the Bungie app keys are missing.</p>'}
+    <div class="gast-wahl"><small>or look around first – no account needed</small><div>${[['guide', 'stern', 'Raid Guide', 'Animated encounters'], ['wiki', 'buch', 'Wiki', 'Drops, perks, seals'], ['finder', 'lupe', 'Builds', 'Community builds']].map(([t, e, n, x]) => `<button data-gast="${t}"><b>${ikon(e)}</b><span>${n}</span><small>${x}</small></button>`).join('')}</div></div>
+    <p class="leer klein">Your sign-in stays in this browser. <a href="privacy.html">Privacy</a></p>
+    <p class="leer klein anm-hinweis">Unofficial fan app, not affiliated with Bungie. Destiny content © Bungie, Inc. Mostly built by Claude, Anthropic’s AI.</p></section>
+  ${vorschauKarten()}</div>`;
   $('#los')?.addEventListener('click', () => bungie.anmelden());
   haupt.querySelectorAll('[data-gast]').forEach((b) => b.addEventListener('click', () => wechsle(b.dataset.gast)));
 }
