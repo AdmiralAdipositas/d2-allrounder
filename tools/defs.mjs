@@ -11,7 +11,7 @@ const holen = async (pfad) => { const r = await fetch(BASIS + pfad, { headers: {
 const manifest = (await holen('/Platform/Destiny2/Manifest/')).Response;
 const pfade = manifest.jsonWorldComponentContentPaths.en;
 const alt = fs.existsSync('data/defs.json') ? JSON.parse(fs.readFileSync('data/defs.json', 'utf8')) : null;
-if (alt?.version === manifest.version && alt?.schema === 15) { console.log('Game data unchanged.'); process.exit(0); }
+if (alt?.version === manifest.version && alt?.schema === 16) { console.log('Game data unchanged.'); process.exit(0); }
 
 const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, typen, modifier, ziele, loNamen, loIcons, loFarben, knoten, records, ziele2, statGruppen, checklisten] = await Promise.all([
   'DestinyInventoryItemDefinition', 'DestinySandboxPerkDefinition', 'DestinyCollectibleDefinition', 'DestinyStatDefinition',
@@ -22,7 +22,7 @@ const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, ty
 ].map((n) => (pfade[n] ? holen(pfade[n]) : {})));
 
 const text = (item) => item.displayProperties?.description || (item.perks || []).map((p) => sandbox[p.perkHash]?.displayProperties?.description).find(Boolean) || '';
-const aus = { schema: 15, soz: {}, wtyp: {}, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
+const aus = { schema: 16, soz: {}, wtyp: {}, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
 for (const [hash, it] of Object.entries(items)) {
   const n = it.displayProperties?.name;
   // Nur, was die App braucht: Waffen, Rüstung, Subclasses, Plugs, Artefakte.
@@ -76,6 +76,8 @@ for (const [h, a] of Object.entries(aktivitaeten)) {
   const g = istLS ? 'Lost Sectors' : GRUPPE[typen[a.activityTypeHash]?.displayProperties?.name] || ({ 4: 'Raids', 82: 'Dungeons' })[a.directActivityModeType];
   if (!g || !a.displayProperties?.name) continue;
   aus.akt[h] = { n: a.displayProperties.name, i: a.displayProperties.icon || a.pgcrImage || '', d: a.displayProperties.description || '', g, o: ziele2[a.destinationHash]?.displayProperties?.name || '' };
+  // Echte Modifier dieser Aktivität (für das Glücksrad).
+  { const m = [...new Set((a.modifiers || []).map((x) => x.activityModifierHash).filter((x) => modifier[x]?.displayProperties?.name && modifier[x].displayProperties.icon))]; if (m.length) aus.akt[h].m = m.slice(0, 40); }
   for (const c of a.challenges || []) {
     const z = ziele[c.objectiveHash];
     if (z) aus.ziel[c.objectiveHash] = { n: z.displayProperties?.name || z.progressDescription || '', d: z.displayProperties?.description || '' };
