@@ -11,7 +11,7 @@ const BASIS = 'https://www.bungie.net';
 const holen = async (pfad) => { const r = await fetch(BASIS + pfad, { headers: { 'X-API-Key': apiKey } }); if (!r.ok) throw new Error(`${pfad}: ${r.status}`); return r.json(); };
 const manifest = (await holen('/Platform/Destiny2/Manifest/')).Response;
 const alt = fs.existsSync('data/lang/keys.json') ? JSON.parse(fs.readFileSync('data/lang/keys.json', 'utf8')) : null;
-if (alt?.version === manifest.version && alt?.schema === 2) { console.log('Translations unchanged.'); process.exit(0); }
+if (alt?.version === manifest.version && alt?.schema === 3) { console.log('Translations unchanged.'); process.exit(0); }
 const defs = JSON.parse(fs.readFileSync('data/defs.json', 'utf8'));
 
 // Welche Objekte die App zeigt, je Bungie-Tabelle: Hash-Liste + welche Felder.
@@ -46,8 +46,13 @@ for (const lang of SPRACHEN) {
   const lo = await lade(lang, 'DestinySandboxPerkDefinition').catch(() => ({}));
   for (const h of setPerkHashes) { merke(enPerks[h]?.displayProperties?.name, lang, lo[h]?.displayProperties?.name); merke(enPerks[h]?.displayProperties?.description, lang, lo[h]?.displayProperties?.description); }
 }
+// Flavor-Texte stehen nur in der vollen Item-Tabelle (nicht in „Lite“): je Sprache einmal laden, nur Waffen mit Flavor.
+{ const mitFl = Object.entries(defs.items).filter(([, d]) => d.fl);
+  for (const lang of SPRACHEN) {
+    try { const lo = await lade(lang, 'DestinyInventoryItemDefinition'); for (const [h, d] of mitFl) merke(d.fl, lang, lo[h]?.flavorText); console.log(`flavor ${lang}`); } catch (e) { console.log(`skip flavor ${lang}: ${e.message}`); }
+  } }
 fs.mkdirSync('data/lang', { recursive: true });
 const keys = [...paare.keys()];
-fs.writeFileSync('data/lang/keys.json', JSON.stringify({ schema: 2, version: manifest.version, keys }));
+fs.writeFileSync('data/lang/keys.json', JSON.stringify({ schema: 3, version: manifest.version, keys }));
 for (const lang of SPRACHEN) fs.writeFileSync(`data/lang/${lang}.json`, JSON.stringify(keys.map((k) => paare.get(k)[lang] || '')));
 console.log(`Wrote ${keys.length} translated texts for ${SPRACHEN.length} languages.`);
