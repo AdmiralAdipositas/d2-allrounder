@@ -272,7 +272,7 @@ export function oeffneZufall(zustand) {
   zeichne();
   box.onclick = async (e) => { try { await klick(e); } catch (err) { console.error(err); meldung(`Randomizer: ${err.message}`, true); } };
   const klick = async (e) => {
-    if (e.target === box || e.target.closest('[data-zu]')) { box.remove(); return; }
+    if (e.target === box || e.target.closest('[data-zu]')) { zu(); return; }
     const t = e.target.closest('[data-tab]'); if (t) { tab = t.dataset.tab; return zeichne(); }
     if (e.target.closest('[data-wuerfeln]') && tab === 'rad' && kette?.e) { ketteFertig(); return zeichne(); }
     if (e.target.closest('[data-zfteilen]') && ergebnis) { const e2 = ergebnis; const ch = zustand.profil.characters?.data?.[cid]; return import('./teilen.js').then((m) => m.teileKarte({ art: 'RANDOMIZER', titel: 'The dice have spoken', unter: `${KLASSE[ch?.classType] || ''}${e2.sub ? ` · ${e2.sub}` : ''}`, hinter: ch?.emblemBackgroundPath, bilder: e2.teile.map(({ x }) => x.d.i), chips: (e2.info || []).map(([a, b]) => `${a}: ${b}`), zeilen: e2.teile.slice(0, 8).map(({ x, slot }) => [slot, x.d.n]) })); }
@@ -317,5 +317,8 @@ export function oeffneZufall(zustand) {
     if (el.matches('[data-eigen]')) { rad.eigen = el.value; schreib('d2a.rad', rad); return zeichne(); }
   };
   box.oninput = (e) => { if (e.target.matches('[data-rad]')) { const s = e.target.nextElementSibling; if (s) s.textContent = e.target.value; } };
-  box.onkeydown = (e) => { if (e.key === 'Escape') box.remove(); };
+  const zu = () => { box.remove(); document.removeEventListener('keydown', esc2); const t = document.querySelector('#tipp'); if (t) t.hidden = true; };
+  const esc2 = (e) => { if (e.key === 'Escape') zu(); };
+  document.addEventListener('keydown', esc2);
+  box.tabIndex = -1; box.focus?.({ preventScroll: true });
 }

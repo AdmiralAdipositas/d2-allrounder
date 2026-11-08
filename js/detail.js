@@ -69,7 +69,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
       <button class="mehr" data-mehr="${sp.s}">${auf ? 'Less' : `+${sp.plugs.length - 1}`}</button></div>`;
   }).join('');
   const infoBox = () => {
-    if (!wahl) return `<p class="leer klein">Click a perk or mod to read it. Click “Apply” to switch to it.${emp ? ' <span class="legende"><span><i class="rt rt-pve"></i> PvE pick</span><span><i class="rt rt-pvp"></i> PvP pick</span><span><i class="rt rt-god"></i> god roll perk</span><small>Community wish list (DIM voltron)</small></span>' : ''}</p>`;
+    if (!wahl) return `<p class="leer klein"><span class="t-maus">Click</span><span class="t-touch">Tap</span> a perk or mod to read it, then “Apply” to switch to it.${emp ? ' <span class="legende"><span><i class="rt rt-pve"></i> PvE pick</span><span><i class="rt rt-pvp"></i> PvP pick</span><span><i class="rt rt-god"></i> god roll perk</span><small>Community wish list (DIM voltron)</small></span>' : ''}</p>`;
     const p = defs.items[wahl.h];
     const sp = spalten.find((x) => x.s === wahl.s);
     const aktiv = sp?.aktiv === wahl.h;

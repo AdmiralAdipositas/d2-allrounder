@@ -212,7 +212,7 @@ function zeileRaid(e, d) {
       <p class="leer klein">${zahl(e.clears)} clears (${zahl(e.voll)} full, ${zahl(e.cp)} from a checkpoint${e.clears - e.voll - e.cp > 0 ? `, ${zahl(e.clears - e.voll - e.cp)} still being checked` : ''}) · ${zahl(e.versuche - e.clears)} runs without a clear · ${stunden(e.sek)} in total · last ${esc(datum(e.zuletzt))}.
         ${e.art === 'dungeon' ? `Solo ${zahl(e.solo)} · solo flawless ${zahl(e.soloFl)} · duo ${zahl(e.duo)} · trio ${zahl(e.trio)}.` : `Lowman: trio ${zahl(e.trio)} · duo ${zahl(e.duo)} · solo ${zahl(e.solo)}.`}</p>
       <div class="pkte">${punkte || '<span class="leer klein">No clears yet.</span>'}</div>
-      <p class="pleg"><i class="pkt voll"></i>full <i class="pkt cp"></i>checkpoint <i class="pkt voll fl"></i>flawless <i class="pkt voll ms"></i>master/epic · hover or tap a dot for date, time and team</p>
+      <p class="pleg"><i class="pkt voll"></i>full <i class="pkt cp"></i>checkpoint <i class="pkt voll fl"></i>flawless <i class="pkt voll ms"></i>master/epic · <span class="t-maus">click a dot for the full report</span><span class="t-touch">tap a dot for the full report</span></p>
       ${seal ? `<p><b>${esc(seal.t)}</b> ${sealOk ? '<span class="gold">earned</span>' : `· ${sealTxt} triumphs`}${fehlChal.length ? ` · missing challenges: ${fehlChal.map((c) => `<button class="chip klein" data-wikichal="${esc(c)}">${esc(c)}</button>`).join(' ')}` : ''}</p>` : ''}
     </div></details>`;
 }
@@ -500,7 +500,7 @@ export async function zeigeStats(haupt, zustand) {
         ${kachel('PvP', `${sieg}% wins`, `K/D ${wert(d.pvp, 'killsDeathsRatio').toFixed(2)} · ${zahl(wert(d.pvp, 'activitiesEntered'))} matches`)}</div>
       ${offen ? `<p class="leer klein pgcrstand">Checking ${zahl(offen)} raid/dungeon reports for full clears, flawless and teams… (saved in this browser, only once)</p>` : ''}
       ${block('trupp', 'Fireteam & compare', 'view or compare everyone you play with', truppBlock(d, ichName, !fremd), istOffen('trupp', true))}
-      ${block('seal', 'Seals & titles', `${sg.okJetzt}/${sg.nJetzt} obtainable · ${sg.okAlt}/${sg.nAlt} legacy · hover for what's missing, click for all triumphs`, sg.html, istOffen('seal', true))}
+      ${block('seal', 'Seals & titles', `${sg.okJetzt}/${sg.nJetzt} obtainable · ${sg.okAlt}/${sg.nAlt} legacy · <span class="t-maus">hover for what's missing, click for all triumphs</span><span class="t-touch">tap a seal for all triumphs</span>`, sg.html, istOffen('seal', true))}
       <div class="sbreit">${block('raid', 'Raids', `${zahl(raids.reduce((a, e) => a + e.clears, 0))} clears · click a raid for every run`, tabelleLaeufe('Raids', raids, d, 'raid'), istOffen('raid', true))}
       ${block('dungeon', 'Dungeons', `${zahl(dungeons.reduce((a, e) => a + e.clears, 0))} clears`, tabelleLaeufe('Dungeons', dungeons, d, 'dungeon'), istOffen('dungeon', true))}</div>
       ${block('waffen', 'Weapons', meist ? `most used: ${esc(meist.name)}` : '', `<div class="zwei"><div><h4>Top exotics <small>Bungie counts every kill</small></h4><div class="twaffen">${exo.slice(0, 12).map(wkachel).join('')}</div></div>

@@ -1294,3 +1294,7 @@ html[data-modus=einfach] .kombi:nth-of-type(n+4),html[data-modus=einfach] .otab 
 .st-tag>small .ikon-svg{color:var(--gold)}.st-serie .ikon-svg{color:#ff8a5a}
 .st-auf-ic{font-size:1.5rem}
 .st-auf-ic .ikon-svg{width:26px;height:26px;color:var(--gold)}
+.t-touch{display:none}@media (hover:none){.t-maus{display:none}.t-touch{display:inline}}
+@media(max-width:760px){#meldung{bottom:84px;max-width:calc(100vw - 24px)}.zf-zu{top:6px;right:6px;z-index:2;background:var(--bg2)!important;border-radius:50%;width:32px;height:32px}.zf-box .zf-reiter,.zf-box>nav{padding-right:40px}}
+.zf-box>.wsub{padding-right:40px}
+.tag.autor{text-transform:none;letter-spacing:0;background:none;border:1px dashed var(--linie2);color:var(--text2)}

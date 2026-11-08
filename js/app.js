@@ -232,7 +232,7 @@ griff.ondblclick = () => { delete pz.w; panel.style.width = ''; merkePanel(); se
 function kontoKlick() {
   if (!bungie.eingerichtet()) return meldung('The app is not connected to Bungie yet.', true);
   // PC: Profil und Seitenpanel sind ein Knopf – öffnet immer „This week“, Konto ist ein Reiter im Panel.
-  if (zustand.konto) { if (matchMedia('(min-width: 761px)').matches) { if (!panel.hidden && !pz.fest) return schliessePanel(); return oeffnePanel('woche'); } return oeffnePanel('konto'); }
+  if (zustand.konto) { if (matchMedia('(min-width: 761px)').matches) { if (!panel.hidden && !pz.fest && pz.art === 'konto') return schliessePanel(); return oeffnePanel('konto'); } return oeffnePanel('konto'); }
   bungie.anmelden();
 }
 function abmelden() {
@@ -324,7 +324,7 @@ async function start() {
     zustand.konto = await bungie.konto();
     await starteSprache(zustand.konto);
     $('#kontoName').textContent = zustand.konto.name;
-    $('#konto').title = 'This week, Xûr, Postmaster & account';
+    $('#konto').title = 'Settings & account';
     await ladeProfil();
     // Frisch neu zeichnen, solange du noch nichts angeklickt hast; sonst nur die Daten tauschen.
     if (!alt || !klicks) wechsle(zustand.tab); else meldung('Data refreshed from Bungie.');
