@@ -1015,3 +1015,39 @@ html[data-pf] #rail svg{stroke:#ffd60a}
 .pm-seiten button:hover,.pm-schnell button:hover{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 12%,var(--bg2));color:var(--text)}
 .pmenue button.an{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 20%,var(--bg2));color:var(--text)}
 .pm-seiten button:nth-child(6n+1) svg{stroke:var(--sh1,#ff6fae)}.pm-seiten button:nth-child(6n+2) svg{stroke:var(--sh2,#7fd5ff)}.pm-seiten button:nth-child(6n+3) svg{stroke:var(--sh3,#ff8a2a)}.pm-seiten button:nth-child(6n+4) svg{stroke:var(--sh4,#3fe08f)}.pm-seiten button:nth-child(6n+5) svg{stroke:var(--sh5,#e8c35a)}.pm-seiten button:nth-child(6n) svg{stroke:var(--sh6,#9b7bff)}
+/* This week: Resets und Xûr als Symbole + Zeitbalken statt Sätzen */
+.resets{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 10px}.resets>span{display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--linie);border-radius:999px;font-size:.85rem;color:var(--text2)}
+.rz{display:inline-block;width:42px;height:4px;border-radius:2px;background:var(--flaeche3);overflow:hidden}.rz i{display:block;height:100%;width:var(--p);background:var(--gold)}
+.xur-box{border:1px solid var(--gold);border-radius:10px;margin:0 0 10px;background:color-mix(in srgb,var(--gold) 10%,var(--bg2))}
+.xur-box.aus{border-color:var(--linie);background:var(--bg2);opacity:.7}
+.xur-knopf{display:flex!important;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;list-style:none;font-weight:700}
+.xur-knopf::-webkit-details-marker{display:none}.xur-box.aus .xur-knopf{cursor:default}
+.xur-sym{font-size:1.3rem;line-height:1}.xur-bar{flex:1;height:6px;border-radius:3px;background:var(--flaeche3);overflow:hidden}.xur-bar b{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--violett))}
+.xur-rest{font-variant-numeric:tabular-nums;color:var(--text2);font-weight:600}
+
+/* Klickbares sieht klickbar aus: Pfeile drehen sich, Knöpfe heben sich, Karten zeigen › */
+details:not(.zkat):not(.rzeile):not(.xur-box)>summary{list-style:none;cursor:pointer}
+details:not(.zkat):not(.rzeile):not(.xur-box)>summary::-webkit-details-marker{display:none}
+details:not(.zkat):not(.rzeile):not(.xur-box)>summary::before{content:'';display:inline-block;width:7px;height:7px;margin-right:8px;border-right:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(-45deg);transition:transform .2s ease;vertical-align:2px;flex:none}
+details[open]:not(.zkat):not(.rzeile):not(.xur-box)>summary::before{transform:rotate(45deg)}
+.klick-pfeil{font-style:normal;color:var(--gold);font-size:1.2rem;transition:transform .2s}details[open]>summary .klick-pfeil{transform:rotate(90deg)}
+button:not(:disabled),.chip,[data-seite],[data-tab],[data-ansehen],[data-stats]{cursor:pointer}
+.chip:not(:disabled),.haupt-knopf:not(:disabled),.pknopf{transition:transform .12s ease,box-shadow .12s ease,filter .12s ease}
+.chip:not(:disabled):hover,.haupt-knopf:not(:disabled):hover,.pknopf:hover{transform:translateY(-1px);box-shadow:0 4px 12px -6px var(--gold);filter:brightness(1.12)}
+.chip:active,.haupt-knopf:active{transform:translateY(0) scale(.98)}
+.wkachel,.feed-karte .fk-warum,.wmini{position:relative;transition:border-color .15s,transform .15s}
+.wkachel::after{content:'›';position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--gold);opacity:.35;transition:opacity .15s,right .15s;font-size:1.1rem}
+.wkachel:hover::after{opacity:1;right:5px}.wkachel:hover{border-color:var(--gold)}
+@media (hover:none){.wkachel::after{opacity:.7}}
+
+/* Lichtfaden von der Leiste links zum Seitenpanel-Griff rechts: zeigt, dass es rechts noch etwas gibt */
+#lichtfaden{position:fixed;top:0;left:var(--rail);right:0;height:1px;z-index:15;pointer-events:none;overflow:hidden}
+#lichtfaden i{position:absolute;top:0;left:0;width:180px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);box-shadow:0 0 6px var(--gold);opacity:.8;animation:faden 10s ease-in-out infinite;will-change:transform}
+@keyframes faden{0%{transform:translateX(-200px);opacity:0}4%{opacity:.85}30%{transform:translateX(calc(100vw - 60px));opacity:.85}34%,100%{transform:translateX(calc(100vw - 60px));opacity:0}}
+#panelGriff{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:16;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 5px 10px 7px;border:1px solid var(--linie2);border-right:0;border-radius:10px 0 0 10px;background:var(--bg3);color:var(--gold);cursor:pointer;animation:griff 10s ease-in-out infinite}
+#panelGriff em{font-style:normal;font-size:1rem;line-height:1}#panelGriff span{font-size:.95rem}
+#panelGriff:hover{padding-right:9px;border-color:var(--gold)}
+@keyframes griff{0%,28%{box-shadow:none}33%{box-shadow:-4px 0 18px -2px var(--gold);border-color:var(--gold)}45%,100%{box-shadow:none}}
+body.panel-offen #panelGriff,body.panel-offen #lichtfaden{display:none}
+@media (max-width:760px){#lichtfaden,#panelGriff{display:none}}
+@media (prefers-reduced-motion:reduce){#lichtfaden{display:none}#panelGriff{animation:none}}

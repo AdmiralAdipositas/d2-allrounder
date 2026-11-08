@@ -92,6 +92,7 @@ const TABS = Object.fromEntries(['char', 'vault', 'armor', 'loadouts', 'optimize
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
 
 // Andere Module springen über ein Ereignis zu einer Seite (z. B. Hüter → Squad-Check).
+$('#panelGriff')?.addEventListener('click', () => oeffnePanel('woche'));
 window.addEventListener('d2a-tab', (e) => { if (TABS[e.detail]) wechsle(e.detail); });
 function wechsle(tab) {
   zustand.tab = tab;
@@ -135,7 +136,7 @@ const SCHNELL = [['woche', '🗓'], ['xur', '🧳'], ['post', '📮'], ['konto',
 const EMO = { squad: '🛡' };
 const panelIcon = (k) => { const s = SCHNELL.find(([x]) => x === k); if (s) return `<i class="pm-emo">${s[1]}</i>`; const svg = rail.querySelector(`[data-tab="${k === 'char' ? 'char' : k}"] svg`)?.outerHTML; return svg ? `<i class="pm-ic">${svg}</i>` : `<i class="pm-emo">${EMO[k] || '▫'}</i>`; };
 function zeigePanel() {
-  panel.hidden = false;
+  panel.hidden = false; document.body.classList.add('panel-offen');
   panel.classList.toggle('lang', Boolean(pz.text));
   if (pz.w && !matchMedia('(max-width: 760px)').matches) panel.style.width = `${pz.w}px`;
   document.body.classList.toggle('panel-fest', pz.fest);
@@ -153,7 +154,7 @@ function zeigePanel() {
 }
 export function oeffnePanel(art) { pz.art = art; merkePanel(); zeigePanel(); }
 export const postZahl = () => postAnzahl(zustand.profil);
-function schliessePanel() { panel.hidden = true; rail.querySelector('[data-panel]').classList.remove('panel-an'); $('#konto').classList.remove('panel-an'); document.body.classList.remove('panel-fest'); }
+function schliessePanel() { panel.hidden = true; document.body.classList.remove('panel-offen'); rail.querySelector('[data-panel]').classList.remove('panel-an'); $('#konto').classList.remove('panel-an'); document.body.classList.remove('panel-fest'); }
 function schaltePanel() { if (!panel.hidden) { pz.fest = false; merkePanel(); schliessePanel(); } else { pz.art = 'woche'; merkePanel(); zeigePanel(); } }
 // Logo = Home: zurück zum ersten Tab, nach oben, Inventar frisch von Bungie laden.
 $('#logo').addEventListener('click', async () => {

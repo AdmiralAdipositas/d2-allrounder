@@ -95,8 +95,15 @@ function karte(e) {
 
 export async function zeigeWoche(panel, zustand, xur) {
   const r = resets();
-  panel.innerHTML = `<h2>This week</h2><p class="reset">Daily reset in <b>${dauer(r.taeglich)}</b> (${uhr(r.taeglich)}) · Weekly in <b>${dauer(r.woechentlich)}</b></p>
-    ${xur ? `<details class="xur-box"><summary class="xur-knopf">Xûr is here · stock refreshes ${uhr(xur)}</summary><div class="xur-inhalt"><p class="leer">Loading…</p></div></details>` : ''}<div id="wInhalt"><p class="leer">Loading activities…</p></div>`;
+  // Xûr: Freitag-Reset bis Dienstag-Reset. Statt Text: Symbol, Balken für seine Zeit, Countdown.
+  const fr = new Date(r.woechentlich); fr.setUTCDate(fr.getUTCDate() - 4); // Freitag vor dem nächsten Dienstag-Reset
+  const da = Date.now() >= fr.getTime();
+  const anteil = da ? Math.min(100, ((Date.now() - fr) / (r.woechentlich - fr)) * 100) : 0;
+  const zeitleiste = (bis, tl) => `<span class="rz"><i style="--p:${Math.max(3, 100 - ((bis - Date.now()) / (tl * 3600e3)) * 100)}%"></i></span>`;
+  panel.innerHTML = `<h2>This week</h2>
+    <div class="resets"><span title="Daily reset ${uhr(r.taeglich)}">☀ <b>${dauer(r.taeglich)}</b>${zeitleiste(r.taeglich, 24)}</span><span title="Weekly reset ${uhr(r.woechentlich)}">🗓 <b>${dauer(r.woechentlich)}</b>${zeitleiste(r.woechentlich, 168)}</span></div>
+    ${da ? `<details class="xur-box"><summary class="xur-knopf"><b class="xur-sym">🧳</b><span>Xûr</span><i class="xur-bar" title="Here Fri–Tue"><b style="width:${anteil}%"></b></i><span class="xur-rest" title="Leaves ${uhr(r.woechentlich)}">⏳ ${dauer(r.woechentlich)}</span><em class="klick-pfeil">›</em></summary><div class="xur-inhalt"><p class="leer">Loading…</p></div></details>`
+      : `<div class="xur-box aus" title="Xûr arrives ${uhr(fr > Date.now() ? fr : new Date(fr.getTime() + 7 * 864e5))}"><span class="xur-knopf"><b class="xur-sym">🧳</b><span>Xûr</span><span class="xur-rest">↩ ${dauer(fr > Date.now() ? fr : new Date(fr.getTime() + 7 * 864e5))}</span></span></div>`}<div id="wInhalt"><p class="leer">Loading activities…</p></div>`;
   const xb = panel.querySelector('.xur-box');
   if (xb) xb.addEventListener('toggle', () => { if (xb.open && !xb.dataset.da) { xb.dataset.da = '1'; zeigeXur(xb.querySelector('.xur-inhalt'), zustand, true); } });
   if (!zustand.profil) { panel.querySelector('#wInhalt').innerHTML = '<p class="leer">Sign in first.</p>'; return; }
