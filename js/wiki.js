@@ -20,7 +20,7 @@ const norm = (s) => String(s || '').replace(/[’']/g, "'").toLowerCase();
 const ORTE = ['EDZ', 'Cosmodrome', 'Nessus', 'Dreaming City', 'Moon', 'Europa', 'Throne World', 'Neomuna', 'Pale Heart', 'Kepler', 'Tangled Shore', 'Mars', 'Mercury', 'Titan', 'Io', 'Eternity', 'Tower'];
 const KATEGORIEN = [
   ['exo', 'Exotics', '⭐'], ['waffe', 'Weapons', '🔫'], ['set', 'Armor sets', '🛡'], ['akt', 'Raids & dungeons', '⚔'],
-  ['ort', 'Destinations', '🪐'], ['seal', 'Seals', '🎖'], ['chal', 'Raid challenges', '🏆'], ['quelle', 'Collections', '📚'], ['farm', 'Farm planner', '🌾'],
+  ['ort', 'Destinations', '🪐'], ['seal', 'Seals', '🎖'], ['chal', 'Raid challenges', '🏆'], ['quelle', 'Collections', '📚'], ['check', 'Checklists', '🥚'], ['farm', 'Farm planner', '🌾'],
 ];
 // Begegnungen, die nicht in der Loot-Tabelle stehen (Challenge-Namen), ihrem Raid zuordnen.
 const ENC_EXTRA = { Dissipation: "Salvation's Edge", 'The Abyss': "Crota's End", 'The Bridge': "Crota's End", 'Ir Yut': "Crota's End", Crota: "Crota's End", 'Taniks': 'Deep Stone Crypt', Evade: 'Garden of Salvation', Summon: 'Garden of Salvation', Gatekeeper: 'Vault of Glass' };
@@ -49,6 +49,52 @@ async function ladeStand(zustand) {
     for (const c of Object.values(r.characterRecords?.data || {})) for (const [h, v] of Object.entries(c.records || {})) if (!stand[h]) stand[h] = v;
   } catch {}
   return stand;
+}
+// Checklisten (Corrupted Eggs usw.): Fortschritt live vom Konto, Orte aus data/checklisten.json.
+let checkStand = null, checkOrte = null;
+async function ladeChecklisten(zustand, neu) {
+  if (checkStand && !neu) return checkStand;
+  checkOrte ??= (await json('data/checklisten.json')) || { e: {} };
+  checkStand = { p: {}, c: {} };
+  try {
+    const k = zustand.konto;
+    const r = await bungie.get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/?components=104,202`);
+    checkStand.p = r.profileProgression?.data?.checklists || {};
+    checkStand.c = r.characterProgressions?.data || {};
+  } catch { checkStand.fehler = true; }
+  return checkStand;
+}
+// Hinweise je Bereich, wo man ihn erreicht (Corrupted Eggs).
+const BEREICH_HINWEIS = {
+  'The Shattered Throne': 'Dungeon The Shattered Throne',
+  'Cimmerian Garrison': 'Ascendant Challenge (rotates weekly)', 'Shattered Ruins': 'Ascendant Challenge (rotates weekly)', 'Agonarch Abyss': 'Ascendant Challenge (rotates weekly)',
+  'Keep of Honed Edges': 'Ascendant Challenge (rotates weekly)', 'Ouroborea': 'Ascendant Challenge (rotates weekly)', 'Forfeit Shrine': 'Ascendant Challenge (rotates weekly)',
+};
+async function zeigeChecklisten(x, zustand) {
+  const st = await ladeChecklisten(zustand);
+  let cid = null; try { cid = localStorage.getItem('d2a.charWahl'); } catch {}
+  if (!st.c[cid]) cid = Object.keys(st.c)[0];
+  const fort = (h, c) => (c.s === 1 ? st.c[cid]?.checklists?.[h] : st.p[h]) || {};
+  const liste = Object.entries(defs.cl || {}).map(([h, c]) => { const f = fort(h, c); const done = c.e.filter((e) => f[e[0]]).length; return { h, c, done, n: c.e.length, bekannt: Object.keys(f).length > 0 }; });
+  if (ansicht.check) {
+    const it = liste.find((l) => l.h === ansicht.check);
+    if (!it) { ansicht.check = null; return ''; }
+    const f = fort(it.h, it.c);
+    const nurOffen = ansicht.nurOffen !== false;
+    const ort = (e) => { const o = checkOrte.e[e[0]]; return { ziel: e[2] || o?.[0] || '', bereich: e[3] || o?.[1] || '' }; };
+    const gr = new Map();
+    for (const e of it.c.e) { const o = ort(e); const key = [o.ziel, o.bereich].filter(Boolean).join(' · ') || 'Location unknown'; gr.set(key, [...(gr.get(key) || []), { e, ok: !!f[e[0]], o }]); }
+    const gruppen = [...gr.entries()].filter(([, l]) => !nurOffen || l.some((y) => !y.ok));
+    return `<button class="chip" data-checkzu>← Checklists</button>
+      <div class="wseite-kopf">${it.c.i ? `<i class="wic gross" style="background-image:url(${BILD}${it.c.i})"></i>` : ''}<div><h2>${esc(it.c.n)}</h2><small>${it.bekannt ? `${it.done} of ${it.n} found · ${it.n - it.done} missing` : 'Progress could not be read'}</small></div></div>
+      ${it.c.d ? `<p class="leer klein">${esc(it.c.d)}</p>` : ''}
+      <div class="wsub"><button class="chip" data-nuroffen="1" aria-pressed="${nurOffen}">Only missing</button><button class="chip" data-nuroffen="0" aria-pressed="${!nurOffen}">All</button><button class="chip" data-checkneu>↻ Refresh</button></div>
+      ${it.c.s === 1 ? '<p class="leer klein">This list counts per character (the one selected on the Guardians page).</p>' : ''}
+      ${gruppen.length ? gruppen.map(([t, l]) => `<section class="wabs"><h3>${esc(t)} <small>${l.filter((y) => y.ok).length}/${l.length}</small></h3>${BEREICH_HINWEIS[l[0].o.bereich] ? `<p class="leer klein">${esc(BEREICH_HINWEIS[l[0].o.bereich])}</p>` : ''}<div class="checkliste">${l.filter((y) => !nurOffen || !y.ok).map((y) => `<div class="checkpunkt ${y.ok ? 'ok' : ''}"><span>${y.ok ? '✓' : '○'}</span><b>${esc(y.e[1])}</b>${y.e[4] ? `<small>${esc(y.e[4])}</small>` : ''}</div>`).join('')}</div></section>`).join('') : '<p class="leer">All found. 🎉</p>'}
+      <p class="wm">Areas: ${esc(checkOrte.quelle || '')} The exact spot inside an area isn't in Bungie's data; search the number (e.g. “Egg #23”) in a guide.</p>`;
+  }
+  return `<p class="leer klein">Hidden collectibles the game doesn't track visibly. Progress is read live from your account${st.fehler ? ' (failed right now, try ↻ later)' : ''}.</p>
+    <div class="wgrid breit">${liste.sort((a, b) => (a.done === a.n) - (b.done === b.n) || vergleiche(a.c.n, b.c.n)).map((l) => `<button class="wkachel" data-check="${l.h}">${l.c.i ? `<i class="wic" style="background-image:url(${BILD}${l.c.i})"></i>` : '<span class="wemo">🥚</span>'}<span><b>${esc(l.c.n)}</b><small>${l.bekannt ? `${l.done}/${l.n}${l.done === l.n ? ' · complete' : ` · ${l.n - l.done} missing`}` : `${l.n} entries`}</small><span class="sealbar"><i style="width:${l.bekannt ? Math.round((l.done / l.n) * 100) : 0}%"></i></span></span></button>`).join('')}</div>`;
 }
 let sektoren = null;
 async function ladeSektoren(zustand) {
@@ -423,10 +469,11 @@ export async function zeigeWiki(el, zustand) {
       const t = sucheAlle(x, ansicht.suche);
       html = t.length ? `<h2 class="wh">Results <small>${t.length}</small></h2><div class="wgrid breit">${t.slice(0, 60).map(treffer).join('')}</div>` : '<p class="leer">Nothing found. Try a weapon, set, raid or planet name.</p>';
     } else if (ansicht.kat === 'seal') html = `<h2 class="wh">Seals</h2>${await zeigeSeals(x, zustand)}`;
+    else if (ansicht.kat === 'check') html = `<h2 class="wh">Checklists</h2>${await zeigeChecklisten(x, zustand)}`;
     else if (ansicht.kat === 'farm') html = `<h2 class="wh">Farm planner</h2>${await zeigeFarm(x, zustand)}`;
     else if (ansicht.kat) html = `<h2 class="wh">${esc(KATEGORIEN.find((k) => k[0] === ansicht.kat)[1])}</h2>${zeigeKat(ansicht.kat, x)}`;
     else {
-      html = `<div class="wkat">${KATEGORIEN.map(([k, n, e]) => `<button data-kat="${k}"><span>${e}</span><b>${n}</b><small>${{ exo: x.exos.length, waffe: x.waffen.length, set: x.sets.length, akt: x.akts.length, ort: ORTE.length, seal: Object.keys(defs.seal || {}).length, chal: x.chals.length, quelle: new Set(x.waffen.map((w) => w.q)).size, farm: '' }[k]}</small></button>`).join('')}</div>
+      html = `<div class="wkat">${KATEGORIEN.map(([k, n, e]) => `<button data-kat="${k}"><span>${e}</span><b>${n}</b><small>${{ check: Object.keys(defs.cl || {}).length, exo: x.exos.length, waffe: x.waffen.length, set: x.sets.length, akt: x.akts.length, ort: ORTE.length, seal: Object.keys(defs.seal || {}).length, chal: x.chals.length, quelle: new Set(x.waffen.map((w) => w.q)).size, farm: '' }[k]}</small></button>`).join('')}</div>
         <p class="leer klein">Tip: hover any icon in the app for details, click it for jump links. Try the farm planner for “where exactly does it drop”.</p>`;
     }
     box.innerHTML = html;
@@ -474,10 +521,16 @@ export async function zeigeWiki(el, zustand) {
   el.onchange = (e) => { const w = e.target.closest('[data-wf]'); if (w) { const y = scrollY; ansicht.wf = { ...(ansicht.wf || {}), [w.dataset.wf]: w.value }; zeichne().then(() => scrollTo({ top: y })); } };
   el.onclick = (e) => {
     const k = e.target.closest('[data-kat]');
-    if (k) { verlauf.length = 0; ansicht = { ...ansicht, kat: k.dataset.kat || null, seite: null, sub: 'alle', suche: '' }; f.value = ''; scrollTo({ top: 0 }); return zeichne(); }
+    if (k) { verlauf.length = 0; ansicht = { ...ansicht, kat: k.dataset.kat || null, seite: null, sub: 'alle', suche: '', check: null }; f.value = ''; scrollTo({ top: 0 }); return zeichne(); }
     const s = e.target.closest('[data-seite]');
     if (s) { verlauf.push({ seite: ansicht.seite, y: scrollY }); ansicht.seite = s.dataset.seite; scrollTo({ top: 0 }); return zeichne(); }
     if (e.target.closest('[data-zurueck]')) { const v = verlauf.pop() || { seite: null, y: 0 }; ansicht.seite = v.seite; return zeichne().then(() => requestAnimationFrame(() => scrollTo({ top: v.y }))); }
+    const ch = e.target.closest('[data-check]');
+    if (ch) { verlauf.push({ seite: null, y: scrollY, check: null }); ansicht.check = ch.dataset.check; scrollTo({ top: 0 }); return zeichne(); }
+    if (e.target.closest('[data-checkzu]')) { const v = verlauf.pop(); ansicht.check = null; return zeichne().then(() => scrollTo({ top: v?.y || 0 })); }
+    const no = e.target.closest('[data-nuroffen]');
+    if (no) { ansicht.nurOffen = no.dataset.nuroffen === '1'; return zeichne(); }
+    if (e.target.closest('[data-checkneu]')) { return ladeChecklisten(zustand, true).then(zeichne); }
     const wr = e.target.closest('[data-wfreset]');
     if (wr) { ansicht.wf = {}; return zeichne(); }
     const sub = e.target.closest('[data-sub]');

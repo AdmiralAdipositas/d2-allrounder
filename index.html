@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>D2 Allrounder</title>
 <meta name="theme-color" content="#0b0a1a">
-<script>try{var t=localStorage.getItem('d2a.theme')||'bunt'}catch(e){t='bunt'}document.documentElement.dataset.theme=t;</script>
+<script>try{var t=localStorage.getItem('d2a.theme')||'bunt';if(t==='shader'){var v=JSON.parse(localStorage.getItem('d2a.shaderVars')||'null');if(v){for(var k in v)document.documentElement.style.setProperty(k,v[k])}else t='bunt'}}catch(e){t='bunt'}document.documentElement.dataset.theme=t;</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -638,7 +638,7 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .wk-einst select{width:100%;padding:8px;background:var(--bg2);color:var(--text);border:1px solid var(--linie);border-radius:6px}
 .wk-hinweis{border-top:1px solid var(--linie);padding-top:10px;margin-bottom:14px}.wk-hinweis p{margin:0 0 2px;color:var(--matt);font-size:.78rem}
 #wkLos{width:100%;padding:10px;font-size:1rem}
-.konto-look{margin-bottom:12px}.konto-look .thema-wahl{grid-template-columns:1fr}
+.konto-look{margin-bottom:12px}.konto-look .thema-wahl{grid-template-columns:1fr}.konto-look .shader-gitter{grid-template-columns:repeat(auto-fill,minmax(58px,1fr))}
 .anm-hinweis{margin-top:4px}
 @media(max-width:760px){.wk-box{padding:16px}.wk-box h1{font-size:1.5rem}.wk-teile{grid-template-columns:1fr 1fr}.wk-teil{grid-template-columns:1fr;padding:8px}.wk-teil svg{grid-row:auto;width:18px;height:18px}.wk-teil small{display:none}.wk-einst{grid-template-columns:1fr}.thema-wahl{grid-template-columns:1fr}}
 @container (max-width:340px){.cb-stats{grid-template-columns:repeat(3,1fr);row-gap:1px}}
@@ -658,3 +658,20 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .wstat{display:grid;grid-template-columns:130px 1fr 34px;align-items:center;gap:10px;font-size:.85rem}
 .wstat span{color:var(--text2)}.wstat i{height:8px;background:var(--bg3);border-radius:2px;overflow:hidden}.wstat u{display:block;height:100%;background:var(--text)}
 .wstat b{text-align:right;font-variant-numeric:tabular-nums}.wstat.zahl{grid-template-columns:130px 1fr}
+
+/* Aussehen „My shader“: Navigation und Akzente durch alle Shader-Farben */
+:root[data-theme=shader] #rail [data-tab]:nth-of-type(6n+1){--ak:var(--sh1)}:root[data-theme=shader] #rail [data-tab]:nth-of-type(6n+2){--ak:var(--sh2)}:root[data-theme=shader] #rail [data-tab]:nth-of-type(6n+3){--ak:var(--sh3)}
+:root[data-theme=shader] #rail [data-tab]:nth-of-type(6n+4){--ak:var(--sh4)}:root[data-theme=shader] #rail [data-tab]:nth-of-type(6n+5){--ak:var(--sh5)}:root[data-theme=shader] #rail [data-tab]:nth-of-type(6n){--ak:var(--sh6)}
+:root[data-theme=shader] #rail [data-panel]{--ak:var(--sh2)}
+.thema-wahl{grid-template-columns:repeat(3,1fr)}.th-shader i:nth-child(n+4){display:none}
+.shader-wahl{margin-top:10px}.shader-suche{width:100%;padding:8px;margin-bottom:6px;background:var(--bg2);color:var(--text);border:1px solid var(--linie);border-radius:6px}
+.shader-gitter{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;max-height:320px;overflow:auto;padding:2px}
+.shader-gitter button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;background:var(--bg2);border:1px solid var(--linie);border-radius:6px}
+.shader-gitter button.an{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}.shader-gitter button.lädt{opacity:.5}
+.shader-gitter i{width:44px;height:44px;background:center/cover;border-radius:4px}.shader-gitter span{font-size:.62rem;line-height:1.15;text-align:center;color:var(--matt);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+@media(max-width:760px){.thema-wahl{grid-template-columns:1fr}}
+/* Wiki: Checklisten */
+.checkliste{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}
+.checkpunkt{display:grid;grid-template-columns:auto 1fr;gap:0 8px;align-items:center;padding:8px 10px;border:1px solid var(--linie);border-radius:8px;background:var(--bg2)}
+.checkpunkt span{font-weight:700;color:var(--gold)}.checkpunkt.ok{opacity:.55}.checkpunkt.ok span{color:var(--gut)}
+.checkpunkt small{grid-column:2;color:var(--matt);font-size:.72rem}

@@ -36,7 +36,7 @@ export function zeigeWillkommen(konto) {
     <button class="haupt-knopf" id="wkLos">Let’s go</button>
   </div>`;
   document.body.append(d);
-  verbindeThema(d);
+  verbindeThema(d, () => import('./konto.js').then((m) => m.eigeneShader(konto)));
   const zu = () => { try { localStorage.setItem(schluessel(konto), String(Date.now())); } catch {} d.remove(); };
   d.querySelector('#wkSprache').addEventListener('change', (e) => { zu(); waehle(konto, e.target.value); });
   d.querySelector('#wkLos').addEventListener('click', zu);

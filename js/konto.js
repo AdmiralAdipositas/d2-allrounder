@@ -4,6 +4,16 @@ import { zeigeWillkommen } from './willkommen.js';
 // Konto: Bungie-Name, Plattform, Charaktere mit Emblem, Spielzeit, Abmelden, App-Einstellungen.
 import { defs } from './defs.js';
 import { rolls } from './rolls.js';
+import * as bungie from './bungie.js';
+
+// Eigene Shader: Sammlungs-Einträge, die freigeschaltet sind (Zustand ohne Bit 1 = „nicht erhalten“).
+export async function eigeneShader(k) {
+  try {
+    const r = await bungie.get(`/Destiny2/${k.membershipType}/Profile/${k.membershipId}/?components=800`);
+    const c = r.profileCollectibles?.data?.collectibles || {};
+    return new Set(Object.entries(c).filter(([, v]) => !(v.state & 1)).map(([h]) => Number(h)));
+  } catch { return null; }
+}
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -34,7 +44,7 @@ export function zeigeKonto(el, zustand, aktionen) {
       <button data-k="willkommen">Show welcome screen</button><button data-k="reset">Reset app settings</button><button data-k="ab" class="rot-knopf">Sign out</button></div>
       <p class="leer klein">Install on your phone: open this page in Safari or Chrome → Share → “Add to Home Screen”.</p>
       <p class="leer klein"><a href="privacy.html" target="_blank" rel="noopener">Privacy</a> · Unofficial fan app, not affiliated with Bungie. Destiny content © Bungie, Inc. · Mostly built by Claude (Anthropic).</p></section>`;
-  verbindeThema(el.querySelector('.konto-look'));
+  verbindeThema(el.querySelector('.konto-look'), () => eigeneShader(k));
   el.querySelector('#sprachWahl')?.addEventListener('change', (e) => waehle(k, e.target.value));
   el.onclick = (e) => {
     const b = e.target.closest('[data-k]');
