@@ -663,7 +663,7 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 :root[data-theme=shader] #rail [data-tab]:nth-of-type(6n+1){--ak:var(--sh1)}:root[data-theme=shader] #rail [data-tab]:nth-of-type(6n+2){--ak:var(--sh2)}:root[data-theme=shader] #rail [data-tab]:nth-of-type(6n+3){--ak:var(--sh3)}
 :root[data-theme=shader] #rail [data-tab]:nth-of-type(6n+4){--ak:var(--sh4)}:root[data-theme=shader] #rail [data-tab]:nth-of-type(6n+5){--ak:var(--sh5)}:root[data-theme=shader] #rail [data-tab]:nth-of-type(6n){--ak:var(--sh6)}
 :root[data-theme=shader] #rail [data-panel]{--ak:var(--sh2)}
-.thema-wahl{grid-template-columns:repeat(3,1fr)}.th-shader i:nth-child(n+4){display:none}
+.thema-wahl{grid-template-columns:repeat(3,1fr)}.th-shader i{width:5px}
 .shader-wahl{margin-top:10px}.shader-suche{width:100%;padding:8px;margin-bottom:6px;background:var(--bg2);color:var(--text);border:1px solid var(--linie);border-radius:6px}
 .shader-gitter{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;max-height:320px;overflow:auto;padding:2px}
 .shader-gitter button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;background:var(--bg2);border:1px solid var(--linie);border-radius:6px}

@@ -51,15 +51,18 @@ export function varsAus(pal) {
   const [bh, bs0] = basis.hsl; const bs = Math.min(0.45, bs0 * 0.8);
   const akzente = (bunt.length ? bunt : pal).slice().sort((a, b) => (b.hsl[1] * (0.4 + b.anteil)) - (a.hsl[1] * (0.4 + a.anteil)));
   const a1 = akzente[0]; const a2 = akzente.find((f) => Math.abs(((f.hsl[0] - a1.hsl[0] + 540) % 360) - 180) > 35) || akzente[1] || a1;
-  const hell = (f, l) => css(f.hsl[0], Math.max(0.35, f.hsl[1]), l);
+  // Neutrale Shader (Schwarz/Weiß/Grau) bleiben neutral: keine erfundene Farbe.
+  const hell = (f, l) => css(f.hsl[0], f.hsl[1] < 0.15 ? f.hsl[1] : Math.max(0.35, f.hsl[1]), l);
   const v = {
     '--bg': css(bh, bs, 0.06), '--bg2': css(bh, bs, 0.085), '--flaeche': css(bh, bs, 0.11), '--flaeche2': css(bh, bs, 0.15), '--linie': css(bh, bs, 0.22),
     '--text': css(bh, 0.2, 0.94), '--matt': css(bh, 0.18, 0.66), '--text2': css(bh, 0.2, 0.84), '--text3': css(bh, 0.2, 0.88),
-    '--violett': hell(a1, 0.68), '--gold': hell(a2, 0.66), '--violett33': css(a1.hsl[0], Math.max(0.35, a1.hsl[1]), 0.68, 0.2), '--violett55': css(a1.hsl[0], Math.max(0.35, a1.hsl[1]), 0.68, 0.33),
+    '--violett': hell(a1, 0.68), '--gold': hell(a2, 0.66), '--violett33': css(a1.hsl[0], a1.hsl[1] < 0.15 ? a1.hsl[1] : Math.max(0.35, a1.hsl[1]), 0.68, 0.2), '--violett55': css(a1.hsl[0], a1.hsl[1] < 0.15 ? a1.hsl[1] : Math.max(0.35, a1.hsl[1]), 0.68, 0.33),
     '--flaeche3': css(bh, bs, 0.17), '--bg3': css(bh, bs, 0.075), '--linie2': css(bh, bs, 0.28), '--bg0': css(bh, bs, 0.05), '--bg4': css(bh, bs, 0.07), '--bg5': css(bh, bs, 0.08), '--bg6': css(bh, bs, 0.1),
     '--det1': css(bh, bs, 0.12), '--det2': css(bh, bs, 0.065), '--rail1': css(bh, bs, 0.09, 0.95), '--rail2': css(bh, bs, 0.055, 0.95),
     '--glow1': css(a1.hsl[0], a1.hsl[1], 0.35, 0.3), '--glow2': css(a2.hsl[0], a2.hsl[1], 0.3, 0.25),
   };
+  // Restliche fest eingetragene Flächenfarben (--p…): gleiche Helligkeit, Farbton des Shaders.
+  for (const [k, l] of [['--p110e25', 0.1], ['--p07051a', 0.06], ['--p050310', 0.04], ['--p120c22', 0.09], ['--p2a2450', 0.24], ['--p5b3a8f', 0.4], ['--p3b2560', 0.26], ['--p0b0920', 0.08], ['--p16123a', 0.15], ['--p0b0a1a', 0.07]]) v[k] = css(bh, bs, l);
   // Alle Shader-Farben für die Navigation und Akzente (--sh1 … --sh6), hell genug für dunkle Flächen.
   const alle = [...akzente, ...pal.filter((f) => !akzente.includes(f))];
   for (let i = 0; i < 6; i++) { const f = alle[i % alle.length]; v[`--sh${i + 1}`] = f.hsl[1] < 0.12 ? css(bh, 0.15, Math.max(0.7, f.hsl[2])) : hell(f, 0.66); }
