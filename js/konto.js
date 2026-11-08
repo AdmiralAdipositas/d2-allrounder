@@ -68,7 +68,7 @@ export function zeigeKonto(el, zustand, aktionen) {
   });
   el.onclick = (e) => {
     const et = e.target.closest('[data-einst]'); if (et) return zeigeTeil(et.dataset.einst);
-    const mo = e.target.closest('[data-modus]'); if (mo) { setzeModus(mo.dataset.modus); el.querySelectorAll('[data-modus]').forEach((x) => x.classList.toggle('an', x === mo)); return; }
+    const mo = e.target.closest('button[data-modus]'); if (mo) { setzeModus(mo.dataset.modus); el.querySelectorAll('button[data-modus]').forEach((x) => x.classList.toggle('an', x === mo)); return; }
     const b = e.target.closest('[data-k]');
     if (!b) return;
     if (b.dataset.k === 'neu') aktionen.neuLaden();

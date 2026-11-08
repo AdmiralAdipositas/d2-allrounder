@@ -130,13 +130,22 @@ async function shaderListe(eigene) {
 // App-Größe: Zoom für die ganze App (zusätzlich zu Pinch/Strg+Mausrad), pro Gerät gespeichert.
 export const ZOOMS = [0.85, 1, 1.15, 1.3, 1.5];
 export function zoom() { return parseFloat(lies('d2a.zoom', '1')) || 1; }
-export function setzeZoom(z) { schreib('d2a.zoom', String(z)); document.documentElement.style.zoom = z === 1 ? '' : String(z); }
+export function setzeZoom(z) {
+  z = Math.round(Math.max(0.7, Math.min(1.3, z)) * 100) / 100;
+  schreib('d2a.zoom', String(z)); document.documentElement.style.zoom = z === 1 ? '' : String(z);
+  // Kleine Leiste unten links, die immer im Bild bleibt – falls der Schieber aus dem Bild rutscht.
+  let p = document.querySelector('#zoomPille');
+  if (!p) { p = document.createElement('div'); p.id = 'zoomPille'; document.body.append(p);
+    p.onclick = (e) => { const b = e.target.closest('[data-zp]'); if (!b) return; const n = b.dataset.zp === '1' ? 1 : zoom() + Number(b.dataset.zp); setzeZoom(n); document.querySelectorAll('[data-zoomr]').forEach((r) => { r.value = zoom(); }); document.querySelectorAll('[data-zw]').forEach((w) => { w.textContent = `${Math.round(zoom() * 100)} %`; }); }; }
+  p.innerHTML = `<span>App size</span><button data-zp="-0.05" aria-label="Smaller">−</button><b>${Math.round(z * 100)} %</b><button data-zp="0.05" aria-label="Bigger">+</button><button data-zp="1" title="Back to 100 %">↺</button>`;
+  p.hidden = false; clearTimeout(p._t); p._t = setTimeout(() => { p.hidden = true; }, 8000);
+}
 export function textGroesse() { return parseFloat(lies('d2a.txt', '1')) || 1; }
 export function setzeText(t) { schreib('d2a.txt', String(t)); document.documentElement.style.setProperty('--txt', String(t)); }
 // Zwei Schieber: ganze App (Zoom) und nur die Schrift. Ein Klick auf „↺“ setzt zurück.
 export function zoomKnoepfe() {
   const z = zoom(), t = textGroesse();
-  return `<div class="groesse"><label><span>App size</span><input type="range" min="0.7" max="1.5" step="0.05" value="${z}" data-zoomr aria-label="App size"><b data-zw>${Math.round(z * 100)} %</b><button type="button" class="chip klein" data-zoomreset title="Reset">↺</button></label>
+  return `<div class="groesse"><label><span>App size</span><input type="range" min="0.7" max="1.3" step="0.05" value="${z}" data-zoomr aria-label="App size"><b data-zw>${Math.round(z * 100)} %</b><button type="button" class="chip klein" data-zoomreset title="Reset">↺</button></label>
     <label><span>Text size</span><input type="range" min="0.85" max="1.4" step="0.05" value="${t}" data-txtr aria-label="Text size"><b data-tw>${Math.round(t * 100)} %</b><button type="button" class="chip klein" data-txtreset title="Reset">↺</button></label></div>
     <p class="leer klein">App size scales everything, text size only the writing. Pinch or Ctrl + mouse wheel also works.</p>`;
 }
