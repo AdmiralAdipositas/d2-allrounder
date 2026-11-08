@@ -14,6 +14,7 @@ import { zeigePost, postAnzahl } from './post.js';
 import { zeigeKonto } from './konto.js';
 import { zeigeWiki, setzeWikiSuche, setzeWikiKat } from './wiki.js';
 import { zeigeSquad } from './squad.js';
+import { zeigeHueter } from './hueter.js';
 import { setzeNav } from './info.js';
 import { zeigeCharakter } from './charakter.js';
 import { starte as starteSprache } from './sprache.js';
@@ -70,6 +71,7 @@ const ANSICHTEN = {
   optimizer: ['Optimizer', (el) => zeigeOptimizer(el, zustand)],
   finder: ['Build Finder', (el) => zeigeFinder(el, zustand, (w) => { setzeOptimizer(w); wechsle('optimizer'); })],
   stats: ['Stats', (el) => zeigeStats(el, zustand)],
+  hueter: ['Guardians', (el) => zeigeHueter(el, zustand)],
   wiki: ['Wiki', (el) => zeigeWiki(el, zustand)],
   squad: ['Squad check', (el) => zeigeSquad(el, zustand)],
   guide: ['Raid Guide', (el) => {
@@ -86,9 +88,11 @@ setzeNav({
 });
 export const springeGuide = (id) => { zustand.guideZiel = id; wechsle('guide'); };
 export const springeWiki = (kat, suche) => { if (suche) setzeWikiSuche(suche); else setzeWikiKat(kat); wechsle('wiki'); };
-const TABS = Object.fromEntries(['char', 'vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
+const TABS = Object.fromEntries(['char', 'vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats', 'hueter', 'squad'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
 
+// Andere Module springen über ein Ereignis zu einer Seite (z. B. Hüter → Squad-Check).
+window.addEventListener('d2a-tab', (e) => { if (TABS[e.detail]) wechsle(e.detail); });
 function wechsle(tab) {
   zustand.tab = tab;
   rail.querySelectorAll('[data-tab]').forEach((b) => { const an = b.dataset.tab === tab; b.classList.toggle('an', an); b.setAttribute('aria-selected', an); });
@@ -96,7 +100,7 @@ function wechsle(tab) {
   if (!zustand.profil) return platzhalter(titelVon(tab), 'Sign in with Bungie first.');
   TABS[tab]();
 }
-const titelVon = (tab) => rail.querySelector(`[data-tab="${tab}"] span`).textContent;
+const titelVon = (tab) => rail.querySelector(`[data-tab="${tab}"] span`)?.textContent || ANSICHTEN[tab]?.[0] || '';
 
 rail.addEventListener('click', (e) => {
   const b = e.target.closest('button');

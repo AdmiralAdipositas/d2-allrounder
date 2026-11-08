@@ -390,7 +390,7 @@ function truppBlock(d, ich, eigen) {
   const chip = (n, extra = '') => `<span class="pchip ${vergleich.has(n) ? 'an' : ''}"><button data-ansehen="${esc(n)}" title="View stats">${esc(n.split('#')[0])}<small>#${esc(n.split('#')[1] || '')}</small>${extra}</button><button data-fav="${esc(n)}" title="Favorite">${fav.includes(n) ? '★' : '☆'}</button><button data-vgl="${esc(n)}" title="Compare">⇄</button></span>`;
   return `${eigen ? `<h4>Fireteam right now ${truppAkt ? `<small>· ${esc(truppAkt)}</small>` : ''}</h4><div class="trupp-steuer"><button class="haupt-knopf" data-truppjetzt-los>⟳ Track my fireteam now</button><label class="zf-cb"><input type="checkbox" data-truppauto ${truppAuto ? 'checked' : ''}> automatic (checks every minute)</label></div>${truppKartenHtml()}<div class="chips" data-truppjetzt>${trupp == null ? '<span class="leer klein">Checking…</span>' : trupp.length ? trupp.map((n) => chip(n)).join('') : '<span class="leer klein">Not in a fireteam (or offline).</span>'}</div>` : ''}
     ${fav.length ? `<h4>Favorites</h4><div class="chips">${fav.map((n) => chip(n)).join('')}</div>` : ''}
-    <h4>Played with most <small>${mit.length} guardians in your raid & dungeon reports</small></h4><div class="chips pliste">${mit.map(([n, c]) => chip(n, `<em>${c}</em>`)).join('') || '<span class="leer klein">Appears once your reports are loaded.</span>'}</div>
+    <h4>Played with most <small>top ${Math.min(8, mit.filter(([, c]) => c >= 3).length)} · <a href="#" data-zuhueter>all guardians, friends & groups ↗</a></small></h4><div class="chips">${mit.filter(([, c]) => c >= 3).slice(0, 8).map(([n, c]) => chip(n, `<em>${c}×</em>`)).join('') || '<span class="leer klein">Appears once your reports are loaded.</span>'}</div>
     ${vergleich.size ? `<p><button class="haupt-knopf" data-vergleich>Compare ${vergleich.size + 1} guardians</button> <button class="chip klein" data-vglweg>clear</button></p>` : '<p class="leer klein">⇄ adds a guardian to the comparison.</p>'}
     <div class="vglbox">${vglHtml}</div>`;
 }
@@ -433,7 +433,28 @@ async function vergleichZeigen(box, ich, kIch) {
 let fremd = null; // { membershipType, membershipId, name }
 let tipDaten = null;
 
+// ---------- Schnittstellen für den Hüter-Tab ----------
+let fremdWunsch = null, autoVergleich = false;
+export function zeigeFremd(name) { fremdWunsch = name; }
+export function vergleicheMit(namen) { vergleich = new Set(namen); autoVergleich = true; fremd = null; }
+export async function aktuellerTruppNamen(k) { return aktuellerTrupp(k); }
+// Wie oft du mit wem Raids/Dungeons gespielt hast (aus den Spielberichten); lädt fehlende Berichte nach und meldet Zwischenstände.
+export async function mitspielerVon(zustand, zwischendurch) {
+  const k = zustand.konto, ich = k.name || '';
+  const d = await lade(k, true, zustand);
+  const zaehle = () => {
+    const z = new Map(); let fehlt = 0;
+    for (const l of d.laeufe) { const p = pgcrLies()[l.id]; if (!p) { if (l.ok) fehlt++; continue; }
+      for (const [n] of p.p) if (n && n !== ich) { const e = z.get(n) || { name: n, mal: 0, zuletzt: '' }; e.mal++; if (!e.zuletzt || l.t > e.zuletzt) e.zuletzt = l.t; z.set(n, e); } }
+    const l = [...z.values()]; l.laedt = fehlt > 0; return l;
+  };
+  const erst = zaehle();
+  if (erst.laedt) { const h = { dataset: { lauf: 'hueter' } }; pgcrNachladen(d, () => zwischendurch?.(), 'hueter', h).then(() => zwischendurch?.()); }
+  return zaehle; // aufrufen für den aktuellen Stand
+}
+
 export async function zeigeStats(haupt, zustand) {
+  if (fremdWunsch) { const n = fremdWunsch; fremdWunsch = null; try { fremd = await loeseName(n); } catch (e) { fremd = null; } }
   const lauf = (haupt.dataset.lauf = String(Number(haupt.dataset.lauf || 0) + 1));
   const k = fremd || zustand.konto;
   const name = fremd ? fremd.name : 'you';
@@ -485,6 +506,7 @@ export async function zeigeStats(haupt, zustand) {
   zeichne();
   verbinde(haupt, zustand);
   truppNeu = (h) => { const b = h.querySelector('[data-blk=trupp]'); if (!b) return; const sum = b.querySelector('summary').outerHTML; b.innerHTML = sum + truppBlock(d, tipDaten.ich, !fremd); };
+  if (autoVergleich && !fremd) { autoVergleich = false; setTimeout(() => { const b = haupt.querySelector('[data-blk=trupp]'); if (b) { b.open = true; b.scrollIntoView({ block: 'start' }); const box = b.querySelector('.vglbox'); if (box) vergleichZeigen(box, tipDaten.ich, tipDaten.k); } }, 50); }
   clearInterval(truppTimer);
   if (!fremd) {
     truppVerfolgen(haupt, k, false);
@@ -552,6 +574,7 @@ function verbinde(haupt, zustand) {
     if (fv) { const l = favs(); const n = fv.dataset.fav; setzeFavs(l.includes(n) ? l.filter((x) => x !== n) : [...l, n]); fv.textContent = favs().includes(n) ? '★' : '☆'; return; }
     const vg = e.target.closest('[data-vgl]');
     if (vg) { const n = vg.dataset.vgl; vergleich.has(n) ? vergleich.delete(n) : vergleich.add(n); truppNeu(haupt); return; }
+    if (e.target.closest('[data-zuhueter]')) { e.preventDefault(); window.dispatchEvent(new CustomEvent('d2a-tab', { detail: 'hueter' })); return; }
     if (e.target.closest('[data-vglweg]')) { vergleich.clear(); truppNeu(haupt); return; }
     if (e.target.matches('[data-truppauto]')) { truppAuto = e.target.checked; try { localStorage.setItem('d2a.truppAuto', truppAuto ? '1' : '0'); } catch {} if (truppAuto) { truppKey = ''; truppVerfolgen(haupt, tipDaten.k, false); } return; }
     const tj = e.target.closest('[data-truppjetzt-los]');
