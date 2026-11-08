@@ -11,7 +11,7 @@ const holen = async (pfad) => { const r = await fetch(BASIS + pfad, { headers: {
 const manifest = (await holen('/Platform/Destiny2/Manifest/')).Response;
 const pfade = manifest.jsonWorldComponentContentPaths.en;
 const alt = fs.existsSync('data/defs.json') ? JSON.parse(fs.readFileSync('data/defs.json', 'utf8')) : null;
-if (alt?.version === manifest.version && alt?.schema === 13) { console.log('Game data unchanged.'); process.exit(0); }
+if (alt?.version === manifest.version && alt?.schema === 14) { console.log('Game data unchanged.'); process.exit(0); }
 
 const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, typen, modifier, ziele, loNamen, loIcons, loFarben, knoten, records, ziele2, statGruppen, checklisten] = await Promise.all([
   'DestinyInventoryItemDefinition', 'DestinySandboxPerkDefinition', 'DestinyCollectibleDefinition', 'DestinyStatDefinition',
@@ -22,7 +22,7 @@ const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, ty
 ].map((n) => (pfade[n] ? holen(pfade[n]) : {})));
 
 const text = (item) => item.displayProperties?.description || (item.perks || []).map((p) => sandbox[p.perkHash]?.displayProperties?.description).find(Boolean) || '';
-const aus = { schema: 13, wtyp: {}, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
+const aus = { schema: 14, soz: {}, wtyp: {}, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
 for (const [hash, it] of Object.entries(items)) {
   const n = it.displayProperties?.name;
   // Nur, was die App braucht: Waffen, Rüstung, Subclasses, Plugs, Artefakte.
@@ -70,6 +70,8 @@ for (const d of Object.values(schaden)) aus.schaden[d.enumValue] = { n: d.displa
 // Aktivitäten für "This week": Raids, Dungeons und Portal mit Challenges und Modifiern.
 const GRUPPE = { Raid: 'Raids', Dungeon: 'Dungeons', Nightfall: 'Portal', 'Solo Ops': 'Portal', 'Vanguard Op': 'Portal', 'Fireteam Ops': 'Portal', 'Pinnacle Ops': 'Portal', 'Lost Sector': 'Lost Sectors' };
 for (const [h, a] of Object.entries(aktivitaeten)) {
+  // Soziale Räume (Turm, H.E.L.M., Farm …) für „Wohin die Zeit ging“.
+  if (a.directActivityModeType === 40 || (a.activityModeTypes || []).includes(40) || /^social$/i.test(typen[a.activityTypeHash]?.displayProperties?.name || '')) { aus.soz[h] = ziele2[a.destinationHash]?.displayProperties?.name || a.displayProperties?.name || 'Social space'; continue; }
   const istLS = a.directActivityModeType === 87 || (a.activityModeTypes || []).includes(87) || /lost sector/i.test(typen[a.activityTypeHash]?.displayProperties?.name || '');
   const g = istLS ? 'Lost Sectors' : GRUPPE[typen[a.activityTypeHash]?.displayProperties?.name] || ({ 4: 'Raids', 82: 'Dungeons' })[a.directActivityModeType];
   if (!g || !a.displayProperties?.name) continue;
