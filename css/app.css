@@ -1215,3 +1215,32 @@ html[data-gast] .fz.fehlt{color:var(--text)}
 .ck.elr-arc::after{background:var(--arc)}.ck.elr-solar::after{background:var(--solar)}.ck.elr-void::after{background:var(--void)}.ck.elr-stasis::after{background:var(--stasis)}.ck.elr-strand::after{background:var(--strand)}
 html[data-kachel=gross] .ic{width:68px;height:68px}html[data-kachel=gross] .ic .pow{font-size:.74rem}html[data-kachel=gross] .ic .god{font-size:.78rem}
 html[data-kachel=gross] .ck{width:48px;height:48px}html[data-kachel=gross] .ck.gross{width:72px;height:72px}
+/* Such-Vorschläge */
+.such-vor{position:absolute;z-index:60;min-width:260px;max-width:min(520px,92vw);display:flex;flex-direction:column;padding:6px;border:1px solid var(--linie2);border-radius:12px;background:var(--bg2);box-shadow:0 12px 32px #000a}
+.such-vor>button{all:unset;cursor:pointer;padding:6px 10px;border-radius:8px;font:500 .9rem var(--mono,ui-monospace,monospace);color:var(--text2)}.such-vor>button b{color:var(--gold)}
+.such-vor>button.an,.such-vor>button:hover{background:var(--bg3);color:var(--text)}
+.such-vor small{padding:6px 10px 2px;color:var(--matt);font-size:.72rem}.such-vor small a{color:var(--gold)}
+.such-hilfe{display:flex;flex-wrap:wrap;gap:4px;padding:4px}.such-hilfe button{all:unset;cursor:pointer;padding:3px 8px;border-radius:999px;border:1px solid var(--linie2);font:500 .78rem ui-monospace,monospace;color:var(--text2)}.such-hilfe button:hover{border-color:var(--gold);color:var(--text)}
+.such-hilfe small{flex-basis:100%}
+/* Markierungen & Mehrfach-Auswahl */
+.ic .tagm{position:absolute;left:-3px;top:-5px;font-style:normal;font-size:.7rem;line-height:1;filter:drop-shadow(0 1px 2px #000)}
+.ic .notm{position:absolute;right:1px;top:12px;font-style:normal;font-size:.6rem;color:var(--gold);text-shadow:0 1px 2px #000}
+.ic.gewaehlt{outline:3px solid var(--gold);outline-offset:1px;transform:scale(.94)}.ic .wahlm{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font:900 1.4rem var(--kopf);color:#120d00;background:color-mix(in srgb,var(--gold) 55%,transparent)}
+#mfach{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 24px);padding:8px 10px 8px 16px;border:1px solid var(--gold);border-radius:18px;background:color-mix(in srgb,var(--bg2) 94%,transparent);box-shadow:0 14px 40px #000c;animation:mfRein .25s ease}
+@keyframes mfRein{from{transform:translate(-50%,20px);opacity:0}}
+#mfach>b{font:800 1.3rem var(--kopf);color:var(--gold)}#mfach .mf-t{color:var(--text2);margin-right:4px}
+#mfach button{min-width:36px;height:34px;padding:0 10px;border-radius:10px;border:1px solid var(--linie2);background:var(--bg);color:var(--text);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+#mfach button:hover{border-color:var(--gold)}#mfach button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6}
+#mfach .mf-g{display:inline-flex;gap:3px;padding-left:8px;border-left:1px solid var(--linie2)}
+#mfach[data-leer="1"] .mf-g{opacity:.4;pointer-events:none}#mfach.laeuft{opacity:.7;pointer-events:none}
+@media(max-width:760px){#mfach{bottom:78px}}
+.dtags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.dtag{padding:5px 10px;border-radius:999px;border:1px solid var(--linie2);background:var(--bg);color:var(--text2);cursor:pointer;font-weight:700}.dtag span{font-size:.8rem}
+.dtag.an{border-color:var(--gold);color:var(--text);background:color-mix(in srgb,var(--gold) 18%,var(--bg))}
+.dnotiz{flex:1 1 200px;min-width:160px;padding:6px 10px;border-radius:10px;border:1px solid var(--linie2);background:var(--bg);color:var(--text)}
+/* Roll-Balken: x von y Wunsch-Perks */
+.rollbalken{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
+.rb{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--linie2);font-size:.75rem}
+.rb small{font-weight:800;color:var(--text2)}.rb i{display:inline-flex;gap:3px}.rb i b{width:14px;height:6px;border-radius:3px;background:var(--flaeche3,#2c2650)}
+.rb.pve i b.an{background:var(--gut)}.rb.pvp i b.an{background:var(--arc)}.rb em{font-style:normal;font-weight:800}
+.rb.voll{border-color:var(--gut);box-shadow:0 0 10px color-mix(in srgb,var(--gut) 35%,transparent)}.rb.pvp.voll{border-color:var(--arc)}
+.it-perks .wunsch i{box-shadow:0 0 0 2px var(--gut),0 0 10px color-mix(in srgb,var(--gut) 50%,transparent);border-radius:50%}.it-perks .wunsch b{color:var(--gut)}

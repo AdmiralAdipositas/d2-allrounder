@@ -2,6 +2,7 @@
 // Rüstungs-Mods mit Energie, Stat-Mod, Set-Bonus und Exotic-Perk. Genutzt im Tresor und auf der Hüter-Seite.
 import { defs } from './defs.js';
 import { ARMOR_STATS } from './vault.js';
+import { empfehlung, rollWert, rollBalken } from './rolls.js';
 
 const BILD = 'https://www.bungie.net';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -25,8 +26,10 @@ export function itemTipp(it, profil) {
     const zahl = ZAHLEN.map((n) => werte.find(([w]) => w === n)).filter(Boolean);
     if (balken.length || zahl.length) html += `<div class="it-stats">${balken.map(([n, v]) => `<div><small>${esc(n)}</small><i><u style="width:${Math.min(100, v)}%"></u></i><b>${v}</b></div>`).join('')}${zahl.map(([n, v]) => `<div class="zahl"><small>${esc(n)}</small><b>${v}</b></div>`).join('')}</div>`;
     if (d.xd) html += `<p class="tt"><b class="tgold">${esc(d.xp || 'Exotic perk')}</b> ${esc(d.xd)}</p>`;
+    if (d.q !== 6) html += rollBalken(rollWert(it.hash, it.plugs || []));
+    const wunsch = new Set([...(empfehlung(it.hash)?.e || []), ...(empfehlung(it.hash)?.v || [])]);
     const perks = plugs.filter(([, x]) => PERKSPALTE.test(x.pc || '') && x.i);
-    if (perks.length) html += `<div class="it-perks">${perks.map(([, x]) => `<div><i style="background-image:url(${BILD}${x.i})"></i><span><b>${esc(x.n)}</b>${x.d ? ` <small>${satz(x.d)}</small>` : ''}</span></div>`).join('')}</div>`;
+    if (perks.length) html += `<div class="it-perks">${perks.map(([h, x]) => `<div class="${d.q !== 6 && wunsch.has(h) ? 'wunsch' : ''}"><i style="background-image:url(${BILD}${x.i})"></i><span><b>${esc(x.n)}</b>${x.d ? ` <small>${satz(x.d)}</small>` : ''}</span></div>`).join('')}</div>`;
     const mods = plugs.filter(([, x]) => /^v400\.weapon\.mod_|weapon\.mod_|^masterworks/.test(x.pc || '') && x.i && !/^Empty/.test(x.n));
     if (mods.length) html += `<div class="it-mods">${mods.map(([, x]) => `<span><i style="background-image:url(${BILD}${x.i})"></i>${esc(x.n)}</span>`).join('')}</div>`;
   } else if (d.t === 2) {

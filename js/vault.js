@@ -4,6 +4,7 @@ import { oeffneDetail } from './detail.js';
 import { bewerte } from './rolls.js';
 import { quelle } from './quellen.js';
 import { zeigeItemTipp } from './itemtipp.js';
+import { baueSuche, verbindeVorschlaege, tags as tagListe, notizen, TAGS, setzeTag } from './suche.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -103,8 +104,8 @@ export function sammle(profil) {
 function kachel(x) {
   const champ = x.champ ? `<i class="ch" style="background-image:url(${BILD}${x.champ.i})" aria-label="${esc(CHAMP_NAME[x.champ.n] || x.champ.n)}"></i>` : '';
   const ort = x.ort === 'tresor' ? 'tresor' : x.ort.startsWith('post:') ? 'post' : 'char';
-  return `<div class="ic ${x.d.q === 6 ? 'exotic' : ''} ${x.mw ? 'mw' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:${x.d.w ? `url(${BILD}${x.d.w}),` : ''}url(${BILD}${x.d.i})">
-    ${x.tier ? `<span class="ck-tier">${'<b></b>'.repeat(Math.min(5, x.tier))}</span>` : ''}${x.crafted ? '<i class="ck-shaped" title="Crafted"></i>' : ''}${champ}<i class="ort ${ort}"></i>${/god/.test(x.m?.roll || '') ? `<i class="god ${/PvP/.test(x.m.roll) ? 'pvp' : ''}" title="${x.m.roll}">★</i>` : ''}${!(filter.putz || []).length ? '' : x.junk ? '<i class="mark junk" title="Dismantle suggestion"></i>' : x.fuel ? '<i class="mark fuel" title="Infusion fuel"></i>' : ''}${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
+  return `<div class="ic ${auswahl?.has(x.id) ? 'gewaehlt' : ''} ${x.d.q === 6 ? 'exotic' : ''} ${x.mw ? 'mw' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:${x.d.w ? `url(${BILD}${x.d.w}),` : ''}url(${BILD}${x.d.i})">
+    ${x.tier ? `<span class="ck-tier">${'<b></b>'.repeat(Math.min(5, x.tier))}</span>` : ''}${x.crafted ? '<i class="ck-shaped" title="Crafted"></i>' : ''}${champ}<i class="ort ${ort}"></i>${tagC[x.id] ? `<i class="tagm" title="${TAGS.find((t) => t[0] === tagC[x.id])?.[2] || ''}">${TAGS.find((t) => t[0] === tagC[x.id])?.[1] || ''}</i>` : ''}${notC[x.id] ? '<i class="notm" title="Has a note">✎</i>' : ''}${auswahl?.has(x.id) ? '<i class="wahlm">✓</i>' : ''}${/god/.test(x.m?.roll || '') ? `<i class="god ${/PvP/.test(x.m.roll) ? 'pvp' : ''}" title="${x.m.roll}">★</i>` : ''}${!(filter.putz || []).length ? '' : x.junk ? '<i class="mark junk" title="Dismantle suggestion"></i>' : x.fuel ? '<i class="mark fuel" title="Infusion fuel"></i>' : ''}${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
 }
 
 // Filtergruppen: innerhalb einer Gruppe ODER, zwischen Gruppen UND.
@@ -176,15 +177,13 @@ const merkmale = (x, anzahl, nachChar) => ({
 // Filter getrennt je Seite (Waffen / Rüstung), damit ein Waffen-Filter nicht die Rüstung leert.
 const fAlle = (() => { try { return JSON.parse(localStorage.getItem('d2a.filter2') || '{}'); } catch { return {}; } })();
 let filter = {}, letzteArt = null;
-let suche = '';
+let suche = '', pruef = () => true, tagC = {}, notC = {}, auswahl = null; // auswahl: Set der markierten IDs im Mehrfach-Modus
 const merke = () => { try { localStorage.setItem('d2a.filter2', JSON.stringify(fAlle)); } catch {} };
 
 function passt(x) {
   if (x.st) for (const [n, v] of Object.entries(statMin)) if (v && x.st[n] < v) return false;
   for (const [g, werte] of Object.entries(filter)) if (werte.length && ![].concat(x.m[g] || []).some((v) => werte.includes(v))) return false;
-  if (!suche) return true;
-  const plugNamen = x.plugs.map((p) => defs.items[p]?.n || '').join(' ');
-  return suche.split(/\s+/).every((w) => `${x.d.n} ${x.d.k} ${plugNamen} ${Object.values(x.m).join(' ')}`.toLowerCase().includes(w));
+  return suche ? pruef(x) : true;
 }
 
 // Sortierung und Gruppierung je Nutzer merken.
@@ -220,11 +219,11 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   const tz = { alle: tresorItems.length, w: 0, r: 0 };
   for (const i of tresorItems) { const d = defs.items[i.itemHash]; if (d?.t === 3) tz.w += 1; else if (d?.t === 2) tz.r += 1; }
   const KISTEN = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/><rect x="8" y="5" width="8" height="7" rx="1"/><path d="M6 16h2M16 16h2M11 8h2"/></svg>';
-  haupt.innerHTML = `<div class="kopf vkopf"><h1>${istWaffe ? 'Weapons' : 'Armor'}</h1><input id="suche" type="search" placeholder="Search name, perk, frame, type…" aria-label="Search" value="${esc(suche)}">
+  haupt.innerHTML = `<div class="kopf vkopf"><h1>${istWaffe ? 'Weapons' : 'Armor'}</h1><input id="suche" type="search" placeholder="Search … or is:dupe  perk:  stat:total:>=70" aria-label="Search" value="${esc(suche)}">
     <label class="vsort">Sort <select id="sortierung">${Object.entries(SORT).map(([k, [t]]) => `<option value="${k}" ${k === ansicht.sort ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
     <button class="chip" id="gruppieren" aria-pressed="${ansicht.typ}" title="Group each slot by ${istWaffe ? 'weapon type' : 'armor set'}">${istWaffe ? 'By type' : 'By set'}</button>
     <details class="tresorbox"><summary class="chip tresorzahl ${tz.alle > 1250 ? 'voll' : ''}" title="Vault space">${KISTEN}<b>${tz.alle}</b>/1300</summary><div class="tpop"><b>Vault space</b><p>${tz.alle} of 1,300 vault slots used${tz.alle > 1250 ? ' – almost full, new drops will go to the Postmaster' : ''}. The vault is shared by all three characters; items on a character or in the Postmaster don't count.</p><div class="tzbar"><i style="width:${(tz.w / 13).toFixed(1)}%" class="w"></i><i style="width:${(tz.r / 13).toFixed(1)}%" class="r"></i><i style="width:${((tz.alle - tz.w - tz.r) / 13).toFixed(1)}%" class="s"></i></div><small><i class="w"></i>Weapons ${tz.w} <i class="r"></i>Armor ${tz.r} <i class="s"></i>Other ${tz.alle - tz.w - tz.r}</small><small>Limit 1,300 since update 9.7.0 (Monument of Triumph).</small></div></details>
-    ${zustand.postZahl?.() ? `<button id="zurPost" class="chip postchip" title="Items waiting at the Postmaster">📬 ${zustand.postZahl()}</button>` : ''}<button id="kGroesse" class="chip ikon" title="Tile size: compact / large" aria-label="Tile size">${document.documentElement.dataset.kachel === 'gross' ? '▣' : '▦'}</button><button id="neu" class="chip ikon" title="Reload inventory from Bungie" aria-label="Refresh">↻</button>
+    ${zustand.postZahl?.() ? `<button id="zurPost" class="chip postchip" title="Items waiting at the Postmaster">📬 ${zustand.postZahl()}</button>` : ''}<button id="mehrfach" class="chip" aria-pressed="${!!auswahl}" title="Select several items to move, lock or tag them together">☑ Select</button><button id="kGroesse" class="chip ikon" title="Tile size: compact / large" aria-label="Tile size">${document.documentElement.dataset.kachel === 'gross' ? '▣' : '▦'}</button><button id="neu" class="chip ikon" title="Reload inventory from Bungie" aria-label="Refresh">↻</button>
     <div class="chips" role="group" aria-label="Class" ${istWaffe ? 'hidden' : ''}>
     ${chars.map((c) => `<button class="chip" data-klasse="${c.classType}" aria-pressed="${c.classType === klasse}">${KLASSE[c.classType]} <small>${c.light}</small></button>`).join('')}
     </div></div><div id="filter" class="filter"></div><div id="aktivF" class="aktivf"></div>${istWaffe ? '' : `<div class="statmin" aria-label="Minimum stats">${[...ARMOR_STATS, 'Total'].map((n) => `<label>${n}<select data-stat="${n}">${(n === 'Total' ? [0, 60, 65, 70, 75, 80, 85, 90] : [0, 5, 10, 15, 20, 25, 30, 35]).map((v) => `<option value="${v}" ${Number(statMin[n] || 0) === v ? 'selected' : ''}>${v ? `${v}+` : 'any'}</option>`).join('')}</select></label>`).join('')}</div>`}<nav id="sprung" class="sprung" aria-label="Jump to slot"></nav><div id="reihen"></div>`;
@@ -248,6 +247,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
     haupt.querySelector('#aktivF').innerHTML = aktiv.length ? `${aktiv.map(([g, w]) => `<button class="chip an" data-g="${g}" data-w="${esc(w)}" title="Remove filter">${esc(w)} ✕</button>`).join('')}<button id="leeren" class="chip">Clear all</button>` : '';
   };
   const zeichne = () => {
+    tagC = tagListe(); notC = notizen();
     const klassenItems = alle.filter((x) => (istWaffe ? WAFFE.has(x.d.b) : !WAFFE.has(x.d.b) && (x.d.c === klasse || x.d.c === 3)));
     zeichneFilter(klassenItems);
     const sichtbar = klassenItems.filter(passt);
@@ -268,12 +268,55 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
     }).join('');
     rBox.innerHTML = reihen || `<p class="leer">${Object.values(filter).some((l) => l.length) || suche || Object.values(statMin || {}).some(Boolean) ? 'Nothing matches these filters.' : 'Nothing here for this class yet.'}</p>`;
     haupt.querySelectorAll('[data-klasse]').forEach((c) => c.setAttribute('aria-pressed', Number(c.dataset.klasse) === klasse));
+    haupt.querySelector('#mehrfach')?.setAttribute('aria-pressed', !!auswahl);
+    let ml = haupt.querySelector('#mfach');
+    if (!auswahl) { ml?.remove(); return; }
+    if (!ml) { ml = document.createElement('div'); ml.id = 'mfach'; haupt.append(ml); }
+    ml.dataset.leer = auswahl.size ? '' : '1';
+    ml.innerHTML = `<b>${auswahl.size}</b><span class="mf-t">selected</span><button data-mfach="alle" title="Select everything shown">All shown</button>
+      <span class="mf-g">${chars.map((c) => `<button data-mfach="zu" data-c="${c.characterId}" title="Move to ${KLASSE[c.classType]}">→ ${KLASSE[c.classType][0]}</button>`).join('')}<button data-mfach="tresor" title="Move to vault">→ ${KISTEN}</button></span>
+      <span class="mf-g"><button data-mfach="lock" title="Lock">🔒</button><button data-mfach="unlock" title="Unlock">🔓</button></span>
+      <span class="mf-g">${TAGS.map(([t, e, n]) => `<button data-mfach="tag:${t}" title="${n}">${e}</button>`).join('')}<button data-mfach="tag:" title="Remove tag">⌫</button></span>
+      <button data-mfach="ende" class="mf-zu" title="Done">✕</button>`;
+    sichtbarC = sichtbar;
   };
+  let sichtbarC = [];
   zeichne();
+  async function mehrfachAktion(a, cid) {
+    if (a === 'ende') { auswahl = null; return zeichne(); }
+    if (a === 'alle') { sichtbarC.forEach((x) => auswahl.add(x.id)); return zeichne(); }
+    const liste = alle.filter((x) => auswahl.has(x.id)); if (!liste.length) return;
+    if (a.startsWith('tag:')) { liste.forEach((x) => setzeTag(x.id, a.slice(4) || null)); return zeichne(); }
+    const { meldung } = await import('./app.js'); const bungie = await import('./bungie.js'); const k = zustand.konto; let ok = 0, fehl = 0;
+    haupt.querySelector('#mfach')?.classList.add('laeuft');
+    for (const x of liste) {
+      try {
+        if (a === 'lock' || a === 'unlock') {
+          const zu = a === 'lock'; if (x.locked === zu) { ok++; continue; }
+          const c = x.ort === 'tresor' || x.ort.startsWith('post:') ? chars[0].characterId : x.ort;
+          await bungie.post('/Destiny2/Actions/Items/SetLockState/', { state: zu, itemId: x.id, characterId: c, membershipType: k.membershipType }); x.locked = zu;
+        } else {
+          const ziel = a === 'tresor' ? 'tresor' : cid; let ort = x.ort;
+          if (ort.startsWith('post:')) { ort = ort.slice(5); await bungie.abholen(k, x, ort); }
+          if (ort !== ziel && ort !== 'tresor') { if (x.angelegt) await ersatzAnlegen(zustand, x); await bungie.verschiebe(k, x, ort, true); }
+          if (ziel !== 'tresor' && ort !== ziel) await zumCharakter(zustand, x, ziel, new Set(liste.map((y) => y.id)));
+          merkeAenderung(x.id, { ort: ziel, angelegt: false }); x.ort = ziel; x.angelegt = false;
+        }
+        ok++;
+      } catch { fehl++; }
+      meldung(`${ok + fehl} / ${liste.length} …`);
+    }
+    meldung(fehl ? `${ok} done, ${fehl} failed (equipped or no space).` : `Done: ${ok} items.`, !!fehl);
+    zeichne();
+  }
 
   haupt.querySelectorAll('[data-stat]').forEach((sel) => { sel.onchange = () => { statMin[sel.dataset.stat] = Number(sel.value); try { localStorage.setItem('d2a.statmin', JSON.stringify(statMin)); } catch {} zeichne(); }; });
   fBox.addEventListener('change', (e) => { const k = e.target.dataset?.putz; if (!k) return; setzePutz(k, e.target.checked); aufraeumen(alle, profil); zeichne(); });
-  haupt.querySelector('#suche').oninput = (e) => { suche = e.target.value.trim().toLowerCase(); zeichne(); };
+  const sEl = haupt.querySelector('#suche');
+  const neuSuche = () => { suche = sEl.value.trim().toLowerCase(); pruef = baueSuche(suche, alle); zeichne(); };
+  pruef = baueSuche(suche, alle);
+  sEl.oninput = neuSuche;
+  verbindeVorschlaege(sEl, neuSuche);
   fBox.addEventListener('toggle', (e) => {
     const g = e.target.dataset?.gruppe;
     if (!g) return;
@@ -308,7 +351,11 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
       try { localStorage.setItem('d2a.zu', JSON.stringify([...zu])); } catch {}
       return zeichne();
     }
+    if (e.target.closest('#mehrfach')) { auswahl = auswahl ? null : new Set(); return zeichne(); }
+    const ma = e.target.closest('[data-mfach]');
+    if (ma) return mehrfachAktion(ma.dataset.mfach, ma.dataset.c);
     const k = e.target.closest('.ic');
+    if (k && auswahl) { if (auswahl.has(k.dataset.id)) auswahl.delete(k.dataset.id); else auswahl.add(k.dataset.id); return zeichne(); }
     if (k) { tipp.hidden = true; oeffneDetail(alle.find((a) => a.id === k.dataset.id), zustand, () => zeigeVault(haupt, zustand, art)); }
   };
   const tipp = document.querySelector('#tipp');
@@ -317,7 +364,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
     if (!it) return;
     zeigeItemTipp(it, zustand.profil, x, y);
   };
-  haupt.onpointerover = (e) => { const el = e.target.closest('.ic'); if (el) zeige(el, e.clientX, e.clientY); };
+  haupt.onpointerover = (e) => { if (auswahl) return; const el = e.target.closest('.ic'); if (el) zeige(el, e.clientX, e.clientY); };
   haupt.onpointerout = (e) => { if (e.target.closest('.ic') && !e.relatedTarget?.closest?.('.ic')) tipp.hidden = true; };
   haupt.onfocusin = (e) => { const el = e.target.closest('.ic'); if (el) { const r = el.getBoundingClientRect(); zeige(el, r.right, r.top); } };
   haupt.onfocusout = () => { tipp.hidden = true; };

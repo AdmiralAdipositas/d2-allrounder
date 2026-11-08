@@ -2,7 +2,8 @@
 import * as bungie from './bungie.js';
 import { defs } from './defs.js';
 import { NEBENSACHE, merkeAenderung, sammle } from './vault.js';
-import { empfehlung } from './rolls.js';
+import { empfehlung, rollWert, rollBalken } from './rolls.js';
+import { TAGS, tags, notizen, setzeTag, setzeNotiz } from './suche.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
@@ -93,8 +94,8 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     const m = document.querySelector('#meldung');
     d.innerHTML = `<div class="dkopf"><i class="ic ${it.d.q === 6 ? 'exotic' : ''} ${it.d.t === 3 ? `el-${it.element}` : ''}" style="background-image:url(${BILD}${it.d.i})"></i>
       <div><h2>${esc(it.d.n)}</h2><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''}${it.m.frame ? ` · ${esc(it.m.frame)}` : ''}${it.m.champ ? ` · Stuns ${esc(it.m.champ)}` : ''}${it.m.set ? ` · ${esc(it.m.set)}` : ''}</small>
-      ${it.m?.roll ? `<small class="rollinfo ${/PvP/.test(it.m.roll) ? 'pvp' : ''}">${it.m.roll}</small>` : ''}<small class="wo">${ortText()}${it.genutzt ? ' · in a loadout' : ''}${it.locked ? ' · locked' : ''}${it.junk ? ' · <span class="rot">dismantle suggestion</span>' : ''}${it.fuel ? ' · <span class="gold">infusion fuel</span>' : ''}</small></div><button class="zu" data-a="schliessen" aria-label="Close">✕</button></div>
-      <div class="aktionen">${knoepfe()}</div>${it.grund && it.d.t === 3 ? `<p class="dputz ${it.junk ? 'weg' : ''}">${it.junk ? 'Can go' : 'Keeps'}: ${esc(it.grund)}</p>` : ''}${kopien()}
+      ${it.d.t === 3 && it.d.q !== 6 ? rollBalken(rollWert(it.hash, it.plugs)) : ''}${it.m?.roll ? `<small class="rollinfo ${/PvP/.test(it.m.roll) ? 'pvp' : ''}">${it.m.roll}</small>` : ''}<small class="wo">${ortText()}${it.genutzt ? ' · in a loadout' : ''}${it.locked ? ' · locked' : ''}${it.junk ? ' · <span class="rot">dismantle suggestion</span>' : ''}${it.fuel ? ' · <span class="gold">infusion fuel</span>' : ''}</small></div><button class="zu" data-a="schliessen" aria-label="Close">✕</button></div>
+      <div class="aktionen">${knoepfe()}</div><div class="dtags">${TAGS.map(([t, e, n]) => `<button data-tag="${t}" class="dtag ${tags()[it.id] === t ? 'an' : ''}" title="${n}">${e} <span>${n}</span></button>`).join('')}<input class="dnotiz" data-notiz placeholder="📝 Note (searchable with note:)" value="${esc(notizen()[it.id] || '')}" maxlength="120"></div>${it.grund && it.d.t === 3 ? `<p class="dputz ${it.junk ? 'weg' : ''}">${it.junk ? 'Can go' : 'Keeps'}: ${esc(it.grund)}</p>` : ''}${kopien()}
       ${laed ? '<p class="leer">Loading perks…</p>' : `<div class="dkoerper"><div class="pgrid">${raster() || '<p class="leer">No changeable perks.</p>'}</div><div class="dseite">${infoBox()}<div class="dstats">${stats}</div>${it.d.e && defs.sets?.[it.d.e] ? `<div class="tset"><b>${esc(defs.sets[it.d.e].n)}</b>${defs.sets[it.d.e].p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}${it.d.xd ? `<p class="tt"><b class="tgold">${esc(it.d.xp || 'Exotic perk')}</b> ${esc(it.d.xd)}</p>` : ''}</div></div>`}`;
     if (d.open) d.append(m);
     d.querySelectorAll('button').forEach((x) => { x.disabled = beschaeftigt && x.dataset.a !== 'schliessen'; });
@@ -158,11 +159,13 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
       beschaeftigt = false; zeichne(); neuZeichnen();
     }
   }
+  d.onchange = (e) => { if (e.target.matches('[data-notiz]')) { setzeNotiz(it.id, e.target.value.trim()); neuZeichnen?.(); } };
   d.onclick = (e) => {
     if (e.target === d) return d.close();
     const b = e.target.closest('button');
     if (!b || b.disabled) return;
     if (b.dataset.a === 'schliessen') return d.close();
+    if (b.dataset.tag) { setzeTag(it.id, b.dataset.tag); zeichne(); neuZeichnen?.(); return; }
     if (b.dataset.mehr) { offen = offen === Number(b.dataset.mehr) ? null : Number(b.dataset.mehr); return zeichne(); }
     if (b.dataset.h) { wahl = { s: Number(b.dataset.s), h: Number(b.dataset.h) }; return zeichne(); }
     if (b.dataset.oeffne) { const x = (zustand.alleItems || sammle(zustand.profil)).find((y) => y.id === b.dataset.oeffne); if (x) return oeffneDetail(x, zustand, neuZeichnen); }
