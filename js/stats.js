@@ -25,8 +25,10 @@ const statName = (k) => statDefs?.[k]?.statName || k.replace(/^Medals_pvp_medal_
 const PGCR_KEY = 'd2a.pgcr.v1';
 let pgcrCache = null;
 const pgcrLies = () => { if (!pgcrCache) { try { pgcrCache = JSON.parse(localStorage.getItem(PGCR_KEY) || '{}'); } catch { pgcrCache = {}; } } return pgcrCache; };
-let speicherT = 0;
-const pgcrMerke = () => { clearTimeout(speicherT); speicherT = setTimeout(() => { try { localStorage.setItem(PGCR_KEY, JSON.stringify(pgcrCache)); } catch {} }, 800); };
+let zuletztGespeichert = 0, speicherT = 0;
+const pgcrSpeichern = () => { zuletztGespeichert = Date.now(); try { localStorage.setItem(PGCR_KEY, JSON.stringify(pgcrCache)); } catch {} };
+// Spätestens alle 4 s sichern, damit beim Schließen nichts verloren geht.
+const pgcrMerke = () => { clearTimeout(speicherT); if (Date.now() - zuletztGespeichert > 4000) pgcrSpeichern(); else speicherT = setTimeout(pgcrSpeichern, 1000); };
 // Kurzfassung: von Anfang an (f), Tode gesamt (d), Spieler [Name, Klasse, abgeschlossen].
 async function pgcrKurz(id) {
   const c = pgcrLies();
@@ -209,19 +211,19 @@ function siegel(d) {
   const proTitel = new Map();
   for (const [h, s] of Object.entries(defs.seal || {})) { const k = s.t || s.n; proTitel.set(k, [...(proTitel.get(k) || []), { h, ...s }]); }
   const liste = [...proTitel.values()].map((vs) => { vs.sort((a, b) => /legacy/i.test(a.pn) - /legacy/i.test(b.pn) || b.k.filter((r) => fertig(d.records, r)).length - a.k.filter((r) => fertig(d.records, r)).length); return vs[0]; })
-    .map((s) => ({ ...s, done: s.k.filter((r) => fertig(d.records, r)).length, ok: fertig(d.records, s.c) }))
-    .sort((a, b) => b.ok - a.ok || b.done / b.k.length - a.done / a.k.length);
+    .map((s) => { const o = d.records[s.c]?.objectives?.[0]; const ok = fertig(d.records, s.c); const n = o?.completionValue || s.k.length; const done = o ? Math.min(o.progress || 0, n) : s.k.filter((r) => fertig(d.records, r)).length; return { ...s, done: ok ? n : done, n, ok }; })
+    .sort((a, b) => b.ok - a.ok || b.done / b.n - a.done / a.n);
   const ok = liste.filter((s) => s.ok).length;
-  return { ok, n: liste.length, html: `<div class="srast">${liste.map((s) => `<button class="sseal ${s.ok ? 'ok' : ''}" data-seal="${s.h}" data-tips="${s.h}" style="--anteil:${Math.round((s.done / s.k.length) * 100)}%"><i style="background-image:url(${BILD}${s.i})"></i><span>${esc(s.t)}</span><small>${s.done}/${s.k.length}</small></button>`).join('')}</div><div class="sealdetail" hidden></div>` };
+  return { ok, n: liste.length, html: `<div class="srast">${liste.map((s) => `<button class="sseal ${s.ok ? 'ok' : ''}" data-seal="${s.h}" data-tips="${s.h}" style="--anteil:${Math.round((s.done / s.n) * 100)}%"><i style="background-image:url(${BILD}${s.i})"></i><span>${esc(s.t)}</span><small>${s.done}/${s.n}</small></button>`).join('')}</div><div class="sealdetail" hidden></div>` };
 }
 function sealTip(h, d) {
   const s = defs.seal?.[h]; if (!s) return '';
-  const fehlt = s.k.filter((r) => !fertig(d.records, r));
+  const fehlt = fertig(d.records, s.c) ? [] : s.k.filter((r) => !fertig(d.records, r));
   return `<b>${esc(s.t)}</b> · ${esc(s.n)}<br>${fertig(d.records, s.c) ? '<span class=gold>Title earned</span>' : `${s.k.length - fehlt.length}/${s.k.length} done`}${fehlt.length ? `<br><small>Still needed:</small><br>${fehlt.slice(0, 8).map((r) => `○ ${esc(defs.rec?.[r]?.n || '?')}`).join('<br>')}${fehlt.length > 8 ? `<br>… and ${fehlt.length - 8} more` : ''}` : ''}`;
 }
 function sealDetail(h, d) {
   const s = defs.seal?.[h]; if (!s) return '';
-  return `<h4>${esc(s.t)} <small>${esc(s.n)}</small></h4>${s.d ? `<p class="leer klein">${esc(s.d.split('\n')[0])}</p>` : ''}<div class="sschritte">${s.k.map((r) => { const ok = fertig(d.records, r); const st = d.records[r]; const o = st?.objectives || st?.intervalObjectives || []; const z = o.length === 1 && o[0].completionValue > 1 ? `${Math.min(o[0].progress || 0, o[0].completionValue)}/${o[0].completionValue}` : o.length > 1 ? `${o.filter((x) => x.complete).length}/${o.length}` : ''; return `<div class="sschritt ${ok ? 'ok' : ''}"><span class="sh">${ok ? '✓' : '○'}</span><div><b>${esc(defs.rec?.[r]?.n || '?')}</b>${defs.rec?.[r]?.d ? `<small>${esc(defs.rec[r].d)}</small>` : ''}</div>${z && !ok ? `<em>${z}</em>` : ''}</div>`; }).join('')}</div>`;
+  return `<h4>${esc(s.t)} <small>${esc(s.n)}</small></h4>${s.d ? `<p class="leer klein">${esc(s.d.split('\n')[0])}</p>` : ''}${fertig(d.records, s.c) ? '<p class="gold">Title earned. Older seals no longer track every single triumph, so some may show open.</p>' : ''}<div class="sschritte">${s.k.map((r) => { const ok = fertig(d.records, r) || fertig(d.records, s.c); const st = d.records[r]; const o = st?.objectives || st?.intervalObjectives || []; const z = o.length === 1 && o[0].completionValue > 1 ? `${Math.min(o[0].progress || 0, o[0].completionValue)}/${o[0].completionValue}` : o.length > 1 ? `${o.filter((x) => x.complete).length}/${o.length}` : ''; return `<div class="sschritt ${ok ? 'ok' : ''}"><span class="sh">${ok ? '✓' : '○'}</span><div><b>${esc(defs.rec?.[r]?.n || '?')}</b>${defs.rec?.[r]?.d ? `<small>${esc(defs.rec[r].d)}</small>` : ''}</div>${z && !ok ? `<em>${z}</em>` : ''}</div>`; }).join('')}</div>`;
 }
 
 // Lustige, merkwürdige und negative Werte – nur was Bungie wirklich liefert.
