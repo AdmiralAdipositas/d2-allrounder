@@ -13,6 +13,8 @@ const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock' };
 const RASSE = { 0: 'Human', 1: 'Awoken', 2: 'Exo' };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+// Gear Tier wie im Spiel: senkrechte gelbe Rauten links oben (1–5).
+const tierPips = (t) => (t > 0 ? `<span class="ck-tier" title="Gear Tier ${t}">${'<b></b>'.repeat(Math.min(5, t))}</span>` : '');
 const WTYP_SVG = { 'Auto Rifle': 'auto', 'Combat Bow': 'bow', 'Fusion Rifle': 'fusion', 'Grenade Launcher': 'gl', 'Hand Cannon': 'hc', 'Linear Fusion Rifle': 'lfr', 'Pulse Rifle': 'pulse', 'Scout Rifle': 'scout', 'Shotgun': 'shotgun', 'Sidearm': 'sidearm', 'Sniper Rifle': 'sniper', 'Submachine Gun': 'smg', 'Trace Rifle': 'trace', 'Glaive': 'glaive', 'Rocket Launcher': 'rocket', 'Machine Gun': 'mg', 'Sword': 'sword' };
 // Nostalgie: Munitions-Synthese aus Destiny 1 neben den Waffen-Slots im Tresor.
 const AMMO_D1 = { 1498876634: ['Ammo Synthesis', '/common/destiny_content/icons/898503d21982fe4101a3e6e1374ad43c.jpg'], 2465295065: ['Special Ammo Synthesis', '/common/destiny_content/icons/7ecb6e289d773ac39e6f425abf651f70.jpg'], 953998645: ['Heavy Ammo Synthesis', '/common/destiny_content/icons/b67087079a950013dfbdf6e0ebaeb245.jpg'] };
@@ -67,7 +69,7 @@ export function zeigeCharakter(haupt, zustand) {
       const elName = ELEMENT[inst[i.itemInstanceId]?.damageType] || '';
       const passt = (f) => (f === 'exo' ? d.q === 6 : f === 'leg' ? d.q === 5 : f === 'lock' ? x?.locked : f === 'dupe' ? x && (anzahl.get(d.n) || 0) > 1 : f.startsWith('el:') ? elName === f.slice(3) : true);
       const dim = (q && !d.n.toLowerCase().includes(q) && !(d.k || '').toLowerCase().includes(q)) || (filter.size && ![...filter].every(passt));
-      return `<button class="ck ${gross ? 'gross' : ''} ${d.q === 6 ? 'exo' : ''} ${x?.mw ? 'mw' : ''} ${dim ? 'dim' : ''}" ${klick} data-ih="${i.itemHash}" aria-label="${esc(d.n)}" style="background-image:url(${BILD}${d.i})">${power ? `<em class="${el}">${power}</em>` : ''}${i.quantity > 1 ? `<em>${i.quantity}</em>` : ''}${x?.locked ? '<i class="ck-lock">🔒</i>' : ''}</button>`;
+      return `<button class="ck ${gross ? 'gross' : ''} ${d.q === 6 ? 'exo' : ''} ${x?.mw ? 'mw' : ''} ${dim ? 'dim' : ''}" ${klick} data-ih="${i.itemHash}" aria-label="${esc(d.n)}" style="background-image:${d.w ? `url(${BILD}${d.w}),` : ''}url(${BILD}${d.i})">${tierPips(inst[i.itemInstanceId]?.gearTier)}${x?.crafted ? '<i class="ck-shaped" title="Crafted"></i>' : ''}${power ? `<em class="${el}">${power}</em>` : ''}${i.quantity > 1 ? `<em>${i.quantity}</em>` : ''}${x?.locked ? '<i class="ck-lock">🔒</i>' : ''}</button>`;
     };
     const reihen = bereich === 'waffen' ? WAFFEN : bereich === 'ruestung' ? RUESTUNG : bereich === 'sonst' ? SONST : [...WAFFEN, ...RUESTUNG, ...SONST];
     const reihe = (cid, an, inv) => ([b, name]) => {

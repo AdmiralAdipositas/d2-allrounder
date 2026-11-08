@@ -581,7 +581,7 @@ body.ziehe{user-select:none;cursor:ew-resize}
 .ck.leer-k{cursor:default;background:#ffffff05;border-style:dashed;border-color:var(--p2a2450)}
 .ck em{position:absolute;right:1px;bottom:1px;font-style:normal;font-size:.6rem;line-height:1;padding:1px 2px;background:#000a;color:#fff;border-radius:2px}.ck.gross em{font-size:.72rem}
 .ck em.arc{color:#7fd8ff}.ck em.solar{color:#ff9b4a}.ck em.void{color:#c69bff}.ck em.stasis{color:#6fa8ff}.ck em.strand{color:#5fe08a}
-.ck-lock{position:absolute;left:1px;top:1px;font-size:.55rem;font-style:normal}
+.ck-lock{position:absolute;right:1px;top:1px;font-size:.55rem;font-style:normal}
 .cvoll{position:absolute;right:0;top:6px;font-size:.62rem;color:var(--danger,#ff6156);text-transform:uppercase}
 .cpost{margin-top:14px!important}
 @media(max-width:760px){.cgrid{grid-template-columns:1fr}.cwahl{grid-template-columns:1fr}.cgitter{grid-template-columns:repeat(3,34px)}.ck{width:34px;height:34px}.ck.gross{width:56px;height:56px}}
@@ -837,3 +837,10 @@ html[data-pf] .cspalte.an{box-shadow:0 0 18px hsl(calc(var(--pfh) * 1deg) 95% 55
 .tgruppe{margin:4px 0 6px}.tg-kopf{display:flex;align-items:center;gap:6px;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--gold);margin-bottom:3px}
 .tg-kopf i{width:26px;height:11px;background:var(--gold);-webkit-mask:center/contain no-repeat;mask:center/contain no-repeat}.tg-kopf em{font-style:normal;color:var(--matt)}
 .tsym i,.tg-kopf i{-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}
+/* Item-Kacheln wie im Spiel: Gear-Tier-Rauten, Crafted-Markierung, Saison-Wasserzeichen */
+.ck{background-size:cover}
+.ck-tier{position:absolute;left:2px;top:9px;display:flex;flex-direction:column;gap:1px;pointer-events:none}
+.ck-tier b{width:4px;height:4px;background:#f2d24b;transform:rotate(45deg);box-shadow:0 0 2px #000}
+.ck.gross .ck-tier{top:14px;gap:2px}.ck.gross .ck-tier b{width:6px;height:6px}
+.ck-shaped{position:absolute;left:1px;bottom:1px;width:11px;height:11px;background:#ff4f3a;-webkit-mask:url(../img/wtyp/shaped.svg) center/contain no-repeat;mask:url(../img/wtyp/shaped.svg) center/contain no-repeat;filter:drop-shadow(0 0 1px #000);pointer-events:none}
+.ck.gross .ck-shaped{width:15px;height:15px}

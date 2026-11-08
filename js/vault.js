@@ -89,7 +89,7 @@ export function sammle(profil) {
     const plugs = roh.filter(Boolean);
     liste.push({
       id: it.itemInstanceId, hash: it.itemHash, d, ort, angelegt, plugs, sockel: roh, locked: (it.state & 1) === 1,
-      power: i.primaryStat?.value || 0, mw: (it.state & 4) === 4, crafted: (it.state & 8) === 8, element: i.damageType || d.d0 || 0, energie: i.energy?.energyCapacity || 0,
+      power: i.primaryStat?.value || 0, tier: i.gearTier || 0, mw: (it.state & 4) === 4, crafted: (it.state & 8) === 8, element: i.damageType || d.d0 || 0, energie: i.energy?.energyCapacity || 0,
       champ: d.t === 3 ? champion(it.itemHash, plugs, i.breakerType) : null,
       st: d.t === 2 ? armorStats(statDaten[it.itemInstanceId]) : null,
     });
@@ -103,8 +103,8 @@ export function sammle(profil) {
 function kachel(x) {
   const champ = x.champ ? `<i class="ch" style="background-image:url(${BILD}${x.champ.i})" aria-label="${esc(CHAMP_NAME[x.champ.n] || x.champ.n)}"></i>` : '';
   const ort = x.ort === 'tresor' ? 'tresor' : x.ort.startsWith('post:') ? 'post' : 'char';
-  return `<div class="ic ${x.d.q === 6 ? 'exotic' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:url(${BILD}${x.d.i})">
-    ${champ}<i class="ort ${ort}"></i>${/god/.test(x.m?.roll || '') ? `<i class="god ${/PvP/.test(x.m.roll) ? 'pvp' : ''}" title="${x.m.roll}"></i>` : ''}${!(filter.putz || []).length ? '' : x.junk ? '<i class="mark junk" title="Dismantle suggestion"></i>' : x.fuel ? '<i class="mark fuel" title="Infusion fuel"></i>' : ''}${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
+  return `<div class="ic ${x.d.q === 6 ? 'exotic' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:${x.d.w ? `url(${BILD}${x.d.w}),` : ''}url(${BILD}${x.d.i})">
+    ${x.tier ? `<span class="ck-tier">${'<b></b>'.repeat(Math.min(5, x.tier))}</span>` : ''}${x.crafted ? '<i class="ck-shaped" title="Crafted"></i>' : ''}${champ}<i class="ort ${ort}"></i>${/god/.test(x.m?.roll || '') ? `<i class="god ${/PvP/.test(x.m.roll) ? 'pvp' : ''}" title="${x.m.roll}"></i>` : ''}${!(filter.putz || []).length ? '' : x.junk ? '<i class="mark junk" title="Dismantle suggestion"></i>' : x.fuel ? '<i class="mark fuel" title="Infusion fuel"></i>' : ''}${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
 }
 
 // Filtergruppen: innerhalb einer Gruppe ODER, zwischen Gruppen UND.
