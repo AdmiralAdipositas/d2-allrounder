@@ -15,6 +15,7 @@ import { zeigeKonto } from './konto.js';
 import { zeigeWiki, setzeWikiSuche, setzeWikiKat } from './wiki.js';
 import { zeigeSquad } from './squad.js';
 import { zeigeHueter } from './hueter.js';
+import { zeigeStart } from './start.js';
 import { setzeNav } from './info.js';
 import { zeigeCharakter } from './charakter.js';
 import { starte as starteSprache } from './sprache.js';
@@ -25,7 +26,7 @@ const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
 const haupt = $('#haupt');
 const panel = $('#panel');
-export const zustand = { konto: null, profil: null, tab: 'char', neuLaden: async () => { zustand.alleItems = null;
+export const zustand = { konto: null, profil: null, tab: 'start', neuLaden: async () => { zustand.alleItems = null;
   meldung('Loading from Bungie…');
   try { await ladeProfil(); TABS[zustand.tab](); meldung('Up to date.'); } catch (e) { meldung(e.message, true); }
 } };
@@ -63,7 +64,8 @@ const ANSICHTEN = {
   woche: ['This week', (el) => zeigeWoche(el, zustand, zustand.xur)],
   xur: ['Xûr', (el) => zeigeXur(el, zustand)],
   post: ['Postmaster', (el) => zeigePost(el, zustand)],
-  konto: ['Account', (el) => zeigeKonto(el, zustand, { neuLaden: zustand.neuLaden, abmelden })],
+  konto: ['Settings & account', (el) => zeigeKonto(el, zustand, { neuLaden: zustand.neuLaden, abmelden })],
+  start: ['Home', (el) => zeigeStart(el, zustand)],
   char: ['Inventory', (el) => zeigeCharakter(el, zustand)],
   vault: ['Weapons', (el) => zeigeVault(el, zustand, 'waffen')],
   armor: ['Armor', (el) => zeigeVault(el, zustand, 'ruestung')],
@@ -88,11 +90,15 @@ setzeNav({
 });
 export const springeGuide = (id) => { zustand.guideZiel = id; wechsle('guide'); };
 export const springeWiki = (kat, suche) => { if (suche) setzeWikiSuche(suche); else setzeWikiKat(kat); wechsle('wiki'); };
-const TABS = Object.fromEntries(['char', 'vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats', 'hueter', 'squad'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
+const TABS = Object.fromEntries(['start', 'char', 'vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats', 'hueter', 'squad'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
 function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class="leer">${text}</p>`; }
 
 // Andere Module springen über ein Ereignis zu einer Seite (z. B. Hüter → Squad-Check).
 $('#panelGriff')?.addEventListener('click', () => oeffnePanel('woche'));
+// Ansicht „Einfach / Ausführlich“: Beschriftung in der Leiste und Seite neu zeichnen.
+const modusText = () => { const t = rail.querySelector('[data-modustext]'); if (t) t.textContent = document.documentElement.dataset.modus === 'voll' ? 'Detailed view' : 'Simple view'; };
+modusText();
+window.addEventListener('d2a-modus', () => { modusText(); if (zustand.profil) wechsle(zustand.tab); });
 window.addEventListener('d2a-tab', (e) => { if (TABS[e.detail]) wechsle(e.detail); });
 function wechsle(tab) {
   zustand.tab = tab;
@@ -108,6 +114,7 @@ rail.addEventListener('click', (e) => {
   if (!b) return;
   if (b.dataset.tab) wechsle(b.dataset.tab);
   else if (b.dataset.panel) schaltePanel();
+  else if ('modusknopf' in b.dataset) import('./konto.js').then((m) => { m.setzeModus(m.modus() === 'einfach' ? 'voll' : 'einfach'); modusText(); });
   else if ('zufall' in b.dataset) { if (!zustand.profil) meldung('Sign in first – the randomizer uses your own gear.', true); else import('./zufall.js').then((m) => m.oeffneZufall(zustand)).catch((err) => { console.error(err); meldung(`Randomizer: ${err.message}`, true); }); }
   else if (b.id === 'konto') kontoKlick();
   if (matchMedia('(pointer: coarse)').matches) rail.classList.remove('offen');
@@ -132,7 +139,7 @@ panel.addEventListener('pointerout', (e) => { if (e.target.closest('[data-tn]'))
 const pz = (() => { try { return { art: 'woche', fest: false, breit: false, ...JSON.parse(localStorage.getItem('d2a.panel') || '{}') }; } catch { return { art: 'woche', fest: false, breit: false }; } })();
 const merkePanel = () => { try { localStorage.setItem('d2a.panel', JSON.stringify(pz)); } catch {} };
 // Panel-Auswahl: eigenes Menü mit Symbolen statt einer grauen Liste.
-const SCHNELL = [['woche', '🗓'], ['xur', '🧳'], ['post', '📮'], ['konto', '👤']];
+const SCHNELL = [['woche', '🗓'], ['xur', '🧳'], ['post', '📮'], ['konto', '⚙']];
 const EMO = { squad: '🛡' };
 const panelIcon = (k) => { const s = SCHNELL.find(([x]) => x === k); if (s) return `<i class="pm-emo">${s[1]}</i>`; const svg = rail.querySelector(`[data-tab="${k === 'char' ? 'char' : k}"] svg`)?.outerHTML; return svg ? `<i class="pm-ic">${svg}</i>` : `<i class="pm-emo">${EMO[k] || '▫'}</i>`; };
 function zeigePanel() {
@@ -161,7 +168,7 @@ $('#logo').addEventListener('click', async () => {
   const l = $('#logo');
   if (l.classList.contains('dreht')) return;
   l.classList.add('dreht');
-  wechsle('char'); scrollTo({ top: 0, behavior: 'smooth' });
+  wechsle('start'); scrollTo({ top: 0, behavior: 'smooth' });
   try { if (zustand.profil) await zustand.neuLaden?.(); } finally { l.classList.remove('dreht'); }
 });
 panel.addEventListener('click', (e) => { const k = e.target.closest('#pArtKnopf'); if (!k) return; const m = panel.querySelector('.pmenue'); m.hidden = !m.hidden; k.setAttribute('aria-expanded', String(!m.hidden)); });
@@ -250,7 +257,8 @@ async function start() {
   try {
     await Promise.all([ladeDefs(), ladeRolls(), ladeQuellen()]);
     zustand.oeffnePanel = oeffnePanel; zustand.postZahl = postZahl;
-    if (!TABS[zustand.tab]) zustand.tab = 'char';
+    // Jeder Start beginnt mit der Übersicht.
+    zustand.tab = 'start';
     // Schnellstart: letztes Profil sofort zeigen, frische Daten kommen im Hintergrund.
     const alt = await gespeichertesProfil();
     let klicks = 0;

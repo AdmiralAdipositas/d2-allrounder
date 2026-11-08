@@ -23,6 +23,11 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(
 const zeit = (min) => `${Math.round(min / 60).toLocaleString()} h`;
 const vor = (d) => { const m = Math.round((Date.now() - new Date(d)) / 60000); return m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} days ago`; };
 
+// Einstellungen: ein Ort, fünf Reiter. Ansicht „Einfach / Ausführlich“ gilt für die ganze App.
+const EINST = [['look', '🎨 Look'], ['groesse', '🔍 Size'], ['sprache', '🌐 Language'], ['neu', '✨ New'], ['daten', '💾 Data']];
+const einstTab = () => { try { return localStorage.getItem('d2a.einstTab') || 'look'; } catch { return 'look'; } };
+export const modus = () => { try { return localStorage.getItem('d2a.modus') || 'einfach'; } catch { return 'einfach'; } };
+export function setzeModus(m) { try { localStorage.setItem('d2a.modus', m); } catch {} document.documentElement.dataset.modus = m; window.dispatchEvent(new CustomEvent('d2a-modus')); }
 export function zeigeKonto(el, zustand, aktionen) {
   const k = zustand.konto;
   const p = zustand.profil;
@@ -35,16 +40,23 @@ export function zeigeKonto(el, zustand, aktionen) {
       <div class="konto-zahlen"><span><b>${zeit(gesamt)}</b>played</span><span><b>${prof.currentGuardianRank || '–'}</b>Guardian Rank</span><span><b>${chars.length}</b>characters</span></div></div>
     ${chars.map((c) => `<div class="kchar" style="background-image:linear-gradient(90deg,color-mix(in srgb,var(--bg) 87%,transparent),color-mix(in srgb,var(--bg) 33%,transparent)),url(${BILD}${c.emblemBackgroundPath || ''})">
       <i style="background-image:url(${BILD}${c.emblemPath || ''})"></i><div><b>${KLASSE[c.classType]}</b><small>${RASSE[c.raceType] || ''} · ${zeit(c.minutesPlayedTotal || 0)} · last played ${vor(c.dateLastPlayed)}</small></div><span class="klicht">${c.light}</span></div>`).join('')}
-    <section class="karte konto-look"><h3>Look</h3>${themaKnoepfe()}</section>
-    <section class="karte konto-zoom"><h3>App size</h3>${zoomKnoepfe()}</section>
-    <section class="karte konto-sprache"><h3>Language</h3><select id="sprachWahl" aria-label="Language" data-roh>${SPRACHEN.map(([c, n]) => `<option value="${c}" ${c === sprache ? 'selected' : ''}>${n}</option>`).join('')}</select>
+    <h2 class="einst-titel">⚙ Settings</h2>
+    <div class="einst-reiter" role="tablist">${EINST.map(([k, t]) => `<button data-einst="${k}" aria-selected="${k === einstTab()}">${t}</button>`).join('')}</div>
+    <section class="karte konto-modus" data-teil="look"><h3>View</h3><div class="modus-wahl">${['einfach', 'voll'].map((m) => `<button data-modus="${m}" class="${modus() === m ? 'an' : ''}"><b>${m === 'einfach' ? '◎' : '◉'}</b>${m === 'einfach' ? 'Simple' : 'Detailed'}<small>${m === 'einfach' ? 'Calm pages, the key numbers first' : 'Everything open, all filters'}</small></button>`).join('')}</div></section>
+    <section class="karte konto-look" data-teil="look"><h3>Look</h3>${themaKnoepfe()}</section>
+    <section class="karte konto-zoom" data-teil="groesse"><h3>Size</h3>${zoomKnoepfe()}</section>
+    <section class="karte konto-sprache" data-teil="sprache"><h3>Language</h3><select id="sprachWahl" aria-label="Language" data-roh>${SPRACHEN.map(([c, n]) => `<option value="${c}" ${c === sprache ? 'selected' : ''}>${n}</option>`).join('')}</select>
       <p class="leer klein">Item names, perks and descriptions use Bungie's own translations. App texts are available in English and German. Saved for this Bungie account.</p></section>
-    <section class="karte konto-app"><h3>App</h3>
+    <section class="karte konto-neu" data-teil="neu"><h3>What’s new</h3><div class="neu-liste"><p class="leer">Loading…</p></div></section>
+    <section class="karte konto-app" data-teil="daten"><h3>Data & app</h3>
       <p>Game data: ${esc(String(defs.version || '').slice(0, 24))}<br>God rolls: ${Object.keys(rolls.items || {}).length.toLocaleString()} weapons, updated ${esc((rolls.erstellt || '').slice(0, 10) || '–')}</p>
       <div class="konto-knoepfe"><button data-k="neu">↻ Reload data from Bungie</button><a class="knopf-link" href="https://www.bungie.net/7/en/User/Profile/${k.membershipType}/${k.membershipId}" target="_blank" rel="noopener">Bungie profile ↗</a>
       <button data-k="willkommen">Show welcome screen</button><button data-k="backup">⬇ Backup settings & marks</button><label class="knopf-link datei-knopf">⬆ Restore backup<input type="file" accept="application/json" data-k-import hidden></label><button data-k="reset">Reset app settings</button><button data-k="ab" class="rot-knopf">Sign out</button></div>
       <p class="leer klein">Install on your phone: open this page in Safari or Chrome → Share → “Add to Home Screen”.</p>
       <p class="leer klein"><a href="privacy.html" target="_blank" rel="noopener">Privacy</a> · Unofficial fan app, not affiliated with Bungie. Destiny content © Bungie, Inc. · Mostly built by Claude (Anthropic).</p></section>`;
+  const zeigeTeil = (t) => { el.querySelectorAll('[data-teil]').forEach((x) => { x.hidden = x.dataset.teil !== t; }); el.querySelectorAll('[data-einst]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.einst === t))); try { localStorage.setItem('d2a.einstTab', t); } catch {} };
+  zeigeTeil(einstTab());
+  fetch(`data/neu.json?t=${Date.now()}`).then((r) => r.json()).then((j) => { const box = el.querySelector('.neu-liste'); if (box) box.innerHTML = (j.eintraege || []).map((e) => `<div class="neu-zeile"><b>${e.art === 'build' ? '🛠' : '✨'}</b><div><b>${esc(e.titel)}</b><small>${esc(e.datum || '')} · ${esc(e.text)}</small></div></div>`).join('') + '<button data-k="neuzeigen" class="chip">Show the “What’s new” window again</button>'; }).catch(() => {});
   verbindeThema(el.querySelector('.konto-look'), () => eigeneShader(k));
   verbindeZoom(el.querySelector('.konto-zoom'));
   el.querySelector('#sprachWahl')?.addEventListener('change', (e) => waehle(k, e.target.value));
@@ -55,10 +67,13 @@ export function zeigeKonto(el, zustand, aktionen) {
       location.reload(); } catch (err) { alert(`Restore failed: ${err.message}`); }
   });
   el.onclick = (e) => {
+    const et = e.target.closest('[data-einst]'); if (et) return zeigeTeil(et.dataset.einst);
+    const mo = e.target.closest('[data-modus]'); if (mo) { setzeModus(mo.dataset.modus); el.querySelectorAll('[data-modus]').forEach((x) => x.classList.toggle('an', x === mo)); return; }
     const b = e.target.closest('[data-k]');
     if (!b) return;
     if (b.dataset.k === 'neu') aktionen.neuLaden();
     if (b.dataset.k === 'willkommen') zeigeWillkommen(k);
+    if (b.dataset.k === 'neuzeigen') { try { localStorage.removeItem('d2a.neuGesehen'); } catch {} import('./willkommen.js').then((m) => m.zeigeNeues((z) => { if (z.tab) window.dispatchEvent(new CustomEvent('d2a-tab', { detail: z.tab })); })); }
     if (b.dataset.k === 'ab') aktionen.abmelden();
     if (b.dataset.k === 'backup') {
       // Alles, was die App im Browser merkt (Loadout-Würfe, Futter-Markierung, Favoriten, Aussehen …) – ohne Anmeldedaten.
