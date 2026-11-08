@@ -15,6 +15,8 @@ export function setzeThema(t) {
   if (t === 'shader' && !lies('d2a.shaderVars', '')) t = 'bunt';
   schreib('d2a.theme', t);
   document.documentElement.dataset.theme = t;
+  // Easter Egg: „Photo Finish“ ist im Spiel ein RGB-Shader – hier läuft die App dann im Farbkreis.
+  if (t === 'shader' && /^photo finish$/i.test(shaderWahl()?.n || '')) document.documentElement.dataset.pf = '1'; else delete document.documentElement.dataset.pf;
   setzeVars(t === 'shader' ? JSON.parse(lies('d2a.shaderVars', '{}')) : null);
   const bg = t === 'og' ? '#0b0d10' : t === 'shader' ? JSON.parse(lies('d2a.shaderVars', '{}'))['--bg'] : '#0b0a1a';
   document.querySelector('meta[name=theme-color]')?.setAttribute('content', bg || '#0b0a1a');

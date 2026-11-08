@@ -809,3 +809,17 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .zf-haken{display:flex;flex-wrap:wrap;gap:4px 14px;padding:6px 0}.zf-haken .zf-cb{font-size:.8rem}
 .zf-kette{margin:8px 0;padding-left:20px;font-size:.84rem;color:var(--matt)}.zf-kette li.ok{color:var(--text)}.zf-kette li.jetzt{color:var(--gold);font-weight:700}
 .zf-tmp{border:1px solid var(--linie);border-radius:8px;padding:6px 10px;margin:6px 0}.zf-tmp summary{cursor:pointer;display:flex;gap:8px;align-items:center}.zf-tmp summary button{margin-left:auto}
+/* Easter Egg „Photo Finish“: RGB-Farbkreis wie der Shader im Spiel (weicher Regenbogen, läuft durch) */
+@property --pfh{syntax:'<number>';inherits:true;initial-value:0}
+@keyframes pfdreh{to{--pfh:360}}
+html[data-pf]{animation:pfdreh 14s linear infinite;
+  --gold:hsl(calc(var(--pfh) * 1deg) 95% 62%)!important;--violett:hsl(calc((var(--pfh) + 120) * 1deg) 90% 64%)!important;--arc:hsl(calc((var(--pfh) + 240) * 1deg) 90% 66%)!important;
+  --sh1:hsl(calc(var(--pfh) * 1deg) 92% 60%)!important;--sh2:hsl(calc((var(--pfh) + 60) * 1deg) 92% 60%)!important;--sh3:hsl(calc((var(--pfh) + 120) * 1deg) 92% 60%)!important;
+  --sh4:hsl(calc((var(--pfh) + 180) * 1deg) 92% 60%)!important;--sh5:hsl(calc((var(--pfh) + 240) * 1deg) 92% 60%)!important;--sh6:hsl(calc((var(--pfh) + 300) * 1deg) 92% 60%)!important;
+  --pf-verlauf:linear-gradient(90deg,hsl(calc(var(--pfh) * 1deg) 95% 60%),hsl(calc((var(--pfh) + 72) * 1deg) 95% 60%),hsl(calc((var(--pfh) + 144) * 1deg) 95% 60%),hsl(calc((var(--pfh) + 216) * 1deg) 95% 60%),hsl(calc((var(--pfh) + 288) * 1deg) 95% 60%),hsl(calc((var(--pfh) + 360) * 1deg) 95% 60%))}
+html[data-pf] h1,html[data-pf] .sblock>summary h3{background:var(--pf-verlauf);-webkit-background-clip:text;background-clip:text;color:transparent}
+html[data-pf] #rail{border-right:2px solid transparent;border-image:linear-gradient(180deg,hsl(calc(var(--pfh) * 1deg) 95% 60%),hsl(calc((var(--pfh) + 180) * 1deg) 95% 60%),hsl(calc((var(--pfh) + 360) * 1deg) 95% 60%)) 1}
+html[data-pf] #rail svg{stroke:hsl(calc(var(--pfh) * 1deg) 90% 66%)}html[data-pf] #rail button.an svg{filter:drop-shadow(0 0 6px hsl(calc(var(--pfh) * 1deg) 95% 60%))}
+html[data-pf] .cspalte,html[data-pf] .ctresorbox,html[data-pf] .sblock{border:1.5px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,var(--pf-verlauf) border-box}
+html[data-pf] .cspalte.an{box-shadow:0 0 18px hsl(calc(var(--pfh) * 1deg) 95% 55% / .45)}
+@media (prefers-reduced-motion:reduce){html[data-pf]{animation-duration:120s}}
