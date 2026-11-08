@@ -745,3 +745,15 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .cstreifen.auf{flex:3;border-color:var(--gold);box-shadow:0 0 18px #e8c35a88}
 .inv-fokus + .ctresorbox{margin-top:10px}
 @media(max-width:760px){.inv-fokus .cgitter{grid-template-columns:repeat(3,32px)}.inv-fokus .ck{width:32px;height:32px}.inv-fokus .ck.gross{width:52px;height:52px}.invleiste input{max-width:none}}
+/* Zufall: Randomizer + Glücksrad */
+#zufall{position:fixed;inset:0;z-index:85;display:grid;place-items:center;padding:16px;background:#000b;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.zf-box{position:relative;width:min(640px,100%)}.zf-zu{position:absolute;right:12px;top:10px;background:none;border:0;color:var(--matt);font-size:1.1rem}
+.zf-opt{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:12px 0}.zf-opt select{margin-left:6px;padding:6px;background:var(--bg2);color:var(--text);border:1px solid var(--linie);border-radius:6px}
+.zf-cb{display:flex;gap:5px;align-items:center;font-size:.85rem}.zf-typen{margin-bottom:10px}.zf-typen summary{cursor:pointer;color:var(--matt);font-size:.85rem}
+.zf-erg{margin-top:12px}.zf-teile{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.zf-teil{display:flex;gap:8px;align-items:center;padding:6px;border:1px solid var(--linie);border-radius:8px;background:var(--bg2)}.zf-teil.exo{border-color:var(--gold)}
+.zf-teil i{width:44px;height:44px;flex:none;background:center/cover;border-radius:3px}.zf-teil span{display:flex;flex-direction:column;min-width:0}.zf-teil small{color:var(--matt);font-size:.7rem}.zf-teil b{font-size:.85rem}
+.rad{position:relative;width:min(320px,80vw);margin:8px auto}.rad-svg{width:100%;display:block}.rad-dreh{transform-origin:160px 160px;transform-box:view-box}
+.rad-zeiger{position:absolute;top:-6px;left:50%;transform:translateX(-50%);color:var(--gold);font-size:1.6rem;text-shadow:0 0 8px #000}
+.zf-rad-erg{text-align:center;font-size:1.3rem;min-height:1.6em;color:var(--gold);font-family:var(--kopf)}
+#zufall textarea{width:100%;padding:8px;background:var(--bg2);color:var(--text);border:1px solid var(--linie);border-radius:6px}
