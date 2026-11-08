@@ -7,7 +7,10 @@ const ENC = {
   "Salvation's Edge": { Substratum: 'substratum', Dissipation: 'dissipation', Repository: 'repository', Verity: 'verity', 'The Witness': 'zenith' },
   Equilibrium: { Harvester: 'eqharv', Harrow: 'eqharrow', Sere: 'eqsere' },
 };
-const START = { 'Root of Nightmares': 'cataclysm', "King's Fall": 'kfopen', 'Last Wish': 'kalli', 'Vault of Glass': 'vgopen', "Salvation's Edge": 'substratum', Equilibrium: 'eqharv' };
+const START = { 'Root of Nightmares': 'cataclysm', "King's Fall": 'kfopen', 'Last Wish': 'kalli', 'Vault of Glass': 'vgopen', "Salvation's Edge": 'substratum', Equilibrium: 'eqharv',
+  'Deep Stone Crypt': 'dscsec', 'Garden of Salvation': 'gsevade', 'Vow of the Disciple': 'vwacq', "Crota's End": 'ceabyss', 'The Desert Perpetual': 'dpepo',
+  'The Shattered Throne': 'stvorg', 'Pit of Heresy': 'phnecro', Prophecy: 'prphal', 'Grasp of Avarice': 'gaphry', Duality: 'dugahl', 'Spire of the Watcher': 'spaak',
+  'Ghosts of the Deep': 'gdecth', "Warlord's Ruin": 'wrrath', "Vesper's Host": 'vhact', 'Sundered Doctrine': 'sdzoe' };
 const norm = (s) => String(s || '').replace(/[’']/g, "'").toLowerCase();
 // Liefert die Guide-ID für eine Begegnung (egal aus welchem Raid) oder für einen ganzen Raid.
 export function guideId(encOderRaid, raid) {
@@ -16,6 +19,7 @@ export function guideId(encOderRaid, raid) {
     for (const [n, id] of Object.entries(m)) if (norm(encOderRaid).startsWith(norm(n))) return id;
     if (norm(encOderRaid) === norm(r)) return START[r];
   }
+  if (!raid) for (const [r, id] of Object.entries(START)) if (norm(encOderRaid) === norm(r)) return id;
   return null;
 }
 export const IM_GUIDE = Object.keys(START);

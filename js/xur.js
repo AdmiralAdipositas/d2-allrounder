@@ -26,6 +26,11 @@ export async function xurDa(zustand) {
   } catch { return null; }
 }
 
+// Exotics, die Xûr gerade verkauft (nach xurDa()).
+export function xurExotics() {
+  return (daten?.teile || []).flatMap((t) => Object.values(t.sales?.data || {}).map((x) => ({ h: x.itemHash, d: defs.items[x.itemHash] }))).filter((x) => x.d?.q === 6 && (x.d.t === 2 || x.d.t === 3));
+}
+
 const GRUPPEN = [
   ['Exotic Armor', (d) => d.t === 2 && d.q === 6], ['Exotic Weapons', (d) => d.t === 3 && d.q === 6],
   ['Legendary Weapons', (d) => d.t === 3 && d.q === 5], ['Legendary Armor', (d) => d.t === 2 && d.q === 5], ['Other', () => true],

@@ -1187,3 +1187,19 @@ html[data-modus=einfach] .sblock[data-blk=seal] .srast{max-height:260px;overflow
 html[data-gast] .fz em,html[data-gast] .fk-tags .tag:last-child,html[data-gast] .fk-vorschau em,html[data-gast] [data-schalter="besitz"]{display:none}
 html[data-gast] .fz.fehlt span,html[data-gast] .fz.fehlt b{color:inherit}
 html[data-gast] .fz.fehlt{color:var(--text)}
+/* Start: „Heute“ – was mach ich heute? */
+.st-heute{display:grid;gap:8px}.st-h{margin:0;font:800 .78rem var(--kopf);letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.st-heute-reihe{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.st-tag{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px 16px;border:1px solid var(--linie2);border-radius:14px;background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 7%,var(--bg3)),var(--bg2));color:var(--text);text-align:left;overflow:hidden}
+.st-tag>small{color:var(--matt);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase}
+.st-chips{display:flex;flex-wrap:wrap;gap:6px}
+.st-chip{padding:6px 12px;border-radius:999px;border:1px solid var(--linie2);background:var(--bg);color:var(--text);font-weight:700;font-size:.85rem;cursor:pointer;transition:transform .15s,border-color .15s,background .15s}
+.st-chip:hover{transform:translateY(-2px);border-color:var(--gold)}.st-chip.raid{border-color:color-mix(in srgb,var(--gold) 65%,var(--linie2));color:var(--gold)}
+.st-chip.an{background:var(--gold);color:#120d00;border-color:var(--gold)}
+.st-auf-z{display:flex;gap:12px;align-items:center}.st-auf-z b{display:block;font:800 1.15rem var(--kopf)}
+.st-auf-ic{display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:var(--bg);border:1px solid var(--linie2);font-size:1.5rem;animation:stSchweben 4s ease-in-out infinite;flex:none}
+.st-auf-knoepfe{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.st-serie{margin-left:auto;font:800 1rem var(--kopf);padding:4px 10px;border-radius:999px;background:var(--bg)}
+.st-auf.ok{border-color:color-mix(in srgb,var(--gut) 60%,var(--linie2))}
+.st-xurfehlt{cursor:pointer;transition:border-color .15s,transform .15s}.st-xurfehlt:hover{border-color:var(--gold);transform:translateY(-2px)}
+.st-exos{display:flex;gap:6px;flex-wrap:wrap}.st-exos i{width:44px;height:44px;border-radius:6px;background:center/cover;border:2px solid var(--gold);box-shadow:0 0 12px color-mix(in srgb,var(--gold) 30%,transparent)}
