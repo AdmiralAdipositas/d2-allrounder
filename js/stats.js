@@ -338,6 +338,7 @@ function mitspieler(d, ich) {
 }
 let vergleich = new Set();
 let truppNeu = () => {};
+let vglHtml = '';
 function truppBlock(d, ich, eigen) {
   const fav = favs();
   const mit = mitspieler(d, ich);
@@ -346,11 +347,12 @@ function truppBlock(d, ich, eigen) {
     ${fav.length ? `<h4>Favorites</h4><div class="chips">${fav.map((n) => chip(n)).join('')}</div>` : ''}
     <h4>Played with most <small>${mit.length} guardians in your raid & dungeon reports</small></h4><div class="chips pliste">${mit.map(([n, c]) => chip(n, `<em>${c}</em>`)).join('') || '<span class="leer klein">Appears once your reports are loaded.</span>'}</div>
     ${vergleich.size ? `<p><button class="haupt-knopf" data-vergleich>Compare ${vergleich.size + 1} guardians</button> <button class="chip klein" data-vglweg>clear</button></p>` : '<p class="leer klein">⇄ adds a guardian to the comparison.</p>'}
-    <div class="vglbox"></div>`;
+    <div class="vglbox">${vglHtml}</div>`;
 }
 // Großer Vergleich: alle Kennzahlen nebeneinander, Bestwert hervorgehoben.
 async function vergleichZeigen(box, ich, kIch) {
-  box.innerHTML = '<p class="leer pgcrstand">Loading every guardian… (raid & dungeon histories take a moment)</p>';
+  const setze = (h) => { vglHtml = h; const b = document.querySelector('.vglbox'); if (b) b.innerHTML = h; };
+  setze('<p class="leer pgcrstand">Loading every guardian… (raid & dungeon histories take a moment)</p>');
   const wer = [{ name: ich, k: kIch }];
   for (const n of vergleich) { try { wer.push({ name: n, k: await loeseName(n) }); } catch (e) { wer.push({ name: n, fehler: e.message }); } }
   const daten = await Promise.all(wer.map(async (w) => (w.fehler ? w : { ...w, d: await lade(w.k, false).catch((e) => ({ fehler: e.message })) })));
@@ -378,8 +380,8 @@ async function vergleichZeigen(box, ich, kIch) {
   ];
   const raidNamen = [...new Set(ok.flatMap((x) => ausw.get(x.name).map((e) => `${e.art}|${e.n}`)))].sort();
   zeilen.push(['Clears per raid / dungeon'], ...raidNamen.map((rn) => { const [art, n] = rn.split('|'); return [n, (x) => ausw.get(x.name).find((e) => e.art === art && e.n === n)?.clears || 0, zahl]; }));
-  box.innerHTML = `<div class="vgl"><table class="vtab"><thead><tr><th></th>${daten.map((x) => `<th>${esc(x.name.split('#')[0])}${x.fehler || x.d?.fehler ? `<small>${esc(x.fehler || x.d.fehler)}</small>` : ''}</th>`).join('')}</tr></thead><tbody>
-    ${zeilen.map((z) => { if (z.length === 1) return `<tr class="vgruppe"><td colspan="${daten.length + 1}">${esc(z[0])}</td></tr>`; const [t, f, fmt, weniger] = z; const werte = daten.map((x) => (x.d && !x.d.fehler ? f(x) : null)); const gut = werte.filter((v) => v != null); const best = gut.length ? (weniger ? Math.min(...gut) : Math.max(...gut)) : null; const max = Math.max(1, ...gut); return `<tr><td>${esc(t)}</td>${werte.map((v) => `<td class="${v === best && gut.length > 1 && v > 0 ? 'best' : ''}">${v == null ? '–' : fmt(v)}<i style="width:${(v / max) * 100}%"></i></td>`).join('')}</tr>`; }).join('')}</tbody></table></div>`;
+  setze(`<div class="vgl"><table class="vtab"><thead><tr><th></th>${daten.map((x) => `<th>${esc(x.name.split('#')[0])}${x.fehler || x.d?.fehler ? `<small>${esc(x.fehler || x.d.fehler)}</small>` : ''}</th>`).join('')}</tr></thead><tbody>
+    ${zeilen.map((z) => { if (z.length === 1) return `<tr class="vgruppe"><td colspan="${daten.length + 1}">${esc(z[0])}</td></tr>`; const [t, f, fmt, weniger] = z; const werte = daten.map((x) => (x.d && !x.d.fehler ? f(x) : null)); const gut = werte.filter((v) => v != null); const best = gut.length ? (weniger ? Math.min(...gut) : Math.max(...gut)) : null; const max = Math.max(1, ...gut); return `<tr><td>${esc(t)}</td>${werte.map((v) => `<td class="${v === best && gut.length > 1 && v > 0 ? 'best' : ''}">${v == null ? '–' : fmt(v)}<i style="width:${(v / max) * 100}%"></i></td>`).join('')}</tr>`; }).join('')}</tbody></table></div>`);
 }
 
 let fremd = null; // { membershipType, membershipId, name }
@@ -426,9 +428,9 @@ export async function zeigeStats(haupt, zustand) {
       ${block('waffen', 'Weapons', meist ? `most used: ${esc(meist.name)}` : '', `<div class="zwei"><div><h4>Top exotics <small>Bungie counts every kill</small></h4><div class="twaffen">${exo.slice(0, 12).map(wkachel).join('')}</div></div>
           <div><h4>Top legendaries <small>${fremd ? 'only visible for your own account' : 'from the kill trackers on copies you own'}</small></h4><div class="twaffen">${leg.slice(0, 12).map(wkachel).join('') || '<p class="leer klein">No kill trackers found.</p>'}</div></div></div>
           ${staub.length ? `<h4>Collecting dust <small>legendaries you keep but never got a kill with (on these copies)</small></h4><div class="chips">${staub.map((w) => `<span class="chip" data-ih="${w.h}">${esc(w.name)}</span>`).join('')}</div>` : ''}`, istOffen('waffen', true))}
-      ${block('typen', 'Kills by weapon type', `${zahl(waffenT.reduce((a, t) => a + t.kills, 0))} weapon kills + ${zahl(faehig.reduce((a, t) => a + t.kills, 0))} ability kills = ${zahl(killsAlle)} total`, `<div class="zwei"><div>${waffenT.map((t) => `<div class="tbar" ${TYP_HILFE[t.n] ? `title="${esc(TYP_HILFE[t.n])}"` : ''}><span>${esc(t.n)}${TYP_HILFE[t.n] ? ' ⓘ' : ''}</span><i><b style="width:${(t.kills / maxTyp) * 100}%"></b></i><em>${zahl(t.kills)}${t.praez ? `<small> · ${Math.round((t.praez / t.kills) * 100)}% prec.</small>` : ''}</em></div>`).join('')}</div>
+      ${block('typen', 'Kills by weapon type', `${zahl(waffenT.reduce((a, t) => a + t.kills, 0))} weapon + ${zahl(faehig.reduce((a, t) => a + t.kills, 0))} ability + ${zahl(Math.max(0, killsAlle - d.typen.reduce((a, t) => a + t.kills, 0)))} other (relics, vehicles, turrets…) = ${zahl(killsAlle)} kills`, `<div class="zwei"><div>${waffenT.map((t) => `<div class="tbar" ${TYP_HILFE[t.n] ? `title="${esc(TYP_HILFE[t.n])}"` : ''}><span>${esc(t.n)}${TYP_HILFE[t.n] ? ' ⓘ' : ''}</span><i><b style="width:${(t.kills / maxTyp) * 100}%"></b></i><em>${zahl(t.kills)}${t.praez ? `<small> · ${Math.round((t.praez / t.kills) * 100)}% prec.</small>` : ''}</em></div>`).join('')}</div>
           <div><h4>Abilities</h4>${faehig.map((t) => `<div class="tbar" title="${esc(TYP_HILFE[t.n] || '')}"><span>${esc(t.n.replace(' Kills', ''))}${TYP_HILFE[t.n] ? ' ⓘ' : ''}</span><i><b style="width:${(t.kills / Math.max(1, faehig[0]?.kills || 1)) * 100}%"></b></i><em>${zahl(t.kills)}</em></div>`).join('')}</div></div>`, istOffen('typen', false))}
-      ${block('zeit', 'Where your time went', `${stunden(wert(d.alle, 'secondsPlayed'))} · click a category for details`, zeitBlock(d, raids, dungeons), istOffen('zeit', true))}
+      ${block('zeit', 'Where your time went', `${stunden(wert(d.alle, 'secondsPlayed'))} in activities${d.orbit ? ` + ~${stunden(d.orbit)} orbit & menus` : ''} · click a category for details`, zeitBlock(d, raids, dungeons), istOffen('zeit', true))}
       ${block('spass', 'Fun & odd stats', 'the stuff nobody asked for', spass(d), istOffen('spass', false))}
       ${block('tage', `Last ${TAGE} days`, `${(d.tage.reduce((a, t) => a + t.s, 0) / 3600).toFixed(1)} h played`, `<div class="tage">${d.tage.map((t) => { const h = t.s / 3600; const lbl = `${new Date(t.tag).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'short' })}: ${h ? `${h.toFixed(1)} h` : 'not played'}`; return `<div tabindex="0" data-h="${lbl}" aria-label="${lbl}"><em>${h >= 0.1 ? h.toFixed(1) : ''}</em><i style="height:${(t.s / maxTag) * 100}%"></i><small>${t.kurz}</small></div>`; }).join('')}</div>`, istOffen('tage', false))}
       ${block('rest', 'Everything else Bungie tracks', 'all remaining account stats and PvP medals', rest(d), istOffen('rest', false))}
