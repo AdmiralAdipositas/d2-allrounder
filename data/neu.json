@@ -1,10 +1,93 @@
 {
  "hinweis": "Shown once per item on app start (\"What's new\"). Newest first. art: build | feature. vorschau: char, vault, armor, loadouts, optimizer, finder, wiki, guide, stats, zufall, build. ziel.tab opens a page, ziel.build opens that build in the Build Finder.",
  "eintraege": [
-  {"id": "f-2026-11-08-trupp", "datum": "08.11.2026", "art": "feature", "vorschau": "stats", "titel": "Fireteam tracker", "text": "Stats → Fireteam & compare checks every minute who is in your fireteam, shows a short card for everyone and compares you all automatically.", "ziel": {"tab": "stats"}},
-  {"id": "f-2026-11-08-zufall", "datum": "08.11.2026", "art": "feature", "vorschau": "zufall", "titel": "Randomizer: Primary & Special", "text": "Choose maybe / always / never for primary and special weapons, plus a clear neutral mark on the luck lever.", "ziel": {"zufall": true}},
-  {"id": "f-2026-11-08-titel", "datum": "08.11.2026", "art": "feature", "vorschau": "wiki", "titel": "Title & triumphs for every raid and dungeon", "text": "Wiki → Raids & dungeons: everything a title needs, with your progress.", "ziel": {"tab": "wiki"}},
-  {"id": "b-contraverse-hold-grenades", "datum": "08.11.2026", "art": "build", "klasse": "Warlock", "build": "contraverse-hold-grenades", "exotics": ["Contraverse Hold", "Praxic Blade"], "titel": "Literally Broken Contraverse", "text": "Charged Magnetic Grenades with Chaos Accelerant – big damage, damage resistance while charging, grenade energy back on hit.", "ziel": {"tab": "finder", "build": "contraverse-hold-grenades"}},
-  {"id": "b-manacle-mayhem", "datum": "08.11.2026", "art": "build", "klasse": "Warlock", "build": "manacle-mayhem", "exotics": ["Nothing Manacles"], "titel": "Manacle Mayhem", "text": "Tracking Scatter Grenades everywhere, playable without any weapons.", "ziel": {"tab": "finder", "build": "manacle-mayhem"}}
+  {
+   "id": "f-2026-11-08-hueter",
+   "datum": "08.11.2026",
+   "art": "feature",
+   "vorschau": "char",
+   "titel": "Guardians: everyone you play with",
+   "text": "Fireteam, Bungie friends, favorites, your own groups and regular teammates in one place – one-off LFG encounters stay hidden. Select people to compare or squad-check.",
+   "ziel": {
+    "tab": "hueter"
+   }
+  },
+  {
+   "id": "f-2026-11-08-groesse",
+   "datum": "08.11.2026",
+   "art": "feature",
+   "vorschau": "optimizer",
+   "titel": "App size and text size",
+   "text": "Two sliders under your profile → Look: scale the whole app or only the text.",
+   "ziel": {
+    "tab": "konto"
+   }
+  },
+  {
+   "id": "f-2026-11-08-trupp",
+   "datum": "08.11.2026",
+   "art": "feature",
+   "vorschau": "stats",
+   "titel": "Fireteam tracker",
+   "text": "Stats → Fireteam & compare checks every minute who is in your fireteam, shows a short card for everyone and compares you all automatically.",
+   "ziel": {
+    "tab": "stats"
+   }
+  },
+  {
+   "id": "f-2026-11-08-zufall",
+   "datum": "08.11.2026",
+   "art": "feature",
+   "vorschau": "zufall",
+   "titel": "Randomizer: Primary & Special",
+   "text": "Choose maybe / always / never for primary and special weapons, plus a clear neutral mark on the luck lever.",
+   "ziel": {
+    "zufall": true
+   }
+  },
+  {
+   "id": "f-2026-11-08-titel",
+   "datum": "08.11.2026",
+   "art": "feature",
+   "vorschau": "wiki",
+   "titel": "Title & triumphs for every raid and dungeon",
+   "text": "Wiki → Raids & dungeons: everything a title needs, with your progress.",
+   "ziel": {
+    "tab": "wiki"
+   }
+  },
+  {
+   "id": "b-contraverse-hold-grenades",
+   "datum": "08.11.2026",
+   "art": "build",
+   "klasse": "Warlock",
+   "build": "contraverse-hold-grenades",
+   "exotics": [
+    "Contraverse Hold",
+    "Praxic Blade"
+   ],
+   "titel": "Literally Broken Contraverse",
+   "text": "Charged Magnetic Grenades with Chaos Accelerant – big damage, damage resistance while charging, grenade energy back on hit.",
+   "ziel": {
+    "tab": "finder",
+    "build": "contraverse-hold-grenades"
+   }
+  },
+  {
+   "id": "b-manacle-mayhem",
+   "datum": "08.11.2026",
+   "art": "build",
+   "klasse": "Warlock",
+   "build": "manacle-mayhem",
+   "exotics": [
+    "Nothing Manacles"
+   ],
+   "titel": "Manacle Mayhem",
+   "text": "Tracking Scatter Grenades everywhere, playable without any weapons.",
+   "ziel": {
+    "tab": "finder",
+    "build": "manacle-mayhem"
+   }
+  }
  ]
 }
