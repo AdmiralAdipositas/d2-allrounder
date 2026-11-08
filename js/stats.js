@@ -564,6 +564,38 @@ async function pgcrNachladen(d, auffrischen, lauf, haupt) {
   if (haupt.dataset.lauf === lauf && offen.length) auffrischen();
 }
 
+// Ein Run im Detail: alle Hüter mit Kills, Toden, Zeit – plus Teilen-Karte und Link zum Spielbericht.
+async function laufBericht(e, l) {
+  document.querySelector('#laufDlg')?.remove();
+  const d = document.createElement('dialog'); d.id = 'laufDlg'; d.className = 'teil-dlg lauf-dlg';
+  const kopf = `<div class="teil-kopf"><div><small class="gold">${e.art === 'dungeon' ? 'DUNGEON' : 'RAID'} · ${esc(datum(l.t))}</small><h2>${esc(e.n)}</h2><div class="lauf-tags"><span>⏱ ${dauer(l.dauer || l.sek)}</span>${l.voll ? '<span>Full clear</span>' : l.voll === false ? '<span>Checkpoint</span>' : ''}${l.fl ? '<span class="gold">Flawless</span>' : ''}${l.master ? '<span>Master</span>' : ''}${l.n ? `<span>👥 ${l.n}</span>` : ''}</div></div><button class="ikon" data-z aria-label="Close">✕</button></div>`;
+  d.innerHTML = `${kopf}<p class="leer"><i class="spinner"></i> Loading the report…</p>`; document.body.append(d); d.showModal();
+  d.addEventListener('close', () => d.remove());
+  let leute = [];
+  try {
+    const r = await bungie.pgcr(l.id);
+    const m = new Map();
+    for (const x of r.entries || []) {
+      const u = x.player?.destinyUserInfo || {}; const name = u.bungieGlobalDisplayName ? `${u.bungieGlobalDisplayName}#${String(u.bungieGlobalDisplayNameCode || '').padStart(4, '0')}` : u.displayName || '?';
+      const a = m.get(name) || { name, kl: x.player?.characterClass || '', emb: x.player?.destinyUserInfo?.iconPath, k: 0, t: 0, a: 0, s: 0, ok: 0 };
+      a.k += wert(x.values, 'kills'); a.t += wert(x.values, 'deaths'); a.a += wert(x.values, 'assists'); a.s += wert(x.values, 'timePlayedSeconds'); a.ok = Math.max(a.ok, wert(x.values, 'completed')); m.set(name, a);
+    }
+    leute = [...m.values()].sort((a, b) => b.k - a.k);
+    const max = Math.max(1, ...leute.map((x) => x.k));
+    d.innerHTML = `${kopf}<table class="lauf-tab"><thead><tr><th>Guardian</th><th>Kills</th><th>Deaths</th><th>Assists</th><th>Time</th></tr></thead><tbody>${leute.map((x) => `<tr class="${x.ok ? '' : 'weg'}"><td><b>${esc(x.name.split('#')[0])}</b><small>${esc(x.kl)}${x.ok ? '' : ' · left'}</small></td><td><span class="lk">${zahl(x.k)}<i style="width:${(x.k / max) * 100}%"></i></span></td><td class="${x.t ? 'rot' : 'gruen'}">${x.t}</td><td>${x.a}</td><td>${dauer(x.s)}</td></tr>`).join('')}</tbody></table>
+      <div class="teil-knoepfe"><button class="haupt-knopf" data-lteil>📸 Share this clear</button><a class="chip" href="https://${e.art === 'dungeon' ? 'dungeon' : 'raid'}.report/pgcr/${l.id}" target="_blank" rel="noopener">Full report ↗</a></div>`;
+  } catch (err) { d.innerHTML = `${kopf}<p class="leer">${esc(err.message)}</p>`; }
+  d.onclick = (ev) => {
+    if (ev.target === d || ev.target.closest('[data-z]')) return d.close();
+    if (ev.target.closest('[data-lteil]')) {
+      const a = Object.values(defs.akt || {}).find((x) => x.n.split(':')[0].trim() === e.n && x.p) || Object.values(defs.akt || {}).find((x) => x.n.split(':')[0].trim() === e.n);
+      import('./teilen.js').then((m) => m.teileKarte({ art: e.art === 'dungeon' ? 'DUNGEON CLEAR' : 'RAID CLEAR', titel: e.n, unter: `${datum(l.t)} · ${dauer(l.dauer || l.sek)}`, hinter: a?.p || a?.i,
+        chips: [l.voll ? 'Full clear' : 'Checkpoint', l.fl ? 'Flawless' : '', l.master ? 'Master' : '', l.n && l.n <= 3 ? `${['', 'Solo', 'Duo', 'Trio'][l.n]}` : ''].filter(Boolean),
+        zeilen: leute.slice(0, 8).map((x) => [x.name.split('#')[0], `${x.k} kills · ${x.t} deaths`]) }));
+    }
+  };
+}
+
 function verbinde(haupt, zustand) {
   const tip = () => haupt.querySelector('#stip');
   const zeige = (el, html) => { const t = tip(); if (!t) return; t.innerHTML = html; t.hidden = false; const r = el.getBoundingClientRect(); const w = Math.min(320, innerWidth - 16); const z = d2aZ(); t.style.width = `${w / z}px`; t.style.left = `${Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) / z}px`; const h = t.getBoundingClientRect().height; t.style.top = `${(r.bottom + 8 + h > innerHeight ? Math.max(8, r.top - h - 8) : r.bottom + 8) / z}px`; };
@@ -576,7 +608,7 @@ function verbinde(haupt, zustand) {
   haupt.onmouseover = (e) => { const el = e.target.closest('[data-tipl],[data-tips]'); if (el) zeige(el, inhalt(el)); };
   haupt.onmouseout = (e) => { if (e.target.closest('[data-tipl],[data-tips]') && tip()) tip().hidden = true; };
   haupt.onclick = (e) => {
-    const p = e.target.closest('[data-tipl]'); if (p) { zeige(p, inhalt(p)); return; }
+    const p = e.target.closest('[data-tipl]'); if (p) { const [n, i] = p.dataset.tipl.split('|'); const ew = tipDaten?.ws.find((x) => x.n === n); if (ew) { if (tip()) tip().hidden = true; laufBericht(ew, ew.laeufe[Number(i)]); } return; }
     const s = e.target.closest('[data-seal]');
     if (s) { const box = s.closest('details').querySelector('.sealdetail'); const gleich = box.dataset.h === s.dataset.seal && !box.hidden; box.hidden = gleich; box.dataset.h = s.dataset.seal; if (!gleich) { box.innerHTML = sealDetail(s.dataset.seal, tipDaten.d); box.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } return; }
     const wc = e.target.closest('[data-wikichal]');

@@ -1272,3 +1272,11 @@ html[data-modus=einfach] .kombi:nth-of-type(n+4),html[data-modus=einfach] .otab 
 .teil-kopf{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.teil-kopf .ikon{background:none;border:0;color:var(--text);font-size:1.1rem;cursor:pointer}
 .teil-dlg img{display:block;width:100%;border-radius:10px;box-shadow:0 10px 30px #000a}
 .teil-knoepfe{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+/* Run-Bericht */
+.lauf-dlg h2{margin:2px 0 6px;font:800 1.5rem var(--kopf)}.lauf-tags{display:flex;gap:6px;flex-wrap:wrap}.lauf-tags span{padding:3px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--linie2);font-size:.8rem;font-weight:700}
+.lauf-tab{width:100%;border-collapse:collapse;margin-top:10px;font-variant-numeric:tabular-nums}
+.lauf-tab th{text-align:left;font:700 .68rem var(--fliess);letter-spacing:.08em;text-transform:uppercase;color:var(--matt);padding:6px}
+.lauf-tab td{padding:8px 6px;border-top:1px solid var(--linie2)}.lauf-tab td small{display:block;color:var(--matt);font-size:.72rem}
+.lauf-tab tr.weg{opacity:.5}.lauf-tab .rot{color:#ff6f6f}.lauf-tab .gruen{color:var(--gut)}
+.lk{position:relative;display:inline-block;min-width:70px;font-weight:800}.lk i{position:absolute;left:0;bottom:-3px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--violett))}
+.pkt{cursor:pointer}
