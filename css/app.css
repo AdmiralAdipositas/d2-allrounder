@@ -1447,3 +1447,4 @@ html[data-modus=einfach] .st-auf .st-klein{display:block}
 #zurueckKnopf{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:calc(88px + env(safe-area-inset-bottom));z-index:45;width:48px;height:48px;border-radius:50%;border:1px solid var(--gold);background:color-mix(in srgb,var(--bg2) 92%,transparent);color:var(--gold);font-size:1.35rem;font-weight:900;box-shadow:0 8px 24px #000b;cursor:pointer;display:grid;place-items:center;animation:mfRein2 .2s ease}
 #zurueckKnopf[hidden]{display:none}
 @media(min-width:761px){#zurueckKnopf{left:calc(var(--rail) + 16px);bottom:20px}}
+#zurueckKnopf .zk-ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}

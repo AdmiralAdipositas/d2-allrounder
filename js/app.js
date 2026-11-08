@@ -133,9 +133,9 @@ window.addEventListener('d2a-modus', () => { modusText(); if (zustand.profil) we
 window.addEventListener('d2a-tab', (e) => { if (TABS[e.detail]) wechsle(e.detail); });
 // Zurück-Knopf: merkt sich, wo man war (anderer Tab oder Sprung innerhalb der Seite) und bringt einen dorthin zurück.
 const zurueck = []; let zurueckLaeuft = false;
-const zKnopf = document.createElement('button'); zKnopf.id = 'zurueckKnopf'; zKnopf.hidden = true; zKnopf.setAttribute('aria-label', 'Back to where you were'); zKnopf.innerHTML = '<span>↩</span>';
+const zKnopf = document.createElement('button'); zKnopf.id = 'zurueckKnopf'; zKnopf.hidden = true; zKnopf.setAttribute('aria-label', 'Back to where you were'); zKnopf.innerHTML = '';
 document.body.append(zKnopf);
-const zeigeZurueck = () => { const hoch = !zurueck.length && scrollY > 1200; zKnopf.hidden = !zurueck.length && !hoch; zKnopf.dataset.art = hoch ? 'hoch' : 'zurueck'; zKnopf.firstChild.textContent = hoch ? '↑' : '↩'; zKnopf.title = hoch ? 'Back to top' : 'Back to where you were'; };
+const zeigeZurueck = () => { const hoch = !zurueck.length && scrollY > 1200; zKnopf.hidden = !zurueck.length && !hoch; zKnopf.dataset.art = hoch ? 'hoch' : 'zurueck'; zKnopf.innerHTML = hoch ? '<svg class="zk-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/><path d="M6 19h12"/></svg>' : '<svg class="zk-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6L4 11l5 5"/><path d="M4 11h10a5 5 0 0 1 0 10h-3"/></svg>'; zKnopf.title = hoch ? 'Back to top' : 'Back to where you were'; };
 addEventListener('scroll', () => { if (!zurueck.length) zeigeZurueck(); }, { passive: true });
 function merkeStelle(tab, y) { const l = zurueck[zurueck.length - 1]; if (l && l.tab === tab && Math.abs(l.y - y) < 200) return; zurueck.push({ tab, y }); if (zurueck.length > 25) zurueck.shift(); zeigeZurueck(); }
 zKnopf.onclick = () => {
