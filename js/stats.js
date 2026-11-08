@@ -14,7 +14,7 @@ const stunden = (s) => `${zahl(s / 3600)} h`;
 const dauer = (s) => { s = Math.round(s || 0); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`; };
 const zeitText = (ms) => (ms ? dauer(ms / 1000) : '–');
 const datum = (t) => (t ? new Date(t).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : '–');
-const vor = (t) => { if (!t) return ''; const d = Math.floor((Date.now() - new Date(t)) / 86400_000); return d < 1 ? 'today' : d === 1 ? 'yesterday' : d < 60 ? `${d} days ago` : `${Math.floor(d / 30)} months ago`; };
+const vor = (t) => { if (!t) return ''; const d = Math.floor((Date.now() - new Date(t)) / 86400_000); return d < 1 ? 'today' : d === 1 ? '1d' : d < 14 ? `${d}d` : d < 60 ? `${Math.floor(d / 7)}w` : d < 730 ? `${Math.floor(d / 30)}mo` : `${Math.floor(d / 365)}y`; };
 
 // ---------- Bungies Stat-Namen (für „alles andere“ und Medaillen) ----------
 let statDefs = null;
@@ -185,7 +185,7 @@ const fertig = (rec, h) => { const r = rec[h]; return Boolean(r) && (r.state & 4
 // ---------- Darstellung ----------
 const kachel = (titel, gross, klein = '') => `<div class="kpi"><small>${titel}</small><b>${gross}</b>${klein ? `<span>${klein}</span>` : ''}</div>`;
 // Aktivitäts-Symbol aus den Spieldaten (Raid-/Dungeon-Name ohne Variante).
-const aktIcon = (n) => { const a = Object.values(defs.akt || {}).find((x) => x.i && x.n.split(':')[0].trim() === n && /icons/.test(x.i)) || Object.values(defs.akt || {}).find((x) => x.i && x.n.split(':')[0].trim() === n); return a ? `<i class="raktic" style="background-image:url(${BILD}${a.i})"></i>` : ''; };
+const aktIcon = (n) => { const a = Object.values(defs.akt || {}).find((x) => x.i && x.n.split(':')[0].trim() === n && /icons/.test(x.i)) || Object.values(defs.akt || {}).find((x) => x.i && x.n.split(':')[0].trim() === n); return a ? `<img class="raktic" src="${BILD}${a.i}" alt="" loading="lazy" onerror="this.remove()">` : ''; };
 const block = (id, titel, sub, inhalt, offen) => `<details class="sblock" data-blk="${id}" ${offen ? 'open' : ''}><summary><h3>${titel}</h3>${sub ? `<small>${sub}</small>` : ''}</summary>${inhalt}</details>`;
 let offenStand = {};
 try { offenStand = JSON.parse(localStorage.getItem('d2a.statsOffen') || '{}'); } catch {}

@@ -36,28 +36,34 @@ export function zeigeWillkommen(konto) {
   document.querySelector('#willkommen')?.remove();
   const icon = (t) => document.querySelector(`#rail [data-tab="${t}"] svg`)?.outerHTML || '';
   const d = document.createElement('div');
-  d.id = 'willkommen'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'wkTitel');
+  d.id = 'willkommen'; d.className = 'folien'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'wkTitel');
+  // Drei Folien statt einer Wand: 1) was ist das, 2) was kann es, 3) Look & Sprache.
+  const HAUPT = [['char', 'Inventory', 'Drag & drop between characters'], ['optimizer', 'Optimizer', 'Best armor for your stats'], ['guide', 'Raid Guide', 'Animated encounter guides'], ['stats', 'Stats', 'Clears, flawless, fireteam'], ['finder', 'Build Finder', 'Builds that fit your gear'], ['zufall', 'Randomizer', 'Let fate pick your loadout']];
   d.innerHTML = `<div class="wk-box">
-    <p class="wk-kicker">D2 Allrounder</p>
-    <h1 id="wkTitel">Welcome, Guardian</h1>
-    <p class="wk-lede">Everything for your guardians in one place, on phone and PC.</p>
-    <div class="wk-teile">${TEILE.map(([t, n, x]) => `<div class="wk-teil"><div class="wk-vor">${VORSCHAU[t] || ''}</div><b>${n}</b><small>${x}</small></div>`).join('')}</div>
-    <div class="wk-einst">
-      <section><h3>Look</h3>${themaKnoepfe()}</section>
-      <section><h3>Language</h3><select id="wkSprache" aria-label="Language" data-roh>${SPRACHEN.map(([c, n]) => `<option value="${c}" ${c === sprache ? 'selected' : ''}>${n}</option>`).join('')}</select>
-        <p class="leer klein">Both can be changed anytime under your account (person icon).</p></section>
+    <div class="wk-spur" style="--f:0">
+      <section class="wk-folie f1"><div class="wk-glanz"></div><p class="wk-kicker">D2 Allrounder</p><h1 id="wkTitel">Welcome, Guardian</h1><p class="wk-lede">Your vault, builds, raids and stats – one app, phone and PC.</p>
+        <div class="wk-orbit"><i></i><i></i><i></i><b>✦</b></div></section>
+      <section class="wk-folie f2"><h2>What you can do</h2><div class="wk-sechs">${HAUPT.map(([t, n, x]) => `<div class="wk-mini"><span class="wk-mic">${icon(t) || '🎲'}</span><b>${n}</b><small>${x}</small></div>`).join('')}</div></section>
+      <section class="wk-folie f3"><h2>Make it yours</h2><div class="wk-einst"><section><h3>Look</h3>${themaKnoepfe()}</section>
+        <section><h3>Language</h3><select id="wkSprache" aria-label="Language" data-roh>${SPRACHEN.map(([c, n]) => `<option value="${c}" ${c === sprache ? 'selected' : ''}>${n}</option>`).join('')}</select><p class="leer klein">Change both anytime in ⚙ Settings.</p></section></div>
+        <p class="wk-recht">Unofficial fan app · not affiliated with Bungie · Destiny 2 content © Bungie, Inc. · built by Claude (Anthropic) with Kevin</p></section>
     </div>
-    <div class="wk-hinweis"><p>Unofficial fan app. Not made by, affiliated with or endorsed by Bungie.</p><p>Destiny 2 content and images © Bungie, Inc.</p><p>Mostly built by Claude, Anthropic’s AI, together with Kevin (AdmiralAdipositas).</p></div>
-    <button class="haupt-knopf" id="wkLos">Let’s go</button>
+    <div class="wk-fuss"><div class="wk-punkte">${[0, 1, 2].map((i) => `<button data-f="${i}" aria-label="Slide ${i + 1}" class="${i ? '' : 'an'}"></button>`).join('')}</div>
+      <button class="chip" id="wkSkip">Skip</button><button class="haupt-knopf" id="wkWeiter">Next ›</button></div>
   </div>`;
   document.body.append(d);
   verbindeThema(d, () => import('./konto.js').then((m) => m.eigeneShader(konto)));
+  let f = 0;
+  const geh = (n) => { f = Math.max(0, Math.min(2, n)); d.querySelector('.wk-spur').style.setProperty('--f', f); d.querySelectorAll('[data-f]').forEach((b) => b.classList.toggle('an', Number(b.dataset.f) === f)); d.querySelector('#wkWeiter').textContent = f === 2 ? 'Let’s go ›' : 'Next ›'; };
   // Wer die App gerade erst kennenlernt, bekommt danach kein „Neu seit deinem letzten Besuch“ mit alten Einträgen.
-  const zu = () => { try { localStorage.setItem(schluessel(konto), String(Date.now())); } catch {} d.remove(); fetch('data/neu.json').then((r) => r.json()).then((j) => { try { const g = new Set(JSON.parse(localStorage.getItem('d2a.neuGesehen') || '[]')); (j.eintraege || []).forEach((e) => g.add(e.id)); localStorage.setItem('d2a.neuGesehen', JSON.stringify([...g])); } catch {} }).catch(() => {}); };
+  const zu = () => { try { localStorage.setItem(schluessel(konto), String(Date.now())); } catch {} d.classList.add('weg'); setTimeout(() => d.remove(), 250); fetch('data/neu.json').then((r) => r.json()).then((j) => { try { const g = new Set(JSON.parse(localStorage.getItem('d2a.neuGesehen') || '[]')); (j.eintraege || []).forEach((e) => g.add(e.id)); localStorage.setItem('d2a.neuGesehen', JSON.stringify([...g])); } catch {} }).catch(() => {}); };
   d.querySelector('#wkSprache').addEventListener('change', (e) => { zu(); waehle(konto, e.target.value); });
-  d.querySelector('#wkLos').addEventListener('click', zu);
-  d.addEventListener('keydown', (e) => { if (e.key === 'Escape') zu(); });
-  d.querySelector('#wkLos').focus({ preventScroll: true }); d.querySelector('.wk-box').scrollTop = 0;
+  d.querySelector('#wkWeiter').addEventListener('click', () => (f === 2 ? zu() : geh(f + 1)));
+  d.querySelector('#wkSkip').addEventListener('click', zu);
+  d.querySelectorAll('[data-f]').forEach((b) => b.addEventListener('click', () => geh(Number(b.dataset.f))));
+  d.addEventListener('keydown', (e) => { if (e.key === 'Escape') zu(); if (e.key === 'ArrowRight') geh(f + 1); if (e.key === 'ArrowLeft') geh(f - 1); });
+  let x0 = null; d.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true }); d.addEventListener('touchend', (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 50) geh(f + (dx < 0 ? 1 : -1)); x0 = null; });
+  d.querySelector('#wkWeiter').focus({ preventScroll: true });
 }
 
 // ---------- Neu seit dem letzten Besuch: große Vorschau statt Push-Meldung, man entscheidet selbst ----------
@@ -67,22 +73,23 @@ export async function zeigeNeues(geheZu) {
   let daten; try { daten = await (await fetch(`data/neu.json?t=${Date.now()}`)).json(); } catch { return; }
   const gesehen = new Set(lies(GESEHEN, []));
   const liste = (daten.eintraege || []).filter((e) => !gesehen.has(e.id)).slice(0, 8);
-  if (!liste.length || document.querySelector('#willkommen')) return;
+  if (!liste.length || document.querySelector('#willkommen,#neuFenster')) return;
   const { defs } = await import('./defs.js');
-  const exoIcons = (e) => (e.exotics || []).map((n) => Object.values(defs.items || {}).find((d) => d.n === n && d.q === 6)).filter(Boolean).map((d) => `<i style="background-image:url(https://www.bungie.net${d.i})" title="${d.n}"></i>`).join('');
-  const d = document.createElement('div'); d.id = 'willkommen'; d.className = 'neues'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
-  d.innerHTML = `<div class="wk-box"><p class="wk-kicker">New since your last visit</p><h1>What’s new</h1>
-    <div class="neu-karten">${liste.map((e) => `<div class="neu-karte" data-id="${e.id}"><div class="wk-vor gross">${VORSCHAU[e.vorschau || (e.art === 'build' ? 'build' : 'char')] || ''}<div class="neu-exo">${exoIcons(e)}</div></div>
-      <div class="neu-text"><small>${e.art === 'build' ? `New build · ${e.klasse || ''}` : 'New in the app'} · ${e.datum || ''}</small><b>${e.titel}</b><p>${e.text}</p>
-      <div class="konto-knoepfe">${e.ziel ? '<button class="haupt-knopf" data-ansehen>Show me</button>' : ''}${e.art === 'build' ? '<button data-ausblenden>Not for me – hide this build</button>' : ''}</div></div></div>`).join('')}</div>
-    <button class="haupt-knopf" id="wkLos">Got it</button></div>`;
+  const exoIcons = (e) => (e.exotics || []).slice(0, 1).map((n) => Object.values(defs.items || {}).find((d) => d.n === n && d.q === 6)).filter(Boolean).map((d) => `<i style="background-image:url(https://www.bungie.net${d.i})" title="${d.n}"></i>`).join('');
+  const d = document.createElement('div'); d.id = 'neuFenster'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'What’s new');
+  const FEAT = { char: '🎒', optimizer: '🎚', zufall: '🎲', wiki: '📖', stats: '📈', build: '🛠', guide: '⭐', vault: '🔫', armor: '🛡', finder: '🔎' };
+  d.innerHTML = `<div class="nf-kopf"><b>✨ New for you</b><small>${liste.length} since your last visit</small><button class="nf-zu" aria-label="Close">✕</button></div>
+    <div class="nf-liste">${liste.map((e) => `<div class="nf-z" data-id="${e.id}"><span class="nf-ic ${e.art === 'build' ? 'b' : ''}">${e.art === 'build' && exoIcons(e) ? exoIcons(e) : (FEAT[e.vorschau] || '✨')}</span>
+      <div class="nf-t"><small>${e.art === 'build' ? `Build · ${e.klasse || ''}` : 'App'}</small><b>${e.titel}</b><p>${e.text}</p>
+      <div class="nf-k">${e.ziel ? '<button class="chip an" data-ansehen>Show me ›</button>' : ''}${e.art === 'build' ? '<button class="chip klein" data-ausblenden>Not for me</button>' : ''}</div></div></div>`).join('')}</div>
+    <button class="nf-ok" id="wkLos">Got it</button>`;
   document.body.append(d);
   const zu = () => { try { localStorage.setItem(GESEHEN, JSON.stringify([...gesehen, ...liste.map((e) => e.id)])); } catch {} d.remove(); };
   d.addEventListener('click', (ev) => {
-    const k = ev.target.closest('.neu-karte'); const e = k && liste.find((x) => x.id === k.dataset.id);
+    const k = ev.target.closest('.nf-z'); const e = k && liste.find((x) => x.id === k.dataset.id);
     if (ev.target.closest('[data-ansehen]') && e) { zu(); geheZu(e.ziel); return; }
-    if (ev.target.closest('[data-ausblenden]') && e) { const w = new Set(lies(WEG, [])); w.add(e.build || e.id); try { localStorage.setItem(WEG, JSON.stringify([...w])); } catch {} k.classList.add('weg'); k.querySelector('.konto-knoepfe').innerHTML = '<small>Hidden from the Build Finder.</small>'; return; }
-    if (ev.target.id === 'wkLos' || ev.target === d) zu();
+    if (ev.target.closest('[data-ausblenden]') && e) { const w = new Set(lies(WEG, [])); w.add(e.build || e.id); try { localStorage.setItem(WEG, JSON.stringify([...w])); } catch {} k.classList.add('weg'); k.querySelector('.nf-k').innerHTML = '<small>Hidden from the Build Finder.</small>'; return; }
+    if (ev.target.id === 'wkLos' || ev.target.closest('.nf-zu')) zu();
   });
   d.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') zu(); });
 }
