@@ -19,7 +19,7 @@ function inhalt(el) {
     const q = quelle(ih, d);
     const besitz = nav.items().filter((x) => x.d.n === d.n).length;
     const set = d.e ? defs.sets?.[d.e] : null;
-    const r = d.t === 3 ? empfehlung(ih) : null;
+    const r = d.t === 3 && d.q !== 6 ? empfehlung(ih) : null;
     const istPerk = d.t === 19;
     const links = [];
     if (!istPerk) links.push(['wiki', d.n, 'In the wiki']);

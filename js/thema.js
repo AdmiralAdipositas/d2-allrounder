@@ -1,7 +1,7 @@
 // Aussehen: „Destiny OG“ (ruhig, fast farblos wie das Spielmenü) oder „Colorful“ (violette Flächen, farbige Leiste).
 // Gilt für dieses Gerät; das Inline-Skript in index.html setzt es schon vor dem ersten Zeichnen.
-export const THEMEN = [['og', 'Destiny OG', 'Calm, near-monochrome, like the in-game menus'], ['bunt', 'Colorful', 'Violet surfaces and colored navigation']];
-export function thema() { try { return localStorage.getItem('d2a.theme') || 'og'; } catch { return 'og'; } }
+export const THEMEN = [['bunt', 'Colorful', 'Violet surfaces and colored navigation (default)'], ['og', 'Destiny OG', 'Calm grey, near-monochrome, like the in-game menus']];
+export function thema() { try { return localStorage.getItem('d2a.theme') || 'bunt'; } catch { return 'bunt'; } }
 export function setzeThema(t) {
   try { localStorage.setItem('d2a.theme', t); } catch {}
   document.documentElement.dataset.theme = t;

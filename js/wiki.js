@@ -243,7 +243,7 @@ async function seiteItem(h, x) {
     const gleich = Object.entries(defs.items).filter(([, y]) => y.t === 3 && y.n === d.n).map(([hh]) => hh);
     const ph = gleich.find((hh) => pd.w[hh]) || h;
     const spalten = pd.w[ph] || [];
-    const emp = empfehlung(ph) || gleich.map(empfehlung).find(Boolean);
+    const emp = d.q === 6 ? null : empfehlung(ph) || gleich.map(empfehlung).find(Boolean);
     const god = new Set([...(emp?.ge?.[0] || []), ...(emp?.gv?.[0] || [])]); // nur die Top-Kombination je Modus
     perks = spalten.length ? `<h3>Possible perks</h3><p class="leer klein">Every perk that can roll in each column (from Bungie's game data). <span class="legende"><span><i class="rt rt-pve"></i> PvE pick</span><span><i class="rt rt-pvp"></i> PvP pick</span><span><i class="rt rt-god"></i> god roll perk</span></span></p>
       <div class="wperks">${spalten.map((sp) => `<div class="wpcol"><small>${esc(defs.items[sp[0]]?.k || '')}</small>${sp.map((p) => { const pd2 = defs.items[p]; if (!pd2) return ''; const rt = emp ? `${emp.e?.includes(p) ? 'rt-pve' : ''} ${emp.v?.includes(p) ? 'rt-pvp' : ''} ${god.has(p) ? 'rt-god' : ''}` : ''; return `<div class="wperk" data-ih="${p}" data-ik tabindex="0"><i class="pl ${rt}" style="background-image:url(${BILD}${pd2.i})"></i><span>${esc(pd2.n)}</span></div>`; }).join('')}</div>`).join('')}</div>`

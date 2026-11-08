@@ -53,7 +53,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
   };
   // Lange Spalten (z. B. Weapon Mods) zeigen nur den aktiven Plug, ein Klick klappt sie als breites Raster auf.
   let offen = null;
-  const emp = empfehlung(it.hash);
+  const emp = it.d.q === 6 ? null : empfehlung(it.hash);
   const knopf = (sp, h) => {
     const p = defs.items[h];
     const tipp = '';

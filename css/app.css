@@ -643,3 +643,4 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 @media(max-width:760px){.wk-box{padding:16px}.wk-box h1{font-size:1.5rem}.wk-teile{grid-template-columns:1fr 1fr}.wk-teil{grid-template-columns:1fr;padding:8px}.wk-teil svg{grid-row:auto;width:18px;height:18px}.wk-teil small{display:none}.wk-einst{grid-template-columns:1fr}.thema-wahl{grid-template-columns:1fr}}
 @container (max-width:340px){.cb-stats{grid-template-columns:repeat(3,1fr);row-gap:1px}}
 @container (max-width:200px){.cb-stats{grid-template-columns:repeat(2,1fr);gap:1px 4px;padding:4px 6px;margin-left:0;border-left:0;border-radius:0}.cb-stats span{justify-content:flex-start}}
+.thema-wahl [data-thema=og]:not(.an){opacity:.7;filter:grayscale(1)}

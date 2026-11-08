@@ -168,7 +168,7 @@ const merkmale = (x, anzahl, nachChar) => ({
   selten: SELTEN[x.d.q] || '',
   set: x.d.e ? defs.sets?.[x.d.e]?.n || '' : '',
   kopien: anzahl[x.hash] > 1 ? 'Duplicates' : 'Single',
-  roll: x.d.t === 3 ? bewerte(x.hash, x.plugs) : '',
+  roll: x.d.t === 3 && x.d.q !== 6 ? bewerte(x.hash, x.plugs) : '',
   // Mehrere Werte: alle Trait-Perks (Spalten 3/4) und Origin-Perks, die auf diesem Item sitzen.
   perk: x.d.t === 3 ? [...new Set(x.plugs.map((p) => defs.items[p]).filter((p) => p && /^(frames|origins)$/.test(p.pc)).map((p) => p.n))] : [],
   quelle: (quelle(x.hash, x.d)?.text || '').replace(/^Source:\s*/i, '').slice(0, 48),
