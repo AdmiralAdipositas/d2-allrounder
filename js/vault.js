@@ -78,6 +78,9 @@ export function sammle(profil) {
   const statDaten = profil.itemComponents?.stats?.data || {};
   const sockel = profil.itemComponents?.sockets?.data || {};
   const liste = [];
+  // Kill-Tracker (Komponente 309): Summe aller Tracker-Plugs je Waffe.
+  const ziele = profil.itemComponents?.plugObjectives?.data || {};
+  const killsVon = (id) => { const o = ziele[id]?.objectivesPerPlug; if (!o) return 0; let n = 0; for (const [ph, l] of Object.entries(o)) { if (!/tracker/i.test(defs.items[ph]?.pc || '')) continue; for (const x of l) n += x.progress || 0; } return n; };
   const nimm = (it, ort0, angelegt0 = false) => {
     const neu = aenderungen.get(it.itemInstanceId);
     const frisch = neu && Date.now() - neu.zeit < 120_000;
@@ -90,7 +93,7 @@ export function sammle(profil) {
     const plugs = roh.filter(Boolean);
     liste.push({
       id: it.itemInstanceId, hash: it.itemHash, d, ort, angelegt, plugs, sockel: roh, locked: (it.state & 1) === 1,
-      power: i.primaryStat?.value || 0, tier: i.gearTier || 0, mw: (it.state & 4) === 4, crafted: (it.state & 8) === 8, element: i.damageType || d.d0 || 0, energie: i.energy?.energyCapacity || 0,
+      power: i.primaryStat?.value || 0, tier: i.gearTier || 0, mw: (it.state & 4) === 4, crafted: (it.state & 8) === 8, kills: d.t === 3 ? killsVon(it.itemInstanceId) : 0, element: i.damageType || d.d0 || 0, energie: i.energy?.energyCapacity || 0,
       champ: d.t === 3 ? champion(it.itemHash, plugs, i.breakerType) : null,
       st: d.t === 2 ? armorStats(statDaten[it.itemInstanceId]) : null,
     });
@@ -191,6 +194,7 @@ const SORT = {
   power: ['Power / total', (p, q) => (q.d.q === 6) - (p.d.q === 6) || (q.st?.Total || q.power) - (p.st?.Total || p.power) || p.d.n.localeCompare(q.d.n)],
   name: ['Name', (p, q) => p.d.n.localeCompare(q.d.n) || q.power - p.power],
   roll: ['Best rolls first', (p, q) => rang(q) - rang(p) || p.d.n.localeCompare(q.d.n)],
+  kills: ['Most kills', (p, q) => q.kills - p.kills || p.d.n.localeCompare(q.d.n)],
   neu: ['Newest first', (p, q) => (BigInt(q.id) > BigInt(p.id) ? 1 : -1)],
 };
 const rang = (x) => (/god/.test(x.m?.roll || '') ? 3 : /good/.test(x.m?.roll || '') ? 2 : 0) + (x.d.q === 6 ? 0.5 : 0) + (x.st?.Total || 0) / 1000;

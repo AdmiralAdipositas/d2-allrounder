@@ -28,7 +28,7 @@ export const VORSCHLAEGE = [
   'is:kinetic', 'is:solar', 'is:arc', 'is:void', 'is:stasis', 'is:strand', 'is:primary', 'is:special', 'is:heavy',
   'tag:fav', 'tag:keep', 'tag:junk', 'tag:futter', 'is:tagged', 'note:',
   'perk:', 'name:', 'type:', 'frame:', 'set:', 'class:titan', 'class:hunter', 'class:warlock',
-  'power:>=', 'tier:>=', 'stat:total:>=', 'stat:weapons:>=', 'stat:health:>=', 'stat:melee:>=', 'stat:grenade:>=', 'stat:super:>=', 'stat:class:>=',
+  'power:>=', 'kills:>=', 'tier:>=', 'stat:total:>=', 'stat:weapons:>=', 'stat:health:>=', 'stat:melee:>=', 'stat:grenade:>=', 'stat:super:>=', 'stat:class:>=',
 ];
 
 // Text in Wörter zerlegen, "Anführungszeichen" bleiben zusammen.
@@ -65,6 +65,7 @@ function teil(x, w, ctx) {
     case 'set': return (x.m?.set || '').toLowerCase().includes(v);
     case 'class': return x.d.c === KLASSE[v];
     case 'power': return vergleich(x.power, v);
+    case 'kills': return vergleich(x.kills || 0, v);
     case 'tier': return vergleich(x.tier, v);
     case 'stat': { const [n, a] = [rest[0], rest.slice(1).join(':')]; if (!x.st) return false; const key = Object.keys(x.st).find((s) => s.toLowerCase() === n); return key ? vergleich(x.st[key], a) : false; }
     default: return `${x.d.n} ${x.d.k}`.toLowerCase().includes(w);

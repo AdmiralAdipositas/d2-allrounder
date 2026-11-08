@@ -3,7 +3,7 @@ import { CONFIG } from './config.js';
 
 const BASIS = 'https://www.bungie.net';
 const SPEICHER = 'd2a.token';
-export const KOMPONENTEN = '100,102,200,201,205,206,300,304,305';
+export const KOMPONENTEN = '100,102,200,201,205,206,300,304,305,309';
 
 const lies = () => { try { return JSON.parse(localStorage.getItem(SPEICHER) || 'null'); } catch { return null; } };
 const schreib = (t) => { try { localStorage.setItem(SPEICHER, JSON.stringify(t)); } catch {} };

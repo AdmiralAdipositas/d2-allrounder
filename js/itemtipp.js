@@ -19,7 +19,7 @@ export function itemTipp(it, profil) {
   const name = (h) => defs.stats?.[h]?.n;
   const plugs = (it.sockel || it.plugs || []).filter(Boolean).map((p) => [p, defs.items[p]]).filter(([, x]) => x);
   const klasse = d.q === 6 ? 'exo' : d.q === 5 ? 'leg' : 'sel';
-  let html = `<div class="itwrap"><div class="it-kopf ${klasse}"><b>${esc(d.n)}</b><span>${esc(d.k)}</span>${it.power ? `<em>${it.power}</em>` : ''}</div><div class="it-rumpf">`;
+  let html = `<div class="itwrap"><div class="it-kopf ${klasse}"><b>${esc(d.n)}</b><span>${esc(d.k)}</span>${it.power ? `<em>${it.power}</em>` : ''}</div><div class="it-rumpf">${it.kills ? `<div class="it-kills"><b>${it.kills.toLocaleString()}</b> kills <small>kill tracker</small></div>` : ''}`;
   if (d.t === 3) {
     const werte = Object.values(st).map((s) => [name(s.statHash), s.value]).filter(([n]) => n);
     const balken = WSTATS.map((n) => werte.find(([w]) => w === n)).filter(Boolean);
