@@ -350,7 +350,7 @@ async function pgcrNachladen(d, auffrischen, lauf, haupt) {
 
 function verbinde(haupt, zustand) {
   const tip = () => haupt.querySelector('#stip');
-  const zeige = (el, html) => { const t = tip(); if (!t) return; t.innerHTML = html; t.hidden = false; const r = el.getBoundingClientRect(); const w = Math.min(320, innerWidth - 16); t.style.width = `${w}px`; t.style.left = `${Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2))}px`; t.style.top = `${r.bottom + 8 + scrollY}px`; };
+  const zeige = (el, html) => { const t = tip(); if (!t) return; t.innerHTML = html; t.hidden = false; const r = el.getBoundingClientRect(); const w = Math.min(320, innerWidth - 16); const z = d2aZ(); t.style.width = `${w / z}px`; t.style.left = `${Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) / z}px`; const h = t.getBoundingClientRect().height; t.style.top = `${(r.bottom + 8 + h > innerHeight ? Math.max(8, r.top - h - 8) : r.bottom + 8) / z}px`; };
   const inhalt = (el) => {
     if (!tipDaten) return '';
     if (el.dataset.tipl) { const [n, i] = el.dataset.tipl.split('|'); const e = tipDaten.ws.find((x) => x.n === n); return e ? punktTip(e.laeufe[Number(i)]) : ''; }

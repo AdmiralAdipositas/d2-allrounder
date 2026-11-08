@@ -370,8 +370,8 @@ export function zeigeOptimizer(haupt, zustand) {
       ${i.set ? `<div class="tset"><b>${esc(i.set.n)}</b>${i.set.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}${i.d.xd ? `<p class="tt"><b class="tgold">${esc(i.d.xp || 'Exotic perk')}</b> ${esc(i.d.xd)}</p>` : ''}<small class="thint">Hold Shift to pin</small>`;
     tipp.hidden = false;
     const r = el.getBoundingClientRect(), t = tipp.getBoundingClientRect();
-    tipp.style.left = `${Math.max(8, Math.min(r.right + 8, innerWidth - t.width - 8))}px`;
-    tipp.style.top = `${Math.max(8, Math.min(r.top, innerHeight - t.height - 8))}px`;
+    tipp.style.left = `${(Math.max(8, Math.min(r.right + 8, innerWidth - t.width - 8))) / d2aZ()}px`;
+    tipp.style.top = `${(Math.max(8, Math.min(r.top, innerHeight - t.height - 8))) / d2aZ()}px`;
   };
   document.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' && !e.target.closest('[data-oid]')) tipp.hidden = true; });
   haupt.onpointerover = (e) => { const el = e.target.closest('[data-oid]'); if (el && e.pointerType === 'mouse') zeigeTeil(el); };

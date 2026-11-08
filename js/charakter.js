@@ -139,7 +139,7 @@ export function zeigeCharakter(haupt, zustand) {
   };
   const markiereDock = (z) => zug?.dock?.querySelectorAll('[data-ziel]').forEach((e) => e.classList.toggle('drop-an', e.dataset.ziel === z));
   const bewegeGeist = (cx, cy) => {
-    zug.geist.style.left = `${cx - 24}px`; zug.geist.style.top = `${cy - 24}px`; const z = zielUnter(cx, cy); markiere(z); markiereDock(z);
+    zug.geist.style.left = `${(cx - 24) / d2aZ()}px`; zug.geist.style.top = `${(cy - 24) / d2aZ()}px`; const z = zielUnter(cx, cy); markiere(z); markiereDock(z);
     // Am Rand automatisch scrollen.
     clearInterval(zug.scroll); const rand = 70;
     if (cy < rand || cy > innerHeight - rand) { const dy = cy < rand ? -14 : 14; zug.scroll = setInterval(() => scrollBy(0, dy), 16); }

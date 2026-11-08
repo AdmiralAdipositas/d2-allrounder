@@ -203,6 +203,6 @@ export async function zeigeFinder(haupt, zustand, oeffneOptimizer) {
     tp.innerHTML = `<b>${esc(m.dataset.tn)}</b><p class="tt">${esc(m.dataset.td)}</p>`;
     tp.hidden = false;
     const r = m.getBoundingClientRect(), bx = tp.getBoundingClientRect();
-    tp.style.left = `${Math.min(r.right + 8, innerWidth - bx.width - 8)}px`; tp.style.top = `${Math.min(r.top, innerHeight - bx.height - 8)}px`;
+    tp.style.left = `${(Math.min(r.right + 8, innerWidth - bx.width - 8)) / d2aZ()}px`; tp.style.top = `${(Math.min(r.top, innerHeight - bx.height - 8)) / d2aZ()}px`;
   };
 }

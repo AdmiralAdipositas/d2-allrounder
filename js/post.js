@@ -67,8 +67,8 @@ export async function zeigePost(el, zustand) {
       <small class="thint">${it ? 'Click for details and Pull' : 'Click twice to pull'}</small>`;
     tipp.hidden = false;
     const r = t.getBoundingClientRect(), b = tipp.getBoundingClientRect();
-    tipp.style.left = `${Math.max(8, Math.min(r.right + 8, innerWidth - b.width - 8))}px`;
-    tipp.style.top = `${Math.max(8, Math.min(r.top, innerHeight - b.height - 8))}px`;
+    tipp.style.left = `${(Math.max(8, Math.min(r.right + 8, innerWidth - b.width - 8))) / d2aZ()}px`;
+    tipp.style.top = `${(Math.max(8, Math.min(r.top, innerHeight - b.height - 8))) / d2aZ()}px`;
   };
   el.onpointerover = (e) => { const t = e.target.closest('.pk'); if (t && e.pointerType === 'mouse') zeigeTipp(t); };
   el.onpointerout = (e) => { if (e.target.closest('.pk')) tipp.hidden = true; };

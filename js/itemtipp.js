@@ -51,6 +51,6 @@ export function zeigeItemTipp(it, profil, x, y) {
   tipp.innerHTML = itemTipp(it, profil);
   tipp.hidden = false;
   const r = tipp.getBoundingClientRect();
-  tipp.style.left = `${Math.max(8, Math.min(x + 14, innerWidth - r.width - 8))}px`;
-  tipp.style.top = `${Math.max(8, Math.min(y + 14, innerHeight - r.height - 8))}px`;
+  tipp.style.left = `${(Math.max(8, Math.min(x + 14, innerWidth - r.width - 8))) / d2aZ()}px`;
+  tipp.style.top = `${(Math.max(8, Math.min(y + 14, innerHeight - r.height - 8))) / d2aZ()}px`;
 }

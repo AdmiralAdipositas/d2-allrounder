@@ -113,7 +113,7 @@ panel.addEventListener('pointerover', (e) => {
   t.innerHTML = `<b>${m.dataset.tn.replace(/</g, '&lt;')}</b><p class="tt">${m.dataset.td.replace(/</g, '&lt;')}</p>`;
   t.hidden = false;
   const r = m.getBoundingClientRect(), b = t.getBoundingClientRect();
-  t.style.left = `${Math.max(8, r.left - b.width - 8)}px`; t.style.top = `${Math.min(r.top, innerHeight - b.height - 8)}px`;
+  t.style.left = `${(Math.max(8, r.left - b.width - 8)) / d2aZ()}px`; t.style.top = `${(Math.min(r.top, innerHeight - b.height - 8)) / d2aZ()}px`;
 });
 haupt.addEventListener('click', (e) => { const p = e.target.closest('[data-panelart]'); if (p) oeffnePanel(p.dataset.panelart); });
 addEventListener('message', (e) => { if (e.origin === location.origin && e.data?.d2a === 'squad') oeffnePanel('squad'); });
@@ -161,7 +161,7 @@ panel.addEventListener('click', (e) => {
 const griff = document.createElement('div');
 griff.className = 'pgriff'; griff.title = 'Drag to resize · double-click to reset';
 document.body.append(griff);
-const setzeGriff = () => { const r = panel.getBoundingClientRect(); griff.hidden = panel.hidden || matchMedia('(max-width: 760px)').matches; griff.style.left = `${r.left - 4}px`; };
+const setzeGriff = () => { const r = panel.getBoundingClientRect(); griff.hidden = panel.hidden || matchMedia('(max-width: 760px)').matches; griff.style.left = `${(r.left - 4) / d2aZ()}px`; };
 new MutationObserver(setzeGriff).observe(panel, { attributes: true, attributeFilter: ['hidden', 'style'] });
 addEventListener('resize', setzeGriff);
 griff.onpointerdown = (e) => {

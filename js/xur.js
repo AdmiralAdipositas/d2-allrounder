@@ -77,8 +77,8 @@ export async function zeigeXur(haupt, zustand, eingebettet = false) {
     tipp.innerHTML = `<b>${esc(p.n)}</b><small>${esc(p.k || '')}</small><p class="tt">${esc(p.d || '')}</p>`;
     tipp.hidden = false;
     const r = el.getBoundingClientRect(), t = tipp.getBoundingClientRect();
-    tipp.style.left = `${Math.min(r.right + 8, innerWidth - t.width - 8)}px`;
-    tipp.style.top = `${Math.min(r.top, innerHeight - t.height - 8)}px`;
+    tipp.style.left = `${(Math.min(r.right + 8, innerWidth - t.width - 8)) / d2aZ()}px`;
+    tipp.style.top = `${(Math.min(r.top, innerHeight - t.height - 8)) / d2aZ()}px`;
   };
   haupt.onpointerout = (e) => { if (e.target.closest('[data-h]')) tipp.hidden = true; };
 }

@@ -714,7 +714,7 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .sseal i{width:48px;height:48px;background:center/contain no-repeat;filter:grayscale(1) brightness(.5)}.sseal.ok i{filter:drop-shadow(0 0 6px var(--gold))}
 .sseal span{font-size:.72rem;font-weight:600;text-align:center;line-height:1.15}.sseal small{font-size:.65rem;color:var(--matt)}.sseal:not(.ok) span{color:var(--matt)}
 .sealdetail{margin-top:10px;padding:10px;border:1px solid var(--linie);border-radius:8px;background:var(--bg2)}
-.stip{position:absolute;z-index:70;padding:8px 10px;background:color-mix(in srgb,var(--bg) 96%,transparent);border:1px solid var(--gold);border-radius:8px;font-size:.8rem;line-height:1.4;box-shadow:0 8px 30px #000a;pointer-events:none}
+.stip{position:fixed;z-index:70;padding:8px 10px;background:color-mix(in srgb,var(--bg) 96%,transparent);border:1px solid var(--gold);border-radius:8px;font-size:.8rem;line-height:1.4;box-shadow:0 8px 30px #000a;pointer-events:none}
 .fun{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}.fun div{padding:8px 10px;border:1px solid var(--linie);border-radius:8px;background:var(--bg2)}
 .fun small{display:block;color:var(--matt);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}.fun b{font-size:1.15rem;color:var(--gold)}.fun span{display:block;font-size:.75rem;color:var(--matt)}
 .chips{display:flex;flex-wrap:wrap;gap:5px}.chip.klein{padding:2px 8px;font-size:.72rem}

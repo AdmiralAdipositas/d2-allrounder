@@ -52,8 +52,8 @@ function zeigeTipp(el) {
   t.innerHTML = `<b>${esc(x.titel)}</b><small>${esc(x.unter)}</small>${x.text}<small class="thint">Click for links · Shift to pin</small>`;
   t.hidden = false;
   const r = el.getBoundingClientRect(), b = t.getBoundingClientRect();
-  t.style.left = `${Math.max(8, Math.min(r.right + 8, innerWidth - b.width - 8))}px`;
-  t.style.top = `${Math.max(8, Math.min(r.top, innerHeight - b.height - 8))}px`;
+  t.style.left = `${(Math.max(8, Math.min(r.right + 8, innerWidth - b.width - 8))) / d2aZ()}px`;
+  t.style.top = `${(Math.max(8, Math.min(r.top, innerHeight - b.height - 8))) / d2aZ()}px`;
 }
 
 let karte = null;
@@ -66,7 +66,7 @@ function zeigeKarte(el) {
     <div class="ik-text">${x.text}</div><div class="ik-links">${x.links.map(([art, ziel, txt]) => art === 'url' ? `<a class="chip" href="${esc(ziel)}" target="_blank" rel="noopener">${txt}</a>` : `<button class="chip" data-ika="${art}" data-ikz="${esc(ziel)}">${txt}</button>`).join('')}</div>`;
   document.body.append(karte);
   const r = el.getBoundingClientRect(), b = karte.getBoundingClientRect();
-  if (innerWidth > 760) { karte.style.left = `${Math.max(8, Math.min(r.left, innerWidth - b.width - 8))}px`; karte.style.top = `${r.bottom + 8 + b.height > innerHeight ? Math.max(8, r.top - b.height - 8) : r.bottom + 8}px`; }
+  if (innerWidth > 760) { karte.style.left = `${(Math.max(8, Math.min(r.left, innerWidth - b.width - 8))) / d2aZ()}px`; karte.style.top = `${(r.bottom + 8 + b.height > innerHeight ? Math.max(8, r.top - b.height - 8) : r.bottom + 8) / d2aZ()}px`; }
   tipp().hidden = true;
 }
 const zu = () => { karte?.remove(); karte = null; };
