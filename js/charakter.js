@@ -16,7 +16,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(
 const WTYP_SVG = { 'Auto Rifle': 'auto', 'Combat Bow': 'bow', 'Fusion Rifle': 'fusion', 'Grenade Launcher': 'gl', 'Hand Cannon': 'hc', 'Linear Fusion Rifle': 'lfr', 'Pulse Rifle': 'pulse', 'Scout Rifle': 'scout', 'Shotgun': 'shotgun', 'Sidearm': 'sidearm', 'Sniper Rifle': 'sniper', 'Submachine Gun': 'smg', 'Trace Rifle': 'trace', 'Glaive': 'glaive', 'Rocket Launcher': 'rocket', 'Machine Gun': 'mg', 'Sword': 'sword' };
 // Nostalgie: Munitions-Synthese aus Destiny 1 neben den Waffen-Slots im Tresor.
 const AMMO_D1 = { 1498876634: ['Ammo Synthesis', '/common/destiny_content/icons/898503d21982fe4101a3e6e1374ad43c.jpg'], 2465295065: ['Special Ammo Synthesis', '/common/destiny_content/icons/7ecb6e289d773ac39e6f425abf651f70.jpg'], 953998645: ['Heavy Ammo Synthesis', '/common/destiny_content/icons/b67087079a950013dfbdf6e0ebaeb245.jpg'] };
-const tzu = new Set((() => { try { return JSON.parse(localStorage.getItem('d2a.tzu') || '[]'); } catch { return []; } })());
+const tauf = new Set((() => { try { return JSON.parse(localStorage.getItem('d2a.tauf') || '[]'); } catch { return []; } })());
 const WAFFEN = [[1498876634, 'Kinetic'], [2465295065, 'Energy'], [953998645, 'Power']];
 const RUESTUNG = [[3448274439, 'Helmet'], [3551918588, 'Arms'], [14239492, 'Chest'], [20886954, 'Legs'], [1585787867, 'Class Item']];
 const SONST = [[3284755031, 'Subclass'], [4023194814, 'Ghost'], [2025709351, 'Sparrow'], [284967655, 'Ship'], [4274335291, 'Emblem']];
@@ -84,13 +84,19 @@ export function zeigeCharakter(haupt, zustand) {
     const streifen = (x) => { const an = anVon(x.characterId); return `<section class="cstreifen" data-ziel="${x.characterId}" data-wahl="${x.characterId}" style="--emb:url(${BILD}${x.emblemPath || x.emblemBackgroundPath || ''})"><span class="cs-kopf"><i></i><b>${KLASSE[x.classType][0]}</b></span>${reihen.map(([b]) => { const e = an.find((i) => i.bucketHash === b); return `<span class="cs-slot">${e ? kachel(e) : '<span class="ck leer-k"></span>'}</span>`; }).join('')}</section>`; };
     const tresorItems = [...items, ...allg].filter((x) => x.ort === 'tresor' && reihen.some(([b]) => b === x.d.b));
     const sortiere = (a, c) => (c.d.q === 6) - (a.d.q === 6) || (a.d.c - c.d.c) || a.d.n.localeCompare(c.d.n);
-    // Tresor kompakt: alle Teile eines Slots in einem dichten Raster, je Waffentyp eine Silhouette als erste Kachel.
-    // Klick auf die Silhouette klappt den Typ ein/aus (gemerkt).
-    const typTeil = (t, l) => { const zu = tzu.has(t); return `<button class="ck ttyp-k ${zu ? 'zu' : ''}" data-ttyp="${esc(t)}" title="${esc(t)} · ${l.length} ${zu ? '(click to show)' : '(click to fold)'}">${WTYP_SVG[t] ? `<i style="--m:url(img/wtyp/${WTYP_SVG[t]}.svg)"></i>` : `<small>${esc(t)}</small>`}<em>${l.length}</em></button>${zu ? '' : l.sort(sortiere).map((x) => kachel(alsRoh(x))).join('')}`; };
+    // Tresor kompakt: oben eine Symbolleiste (Waffentyp bzw. Klasse) mit Anzahl; nur angeklickte Gruppen klappen auf.
+    // Standard: alles zu. Der Zustand wird gemerkt.
+    const maske = (f) => `style="-webkit-mask-image:url(img/wtyp/${f}.svg);mask-image:url(img/wtyp/${f}.svg)"`;
+    const gruppenLeiste = (b, gruppen) => `<div class="tleiste">${gruppen.map(([k, titel, f, l]) => { const auf = tauf.has(`${b}:${k}`); return `<button class="tsym ${auf ? 'auf' : ''}" data-tauf="${b}:${esc(k)}" title="${esc(titel)} · ${l.length}" aria-expanded="${auf}">${f ? `<i ${maske(f)}></i>` : `<small>${esc(titel)}</small>`}<em>${l.length}</em></button>`; }).join('')}</div>`;
+    const gruppenInhalt = (b, gruppen) => gruppen.filter(([k]) => tauf.has(`${b}:${k}`)).map(([k, titel, f, l]) => `<div class="tgruppe"><span class="tg-kopf">${f ? `<i ${maske(f)}></i>` : ''}${esc(titel)} <em>${l.length}</em></span><div class="cgitter breit">${l.sort(sortiere).map((x) => kachel(alsRoh(x))).join('')}</div></div>`).join('');
+    const KL_DATEI = { 0: 'titan', 1: 'hunter', 2: 'warlock' };
     const tresorBlock = ([b, name]) => {
       const l = tresorItems.filter((x) => x.d.b === b); if (!l.length) return '';
       const kopf = `<small>${AMMO_D1[b] ? `<i class="d1ammo" style="background-image:url(${BILD}${AMMO_D1[b][1]})" title="${AMMO_D1[b][0]} (Destiny 1)"></i>` : ''}${name} <span>${l.length}</span></small>`;
-      if (WAFFEN.some(([w]) => w === b)) { const typen = [...new Set(l.map((x) => x.d.k))].sort(); return `<div class="treihe">${kopf}<div class="cgitter breit tdicht">${typen.map((t) => typTeil(t, l.filter((x) => x.d.k === t))).join('')}</div></div>`; }
+      let gruppen = null;
+      if (WAFFEN.some(([w]) => w === b)) gruppen = [...new Set(l.map((x) => x.d.k))].sort().map((t) => [t, t, WTYP_SVG[t], l.filter((x) => x.d.k === t)]);
+      else if (RUESTUNG.some(([w]) => w === b)) gruppen = [0, 1, 2, 3].map((c) => [String(c), KLASSE[c] || 'Any class', KL_DATEI[c], l.filter((x) => x.d.c === c)]).filter((g) => g[3].length);
+      if (gruppen) return `<div class="treihe">${kopf}${gruppenLeiste(b, gruppen)}${gruppenInhalt(b, gruppen)}</div>`;
       return `<div class="treihe">${kopf}<div class="cgitter breit">${l.sort(sortiere).map((x) => kachel(alsRoh(x))).join('')}</div></div>`;
     };
     const tresor = `<section class="ctresorbox" data-ziel="tresor"><div class="ckopf tres"><b>Vault</b><em>${tresorItems.length}</em></div>${reihen.map(tresorBlock).join('') || '<p class="leer klein">Nothing of this kind in the vault.</p>'}</section>`;
@@ -250,8 +256,8 @@ export function zeigeCharakter(haupt, zustand) {
     const w = e.target.closest('[data-wahl]');
     if (w) { wahl = w.dataset.wahl; try { localStorage.setItem('d2a.charWahl', wahl); } catch {} return zeichne(); }
     if (e.target.closest('[data-postpanel]')) return zustand.oeffnePanel?.('post');
-    const tt = e.target.closest('[data-ttyp]');
-    if (tt) { const t = tt.dataset.ttyp; tzu.has(t) ? tzu.delete(t) : tzu.add(t); try { localStorage.setItem('d2a.tzu', JSON.stringify([...tzu])); } catch {} return zeichne(); }
+    const tt = e.target.closest('[data-tauf]');
+    if (tt) { const t = tt.dataset.tauf; tauf.has(t) ? tauf.delete(t) : tauf.add(t); try { localStorage.setItem('d2a.tauf', JSON.stringify([...tauf])); } catch {} return zeichne(); }
     const k = e.target.closest('[data-cid]');
     if (k) { const x = proId.get(k.dataset.cid); if (x && !x.allg) oeffneDetail(x, zustand, () => zeichne()); }
   };

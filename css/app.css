@@ -828,3 +828,12 @@ html[data-pf] .cspalte.an{box-shadow:0 0 18px hsl(calc(var(--pfh) * 1deg) 95% 55
 .preiter button{background:none;border:1px solid var(--linie);color:var(--matt);border-radius:999px;padding:3px 10px;font-size:.78rem;cursor:pointer}
 .preiter button.erst{border-color:var(--gold);color:var(--gold)}.preiter button.an{background:var(--gold);color:#0b0a1a;border-color:var(--gold);font-weight:700}
 @media (min-width:761px){#rail [data-panel]{display:none}}
+/* Tresor: Symbolleiste je Slot, aufgeklappte Gruppen darunter */
+.tleiste{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 4px}
+.tsym{position:relative;width:46px;height:34px;padding:0;border:1px solid var(--linie2);border-radius:4px;background:linear-gradient(135deg,var(--flaeche3),var(--bg3));cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--matt)}
+.tsym i{width:34px;height:15px;background:var(--text2);-webkit-mask:center/contain no-repeat;mask:center/contain no-repeat}
+.tsym small{font-size:.5rem;line-height:1}.tsym em{position:absolute;right:2px;bottom:0;font-style:normal;font-size:.58rem;color:var(--matt)}
+.tsym:hover{border-color:var(--gold)}.tsym.auf{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 18%,var(--bg3))}.tsym.auf i{background:var(--gold)}.tsym.auf em{color:var(--gold)}
+.tgruppe{margin:4px 0 6px}.tg-kopf{display:flex;align-items:center;gap:6px;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--gold);margin-bottom:3px}
+.tg-kopf i{width:26px;height:11px;background:var(--gold);-webkit-mask:center/contain no-repeat;mask:center/contain no-repeat}.tg-kopf em{font-style:normal;color:var(--matt)}
+.tsym i,.tg-kopf i{-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}
