@@ -42,18 +42,31 @@ export function zeigeKonto(el, zustand, aktionen) {
     <section class="karte konto-app"><h3>App</h3>
       <p>Game data: ${esc(String(defs.version || '').slice(0, 24))}<br>God rolls: ${Object.keys(rolls.items || {}).length.toLocaleString()} weapons, updated ${esc((rolls.erstellt || '').slice(0, 10) || '–')}</p>
       <div class="konto-knoepfe"><button data-k="neu">↻ Reload data from Bungie</button><a class="knopf-link" href="https://www.bungie.net/7/en/User/Profile/${k.membershipType}/${k.membershipId}" target="_blank" rel="noopener">Bungie profile ↗</a>
-      <button data-k="willkommen">Show welcome screen</button><button data-k="reset">Reset app settings</button><button data-k="ab" class="rot-knopf">Sign out</button></div>
+      <button data-k="willkommen">Show welcome screen</button><button data-k="backup">⬇ Backup settings & marks</button><label class="knopf-link datei-knopf">⬆ Restore backup<input type="file" accept="application/json" data-k-import hidden></label><button data-k="reset">Reset app settings</button><button data-k="ab" class="rot-knopf">Sign out</button></div>
       <p class="leer klein">Install on your phone: open this page in Safari or Chrome → Share → “Add to Home Screen”.</p>
       <p class="leer klein"><a href="privacy.html" target="_blank" rel="noopener">Privacy</a> · Unofficial fan app, not affiliated with Bungie. Destiny content © Bungie, Inc. · Mostly built by Claude (Anthropic).</p></section>`;
   verbindeThema(el.querySelector('.konto-look'), () => eigeneShader(k));
   verbindeZoom(el.querySelector('.konto-zoom'));
   el.querySelector('#sprachWahl')?.addEventListener('change', (e) => waehle(k, e.target.value));
+  el.querySelector('[data-k-import]')?.addEventListener('change', async (e) => {
+    const f = e.target.files?.[0]; if (!f) return;
+    try { const j = JSON.parse(await f.text()); if (j.app !== 'd2-allrounder' || !j.daten) throw new Error('not a D2 Allrounder backup');
+      for (const [key, v] of Object.entries(j.daten)) if (key.startsWith('d2a.') && !/token/i.test(key)) localStorage.setItem(key, v);
+      location.reload(); } catch (err) { alert(`Restore failed: ${err.message}`); }
+  });
   el.onclick = (e) => {
     const b = e.target.closest('[data-k]');
     if (!b) return;
     if (b.dataset.k === 'neu') aktionen.neuLaden();
     if (b.dataset.k === 'willkommen') zeigeWillkommen(k);
     if (b.dataset.k === 'ab') aktionen.abmelden();
+    if (b.dataset.k === 'backup') {
+      // Alles, was die App im Browser merkt (Loadout-Würfe, Futter-Markierung, Favoriten, Aussehen …) – ohne Anmeldedaten.
+      const daten = {}; for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key.startsWith('d2a.') && !/token|warDa|pgcr/i.test(key)) daten[key] = localStorage.getItem(key); }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: 'd2-allrounder', erstellt: new Date().toISOString(), daten }, null, 1)], { type: 'application/json' }));
+      a.download = `d2-allrounder-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      return;
+    }
     if (b.dataset.k === 'reset') {
       if (b.dataset.sicher !== '1') { b.dataset.sicher = '1'; b.textContent = 'Click again to reset'; return; }
       try { Object.keys(localStorage).filter((x) => x.startsWith('d2a.') && x !== 'd2a.token' && x !== 'd2a.warDa').forEach((x) => localStorage.removeItem(x)); } catch {}

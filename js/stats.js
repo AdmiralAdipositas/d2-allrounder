@@ -179,6 +179,8 @@ const fertig = (rec, h) => { const r = rec[h]; return Boolean(r) && (r.state & 4
 
 // ---------- Darstellung ----------
 const kachel = (titel, gross, klein = '') => `<div class="kpi"><small>${titel}</small><b>${gross}</b>${klein ? `<span>${klein}</span>` : ''}</div>`;
+// Aktivitäts-Symbol aus den Spieldaten (Raid-/Dungeon-Name ohne Variante).
+const aktIcon = (n) => { const a = Object.values(defs.akt || {}).find((x) => x.i && x.n.split(':')[0].trim() === n && /icons/.test(x.i)) || Object.values(defs.akt || {}).find((x) => x.i && x.n.split(':')[0].trim() === n); return a ? `<i class="raktic" style="background-image:url(${BILD}${a.i})"></i>` : ''; };
 const block = (id, titel, sub, inhalt, offen) => `<details class="sblock" data-blk="${id}" ${offen ? 'open' : ''}><summary><h3>${titel}</h3>${sub ? `<small>${sub}</small>` : ''}</summary>${inhalt}</details>`;
 let offenStand = {};
 try { offenStand = JSON.parse(localStorage.getItem('d2a.statsOffen') || '{}'); } catch {}
@@ -197,7 +199,7 @@ function zeileRaid(e, d) {
   const sealTxt = seal ? `${recs.filter((r) => fertig(d.records, r)).length}/${recs.length}` : '';
   const punkte = e.laeufe.slice(0, 120).map((l, i) => `<i class="pkt ${l.voll ? 'voll' : l.voll === false ? 'cp' : ''} ${l.fl ? 'fl' : ''} ${l.master ? 'ms' : ''}" data-tipl="${e.n}|${i}"></i>`).join('');
   return `<details class="rzeile"><summary>
-      <span class="rn">${esc(e.n)}${seal ? `<em class="rtitel ${sealOk ? 'ok' : ''}" title="${esc(seal.t)}: ${sealTxt}">${sealOk ? '★' : '☆'} ${esc(seal.t)}</em>` : ''}</span>
+      <span class="rn">${aktIcon(e.n)}${esc(e.n)}${seal ? `<em class="rtitel ${sealOk ? 'ok' : ''}" title="${esc(seal.t)}: ${sealTxt}">${sealOk ? '★' : '☆'} ${esc(seal.t)}</em>` : ''}</span>
       <b title="Full clears + checkpoint clears">${zahl(e.clears)}</b><span>${zahl(e.voll)}<small>full</small></span><span>${zahl(e.master)}<small>master</small></span><span>${zahl(e.flawless)}<small>flawless</small></span>
       ${e.art === 'dungeon' ? `<span>${zahl(e.solo)}<small>solo</small></span><span>${zahl(e.soloFl)}<small>solo fl.</small></span>` : `<span>${zahl(e.trio + e.duo + e.solo)}<small>lowman</small></span>`}
       <span>${zeitText(e.schnellste * 1000)}<small>fastest</small></span><span title="${esc(datum(e.zuletzt))}">${esc(vor(e.zuletzt))}<small>last</small></span></summary>

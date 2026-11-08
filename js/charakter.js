@@ -18,6 +18,9 @@ const tierPips = (t) => (t > 0 ? `<span class="ck-tier" title="Gear Tier ${t}">$
 const WTYP_SVG = { 'Auto Rifle': 'auto', 'Combat Bow': 'bow', 'Fusion Rifle': 'fusion', 'Grenade Launcher': 'gl', 'Hand Cannon': 'hc', 'Linear Fusion Rifle': 'lfr', 'Pulse Rifle': 'pulse', 'Scout Rifle': 'scout', 'Shotgun': 'shotgun', 'Sidearm': 'sidearm', 'Sniper Rifle': 'sniper', 'Submachine Gun': 'smg', 'Trace Rifle': 'trace', 'Glaive': 'glaive', 'Rocket Launcher': 'rocket', 'Machine Gun': 'mg', 'Sword': 'sword' };
 // Nostalgie: Munitions-Synthese aus Destiny 1 neben den Waffen-Slots im Tresor.
 const AMMO_D1 = { 1498876634: ['Ammo Synthesis', '/common/destiny_content/icons/898503d21982fe4101a3e6e1374ad43c.jpg'], 2465295065: ['Special Ammo Synthesis', '/common/destiny_content/icons/7ecb6e289d773ac39e6f425abf651f70.jpg'], 953998645: ['Heavy Ammo Synthesis', '/common/destiny_content/icons/b67087079a950013dfbdf6e0ebaeb245.jpg'] };
+// Infusions-Futter: eigene Markierung (nur in diesem Browser, sicherbar über Konto → Backup).
+const futter = new Set((() => { try { return JSON.parse(localStorage.getItem('d2a.futter') || '[]'); } catch { return []; } })());
+let markieren = false;
 const tauf = new Set((() => { try { return JSON.parse(localStorage.getItem('d2a.tauf') || '[]'); } catch { return []; } })());
 const WAFFEN = [[1498876634, 'Kinetic'], [2465295065, 'Energy'], [953998645, 'Power']];
 const RUESTUNG = [[3448274439, 'Helmet'], [3551918588, 'Arms'], [14239492, 'Chest'], [20886954, 'Legs'], [1585787867, 'Class Item']];
@@ -67,9 +70,9 @@ export function zeigeCharakter(haupt, zustand) {
       const el = ELEMENT[inst[i.itemInstanceId]?.damageType] || '';
       const klick = x ? `data-cid="${i.itemInstanceId}"` : '';
       const elName = ELEMENT[inst[i.itemInstanceId]?.damageType] || '';
-      const passt = (f) => (f === 'exo' ? d.q === 6 : f === 'leg' ? d.q === 5 : f === 'lock' ? x?.locked : f === 'dupe' ? x && (anzahl.get(d.n) || 0) > 1 : f.startsWith('el:') ? elName === f.slice(3) : true);
+      const passt = (f) => (f === 'exo' ? d.q === 6 : f === 'leg' ? d.q === 5 : f === 'lock' ? x?.locked : f === 'dupe' ? x && (anzahl.get(d.n) || 0) > 1 : f === 'futter' ? futter.has(i.itemInstanceId) : f.startsWith('el:') ? elName === f.slice(3) : true);
       const dim = (q && !d.n.toLowerCase().includes(q) && !(d.k || '').toLowerCase().includes(q)) || (filter.size && ![...filter].every(passt));
-      return `<button class="ck ${gross ? 'gross' : ''} ${d.q === 6 ? 'exo' : ''} ${x?.mw ? 'mw' : ''} ${dim ? 'dim' : ''}" ${klick} data-ih="${i.itemHash}" aria-label="${esc(d.n)}" style="background-image:${d.w ? `url(${BILD}${d.w}),` : ''}url(${BILD}${d.i})">${tierPips(inst[i.itemInstanceId]?.gearTier)}${x?.crafted ? '<i class="ck-shaped" title="Crafted"></i>' : ''}${power ? `<em class="${el}">${power}</em>` : ''}${i.quantity > 1 ? `<em>${i.quantity}</em>` : ''}${x?.locked ? '<i class="ck-lock">🔒</i>' : ''}</button>`;
+      return `<button class="ck ${gross ? 'gross' : ''} ${d.q === 6 ? 'exo' : ''} ${x?.mw ? 'mw' : ''} ${dim ? 'dim' : ''}" ${klick} data-ih="${i.itemHash}" aria-label="${esc(d.n)}" style="background-image:${d.w ? `url(${BILD}${d.w}),` : ''}url(${BILD}${d.i})">${tierPips(inst[i.itemInstanceId]?.gearTier)}${futter.has(i.itemInstanceId) ? '<i class="ck-futter" title="Infusion fodder">🔥</i>' : ''}${x?.crafted ? '<i class="ck-shaped" title="Crafted"></i>' : ''}${power ? `<em class="${el}">${power}</em>` : ''}${i.quantity > 1 ? `<em>${i.quantity}</em>` : ''}${x?.locked ? '<i class="ck-lock">🔒</i>' : ''}</button>`;
     };
     const reihen = bereich === 'waffen' ? WAFFEN : bereich === 'ruestung' ? RUESTUNG : bereich === 'sonst' ? SONST : bereich === 'ausr' ? [...WAFFEN, ...RUESTUNG] : [...WAFFEN, ...RUESTUNG, ...SONST];
     const reihe = (cid, an, inv) => ([b, name]) => {
@@ -104,10 +107,10 @@ export function zeigeCharakter(haupt, zustand) {
     const tresor = `<section class="ctresorbox" data-ziel="tresor"><div class="ckopf tres"><b>Vault</b><em>${tresorItems.length}</em></div>${(() => { const sp = [WAFFEN, RUESTUNG, SONST].map((g) => reihen.filter((r) => g.includes(r)).map(tresorBlock).join('')).filter(Boolean); return sp.length ? `<div class="tspalten n${sp.length}">${sp.map((x) => `<div class="tspalte">${x}</div>`).join('')}</div>` : '<p class="leer klein">Nothing of this kind in the vault.</p>'; })()}</section>`;
     const c = chars.find((x) => x.characterId === wahl);
     const breit = (haupt.clientWidth || innerWidth) >= 980;
-    const FILTER = [['exo', 'Exotic'], ['leg', 'Legendary'], ['lock', 'Locked'], ['dupe', 'Duplicates'], ['el:kinetic', 'Kinetic'], ['el:arc', 'Arc'], ['el:solar', 'Solar'], ['el:void', 'Void'], ['el:stasis', 'Stasis'], ['el:strand', 'Strand']];
+    const FILTER = [['exo', 'Exotic'], ['leg', 'Legendary'], ['lock', 'Locked'], ['dupe', 'Duplicates'], ['futter', '🔥 Fodder'], ['el:kinetic', 'Kinetic'], ['el:arc', 'Arc'], ['el:solar', 'Solar'], ['el:void', 'Void'], ['el:stasis', 'Stasis'], ['el:strand', 'Strand']];
     haupt.innerHTML = `<div class="kopf"><h1>Inventory</h1></div>
       <div class="invleiste"><div class="wsub">${BEREICHE.map(([k, t]) => `<button class="chip" data-bereich="${k}" aria-pressed="${k === bereich}">${t}</button>`).join('')}</div><input id="invSuche" type="search" placeholder="Highlight: name or type…" value="${esc(suche)}" aria-label="Highlight items"></div>
-      <div class="invfilter">${FILTER.map(([k, t]) => `<button class="chip klein ${k.startsWith('el:') ? `el-${k.slice(3)}` : ''}" data-filter="${k}" aria-pressed="${filter.has(k)}">${t}</button>`).join('')}${filter.size || q ? '<button class="chip klein" data-filterweg>✕ clear</button>' : ''}<span class="invlinks"><button class="chip klein" data-tabweiter="vault" title="All weapons with every filter">Weapon list ↗</button><button class="chip klein" data-tabweiter="armor" title="All armor with stats">Armor list ↗</button></span></div>
+      <div class="invfilter">${FILTER.map(([k, t]) => `<button class="chip klein ${k.startsWith('el:') ? `el-${k.slice(3)}` : ''}" data-filter="${k}" aria-pressed="${filter.has(k)}">${t}</button>`).join('')}<button class="chip klein futter-modus" data-markieren aria-pressed="${markieren}" title="Click items to mark or unmark them as infusion fodder">${markieren ? '🔥 Marking… click items · done' : '🔥 Mark fodder'}</button>${filter.size || q ? '<button class="chip klein" data-filterweg>✕ clear</button>' : ''}<span class="invlinks"><button class="chip klein" data-tabweiter="vault" title="All weapons with every filter">Weapon list ↗</button><button class="chip klein" data-tabweiter="armor" title="All armor with stats">Armor list ↗</button></span></div>
       ${breit
         ? `<div class="inv inv-alle b-${bereich}" style="--n:${chars.length}">${chars.map(spalte).join('')}${tresor}</div>`
         : `<div class="inv inv-fokus b-${bereich}">${spalte(c)}<div class="cstreifen-box">${chars.filter((x) => x.characterId !== wahl).map(streifen).join('')}</div></div>${tresor}`}`;
@@ -226,6 +229,10 @@ export function zeigeCharakter(haupt, zustand) {
     if (z) bewege(war.x, z);
   };
   // Maus über Pointer Events, Finger über Touch Events (nur so lässt sich das Scrollen während des Ziehens stoppen).
+  const futterUm = (t) => { const id = t.dataset.cid; futter.has(id) ? futter.delete(id) : futter.add(id); try { localStorage.setItem('d2a.futter', JSON.stringify([...futter])); } catch {} zeichne(); };
+  if (haupt.__futter) { haupt.removeEventListener('pointerdown', haupt.__futter[0], true); haupt.removeEventListener('touchstart', haupt.__futter[1], true); }
+  haupt.__futter = [(e) => { if (!markieren) return; const t = e.target.closest('.ck[data-cid]'); if (t) { e.stopImmediatePropagation(); e.preventDefault(); futterUm(t); } }, (e) => { if (markieren && e.target.closest('.ck[data-cid]')) e.stopImmediatePropagation(); }];
+  haupt.addEventListener('pointerdown', haupt.__futter[0], true); haupt.addEventListener('touchstart', haupt.__futter[1], true);
   haupt.onpointerdown = (e) => { if (e.pointerType !== 'mouse' || e.button > 0) return; const t = e.target.closest('.ck[data-cid]'); if (t) beginne(t, e.clientX, e.clientY, false); };
   haupt.ontouchstart = (e) => { const t = e.target.closest('.ck[data-cid]'); const p0 = e.touches[0]; if (t && e.touches.length === 1) beginne(t, p0.clientX, p0.clientY, true); };
   const h = {
@@ -250,6 +257,8 @@ export function zeigeCharakter(haupt, zustand) {
     const fi = e.target.closest('[data-filter]');
     if (fi) { const k = fi.dataset.filter; if (filter.has(k)) filter.delete(k); else { if (k.startsWith('el:')) for (const f of [...filter]) if (f.startsWith('el:')) filter.delete(f); if (k === 'exo') filter.delete('leg'); if (k === 'leg') filter.delete('exo'); filter.add(k); } return zeichne(); }
     if (e.target.closest('[data-filterweg]')) { filter.clear(); suche = ''; return zeichne(); }
+    if (e.target.closest('[data-markieren]')) { markieren = !markieren; return zeichne(); }
+    if (markieren && e.target.closest('.ck[data-cid]')) return;
     const br = e.target.closest('[data-bereich]');
     if (br) { bereich = br.dataset.bereich; try { localStorage.setItem('d2a.invBereich', bereich); } catch {} return zeichne(); }
     const tw = e.target.closest('[data-tabweiter]');
