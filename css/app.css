@@ -1285,3 +1285,12 @@ html[data-modus=einfach] .kombi:nth-of-type(n+4),html[data-modus=einfach] .otab 
 .lo-icon.app{display:grid;place-items:center;background:linear-gradient(135deg,var(--violett),var(--gold));color:#120d00;font:900 1.1rem var(--kopf);border-radius:8px}
 .lo-app .lo-kopf small{display:block;color:var(--matt);font-size:.72rem}.lo-app .lo-kopf small .rot{color:#ff8a5a}
 .dim-feld{width:100%;min-height:110px;padding:10px;border-radius:10px;border:1px solid var(--linie2);background:var(--bg);color:var(--text);font:500 .85rem ui-monospace,monospace}
+/* Eigener Icon-Satz */
+.ikon-svg{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.15em}
+.ikon-svg.klein{width:1.05em;height:1.05em}
+.st-ic .ikon-svg{width:30px;height:30px;color:var(--gold);filter:drop-shadow(0 0 8px color-mix(in srgb,var(--gold) 40%,transparent))}
+.st-trupp .st-ic .ikon-svg{color:var(--arc)}.st-neu .st-ic .ikon-svg{color:var(--violett)}.st-post .st-ic .ikon-svg{color:var(--text2)}
+.st-quick b .ikon-svg{width:22px;height:22px;color:var(--gold)}
+.st-tag>small .ikon-svg{color:var(--gold)}.st-serie .ikon-svg{color:#ff8a5a}
+.st-auf-ic{font-size:1.5rem}
+.st-auf-ic .ikon-svg{width:26px;height:26px;color:var(--gold)}

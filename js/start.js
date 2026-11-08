@@ -3,6 +3,7 @@
 import { resets, dauer } from './woche.js';
 import { aktuellerTruppNamen } from './stats.js';
 import { defs } from './defs.js';
+import { ikon } from './ikonen.js';
 import { guideId } from './guidelinks.js';
 
 const BILD = 'https://www.bungie.net';
@@ -23,12 +24,12 @@ function tagesAufgabe(profil) {
   const alle = [...(profil.profileInventory?.data?.items || []), ...Object.values(profil.characterInventories?.data || {}).flatMap((c) => c.items || []), ...Object.values(profil.characterEquipment?.data || {}).flatMap((c) => c.items || [])];
   const exos = [...new Set(alle.map((i) => defs.items?.[i.itemHash]).filter((d) => d?.q === 6 && d.t === 3).map((d) => d.n))].sort();
   const vorlagen = [
-    ['🎨', `${el[h % el.length]} only`, 'Subclass and all weapons in one element.'],
-    ['🔫', 'Primaries only', 'No special ammo – heavy is allowed.'],
-    ['🟦', 'No exotic armor', 'Legendary armor only, your build has to carry.'],
-    ['⚔', 'Melee day', 'Sword or glaive as heavy, melee build.'],
-    ...(exos.length ? [['✨', exos[h % exos.length], 'Dust it off and run it all day.']] : []),
-    ['🎲', 'Let the dice decide', 'Spin the randomizer and play what it says.'],
+    [ikon('sonne'), `${el[h % el.length]} only`, 'Subclass and all weapons in one element.'],
+    [ikon('ziel'), 'Primaries only', 'No special ammo – heavy is allowed.'],
+    [ikon('stern'), 'No exotic armor', 'Legendary armor only, your build has to carry.'],
+    [ikon('flamme'), 'Melee day', 'Sword or glaive as heavy, melee build.'],
+    ...(exos.length ? [[ikon('funke'), exos[h % exos.length], 'Dust it off and run it all day.']] : []),
+    [ikon('wuerfel'), 'Let the dice decide', 'Spin the randomizer and play what it says.'],
   ];
   return vorlagen[(h >>> 3) % vorlagen.length];
 }
@@ -54,10 +55,10 @@ export function zeigeStart(el, zustand) {
     const fehlt = (xurCache || []).filter((x) => !besitzNamen().has(x.d.n) && (x.d.t === 3 || x.d.c == null || x.d.c === c?.classType));
     const ziel = (n) => guideId(n) ? `guide:${guideId(n)}` : `wiki:${n}`;
     return `<section class="st-heute"><h2 class="st-h">Today</h2><div class="st-heute-reihe">
-      ${woche ? `<div class="st-tag st-feat"><small>🏆 Featured this week</small><div class="st-chips">${woche.raids.map((n) => `<button class="st-chip raid" data-ziel="${esc(ziel(n))}">${esc(n)}</button>`).join('')}${woche.dungeons.map((n) => `<button class="st-chip" data-ziel="${esc(ziel(n))}">${esc(n)}</button>`).join('')}</div><span class="st-klein">Tap → raid guide</span></div>` : ''}
-      <div class="st-tag st-auf ${s.heute ? 'ok' : ''}"><small>🎯 Daily challenge</small><div class="st-auf-z"><span class="st-auf-ic">${ae}</span><span><b>${esc(at)}</b><span class="st-klein">${esc(ad)}</span></span></div>
-        <div class="st-auf-knoepfe"><button class="st-chip" data-ziel="zufall">🎲 Randomizer</button><button class="st-chip ${s.heute ? 'an' : ''}" data-ziel="serie">${s.heute ? '✓ Done' : 'Mark done'}</button><span class="st-serie" title="Days in a row">🔥 ${s.n + (s.heute ? 0 : 0)}</span></div></div>
-      ${fehlt.length ? `<button class="st-tag st-xurfehlt" data-ziel="panel:xur"><small>🧳 Xûr has · not in your vault</small><div class="st-exos">${fehlt.length ? fehlt.slice(0, 6).map((x) => `<i title="${esc(x.d.n)}" style="background-image:url(${BILD}${x.d.i})"></i>`).join('') : '<span class="st-klein">You already have everything he sells ✓</span>'}</div>${fehlt.length ? `<span class="st-klein">${esc(fehlt.slice(0, 3).map((x) => x.d.n).join(' · '))}${fehlt.length > 3 ? ' …' : ''}</span>` : ''}</button>` : ''}
+      ${woche ? `<div class="st-tag st-feat"><small>${ikon('pokal', 'klein')} Featured this week</small><div class="st-chips">${woche.raids.map((n) => `<button class="st-chip raid" data-ziel="${esc(ziel(n))}">${esc(n)}</button>`).join('')}${woche.dungeons.map((n) => `<button class="st-chip" data-ziel="${esc(ziel(n))}">${esc(n)}</button>`).join('')}</div><span class="st-klein">Tap → raid guide</span></div>` : ''}
+      <div class="st-tag st-auf ${s.heute ? 'ok' : ''}"><small>${ikon('ziel', 'klein')} Daily challenge</small><div class="st-auf-z"><span class="st-auf-ic">${ae}</span><span><b>${esc(at)}</b><span class="st-klein">${esc(ad)}</span></span></div>
+        <div class="st-auf-knoepfe"><button class="st-chip" data-ziel="zufall">${ikon('wuerfel', 'klein')} Randomizer</button><button class="st-chip ${s.heute ? 'an' : ''}" data-ziel="serie">${s.heute ? '✓ Done' : 'Mark done'}</button><span class="st-serie" title="Days in a row">${ikon('flamme', 'klein')} ${s.n + (s.heute ? 0 : 0)}</span></div></div>
+      ${fehlt.length ? `<button class="st-tag st-xurfehlt" data-ziel="panel:xur"><small>${ikon('koffer', 'klein')} Xûr has · not in your vault</small><div class="st-exos">${fehlt.length ? fehlt.slice(0, 6).map((x) => `<i title="${esc(x.d.n)}" style="background-image:url(${BILD}${x.d.i})"></i>`).join('') : '<span class="st-klein">You already have everything he sells ✓</span>'}</div>${fehlt.length ? `<span class="st-klein">${esc(fehlt.slice(0, 3).map((x) => x.d.n).join(' · '))}${fehlt.length > 3 ? ' …' : ''}</span>` : ''}</button>` : ''}
     </div></section>`;
   };
   const zeichne = (neuZahl) => {
@@ -65,14 +66,14 @@ export function zeigeStart(el, zustand) {
       ${c ? `<button class="st-held" data-ziel="tab:char" style="--emb:url(${BILD}${c.emblemBackgroundPath || ''})"><div><small>Welcome back</small><b>${esc(zustand.konto?.name?.split('#')[0] || 'Guardian')}</b><span>${KLASSE[c.classType]} · ✦ ${c.light}</span></div><span class="st-los">Inventory <em>›</em></span></button>` : ''}
       ${heute()}
       <div class="st-raster">
-        ${karte('st-reset', 'panel:woche', `<span class="st-ic">🗓</span><small>This week</small><div class="st-zeilen"><span>☀ <b>${dauer(r.taeglich)}</b>${balken(r.taeglich, 24)}</span><span>⟳ <b>${dauer(r.woechentlich)}</b>${balken(r.woechentlich, 168)}</span></div>`, 'Daily and weekly reset')}
-        ${karte(`st-xur ${xurDa ? 'da' : 'weg'}`, 'panel:xur', `<span class="st-ic">🧳</span><small>Xûr</small><b>${xurDa ? `⏳ ${dauer(r.woechentlich)}` : `↩ ${dauer(fr > Date.now() ? fr : new Date(fr.getTime() + 7 * 864e5))}`}</b>${xurDa ? `<i class="st-bar"><b style="width:${xurAnteil}%"></b></i>` : '<span class="st-klein">back on Friday</span>'}`, xurDa ? 'Xûr is here until the Tuesday reset' : 'Xûr is away until Friday')}
-        ${karte('st-trupp', 'tab:hueter', `<span class="st-ic">👥</span><small>Fireteam</small>${truppCache == null ? '<b class="st-puls">…</b>' : truppCache.length ? `<b>👥 ${truppCache.length + 1}</b><span class="st-klein">${esc(truppCache.map((n) => n.split('#')[0]).join(' · '))}</span>` : '<b>Solo</b><span class="st-klein">Guardians, friends & groups</span>'}`)}
-        ${karte(`st-neu ${neuZahl ? 'heiss' : ''}`, 'neu', `<span class="st-ic">✨</span><small>New</small><b>${neuZahl == null ? '…' : neuZahl ? `${neuZahl} new` : 'Up to date'}</b><span class="st-klein">builds & features</span>`)}
-        ${karte(`st-post ${postMax >= 18 ? 'warn' : ''}`, 'panel:post', `<span class="st-ic">📮</span><small>Postmaster</small><div class="st-post">${post.map((x) => `<span class="${x.n >= 18 ? 'voll' : ''}" title="${x.k}">${x.k[0]} <b>${x.n}</b>/21</span>`).join('')}</div>${postMax >= 18 ? '<span class="st-klein warn">⚠ almost full</span>' : ''}`)}
+        ${karte('st-reset', 'panel:woche', `<span class="st-ic">${ikon('kalender')}</span><small>This week</small><div class="st-zeilen"><span>☀ <b>${dauer(r.taeglich)}</b>${balken(r.taeglich, 24)}</span><span>⟳ <b>${dauer(r.woechentlich)}</b>${balken(r.woechentlich, 168)}</span></div>`, 'Daily and weekly reset')}
+        ${karte(`st-xur ${xurDa ? 'da' : 'weg'}`, 'panel:xur', `<span class="st-ic">${ikon('koffer')}</span><small>Xûr</small><b>${xurDa ? `⏳ ${dauer(r.woechentlich)}` : `↩ ${dauer(fr > Date.now() ? fr : new Date(fr.getTime() + 7 * 864e5))}`}</b>${xurDa ? `<i class="st-bar"><b style="width:${xurAnteil}%"></b></i>` : '<span class="st-klein">back on Friday</span>'}`, xurDa ? 'Xûr is here until the Tuesday reset' : 'Xûr is away until Friday')}
+        ${karte('st-trupp', 'tab:hueter', `<span class="st-ic">${ikon('trupp')}</span><small>Fireteam</small>${truppCache == null ? '<b class="st-puls">…</b>' : truppCache.length ? `<b>👥 ${truppCache.length + 1}</b><span class="st-klein">${esc(truppCache.map((n) => n.split('#')[0]).join(' · '))}</span>` : '<b>Solo</b><span class="st-klein">Guardians, friends & groups</span>'}`)}
+        ${karte(`st-neu ${neuZahl ? 'heiss' : ''}`, 'neu', `<span class="st-ic">${ikon('funke')}</span><small>New</small><b>${neuZahl == null ? '…' : neuZahl ? `${neuZahl} new` : 'Up to date'}</b><span class="st-klein">builds & features</span>`)}
+        ${karte(`st-post ${postMax >= 18 ? 'warn' : ''}`, 'panel:post', `<span class="st-ic">${ikon('post')}</span><small>Postmaster</small><div class="st-post">${post.map((x) => `<span class="${x.n >= 18 ? 'voll' : ''}" title="${x.k}">${x.k[0]} <b>${x.n}</b>/21</span>`).join('')}</div>${postMax >= 18 ? '<span class="st-klein warn">⚠ almost full</span>' : ''}`)}
       </div>
       <div class="st-schnell">
-        ${[['zufall', '🎲', 'Randomizer'], ['tab:optimizer', '🎚', 'Optimizer'], ['tab:finder', '🔎', 'Build Finder'], ['tab:guide', '⭐', 'Raid Guide'], ['tab:stats', '📈', 'Stats'], ['tab:wiki', '📖', 'Wiki']].map(([z, e, t]) => `<button class="st-quick" data-ziel="${z}"><b>${e}</b><span>${t}</span></button>`).join('')}
+        ${[['zufall', 'wuerfel', 'Randomizer'], ['tab:optimizer', 'regler', 'Optimizer'], ['tab:finder', 'lupe', 'Build Finder'], ['tab:guide', 'stern', 'Raid Guide'], ['tab:stats', 'kurve', 'Stats'], ['tab:wiki', 'buch', 'Wiki']].map(([z, e, t]) => `<button class="st-quick" data-ziel="${z}"><b>${ikon(e)}</b><span>${t}</span></button>`).join('')}
       </div></div>`;
   };
   // Neu-Zähler aus data/neu.json (was du noch nicht gesehen hast).

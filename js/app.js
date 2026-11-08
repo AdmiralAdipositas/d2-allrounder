@@ -1,4 +1,5 @@
 // Rahmen der App: Seitenleiste, Tabs, Seitenpanel, Anmeldung.
+import { ikon } from './ikonen.js';
 import * as bungie from './bungie.js';
 import { ladeDefs } from './defs.js';
 import { ladeRolls } from './rolls.js';
@@ -108,7 +109,7 @@ function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class
 const hl = $('#handyLeiste'), mb = $('#mehrBlatt');
 hl?.querySelectorAll('[data-ico]').forEach((i) => { const svg = rail.querySelector(`[data-tab="${i.dataset.ico}"] svg`); if (svg) i.innerHTML = svg.outerHTML; });
 const MEHR = [['tab:armor', 'Armor'], ['tab:loadouts', 'Loadouts'], ['tab:optimizer', 'Optimizer'], ['tab:stats', 'Stats'], ['tab:hueter', 'Guardians'], ['tab:wiki', 'Wiki'], ['tab:guide', 'Raid Guide'], ['zufall', 'Randomizer'], ['panel:woche', 'This week'], ['panel:xur', 'Xûr'], ['panel:post', 'Postmaster'], ['panel:konto', 'Settings'], ['modus', 'Simple / Detailed']];
-const EMO2 = { zufall: '🎲', 'panel:woche': '🗓', 'panel:xur': '🧳', 'panel:post': '📮', 'panel:konto': '⚙', modus: '👁' };
+const EMO2 = { zufall: ikon('wuerfel'), 'panel:woche': ikon('kalender'), 'panel:xur': ikon('koffer'), 'panel:post': ikon('post'), 'panel:konto': ikon('regler'), modus: ikon('ziel') };
 function zeigeMehr() {
   mb.querySelector('.mb-raster').innerHTML = MEHR.map(([z, n]) => { const t = z.startsWith('tab:') ? z.slice(4) : ''; const svg = t ? rail.querySelector(`[data-tab="${t}"] svg`)?.outerHTML : ''; return `<button data-mz="${z}">${svg ? `<i>${svg}</i>` : `<b>${EMO2[z] || '•'}</b>`}<span>${n}</span></button>`; }).join('');
   mb.hidden = false; requestAnimationFrame(() => mb.classList.add('auf'));
