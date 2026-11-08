@@ -11,12 +11,12 @@ const BASIS = 'https://www.bungie.net';
 const holen = async (pfad) => { const r = await fetch(BASIS + pfad, { headers: { 'X-API-Key': apiKey } }); if (!r.ok) throw new Error(`${pfad}: ${r.status}`); return r.json(); };
 const manifest = (await holen('/Platform/Destiny2/Manifest/')).Response;
 const alt = fs.existsSync('data/lang/keys.json') ? JSON.parse(fs.readFileSync('data/lang/keys.json', 'utf8')) : null;
-if (alt?.version === manifest.version && alt?.schema === 1) { console.log('Translations unchanged.'); process.exit(0); }
+if (alt?.version === manifest.version && alt?.schema === 2) { console.log('Translations unchanged.'); process.exit(0); }
 const defs = JSON.parse(fs.readFileSync('data/defs.json', 'utf8'));
 
 // Welche Objekte die App zeigt, je Bungie-Tabelle: Hash-Liste + welche Felder.
 const TABELLEN = [
-  ['DestinyInventoryItemLiteDefinition', Object.keys(defs.items), (x) => [x.displayProperties?.name, x.displayProperties?.description, x.itemTypeDisplayName]],
+  ['DestinyInventoryItemLiteDefinition', Object.keys(defs.items), (x) => [x.displayProperties?.name, x.displayProperties?.description, x.itemTypeDisplayName, x.flavorText]],
   ['DestinyEquipableItemSetDefinition', Object.keys(defs.sets || {}), (x) => [x.displayProperties?.name, ...(x.setPerks || []).map(() => '')]],
   ['DestinyStatDefinition', Object.keys(defs.stats || {}), (x) => [x.displayProperties?.name, x.displayProperties?.description]],
   ['DestinyDamageTypeDefinition', Object.keys(defs.schaden || {}), (x) => [x.displayProperties?.name]],
@@ -48,6 +48,6 @@ for (const lang of SPRACHEN) {
 }
 fs.mkdirSync('data/lang', { recursive: true });
 const keys = [...paare.keys()];
-fs.writeFileSync('data/lang/keys.json', JSON.stringify({ schema: 1, version: manifest.version, keys }));
+fs.writeFileSync('data/lang/keys.json', JSON.stringify({ schema: 2, version: manifest.version, keys }));
 for (const lang of SPRACHEN) fs.writeFileSync(`data/lang/${lang}.json`, JSON.stringify(keys.map((k) => paare.get(k)[lang] || '')));
 console.log(`Wrote ${keys.length} translated texts for ${SPRACHEN.length} languages.`);

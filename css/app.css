@@ -644,3 +644,17 @@ body.zieht{user-select:none;-webkit-user-select:none;cursor:grabbing}
 @container (max-width:340px){.cb-stats{grid-template-columns:repeat(3,1fr);row-gap:1px}}
 @container (max-width:200px){.cb-stats{grid-template-columns:repeat(2,1fr);gap:1px 4px;padding:4px 6px;margin-left:0;border-left:0;border-radius:0}.cb-stats span{justify-content:flex-start}}
 .thema-wahl [data-thema=og]:not(.an){opacity:.7;filter:grayscale(1)}
+/* Wiki: Filter der Waffenliste */
+.wfilterzeile{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end;margin:10px 0 6px}
+.wfilter{display:flex;flex-direction:column;gap:3px;font-size:.72rem;color:var(--matt);text-transform:uppercase;letter-spacing:.06em}
+.wfilter select{min-width:140px;padding:6px 8px;background:var(--bg2);color:var(--text);border:1px solid var(--linie);border-radius:6px;text-transform:none;letter-spacing:0;font-size:.85rem}
+@media(max-width:760px){.wfilter{flex:1 1 45%}.wfilter select{min-width:0;width:100%}}
+/* Wiki: Waffen-Details */
+.wmerk{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.wmerk span{display:flex;flex-direction:column;padding:6px 12px;border:1px solid var(--linie);border-radius:8px;background:var(--bg2)}
+.wmerk small{font-size:.68rem;color:var(--matt);text-transform:uppercase;letter-spacing:.06em}.wmerk b{font-size:.92rem}
+.wflavor{font-style:italic;color:var(--text2);border-left:2px solid var(--gold);padding-left:10px;margin:10px 0 14px;max-width:640px}
+.wstats{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:4px 24px;max-width:860px;margin-bottom:8px}
+.wstat{display:grid;grid-template-columns:130px 1fr 34px;align-items:center;gap:10px;font-size:.85rem}
+.wstat span{color:var(--text2)}.wstat i{height:8px;background:var(--bg3);border-radius:2px;overflow:hidden}.wstat u{display:block;height:100%;background:var(--text)}
+.wstat b{text-align:right;font-variant-numeric:tabular-nums}.wstat.zahl{grid-template-columns:130px 1fr}

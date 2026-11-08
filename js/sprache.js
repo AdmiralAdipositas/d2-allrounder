@@ -8,6 +8,23 @@ export const SPRACHEN = [
   ['pl', 'Polski'], ['ru', 'Русский'], ['ja', '日本語'], ['ko', '한국어'], ['zh-chs', '简体中文'],
 ];
 const UI_DE = {
+  "By source": "Nach Quelle",
+  "By weapon type": "Nach Waffentyp",
+  "All": "Alle",
+  "Base stats": "Basis-Stats",
+  "Without perks, mods or masterwork, as Bungie lists them.": "Ohne Perks, Mods oder Meisterwerk, so wie Bungie sie listet.",
+  "Frame": "Rahmen",
+  "Damage type": "Schadensart",
+  "Ammo": "Munition",
+  "Owned": "Besitz",
+  "In my inventory": "In meinem Inventar",
+  "Not owned": "Nicht im Besitz",
+  "Reset filters": "Filter zurücksetzen",
+  "Back": "Zurück",
+  "No weapon matches these filters.": "Keine Waffe passt zu diesen Filtern.",
+  "Primary": "Primär",
+  "Special": "Spezial",
+  "Heavy": "Schwer",
   "Exotic mission “Dual Destiny” in the Pale Heart (The Final Shape), fireteam of exactly two. Your first one only comes from there; replays and the weekly challenge give more. Also: Pale Heart Overthrow chests and Xûr.": "Exotic-Mission „Dual Destiny“ im Bleichen Herz (The Final Shape), Einsatztrupp aus genau zwei Hütern. Das erste gibt es nur dort; Wiederholungen und die Wochen-Challenge geben weitere. Außerdem: Overthrow-Truhen im Bleichen Herz und Xûr.",
   played: "gespielt", characters: "Charaktere",
   "Look": "Aussehen",
@@ -73,6 +90,9 @@ export function gewaehlt(konto) {
   if (roh.startsWith('zh')) return 'zh-chs';
   return SPRACHEN.find(([c]) => roh.startsWith(c))?.[0] || 'en';
 }
+// Angezeigter Name in der gewählten Sprache (für Sortierung und Suche).
+export function anzeige(t) { return (karte && karte.get(String(t || '').trim())) || t; }
+export function vergleiche(a, b) { return String(anzeige(a)).localeCompare(String(anzeige(b)), sprache); }
 export function waehle(konto, code) { try { localStorage.setItem(schluessel(konto), code); } catch {} location.reload(); }
 
 const tr = (t) => {

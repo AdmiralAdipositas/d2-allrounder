@@ -7,6 +7,7 @@ import { sammle } from './vault.js';
 import { CHALLENGES } from './challenges.js';
 import { empfehlung } from './rolls.js';
 import { quelle, KLASSEN_EXO } from './quellen.js';
+import { anzeige, vergleiche } from './sprache.js';
 import { guideId } from './guidelinks.js';
 import { VOW, VOW_DE } from './symbole.js';
 import * as bungie from './bungie.js';
@@ -25,7 +26,9 @@ const KATEGORIEN = [
 const ENC_EXTRA = { Dissipation: "Salvation's Edge", 'The Abyss': "Crota's End", 'The Bridge': "Crota's End", 'Ir Yut': "Crota's End", Crota: "Crota's End", 'Taniks': 'Deep Stone Crypt', Evade: 'Garden of Salvation', Summon: 'Garden of Salvation', Gatekeeper: 'Vault of Glass' };
 
 let ix = null;
-let ansicht = { kat: null, seite: null, sub: 'alle', suche: '', farm: '' };
+let ansicht = { kat: null, seite: null, sub: 'alle', suche: '', farm: '', wf: {} };
+// Zurück-Verlauf: vorherige Seite und Scrollhöhe, damit „←“ wieder an dieselbe Stelle führt.
+const verlauf = [];
 export function setzeWikiSuche(q, art) {
   if (art === 'farm') ansicht = { ...ansicht, kat: 'farm', seite: null, farm: q, suche: '' };
   else ansicht = { ...ansicht, kat: null, seite: null, suche: q };
@@ -134,13 +137,25 @@ const kachel = (x, besitz) => `<button class="wkachel" data-seite="item:${x.h}">
 const gruppiert = (liste, key, reihe) => {
   const g = new Map();
   for (const x of liste) { const k = key(x); g.set(k, [...(g.get(k) || []), x]); }
-  const keys = [...g.keys()].sort((a, b) => (reihe ? reihe.indexOf(a) - reihe.indexOf(b) : 0) || a.localeCompare(b));
+  const keys = [...g.keys()].sort((a, b) => (reihe ? reihe.indexOf(a) - reihe.indexOf(b) : 0) || vergleiche(a, b));
   return keys.map((k) => [k, g.get(k)]);
 };
 const abschnitt = (titel, n, inhalt, id = '') => `<section class="wabs" ${id ? `id="${id}"` : ''}><h3>${esc(titel)} <small>${n}</small></h3>${inhalt}</section>`;
 const subnav = (werte, aktiv) => `<div class="wsub" role="tablist">${werte.map(([k, t]) => `<button class="chip" data-sub="${esc(k)}" aria-pressed="${k === aktiv}">${esc(t)}</button>`).join('')}</div>`;
 const sprung = (abschnitte) => abschnitte.length > 3 ? `<nav class="wsprung">${abschnitte.map(([t]) => `<a href="#" data-zu="w-${esc(t.replace(/\W/g, ''))}">${esc(t)}</a>`).join('')}</nav>` : '';
 const guideKnopf = (enc, raid, text = 'Guide ↗') => { const id = guideId(enc, raid); return id ? `<button class="chip guide-link" data-guide="${id}" title="Open this encounter in the raid guide">${text}</button>` : ''; };
+
+// Filter für die Waffenliste: [Titel, Wert aus der Waffe, Anzeigename des Werts].
+const ELEMENT = { 1: 'Kinetic', 2: 'Arc', 3: 'Solar', 4: 'Void', 6: 'Stasis', 7: 'Strand' };
+const MUNI = { 1: 'Primary', 2: 'Special', 3: 'Heavy' };
+const WFILTER = {
+  typ: ['Weapon type', (w) => w.d.k, (v) => v],
+  frame: ['Frame', (w) => w.d.fr || '', (v) => v],
+  el: ['Damage type', (w) => w.d.d0 || '', (v) => ELEMENT[v] || v],
+  muni: ['Ammo', (w) => w.d.a || '', (v) => MUNI[v] || v],
+  slot: ['Slot', (w) => SLOT[w.d.b] || '', (v) => v],
+  hat: ['Owned', (w, besitz) => (besitz.get(w.d.n) ? 'ja' : 'nein'), (v) => (v === 'ja' ? 'In my inventory' : 'Not owned')],
+};
 
 // ---------- Kategorie-Ansichten ----------
 function zeigeKat(k, x) {
@@ -151,17 +166,27 @@ function zeigeKat(k, x) {
     const subs = [['alle', 'All'], ['waffen', 'Weapons'], ['0', 'Titan'], ['1', 'Hunter'], ['2', 'Warlock']];
     const gr = gruppiert(liste, (e) => (e.d.t === 3 ? `${SLOT[e.d.b] || 'Weapon'} weapons` : `${KLASSE[e.d.c]} · ${SLOT[e.d.b] || 'Armor'}`), [
       'Kinetic weapons', 'Energy weapons', 'Power weapons', ...['Titan', 'Hunter', 'Warlock', 'Any class'].flatMap((c) => ['Helmet', 'Arms', 'Chest', 'Legs', 'Class Item'].map((s) => `${c} · ${s}`))]);
-    return `${subnav(subs, sub)}${sprung(gr)}${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid">${l.sort((a, b) => a.d.n.localeCompare(b.d.n)).map((e) => kachel(e, besitz)).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
+    return `${subnav(subs, sub)}${sprung(gr)}${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid">${l.sort((a, b) => vergleiche(a.d.n, b.d.n)).map((e) => kachel(e, besitz)).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
   }
   if (k === 'waffe') {
     const sub = ansicht.sub === 'alle' ? 'quelle' : ansicht.sub;
-    const gr = sub === 'typ' ? gruppiert(x.waffen, (w) => w.d.k) : gruppiert(x.waffen, (w) => sourceGruppe(w.q || x.fundorte.get(w.d.n)?.[0]?.akt || '', x.loot));
-    return `${subnav([['quelle', 'By source'], ['typ', 'By weapon type']], sub)}<p class="leer klein">${x.waffen.length} legendary weapons with a confirmed source. Hover an icon for details, click a weapon for perks and where it drops.</p>${sprung(gr)}
-      ${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid">${l.sort((a, b) => a.d.n.localeCompare(b.d.n)).map((w) => kachel(w, besitz)).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
+    const wf = ansicht.wf || {};
+    const passt = (w, ohne) => Object.entries(wf).every(([f, v]) => !v || f === ohne || String(WFILTER[f][1](w, besitz)) === v);
+    const liste = x.waffen.filter((w) => passt(w));
+    const gr = sub === 'typ' ? gruppiert(liste, (w) => w.d.k) : gruppiert(liste, (w) => sourceGruppe(w.q || x.fundorte.get(w.d.n)?.[0]?.akt || '', x.loot));
+    const auswahl = Object.entries(WFILTER).map(([f, [titel, wert, name]]) => {
+      const zaehl = new Map(); for (const w of x.waffen) if (passt(w, f)) { const v = wert(w, besitz); if (v !== '' && v != null) zaehl.set(String(v), (zaehl.get(String(v)) || 0) + 1); }
+      if (!zaehl.size) return '';
+      const opts = [...zaehl.entries()].sort((a, b) => vergleiche(name(a[0]), name(b[0])));
+      return `<label class="wfilter"><span>${titel}</span><select data-wf="${f}"><option value="">All</option>${opts.map(([v, n]) => `<option value="${esc(v)}" ${wf[f] === v ? 'selected' : ''}>${esc(anzeige(name(v)))} (${n})</option>`).join('')}</select></label>`;
+    }).join('');
+    const aktiv = Object.values(wf).some(Boolean);
+    return `${subnav([['quelle', 'By source'], ['typ', 'By weapon type']], sub)}<div class="wfilterzeile">${auswahl}${aktiv ? '<button class="chip" data-wfreset>Reset filters</button>' : ''}</div><p class="leer klein">${aktiv ? `${liste.length} of ${x.waffen.length} legendary weapons match.` : `${x.waffen.length} legendary weapons with a confirmed source.`} Hover an icon for details, click a weapon for perks and where it drops.</p>${liste.length ? '' : '<p class="leer">No weapon matches these filters.</p>'}${sprung(gr)}
+      ${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid">${l.sort((a, b) => vergleiche(a.d.n, b.d.n)).map((w) => kachel(w, besitz)).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
   }
   if (k === 'set') {
     const gr = gruppiert(x.sets, (s) => s.gruppe, ['Raids', 'Dungeons', 'Portal & Vanguard', 'Destinations & quests', 'Crucible & Trials', 'Gambit', 'Seasons, episodes & events', 'Vendors', 'Other']);
-    return `${sprung(gr)}${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid breit">${l.sort((a, b) => a.s.n.localeCompare(b.s.n)).map((s) => `<button class="wkachel set" data-seite="set:${s.h}">${s.teile[0] ? ic(s.teile[0].h, s.teile[0].d) : ''}<span><b>${esc(s.s.n)}</b><small>${esc(s.s.p.map((p) => `${p.c}× ${p.n}`).join(' · '))}</small><small class="wq">${esc(s.akt || s.farm?.farm || s.quellen[0] || 'Source unknown')}</small></span></button>`).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
+    return `${sprung(gr)}${gr.map(([t, l]) => abschnitt(t, l.length, `<div class="wgrid breit">${l.sort((a, b) => vergleiche(a.s.n, b.s.n)).map((s) => `<button class="wkachel set" data-seite="set:${s.h}">${s.teile[0] ? ic(s.teile[0].h, s.teile[0].d) : ''}<span><b>${esc(s.s.n)}</b><small>${esc(s.s.p.map((p) => `${p.c}× ${p.n}`).join(' · '))}</small><small class="wq">${esc(s.akt || s.farm?.farm || s.quellen[0] || 'Source unknown')}</small></span></button>`).join('')}</div>`, `w-${t.replace(/\W/g, '')}`)).join('')}`;
   }
   if (k === 'akt') {
     const gr = gruppiert(x.akts, (a) => (a.a.art === 'Raid' ? 'Raids' : 'Dungeons'), ['Raids', 'Dungeons']);
@@ -249,10 +274,24 @@ async function seiteItem(h, x) {
       <div class="wperks">${spalten.map((sp) => `<div class="wpcol"><small>${esc(defs.items[sp[0]]?.k || '')}</small>${sp.map((p) => { const pd2 = defs.items[p]; if (!pd2) return ''; const rt = emp ? `${emp.e?.includes(p) ? 'rt-pve' : ''} ${emp.v?.includes(p) ? 'rt-pvp' : ''} ${god.has(p) ? 'rt-god' : ''}` : ''; return `<div class="wperk" data-ih="${p}" data-ik tabindex="0"><i class="pl ${rt}" style="background-image:url(${BILD}${pd2.i})"></i><span>${esc(pd2.n)}</span></div>`; }).join('')}</div>`).join('')}</div>`
       : '<p class="leer klein">This weapon has fixed perks or no perk data yet.</p>';
   }
+  // Waffen-Details: Element, Munition, Frame, Basis-Stats wie im Spiel, Flavor-Text.
+  let details = '';
+  if (d.t === 3) {
+    const gleich = Object.entries(defs.items).filter(([, y]) => y.t === 3 && y.n === d.n).map(([, y]) => y);
+    const ws = d.ws || gleich.find((y) => y.ws)?.ws || [];
+    const fr = d.fr || gleich.find((y) => y.fr)?.fr;
+    const fl = d.fl || gleich.find((y) => y.fl)?.fl;
+    const ZAHL = new Set([4284893193, 3871231066, 2961396640, 447667954, 1931675084, 2715839340]);
+    const zeile = ([sh, v]) => { const n = defs.stats?.[sh]?.n || ''; if (!n) return ''; return ZAHL.has(Number(sh)) ? `<div class="wstat zahl"><span>${esc(n)}</span><b>${v}</b></div>` : `<div class="wstat"><span>${esc(n)}</span><i><u style="width:${Math.min(100, v)}%"></u></i><b>${v}</b></div>`; };
+    const merk = [[ 'Damage type', ELEMENT[d.d0] ], [ 'Ammo', MUNI[d.a] ], [ 'Slot', SLOT[d.b] ], [ d.q === 6 ? '' : 'Frame', d.q === 6 ? '' : fr ]].filter(([a, b]) => a && b);
+    details = `<div class="wmerk">${merk.map(([a, b]) => `<span><small>${esc(a)}</small><b>${esc(b)}</b></span>`).join('')}</div>${fl ? `<p class="wflavor">${esc(fl)}</p>` : ''}
+      ${ws.length ? `<h3>Base stats</h3><p class="leer klein">Without perks, mods or masterwork, as Bungie lists them.</p><div class="wstats">${ws.map(zeile).join('')}</div>` : ''}`;
+  }
   const fund = woDropt(d.n, x);
   const allgemein = d.q === 6 && d.t === 2 && !q ? '<p>Exotic armor: exotic engrams, Legend/Master Lost Sectors played solo (the exotic armor reward rotates), Xûr, or the Monument to Lost Lights in the Tower.</p>' : '';
   return `<div class="wseite-kopf">${ic(h, d, true)}<div><h2>${esc(d.n)}</h2><small>${esc([d.k, d.t === 2 ? KLASSE[d.c] : SLOT[d.b], d.q === 6 ? 'Exotic' : 'Legendary'].filter(Boolean).join(' · '))}</small>${x.besitz.get(d.n) ? `<small class="hat">✓ You own ${x.besitz.get(d.n)}</small>` : ''}</div></div>
     ${d.xd ? `<p class="tt"><b class="tgold">${esc(d.xp || 'Exotic perk')}</b> ${esc(d.xd)}</p>` : ''}
+    ${details}
     <h3>Where it drops</h3>${fund}${q ? `<p class="wm">${esc(q.text)} <span>(${esc(q.von)})</span></p>` : ''}${allgemein}${!fund && !q && !allgemein ? '<p class="leer">No confirmed source.</p>' : ''}
     <div class="wlinks"><button class="chip" data-farm="${esc(d.n)}">🌾 Farm plan</button><a class="chip" href="https://www.light.gg/db/items/${h}/" target="_blank" rel="noopener">light.gg ↗</a>${set ? `<button class="chip" data-seite="set:${d.e}">Set: ${esc(set.n)}</button>` : ''}</div>
     ${set ? `<h3>Set bonus</h3><div class="tset"><b>${esc(set.n)}</b>${set.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}${perks}`;
@@ -360,7 +399,7 @@ function sucheAlle(x, text) {
     ...ORTE.map((o) => ({ t: o, art: 'Destination', seite: `ort:${o}`, extra: 'planet' })),
     ...x.chals.map((c) => ({ t: c.n, art: 'Raid challenge', seite: null, kat: 'chal', extra: `${c.enc} ${c.raid}` })),
   ];
-  return kand.map((k) => { const tt = norm(k.t); const g = `${tt} ${norm(k.extra)}`; if (!w.every((v) => g.includes(v))) return null; return { k, s: w.reduce((a, v) => a + (tt.startsWith(v) ? 4 : tt.includes(v) ? 3 : 1), 0) + (tt === norm(text) ? 10 : 0) }; })
+  return kand.map((k) => { const de = norm(anzeige(k.t)); const tt = de !== norm(k.t) && w.every((v) => de.includes(v)) ? de : norm(k.t); const g = `${norm(k.t)} ${de} ${norm(k.extra)}`; if (!w.every((v) => g.includes(v))) return null; return { k, s: w.reduce((a, v) => a + (tt.startsWith(v) ? 4 : tt.includes(v) ? 3 : 1), 0) + (tt === norm(text) ? 10 : 0) }; })
     .filter(Boolean).sort((a, b) => b.s - a.s).map((y) => y.k);
 }
 const treffer = (k) => `<button class="wkachel" ${k.seite ? `data-seite="${esc(k.seite)}"` : `data-kat="${k.kat}"`}>${k.h && k.d ? ic(k.h, k.d) : '<span class="wemo">📄</span>'}<span><b>${esc(k.t)}</b><small>${esc(k.art)}</small></span></button>`;
@@ -377,7 +416,8 @@ export async function zeigeWiki(el, zustand) {
     let html = '';
     if (ansicht.seite) {
       const [art, ...r] = ansicht.seite.split(':'); const key = r.join(':');
-      const zurueck = `<button class="chip" data-zurueck>← ${esc(KATEGORIEN.find((k) => k[0] === ansicht.kat)?.[1] || (ansicht.suche ? 'Results' : 'Start'))}</button>`;
+      const vorher = verlauf[verlauf.length - 1]?.seite;
+      const zurueck = `<button class="chip" data-zurueck>← ${vorher ? 'Back' : esc(KATEGORIEN.find((k) => k[0] === ansicht.kat)?.[1] || (ansicht.suche ? 'Results' : 'Start'))}</button>`;
       html = zurueck + (art === 'item' ? await seiteItem(key, x) : art === 'set' ? seiteSet(key, x) : art === 'akt' ? seiteAkt(key, x) : seiteOrt(key, x));
     } else if (ansicht.suche) {
       const t = sucheAlle(x, ansicht.suche);
@@ -397,7 +437,8 @@ export async function zeigeWiki(el, zustand) {
     let k = -1, aktuell = [];
     const zeig = () => {
       const q = norm(inp.value.trim());
-      aktuell = q ? liste().filter((y) => norm(y.n).includes(q)).sort((a, b) => norm(b.n).startsWith(q) - norm(a.n).startsWith(q) || a.n.localeCompare(b.n)).slice(0, 8) : [];
+      const nn = (y) => `${norm(y.n)} ${norm(anzeige(y.n))}`, st = (y) => norm(y.n).startsWith(q) || norm(anzeige(y.n)).startsWith(q);
+      aktuell = q ? liste().filter((y) => nn(y).includes(q)).sort((a, b) => st(b) - st(a) || vergleiche(a.n, b.n)).slice(0, 8) : [];
       k = -1;
       vor.hidden = !aktuell.length;
       vor.innerHTML = aktuell.map((y, i) => `<button data-vi="${i}">${y.h && y.d ? `<i class="wic klein" style="background-image:url(${BILD}${y.d.i})"></i>` : ''}<span>${esc(y.n)}</span><small>${esc(y.typ)}</small></button>`).join('');
@@ -430,13 +471,17 @@ export async function zeigeWiki(el, zustand) {
   f.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { ansicht.suche = f.value.trim(); ansicht.seite = null; if (ansicht.suche) ansicht.kat = null; zeichne(); }, 250); });
   await zeichne();
 
+  el.onchange = (e) => { const w = e.target.closest('[data-wf]'); if (w) { const y = scrollY; ansicht.wf = { ...(ansicht.wf || {}), [w.dataset.wf]: w.value }; zeichne().then(() => scrollTo({ top: y })); } };
   el.onclick = (e) => {
     const k = e.target.closest('[data-kat]');
-    if (k) { ansicht = { ...ansicht, kat: k.dataset.kat || null, seite: null, sub: 'alle', suche: '' }; f.value = ''; scrollTo({ top: 0 }); return zeichne(); }
+    if (k) { verlauf.length = 0; ansicht = { ...ansicht, kat: k.dataset.kat || null, seite: null, sub: 'alle', suche: '' }; f.value = ''; scrollTo({ top: 0 }); return zeichne(); }
     const s = e.target.closest('[data-seite]');
-    if (s) { ansicht.seite = s.dataset.seite; scrollTo({ top: 0 }); return zeichne(); }
-    if (e.target.closest('[data-zurueck]')) { ansicht.seite = null; return zeichne(); }
+    if (s) { verlauf.push({ seite: ansicht.seite, y: scrollY }); ansicht.seite = s.dataset.seite; scrollTo({ top: 0 }); return zeichne(); }
+    if (e.target.closest('[data-zurueck]')) { const v = verlauf.pop() || { seite: null, y: 0 }; ansicht.seite = v.seite; return zeichne().then(() => requestAnimationFrame(() => scrollTo({ top: v.y }))); }
+    const wr = e.target.closest('[data-wfreset]');
+    if (wr) { ansicht.wf = {}; return zeichne(); }
     const sub = e.target.closest('[data-sub]');
+    if (sub) verlauf.length = 0;
     if (sub) { ansicht.sub = sub.dataset.sub; return zeichne(); }
     const fa = e.target.closest('[data-farm]');
     if (fa) { ansicht = { ...ansicht, kat: 'farm', seite: null, farm: fa.dataset.farm, suche: '' }; f.value = ''; return zeichne(); }

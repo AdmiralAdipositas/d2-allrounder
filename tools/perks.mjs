@@ -8,19 +8,21 @@ const BASIS = 'https://www.bungie.net';
 const holen = async (pfad) => { const r = await fetch(BASIS + pfad, { headers: { 'X-API-Key': apiKey } }); if (!r.ok) throw new Error(`${pfad}: ${r.status}`); return r.json(); };
 const manifest = (await holen('/Platform/Destiny2/Manifest/')).Response;
 const alt = fs.existsSync('data/perks.json') ? JSON.parse(fs.readFileSync('data/perks.json', 'utf8')) : null;
-if (alt?.version === manifest.version && alt?.schema === 1) { console.log('Perk data unchanged.'); process.exit(0); }
+if (alt?.version === manifest.version && alt?.schema === 2) { console.log('Perk data unchanged.'); process.exit(0); }
 const pfade = manifest.jsonWorldComponentContentPaths.en;
 const [items, plugSets] = await Promise.all([holen(pfade.DestinyInventoryItemDefinition), holen(pfade.DestinyPlugSetDefinition)]);
 
 // Nur echte Perk-Spalten: Läufe, Magazine, Traits, Origin usw. Keine Shader, Mods, Masterworks, Tracker.
 const SPALTE = /^(barrels|scopes|magazines|magazines_gl|tubes|arrows|batteries|blades|guards|hafts|bowstrings|stocks|grips|frames|origins)$/;
-const aus = { schema: 1, version: manifest.version, erstellt: new Date().toISOString(), w: {} };
+const aus = { schema: 2, version: manifest.version, erstellt: new Date().toISOString(), w: {} };
 for (const [h, it] of Object.entries(items)) {
   if (it.itemType !== 3 || !it.displayProperties?.name || (it.inventory?.tierType || 0) < 5) continue;
   const spalten = [];
   for (const se of it.sockets?.socketEntries || []) {
     const set = plugSets[se.randomizedPlugSetHash] || plugSets[se.reusablePlugSetHash];
-    const kandidaten = set ? set.reusablePlugItems.filter((p) => p.currentlyCanRoll !== false).map((p) => p.plugItemHash) : [se.singleInitialItemHash];
+    let kandidaten = set ? set.reusablePlugItems.filter((p) => p.currentlyCanRoll !== false).map((p) => p.plugItemHash) : [];
+    // Feste Spalten (z. B. ein festes Magazin) trotzdem zeigen.
+    if (!kandidaten.length && se.singleInitialItemHash) kandidaten = [se.singleInitialItemHash];
     const namen = new Set();
     const liste = [];
     for (const p of kandidaten) {
