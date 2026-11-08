@@ -900,3 +900,8 @@ main{padding:12px 16px 40px}
 .wtri-z{display:grid;grid-template-columns:18px 1fr auto;gap:6px;align-items:start;padding:5px 8px;border:1px solid var(--linie);border-radius:6px;font-size:.82rem}
 .wtri-z small{display:block;color:var(--matt);font-size:.74rem}.wtri-z em{font-style:normal;font-size:.62rem;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:0 3px}
 .wtri-z.ok{opacity:.6}.wtri-z.ok span{color:#3fe08f}.wtri-z i{font-style:normal;color:var(--gold);font-size:.75rem}.wtri details{margin-top:6px}
+/* Tresor in Spalten: Waffen | Rüstung | Allgemein nebeneinander */
+.tspalten{display:grid;gap:4px 16px;align-items:start}
+.tspalten.n2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}.tspalten.n3{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.tspalte{min-width:0}
+.b-ausr .cgitter .leer-k{display:none}.b-ausr .creihe .cr-in{min-height:0}

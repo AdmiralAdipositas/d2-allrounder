@@ -25,7 +25,7 @@ const SONST = [[3284755031, 'Subclass'], [4023194814, 'Ghost'], [2025709351, 'Sp
 const ENGRAMME = 375726501, POST = 215593132;
 const ELEMENT = { 1: 'kinetic', 2: 'arc', 3: 'solar', 4: 'void', 6: 'stasis', 7: 'strand' };
 
-let wahl = null, bereich = 'waffen', suche = '', filter = new Set();
+let wahl = null, bereich = 'ausr', suche = '', filter = new Set();
 // Allgemeine Items (Ghost, Sparrow, Schiff, Emblem, Subclass) – nicht in sammle(); eigene Liste + lokale Änderungen nach dem Verschieben.
 const ALLG = new Set([4023194814, 2025709351, 284967655, 4274335291, 3284755031]);
 const allgAend = new Map();
@@ -37,8 +37,8 @@ function allgemein(p) {
   for (const i of p.profileInventory?.data?.items || []) add(i, 'tresor', false);
   return out;
 }
-try { wahl = localStorage.getItem('d2a.charWahl'); bereich = localStorage.getItem('d2a.invBereich') || 'waffen'; } catch {}
-const BEREICHE = [['waffen', 'Weapons'], ['ruestung', 'Armor'], ['sonst', 'General'], ['alle', 'All']];
+try { wahl = localStorage.getItem('d2a.charWahl'); bereich = localStorage.getItem('d2a.invBereich') || 'ausr'; if (!localStorage.getItem('d2a.invV2')) { bereich = 'ausr'; localStorage.setItem('d2a.invV2', '1'); localStorage.setItem('d2a.invBereich', bereich); } } catch {}
+const BEREICHE = [['ausr', 'Weapons & armor'], ['waffen', 'Weapons'], ['ruestung', 'Armor'], ['sonst', 'General'], ['alle', 'All']];
 
 export function zeigeCharakter(haupt, zustand) {
   const p = zustand.profil;
@@ -71,7 +71,7 @@ export function zeigeCharakter(haupt, zustand) {
       const dim = (q && !d.n.toLowerCase().includes(q) && !(d.k || '').toLowerCase().includes(q)) || (filter.size && ![...filter].every(passt));
       return `<button class="ck ${gross ? 'gross' : ''} ${d.q === 6 ? 'exo' : ''} ${x?.mw ? 'mw' : ''} ${dim ? 'dim' : ''}" ${klick} data-ih="${i.itemHash}" aria-label="${esc(d.n)}" style="background-image:${d.w ? `url(${BILD}${d.w}),` : ''}url(${BILD}${d.i})">${tierPips(inst[i.itemInstanceId]?.gearTier)}${x?.crafted ? '<i class="ck-shaped" title="Crafted"></i>' : ''}${power ? `<em class="${el}">${power}</em>` : ''}${i.quantity > 1 ? `<em>${i.quantity}</em>` : ''}${x?.locked ? '<i class="ck-lock">🔒</i>' : ''}</button>`;
     };
-    const reihen = bereich === 'waffen' ? WAFFEN : bereich === 'ruestung' ? RUESTUNG : bereich === 'sonst' ? SONST : [...WAFFEN, ...RUESTUNG, ...SONST];
+    const reihen = bereich === 'waffen' ? WAFFEN : bereich === 'ruestung' ? RUESTUNG : bereich === 'sonst' ? SONST : bereich === 'ausr' ? [...WAFFEN, ...RUESTUNG] : [...WAFFEN, ...RUESTUNG, ...SONST];
     const reihe = (cid, an, inv) => ([b, name]) => {
       const e = an.find((i) => i.bucketHash === b);
       const rest = inv.filter((i) => i.bucketHash === b);
@@ -101,7 +101,7 @@ export function zeigeCharakter(haupt, zustand) {
       if (gruppen) return `<div class="treihe">${kopf}${gruppenLeiste(b, gruppen)}${gruppenInhalt(b, gruppen)}</div>`;
       return `<div class="treihe">${kopf}<div class="cgitter breit">${l.sort(sortiere).map((x) => kachel(alsRoh(x))).join('')}</div></div>`;
     };
-    const tresor = `<section class="ctresorbox" data-ziel="tresor"><div class="ckopf tres"><b>Vault</b><em>${tresorItems.length}</em></div>${reihen.map(tresorBlock).join('') || '<p class="leer klein">Nothing of this kind in the vault.</p>'}</section>`;
+    const tresor = `<section class="ctresorbox" data-ziel="tresor"><div class="ckopf tres"><b>Vault</b><em>${tresorItems.length}</em></div>${(() => { const sp = [WAFFEN, RUESTUNG, SONST].map((g) => reihen.filter((r) => g.includes(r)).map(tresorBlock).join('')).filter(Boolean); return sp.length ? `<div class="tspalten n${sp.length}">${sp.map((x) => `<div class="tspalte">${x}</div>`).join('')}</div>` : '<p class="leer klein">Nothing of this kind in the vault.</p>'; })()}</section>`;
     const c = chars.find((x) => x.characterId === wahl);
     const breit = (haupt.clientWidth || innerWidth) >= 980;
     const FILTER = [['exo', 'Exotic'], ['leg', 'Legendary'], ['lock', 'Locked'], ['dupe', 'Duplicates'], ['el:kinetic', 'Kinetic'], ['el:arc', 'Arc'], ['el:solar', 'Solar'], ['el:void', 'Void'], ['el:stasis', 'Stasis'], ['el:strand', 'Strand']];
