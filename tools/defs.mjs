@@ -11,7 +11,7 @@ const holen = async (pfad) => { const r = await fetch(BASIS + pfad, { headers: {
 const manifest = (await holen('/Platform/Destiny2/Manifest/')).Response;
 const pfade = manifest.jsonWorldComponentContentPaths.en;
 const alt = fs.existsSync('data/defs.json') ? JSON.parse(fs.readFileSync('data/defs.json', 'utf8')) : null;
-if (alt?.version === manifest.version && alt?.schema === 11) { console.log('Game data unchanged.'); process.exit(0); }
+if (alt?.version === manifest.version && alt?.schema === 12) { console.log('Game data unchanged.'); process.exit(0); }
 
 const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, typen, modifier, ziele, loNamen, loIcons, loFarben, knoten, records, ziele2, statGruppen, checklisten] = await Promise.all([
   'DestinyInventoryItemDefinition', 'DestinySandboxPerkDefinition', 'DestinyCollectibleDefinition', 'DestinyStatDefinition',
@@ -22,7 +22,7 @@ const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, ty
 ].map((n) => (pfade[n] ? holen(pfade[n]) : {})));
 
 const text = (item) => item.displayProperties?.description || (item.perks || []).map((p) => sandbox[p.perkHash]?.displayProperties?.description).find(Boolean) || '';
-const aus = { schema: 11, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
+const aus = { schema: 12, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
 for (const [hash, it] of Object.entries(items)) {
   const n = it.displayProperties?.name;
   // Nur, was die App braucht: Waffen, Rüstung, Subclasses, Plugs, Artefakte.
@@ -58,6 +58,8 @@ for (const [hash, it] of Object.entries(items)) {
     // Aspekte: wie viele Fragment-Plätze sie öffnen (für Loadouts, die keine Socket-Freigabe mitliefern).
     const cap = it.plug?.energyCapacity?.capacityValue; if (cap && /aspects|totems|trinkets/.test(e.pc)) e.ec = cap;
   }
+  // Shader: Sammlungs-Eintrag, damit die App die eigenen Shader findet (Aussehen „Mein Shader“).
+  if (e.pc === 'shader' && it.collectibleHash) e.co = it.collectibleHash;
   if (it.iconWatermark) e.w = it.iconWatermark;
   aus.items[hash] = e;
 }
