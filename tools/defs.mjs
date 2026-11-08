@@ -11,7 +11,7 @@ const holen = async (pfad) => { const r = await fetch(BASIS + pfad, { headers: {
 const manifest = (await holen('/Platform/Destiny2/Manifest/')).Response;
 const pfade = manifest.jsonWorldComponentContentPaths.en;
 const alt = fs.existsSync('data/defs.json') ? JSON.parse(fs.readFileSync('data/defs.json', 'utf8')) : null;
-if (alt?.version === manifest.version && alt?.schema === 12) { console.log('Game data unchanged.'); process.exit(0); }
+if (alt?.version === manifest.version && alt?.schema === 13) { console.log('Game data unchanged.'); process.exit(0); }
 
 const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, typen, modifier, ziele, loNamen, loIcons, loFarben, knoten, records, ziele2, statGruppen, checklisten] = await Promise.all([
   'DestinyInventoryItemDefinition', 'DestinySandboxPerkDefinition', 'DestinyCollectibleDefinition', 'DestinyStatDefinition',
@@ -22,7 +22,7 @@ const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, ty
 ].map((n) => (pfade[n] ? holen(pfade[n]) : {})));
 
 const text = (item) => item.displayProperties?.description || (item.perks || []).map((p) => sandbox[p.perkHash]?.displayProperties?.description).find(Boolean) || '';
-const aus = { schema: 12, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
+const aus = { schema: 13, wtyp: {}, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
 for (const [hash, it] of Object.entries(items)) {
   const n = it.displayProperties?.name;
   // Nur, was die App braucht: Waffen, Rüstung, Subclasses, Plugs, Artefakte.
@@ -98,5 +98,9 @@ for (const [h, c] of Object.entries(checklisten)) {
   aus.cl[h] = { n: c.displayProperties.name, d: c.displayProperties.description || '', i: c.displayProperties.icon || '', s: c.scope ?? 0,
     e: c.entries.map((x) => { const z = ziele2[x.destinationHash]; const b = (z?.bubbles || []).find((y) => y.hash === x.bubbleHash); return [x.hash, x.displayProperties?.name || '', z?.displayProperties?.name || '', b?.displayProperties?.name || '', x.displayProperties?.description || '']; }) };
 }
+// Waffentyp-Symbole aus den Sammlungs-Knoten („Auto Rifles“ usw.) für die Tresor-Ansicht.
+{ const typen = new Set(Object.values(aus.items).filter((e) => e.t === 3 && e.k).map((e) => e.k));
+  for (const n of Object.values(knoten)) { const name = n.displayProperties?.name || ''; const ic = n.displayProperties?.icon; if (!ic) continue;
+    for (const t of typen) if (!aus.wtyp[t] && (name === t || name === `${t}s` || name === `${t}es`)) aus.wtyp[t] = ic; } }
 fs.writeFileSync('data/defs.json', JSON.stringify(aus));
 console.log(`Wrote data/defs.json with ${Object.keys(aus.items).length} items.`);
