@@ -147,8 +147,13 @@ async function lade(k, eigenes, zustand) {
   const orbit = zeitChars > zeitAkt ? zeitChars - zeitAkt : 0;
   const daten = { k, zeitModi, sozial, orbit, alle, pve, pvp, chars, lebend, aktivitaeten: [...aktivitaeten.values()], waffen: [...waffen.values()], typen: [...typen.values()].sort((a, b) => b.kills - a.kills), tage: tagListe, laeufe: laeufe.sort((a, b) => new Date(b.t) - new Date(a.t)), records };
   caches.set(key, { zeit: Date.now(), daten });
+  if (eigenes) speichereStats(k, daten);
   return daten;
 }
+// Eigene Stats für den nächsten Start im Browser-Cache: dann steht die Seite sofort, frische Zahlen kommen nach.
+const SKEY = (k) => `stats-${k.membershipId}`;
+async function speichereStats(k, d) { try { const c = await self.caches.open('d2a-profil'); await c.put(SKEY(k), new Response(JSON.stringify({ zeit: Date.now(), d }))); } catch {} }
+async function gespeicherteStats(k) { try { const r = await (await self.caches.open('d2a-profil')).match(SKEY(k)); return r ? (await r.json()).d : null; } catch { return null; } }
 
 // ---------- Auswertung Raids/Dungeons ----------
 function auswerten(laeufe) {
@@ -441,7 +446,9 @@ export async function aktuellerTruppNamen(k) { return aktuellerTrupp(k); }
 // Wie oft du mit wem Raids/Dungeons gespielt hast (aus den Spielberichten); lädt fehlende Berichte nach und meldet Zwischenstände.
 export async function mitspielerVon(zustand, zwischendurch) {
   const k = zustand.konto, ich = k.name || '';
-  const d = await lade(k, true, zustand);
+  let d = caches.get(`${k.membershipType}:${k.membershipId}`)?.daten || await gespeicherteStats(k);
+  const frisch = lade(k, true, zustand);
+  if (!d) d = await frisch; else frisch.then((x) => { d = x; zwischendurch?.(); }).catch(() => {});
   const zaehle = () => {
     const z = new Map(); let fehlt = 0;
     for (const l of d.laeufe) { const p = pgcrLies()[l.id]; if (!p) { if (l.ok) fehlt++; continue; }
@@ -458,9 +465,12 @@ export async function zeigeStats(haupt, zustand) {
   const lauf = (haupt.dataset.lauf = String(Number(haupt.dataset.lauf || 0) + 1));
   const k = fremd || zustand.konto;
   const name = fremd ? fremd.name : 'you';
-  haupt.innerHTML = `<h1>Stats</h1><p class="leer">Reading ${fremd ? esc(fremd.name) + '’s' : 'your'} history from Bungie…</p>`;
-  let d;
-  try { d = await lade(k, !fremd, zustand); } catch (e) { haupt.innerHTML = `<h1>Stats</h1>${suchzeile()}<p class="leer">${esc(e.message)}</p>`; verbinde(haupt, zustand); return; }
+  haupt.innerHTML = `<h1>Stats</h1><div class="kpis lade-skelett">${'<div class="kpi"><small>&nbsp;</small><b>&nbsp;</b><span>&nbsp;</span></div>'.repeat(6)}</div><p class="leer lade-zeile"><i class="spinner"></i> Reading ${fremd ? esc(fremd.name) + '’s' : 'your'} history from Bungie… (first time takes a few seconds, then it’s instant)</p>`;
+  let d = null, ausCache = false;
+  const imSpeicher = caches.get(`${k.membershipType}:${k.membershipId}`);
+  const frisch = lade(k, !fremd, zustand);
+  if (!fremd && !imSpeicher) { const [g] = await Promise.all([gespeicherteStats(k), ladeStatDefs()]); if (g) { d = g; ausCache = true; } }
+  if (!d) { try { d = await frisch; } catch (e) { haupt.innerHTML = `<h1>Stats</h1>${suchzeile()}<p class="leer">${esc(e.message)}</p>`; verbinde(haupt, zustand); return; } }
   if (haupt.dataset.lauf !== lauf) return;
   const zeichne = () => {
     const ws = auswerten(d.laeufe);
@@ -505,6 +515,8 @@ export async function zeigeStats(haupt, zustand) {
   };
   zeichne();
   verbinde(haupt, zustand);
+  // Aus dem Speicher gezeigt: frische Zahlen leise nachziehen (Scroll-Position und offene Blöcke bleiben).
+  if (ausCache) frisch.then((x) => { if (haupt.dataset.lauf !== lauf) return; d = x; const y = scrollY; zeichne(); scrollTo({ top: y }); }).catch(() => {});
   truppNeu = (h) => { const b = h.querySelector('[data-blk=trupp]'); if (!b) return; const sum = b.querySelector('summary').outerHTML; b.innerHTML = sum + truppBlock(d, tipDaten.ich, !fremd); };
   if (autoVergleich && !fremd) { autoVergleich = false; setTimeout(() => { const b = haupt.querySelector('[data-blk=trupp]'); if (b) { b.open = true; b.scrollIntoView({ block: 'start' }); const box = b.querySelector('.vglbox'); if (box) vergleichZeigen(box, tipDaten.ich, tipDaten.k); } }, 50); }
   clearInterval(truppTimer);

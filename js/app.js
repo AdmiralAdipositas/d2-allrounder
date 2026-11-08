@@ -64,7 +64,7 @@ const ANSICHTEN = {
   xur: ['Xûr', (el) => zeigeXur(el, zustand)],
   post: ['Postmaster', (el) => zeigePost(el, zustand)],
   konto: ['Account', (el) => zeigeKonto(el, zustand, { neuLaden: zustand.neuLaden, abmelden })],
-  char: ['Guardians', (el) => zeigeCharakter(el, zustand)],
+  char: ['Inventory', (el) => zeigeCharakter(el, zustand)],
   vault: ['Weapons', (el) => zeigeVault(el, zustand, 'waffen')],
   armor: ['Armor', (el) => zeigeVault(el, zustand, 'ruestung')],
   loadouts: ['Loadouts', (el) => zeigeLoadouts(el, zustand)],
@@ -130,17 +130,23 @@ panel.addEventListener('pointerout', (e) => { if (e.target.closest('[data-tn]'))
 // Seitenpanel: zeigt "This week" oder eine Ansicht nach Wahl; angeheftet bleibt es offen, auch nach Neuladen.
 const pz = (() => { try { return { art: 'woche', fest: false, breit: false, ...JSON.parse(localStorage.getItem('d2a.panel') || '{}') }; } catch { return { art: 'woche', fest: false, breit: false }; } })();
 const merkePanel = () => { try { localStorage.setItem('d2a.panel', JSON.stringify(pz)); } catch {} };
+// Panel-Auswahl: eigenes Menü mit Symbolen statt einer grauen Liste.
+const SCHNELL = [['woche', '🗓'], ['xur', '🧳'], ['post', '📮'], ['konto', '👤']];
+const EMO = { squad: '🛡' };
+const panelIcon = (k) => { const s = SCHNELL.find(([x]) => x === k); if (s) return `<i class="pm-emo">${s[1]}</i>`; const svg = rail.querySelector(`[data-tab="${k === 'char' ? 'char' : k}"] svg`)?.outerHTML; return svg ? `<i class="pm-ic">${svg}</i>` : `<i class="pm-emo">${EMO[k] || '▫'}</i>`; };
 function zeigePanel() {
   panel.hidden = false;
   panel.classList.toggle('lang', Boolean(pz.text));
   if (pz.w && !matchMedia('(max-width: 760px)').matches) panel.style.width = `${pz.w}px`;
   document.body.classList.toggle('panel-fest', pz.fest);
   rail.querySelector('[data-panel]').classList.add('panel-an'); $('#konto').classList.add('panel-an');
-  panel.innerHTML = `<div class="pkopf"><select id="pArt" aria-label="Panel content">${Object.entries(ANSICHTEN).map(([k, [n]]) => `<option value="${k}" ${k === pz.art ? 'selected' : ''}>${n}</option>`).join('')}</select>
+  panel.innerHTML = `<div class="pkopf"><button id="pArtKnopf" class="part-knopf" aria-haspopup="true" aria-expanded="false">${panelIcon(pz.art)}<span>${ANSICHTEN[pz.art][0]}</span><em>▾</em></button>
+    <div class="pmenue" hidden><small>Quick</small><div class="pm-schnell">${SCHNELL.map(([k, e]) => `<button data-part="${k}" class="${k === pz.art ? 'an' : ''}"><b>${e}</b>${ANSICHTEN[k][0]}</button>`).join('')}</div>
+      <small>Open a page here, next to the main view</small><div class="pm-seiten">${Object.keys(ANSICHTEN).filter((k) => !SCHNELL.some(([x]) => x === k)).map((k) => `<button data-part="${k}" class="${k === pz.art ? 'an' : ''}">${panelIcon(k)}<span>${ANSICHTEN[k][0]}</span></button>`).join('')}</div></div>
     <button id="pText" class="pknopf" title="${pz.text ? 'Names only' : 'Show short descriptions (modifiers, challenges)'}" aria-pressed="${Boolean(pz.text)}">${pz.text ? '☰' : 'ⓘ'}</button>
     <button id="pFest" class="pknopf" title="${pz.fest ? 'Unpin' : 'Pin: keep open'}" aria-pressed="${pz.fest}">📌</button>
     <button id="pZu" class="pknopf" title="Close">✕</button></div>
-    <div class="preiter">${[['woche', 'This week'], ['xur', 'Xûr'], ['post', 'Postmaster'], ['konto', 'Account']].map(([k, n]) => `<button data-part="${k}" class="${k === pz.art ? 'an' : ''} ${k === 'woche' ? 'erst' : ''}">${n}</button>`).join('')}</div><div id="pInhalt"></div>`;
+    <div id="pInhalt"></div>`;
   const inhalt = panel.querySelector('#pInhalt');
   if (!zustand.profil) { inhalt.innerHTML = '<p class="leer">Sign in first.</p>'; return; }
   ANSICHTEN[pz.art][1](inhalt);
@@ -157,7 +163,8 @@ $('#logo').addEventListener('click', async () => {
   wechsle('char'); scrollTo({ top: 0, behavior: 'smooth' });
   try { if (zustand.profil) await zustand.neuLaden?.(); } finally { l.classList.remove('dreht'); }
 });
-panel.addEventListener('change', (e) => { if (e.target.id === 'pArt') { pz.art = e.target.value; merkePanel(); zeigePanel(); } });
+panel.addEventListener('click', (e) => { const k = e.target.closest('#pArtKnopf'); if (!k) return; const m = panel.querySelector('.pmenue'); m.hidden = !m.hidden; k.setAttribute('aria-expanded', String(!m.hidden)); });
+document.addEventListener('pointerdown', (e) => { const m = panel.querySelector('.pmenue'); if (m && !m.hidden && !e.target.closest('.pmenue,#pArtKnopf')) m.hidden = true; });
 panel.addEventListener('click', (e) => {
   const id = e.target.closest('button')?.id;
   if (id === 'pZu') { pz.fest = false; merkePanel(); schliessePanel(); }
@@ -224,7 +231,7 @@ async function start() {
     const startZeit = Date.now();
     navigator.serviceWorker.addEventListener('message', (e) => {
       if (e.data?.typ !== 'daten-neu' || !/\/data\//.test(e.data.pfad || '')) return;
-      if (Date.now() - startZeit < 20_000 && !sessionStorage.getItem('d2a.datenNeu')) { sessionStorage.setItem('d2a.datenNeu', '1'); location.reload(); return; }
+      if (Date.now() - startZeit < 8_000 && !sessionStorage.getItem('d2a.datenNeu') && !document.querySelector('#willkommen')) { sessionStorage.setItem('d2a.datenNeu', '1'); location.reload(); return; }
       meldung('New game data is available. Reload the page to use it.');
     });
     setTimeout(() => sessionStorage.removeItem('d2a.datenNeu'), 60_000);
@@ -238,7 +245,7 @@ async function start() {
   if (bungie.eingerichtet() && !bungie.angemeldet() && bungie.warAngemeldet() && !new URLSearchParams(location.search).has('error') && Date.now() - Number(sessionStorage.getItem('d2a.auto') || 0) > 120_000) {
     sessionStorage.setItem('d2a.auto', String(Date.now())); haupt.innerHTML = '<p class="leer">Renewing your Bungie sign-in…</p>'; return bungie.anmelden(); }
   if (!bungie.eingerichtet() || !bungie.angemeldet()) { wechsleNurLeiste(); starteSprache(null); return anmeldeSeite(); }
-  haupt.innerHTML = '<p class="leer">Loading your guardians…</p>';
+  haupt.innerHTML = '<div class="start-lade"><i class="spinner gross"></i><p>Loading your guardians…</p><small>Game data and your last inventory come from this device, fresh data from Bungie follows.</small></div>';
   try {
     await Promise.all([ladeDefs(), ladeRolls(), ladeQuellen()]);
     zustand.oeffnePanel = oeffnePanel; zustand.postZahl = postZahl;

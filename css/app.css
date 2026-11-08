@@ -978,3 +978,40 @@ img.d1ammo{display:inline-block;width:20px;height:20px;border-radius:0;box-shado
 .hz-fuss select{background:var(--bg3);color:var(--text);border:1px solid var(--linie2);border-radius:4px}
 @media (max-width:760px){.hz-liste{grid-template-columns:1fr}.hz{grid-template-columns:auto 1fr auto;padding:6px 8px}.hz-akt{grid-column:2/-1;justify-content:flex-start}.hz-suche{margin:6px 0 0;width:100%}.hz-suche input{flex:1;min-width:0}.hz-chips{flex-wrap:nowrap;overflow-x:auto}}
 .hz-chips .chip{white-space:nowrap;flex:none}
+/* Leistung: keine seitenweiten Dauer-Animationen mehr (die ließen bei großem Inventar alles ruckeln).
+   Photo Finish läuft jetzt nur noch in den Elementen selbst (Rahmen, Überschriften, Leiste) – der Rest ist ruhig. */
+@property --pfa2{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes pfdreh2{to{--pfa2:360deg}}
+html[data-pf]{animation:none!important;
+  --gold:#ffd60a!important;--violett:#bf5af2!important;--arc:#64d2ff!important;
+  --sh1:#ff2d55!important;--sh2:#ff9f0a!important;--sh3:#ffd60a!important;--sh4:#30d158!important;--sh5:#64d2ff!important;--sh6:#bf5af2!important}
+html[data-pf] body{background:radial-gradient(900px 600px at 80% -10%,#ff2d5520,transparent 60%),radial-gradient(800px 600px at -10% 110%,#64d2ff1c,transparent 60%),repeating-linear-gradient(45deg,#ffffff06 0 2px,transparent 2px 6px),repeating-linear-gradient(-45deg,#00000040 0 2px,transparent 2px 6px),linear-gradient(180deg,#121316,#0a0b0c)!important;background-attachment:scroll!important;animation:none!important}
+html[data-pf] .cspalte,html[data-pf] .ctresorbox,html[data-pf] .sblock,html[data-pf] .wk-box{background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(from var(--pfa2),#ff2d55,#ff9f0a,#ffd60a,#30d158,#64d2ff,#0a84ff,#bf5af2,#ff2d55) border-box!important;animation:pfdreh2 5s linear infinite}
+html[data-pf] .cspalte.an,html[data-pf] .ctresorbox{box-shadow:0 0 22px -8px #ff9f0a88}
+html[data-pf] #rail svg{stroke:#ffd60a}
+:root[data-theme=shader] body{animation:none!important;background-attachment:scroll!important}
+:root[data-theme=shader] h1{animation-duration:14s}
+#willkommen{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:#000000d9!important;animation:none!important}
+.hz-leiste{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--bg3)}
+@media (prefers-reduced-motion:reduce){html[data-pf] *{animation:none!important}}
+/* Laden: sofort sichtbare Platzhalter statt leerer Fläche */
+@keyframes dreh{to{transform:rotate(360deg)}}@keyframes schimmer{0%{opacity:.35}50%{opacity:.7}100%{opacity:.35}}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--linie2);border-top-color:var(--gold);border-radius:50%;animation:dreh .8s linear infinite;vertical-align:-2px;margin-right:6px}
+.spinner.gross{width:34px;height:34px;border-width:3px}
+.start-lade{display:grid;place-items:center;gap:8px;min-height:50vh;text-align:center;color:var(--text2)}.start-lade p{margin:0;font-size:1.05rem}.start-lade small{color:var(--matt)}
+.lade-skelett .kpi{animation:schimmer 1.4s ease-in-out infinite;min-height:70px}
+/* Seitenpanel: Auswahl als buntes Menü */
+
+.part-knopf{flex:1;display:flex;align-items:center;gap:8px;min-width:0;padding:6px 10px;border:1px solid var(--gold);border-radius:8px;background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 18%,var(--bg3)),var(--bg3));color:var(--text);font:700 .85rem var(--kopf);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.part-knopf span{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.part-knopf em{font-style:normal;color:var(--gold)}
+.pm-emo{font-style:normal;font-size:1.05rem;line-height:1}.pm-ic svg{width:18px;height:18px;fill:none;stroke:var(--gold);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+.pmenue{position:absolute;left:8px;right:8px;top:calc(100% + 4px);z-index:40;padding:10px;border:1px solid var(--linie2);border-radius:12px;background:var(--bg3);box-shadow:0 14px 40px #000c}
+.pmenue small{display:block;color:var(--matt);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;margin:2px 2px 6px}
+.pm-schnell{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.pm-schnell button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border:1px solid var(--linie2);border-radius:10px;background:var(--bg2);color:var(--text);font-size:.74rem;cursor:pointer}
+.pm-schnell button b{font-size:1.4rem;line-height:1}
+.pm-seiten{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.pm-seiten button{display:flex;align-items:center;gap:8px;padding:7px 8px;border:1px solid transparent;border-radius:8px;background:none;color:var(--text2);font-size:.82rem;text-align:left;cursor:pointer}
+.pm-seiten button:hover,.pm-schnell button:hover{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 12%,var(--bg2));color:var(--text)}
+.pmenue button.an{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 20%,var(--bg2));color:var(--text)}
+.pm-seiten button:nth-child(6n+1) svg{stroke:var(--sh1,#ff6fae)}.pm-seiten button:nth-child(6n+2) svg{stroke:var(--sh2,#7fd5ff)}.pm-seiten button:nth-child(6n+3) svg{stroke:var(--sh3,#ff8a2a)}.pm-seiten button:nth-child(6n+4) svg{stroke:var(--sh4,#3fe08f)}.pm-seiten button:nth-child(6n+5) svg{stroke:var(--sh5,#e8c35a)}.pm-seiten button:nth-child(6n) svg{stroke:var(--sh6,#9b7bff)}
