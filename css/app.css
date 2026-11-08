@@ -1395,3 +1395,7 @@ body.abgemeldet #lichtfaden,body.abgemeldet #panelGriff,body.abgemeldet #handyLe
 .st-quick b svg{width:22px;height:22px;fill:none;stroke:var(--gold);stroke-width:1.7}
 .st-quick-tipp{align-self:center;font-size:.72rem;color:var(--matt)}
 .st-auf-knoepfe .st-chip,.st-serie{height:34px;box-sizing:border-box;display:inline-flex;align-items:center}.st-chip .ikon-svg{width:15px;height:15px;vertical-align:0}
+/* Einfache Ansicht sichtbar auch auf Start, Inventar und Wiki */
+html[data-modus=einfach] .st-reset,html[data-modus=einfach] .st-neu,html[data-modus=einfach] .st-post,html[data-modus=einfach] .st-klein,html[data-modus=einfach] .st-quick-tipp{display:none}
+html[data-modus=einfach] .ck-sn,html[data-modus=einfach] .vlegende,html[data-modus=einfach] .wsprung,html[data-modus=einfach] .lo-sub{display:none}
+html[data-modus=einfach] .st-heute-reihe{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}

@@ -127,7 +127,7 @@ mb?.addEventListener('click', (e) => {
 // Andere Module springen über ein Ereignis zu einer Seite (z. B. Hüter → Squad-Check).
 $('#panelGriff')?.addEventListener('click', () => oeffnePanel('woche'));
 // Ansicht „Einfach / Ausführlich“: Beschriftung in der Leiste und Seite neu zeichnen.
-const modusText = () => { const t = rail.querySelector('[data-modustext]'); if (t) t.textContent = document.documentElement.dataset.modus === 'voll' ? 'Detailed view' : 'Simple view'; };
+const modusText = () => { const t = rail.querySelector('[data-modustext]'); if (t) t.textContent = document.documentElement.dataset.modus === 'voll' ? 'View: Detailed' : 'View: Simple'; const b = rail.querySelector('[data-modusknopf]'); if (b) b.title = document.documentElement.dataset.modus === 'voll' ? 'Switch to Simple: fewer numbers, filters and options' : 'Switch to Detailed: everything open, all filters'; };
 modusText();
 window.addEventListener('d2a-modus', () => { modusText(); if (zustand.profil) wechsle(zustand.tab); });
 window.addEventListener('d2a-tab', (e) => { if (TABS[e.detail]) wechsle(e.detail); });
@@ -157,7 +157,7 @@ rail.addEventListener('click', (e) => {
   if (!b) return;
   if (b.dataset.tab) wechsle(b.dataset.tab);
   else if (b.dataset.panel) schaltePanel();
-  else if ('modusknopf' in b.dataset) import('./konto.js').then((m) => { m.setzeModus(m.modus() === 'einfach' ? 'voll' : 'einfach'); modusText(); });
+  else if ('modusknopf' in b.dataset) import('./konto.js').then((m) => { const neu = m.modus() === 'einfach' ? 'voll' : 'einfach'; m.setzeModus(neu); modusText(); meldung(neu === 'einfach' ? 'Simple view: only the key cards, numbers and filters.' : 'Detailed view: all cards, numbers, filters and options.'); });
   else if ('zufall' in b.dataset) { if (!zustand.profil) meldung('Sign in first – the randomizer uses your own gear.', true); else import('./zufall.js').then((m) => m.oeffneZufall(zustand)).catch((err) => { console.error(err); meldung(`Randomizer: ${err.message}`, true); }); }
   else if (b.id === 'konto') kontoKlick();
   if (matchMedia('(pointer: coarse)').matches) rail.classList.remove('offen');

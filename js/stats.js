@@ -185,7 +185,7 @@ const fertig = (rec, h) => { const r = rec[h]; return Boolean(r) && (r.state & 4
 // ---------- Darstellung ----------
 const kachel = (titel, gross, klein = '') => `<div class="kpi"><small>${titel}</small><b>${gross}</b>${klein ? `<span>${klein}</span>` : ''}</div>`;
 // Aktivitäts-Symbol aus den Spieldaten (Raid-/Dungeon-Name ohne Variante).
-const aktIcon = (n) => { const a = Object.values(defs.akt || {}).find((x) => x.i && x.n.split(':')[0].trim() === n && /icons/.test(x.i)) || Object.values(defs.akt || {}).find((x) => x.i && x.n.split(':')[0].trim() === n); return a ? `<img class="raktic" src="${BILD}${a.i}" alt="" loading="lazy" onerror="this.remove()">` : ''; };
+const aktIcon = (n) => { const ok = (x) => x.i && !/missing_icon/.test(x.i) && x.n.split(':')[0].trim() === n; const a = Object.values(defs.akt || {}).find((x) => ok(x) && /icons/.test(x.i)) || Object.values(defs.akt || {}).find(ok); return a ? `<img class="raktic" src="${BILD}${a.i}" alt="" loading="lazy" onerror="this.remove()">` : ''; };
 const block = (id, titel, sub, inhalt, offen) => `<details class="sblock" data-blk="${id}" ${offen ? 'open' : ''}><summary><h3>${titel}</h3>${sub ? `<small>${sub}</small>` : ''}</summary>${inhalt}</details>`;
 let offenStand = {};
 try { offenStand = JSON.parse(localStorage.getItem('d2a.statsOffen') || '{}'); } catch {}
