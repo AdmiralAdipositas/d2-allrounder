@@ -820,6 +820,6 @@ html[data-pf]{animation:pfdreh 14s linear infinite;
 html[data-pf] h1,html[data-pf] .sblock>summary h3{background:var(--pf-verlauf);-webkit-background-clip:text;background-clip:text;color:transparent}
 html[data-pf] #rail{border-right:2px solid transparent;border-image:linear-gradient(180deg,hsl(calc(var(--pfh) * 1deg) 95% 60%),hsl(calc((var(--pfh) + 180) * 1deg) 95% 60%),hsl(calc((var(--pfh) + 360) * 1deg) 95% 60%)) 1}
 html[data-pf] #rail svg{stroke:hsl(calc(var(--pfh) * 1deg) 90% 66%)}html[data-pf] #rail button.an svg{filter:drop-shadow(0 0 6px hsl(calc(var(--pfh) * 1deg) 95% 60%))}
-html[data-pf] .cspalte,html[data-pf] .ctresorbox,html[data-pf] .sblock{border:1.5px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,var(--pf-verlauf) border-box}
+html[data-pf] .cspalte,html[data-pf] .ctresorbox,html[data-pf] .sblock{border:1.5px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(from calc(var(--pfh) * 1deg),#ff3b3b,#ffb03b,#f5ff3b,#3bff72,#3bf0ff,#3b6bff,#b23bff,#ff3bd2,#ff3b3b) border-box}
 html[data-pf] .cspalte.an{box-shadow:0 0 18px hsl(calc(var(--pfh) * 1deg) 95% 55% / .45)}
 @media (prefers-reduced-motion:reduce){html[data-pf]{animation-duration:120s}}
