@@ -1449,3 +1449,10 @@ html[data-modus=einfach] .st-auf .st-klein{display:block}
 @media(min-width:761px){#zurueckKnopf{left:calc(var(--rail) + 16px);bottom:20px}}
 #zurueckKnopf .zk-ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .it-kills{padding:6px 0 8px;font-size:.9rem;color:var(--text2)}.it-kills b{color:var(--gold);font:800 1.05rem var(--kopf)}.it-kills small{color:var(--matt);margin-left:4px}
+/* Inventar: Postmaster rechts unter dem Tresor */
+.crechts{display:flex;flex-direction:column;gap:12px;min-width:0}
+.cpostbox{border:1px solid var(--linie2);border-radius:12px;background:var(--bg2);padding:10px 12px}
+.cpostbox .kopf{margin:0 0 6px}.cpostbox .kopf h1{font-size:1rem}.cpostbox .karte.post{margin:6px 0;padding:8px;background:var(--bg3)}
+.cpostbox .post-kopf h3{font-size:.85rem}
+@media(min-width:761px){#zurueckKnopf{display:none!important}}
+#rail [data-zurueck]:disabled{opacity:.35;cursor:default}

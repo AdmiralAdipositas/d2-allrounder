@@ -135,7 +135,7 @@ window.addEventListener('d2a-tab', (e) => { if (TABS[e.detail]) wechsle(e.detail
 const zurueck = []; let zurueckLaeuft = false;
 const zKnopf = document.createElement('button'); zKnopf.id = 'zurueckKnopf'; zKnopf.hidden = true; zKnopf.setAttribute('aria-label', 'Back to where you were'); zKnopf.innerHTML = '';
 document.body.append(zKnopf);
-const zeigeZurueck = () => { const hoch = !zurueck.length && scrollY > 1200; zKnopf.hidden = !zurueck.length && !hoch; zKnopf.dataset.art = hoch ? 'hoch' : 'zurueck'; zKnopf.innerHTML = hoch ? '<svg class="zk-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/><path d="M6 19h12"/></svg>' : '<svg class="zk-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6L4 11l5 5"/><path d="M4 11h10a5 5 0 0 1 0 10h-3"/></svg>'; zKnopf.title = hoch ? 'Back to top' : 'Back to where you were'; };
+const zeigeZurueck = () => { const rz = rail.querySelector('[data-zurueck]'); if (rz) rz.disabled = !zurueck.length; const hoch = !zurueck.length && scrollY > 1200; zKnopf.hidden = !zurueck.length && !hoch; zKnopf.dataset.art = hoch ? 'hoch' : 'zurueck'; zKnopf.innerHTML = hoch ? '<svg class="zk-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/><path d="M6 19h12"/></svg>' : '<svg class="zk-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6L4 11l5 5"/><path d="M4 11h10a5 5 0 0 1 0 10h-3"/></svg>'; zKnopf.title = hoch ? 'Back to top' : 'Back to where you were'; };
 addEventListener('scroll', () => { if (!zurueck.length) zeigeZurueck(); }, { passive: true });
 function merkeStelle(tab, y) { const l = zurueck[zurueck.length - 1]; if (l && l.tab === tab && Math.abs(l.y - y) < 200) return; zurueck.push({ tab, y }); if (zurueck.length > 25) zurueck.shift(); zeigeZurueck(); }
 zKnopf.onclick = () => {
@@ -183,6 +183,7 @@ rail.addEventListener('click', (e) => {
   if (!b) return;
   if (b.dataset.tab) wechsle(b.dataset.tab);
   else if (b.dataset.panel) schaltePanel();
+  else if ('zurueck' in b.dataset) { if (zurueck.length) zKnopf.click(); }
   else if ('einst' in b.dataset) { if (zustand.profil) oeffnePanel('konto'); else bungie.anmelden(); }
   else if ('modusknopf' in b.dataset) import('./konto.js').then((m) => { const neu = m.modus() === 'einfach' ? 'voll' : 'einfach'; m.setzeModus(neu); modusText(); meldung(neu === 'einfach' ? 'Simple view: only the key cards, numbers and filters.' : 'Detailed view: all cards, numbers, filters and options.'); });
   else if ('zufall' in b.dataset) { if (!zustand.profil) meldung('Sign in first – the randomizer uses your own gear.', true); else import('./zufall.js').then((m) => m.oeffneZufall(zustand)).catch((err) => { console.error(err); meldung(`Randomizer: ${err.message}`, true); }); }
