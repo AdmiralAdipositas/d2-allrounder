@@ -1,5 +1,6 @@
 // Rahmen der App: Seitenleiste, Tabs, Seitenpanel, Anmeldung.
-import { ikon, vorschauKarten } from './ikonen.js';
+import { ikon, vorschauKarten, starteEmojiErsatz } from './ikonen.js';
+starteEmojiErsatz();
 import * as bungie from './bungie.js';
 import { ladeDefs } from './defs.js';
 import { ladeRolls } from './rolls.js';

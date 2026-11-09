@@ -1457,3 +1457,6 @@ html[data-modus=einfach] .st-auf .st-klein{display:block}
 @media(min-width:761px){#zurueckKnopf{display:none!important}}
 #rail [data-zurueck]:disabled{opacity:.35;cursor:default}
 .st-chip .ikon-svg,.st-serie .ikon-svg,.st-tag>small .ikon-svg{margin:0!important}
+/* Ersetzte Emojis: Linien-Icon in Textgröße, Farbe vom Text */
+.ikon-svg.emo{width:1.1em;height:1.1em;vertical-align:-.18em;margin:0 .1em;stroke-width:1.9}
+.chip .ikon-svg.emo,button .ikon-svg.emo{color:var(--gold)}

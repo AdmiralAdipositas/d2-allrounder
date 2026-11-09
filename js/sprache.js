@@ -187,6 +187,8 @@ export async function starte(konto) {
     k.keys.forEach((en, i) => { if (v[i]) karte.set(en, v[i]); });
   } catch { /* Spieldaten-Übersetzung noch nicht gebaut: nur App-Texte */ }
   if (sprache === 'de') for (const [en, de] of Object.entries(UI_DE)) karte.set(en, de);
+  // Emojis werden durch eigene Icons ersetzt – Texte ohne Emoji müssen trotzdem übersetzt werden.
+  { const { ohneEmoji } = await import('./ikonen.js'); for (const [en, de] of [...karte]) { const e2 = ohneEmoji(en); if (e2 !== en && e2 && !karte.has(e2)) karte.set(e2, ohneEmoji(de)); } }
   if (!karte.size) return;
   uebersetze(document.body);
   new MutationObserver((ms) => {
