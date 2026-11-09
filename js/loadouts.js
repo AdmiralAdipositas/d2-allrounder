@@ -153,7 +153,7 @@ export function zeigeLoadouts(haupt, zustand) {
           if (it.ort !== charWahl) { meldung(`Moving ${it.d.n}…`); try { await bringe(zustand.konto, it, charWahl); } catch (err) { fehler.push(err.message); continue; } }
           ids.push(it.id);
         }
-        try { if (ids.length) await bungie.ausruestenAlle(zustand.konto, ids.filter(Boolean), charWahl); meldung(fehler.length ? `Equipped, but: ${fehler.join(' ')}` : `${lo.name} equipped.`, fehler.length > 0); } catch (err) { meldung(err.message, true); }
+        try { if (ids.length) await bungie.ausruestenAlle(zustand.konto, ids.filter(Boolean).sort((a, b) => (nachId.get(a)?.d.q === 6) - (nachId.get(b)?.d.q === 6)), charWahl); meldung(fehler.length ? `Equipped, but: ${fehler.join(' ')}` : `${lo.name} equipped.`, fehler.length > 0); } catch (err) { meldung(err.message, true); }
         laeuft = false; return zeichne();
       }
       return;

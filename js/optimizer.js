@@ -486,7 +486,13 @@ async function ausruesten(b, zustand, char, knopf, opt = {}) {
       }
       merkeAenderung(it.id, { ort: cid, angelegt: false });
     }
-    if (b.items.length) await bungie.ausruestenAlle(k, b.items.map((i) => i.id), cid);
+    // Exotic zuletzt anlegen: sonst blockiert ein noch angelegtes anderes Exotic (nur eins erlaubt) und Bungie lässt es still weg.
+    if (b.items.length) {
+      const reihe = [...b.items].sort((x, y) => (x.exo === true) - (y.exo === true));
+      const r = await bungie.ausruestenAlle(k, reihe.map((i) => i.id), cid).catch(() => null);
+      const fehlt = reihe.filter((i) => { const e = r?.equipResults?.find((x) => x.itemInstanceId === i.id); return !e || e.equipStatus !== 1; });
+      for (const it of fehlt) { try { await bungie.ausruesten(k, it, cid); } catch (e) { meldung(`${it.d.n}: ${e.message}`, true); } }
+    }
     // Mods stecken: Stat-Mods in den allgemeinen Sockel, beim Build zusätzlich alle Build-Mods (Firepower, Siphons, Surges …)
     // in die Slot-Sockel, mit Energie-Grenze. Was nicht zum Build gehört, wird beim Build vorher geleert, damit Energie frei ist.
     const bdM = opt.buildmods === false ? null : zustandO.build;
