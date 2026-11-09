@@ -1468,3 +1468,9 @@ html[data-modus=einfach] .st-auf .st-klein{display:block}
 .cleeren.frage{background:color-mix(in srgb,var(--gold) 16%,var(--bg))}
 .cleer-alle{padding:6px 8px 0}.cleeren.gross{width:100%;margin:0;padding:6px 10px;font-size:.74rem;opacity:.8;text-transform:none}
 @media (hover:none){.cleeren{opacity:.9}}
+/* Charakter-Kopf: Name nicht über dem Emblem-Symbol, einheitlicher dunkler Schleier über allen Emblemen */
+.ckopf{position:relative;isolation:isolate}
+.ckopf::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,#0000 0,#0000 46px,#000a 70px,#0008 100%);z-index:-1}
+.ckopf .ck-z1{padding-left:50px;min-height:22px;align-items:center}
+.ckopf .ck-z1 b{font-size:1rem}.ckopf .ck-stats{background:#000a;border-radius:8px}
+.ckopf .ck-z1 em{color:var(--gold)}
