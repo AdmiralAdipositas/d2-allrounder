@@ -192,7 +192,7 @@ function rechne(liste, wunsch) {
   durchlaufe(g, (summe, frei, weg) => {
     for (const st of sets) if (weg.filter((x) => x.i.set?.n === st.n).length < st.stk) return;
     const s = summe.map((v, n) => v + bonus[n]);
-    const noetig = s.map((v, n) => (v >= ziel[n] ? 0 : modWert[n] ? Math.ceil((ziel[n] - v) / modWert[n]) : Infinity));
+    const noetig = s.map((v, n) => (!ziel[n] || v >= ziel[n] ? 0 : modWert[n] ? Math.ceil((ziel[n] - v) / modWert[n]) : Infinity));
     const alle = noetig.reduce((a, b) => a + b, 0);
     for (let n = 0; n < 6; n++) {
       const andere = alle - noetig[n];
