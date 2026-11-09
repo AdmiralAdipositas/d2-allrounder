@@ -1456,3 +1456,4 @@ html[data-modus=einfach] .st-auf .st-klein{display:block}
 .cpostbox .post-kopf h3{font-size:.85rem}
 @media(min-width:761px){#zurueckKnopf{display:none!important}}
 #rail [data-zurueck]:disabled{opacity:.35;cursor:default}
+.st-chip .ikon-svg,.st-serie .ikon-svg,.st-tag>small .ikon-svg{margin:0!important}
