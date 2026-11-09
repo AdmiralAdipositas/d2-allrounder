@@ -109,8 +109,8 @@ function platzhalter(titel, text) { haupt.innerHTML = `<h1>${titel}</h1><p class
 // Handy: 5 beschriftete Knöpfe unten, „Mehr“ öffnet ein Blatt mit allem anderen.
 const hl = $('#handyLeiste'), mb = $('#mehrBlatt');
 hl?.querySelectorAll('[data-ico]').forEach((i) => { const svg = rail.querySelector(`[data-tab="${i.dataset.ico}"] svg`); if (svg) i.innerHTML = svg.outerHTML; });
-const MEHR = [['panel:konto', 'Settings'], ['tab:armor', 'Armor'], ['tab:loadouts', 'Loadouts'], ['tab:optimizer', 'Optimizer'], ['tab:stats', 'Stats'], ['tab:hueter', 'Guardians'], ['tab:wiki', 'Wiki'], ['tab:guide', 'Raid Guide'], ['zufall', 'Randomizer'], ['panel:woche', 'This week'], ['panel:xur', 'Xûr'], ['panel:post', 'Postmaster'], ['modus', 'Simple / Detailed']];
-const EMO2 = { zufall: ikon('wuerfel'), 'panel:woche': ikon('kalender'), 'panel:xur': ikon('koffer'), 'panel:post': ikon('post'), 'panel:konto': ikon('regler'), modus: ikon('ziel') };
+const MEHR = [['refresh', 'Refresh'], ['panel:konto', 'Settings'], ['tab:armor', 'Armor'], ['tab:loadouts', 'Loadouts'], ['tab:optimizer', 'Optimizer'], ['tab:stats', 'Stats'], ['tab:hueter', 'Guardians'], ['tab:wiki', 'Wiki'], ['tab:guide', 'Raid Guide'], ['zufall', 'Randomizer'], ['panel:woche', 'This week'], ['panel:xur', 'Xûr'], ['panel:post', 'Postmaster'], ['modus', 'Simple / Detailed']];
+const EMO2 = { refresh: '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>', zufall: ikon('wuerfel'), 'panel:woche': ikon('kalender'), 'panel:xur': ikon('koffer'), 'panel:post': ikon('post'), 'panel:konto': ikon('regler'), modus: ikon('ziel') };
 function zeigeMehr() {
   mb.querySelector('.mb-raster').innerHTML = MEHR.map(([z, n]) => { const t = z.startsWith('tab:') ? z.slice(4) : ''; const svg = t ? rail.querySelector(`[data-tab="${t}"] svg`)?.outerHTML : ''; return `<button data-mz="${z}">${svg ? `<i>${svg}</i>` : `<b>${EMO2[z] || '•'}</b>`}<span>${n}</span></button>`; }).join('');
   mb.hidden = false; requestAnimationFrame(() => mb.classList.add('auf'));
@@ -123,6 +123,7 @@ mb?.addEventListener('click', (e) => {
   if (z.startsWith('tab:')) { schliessePanel(); wechsle(z.slice(4)); }
   else if (z.startsWith('panel:')) oeffnePanel(z.slice(6));
   else if (z === 'zufall') import('./zufall.js').then((m) => m.oeffneZufall(zustand));
+  else if (z === 'refresh') { schliesseMehr(); zustand.neuLaden?.(); }
   else if (z === 'modus') import('./konto.js').then((m) => { m.setzeModus(m.modus() === 'einfach' ? 'voll' : 'einfach'); });
 });
 // Andere Module springen über ein Ereignis zu einer Seite (z. B. Hüter → Squad-Check).
@@ -184,6 +185,7 @@ rail.addEventListener('click', (e) => {
   if (!b) return;
   if (b.dataset.tab) wechsle(b.dataset.tab);
   else if (b.dataset.panel) schaltePanel();
+  else if ('refresh' in b.dataset) { if (!zustand.profil) return; b.classList.add('dreht'); Promise.resolve(zustand.neuLaden?.()).finally(() => b.classList.remove('dreht')); }
   else if ('zurueck' in b.dataset) { if (zurueck.length) zKnopf.click(); }
   else if ('einst' in b.dataset) { if (zustand.profil) oeffnePanel('konto'); else bungie.anmelden(); }
   else if ('modusknopf' in b.dataset) import('./konto.js').then((m) => { const neu = m.modus() === 'einfach' ? 'voll' : 'einfach'; m.setzeModus(neu); modusText(); meldung(neu === 'einfach' ? 'Simple view: only the key cards, numbers and filters.' : 'Detailed view: all cards, numbers, filters and options.'); });

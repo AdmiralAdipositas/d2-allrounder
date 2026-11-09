@@ -1475,3 +1475,4 @@ html[data-modus=einfach] .st-auf .st-klein{display:block}
 .ckopf .ck-z1 b{font-size:1rem}.ckopf .ck-stats{background:#000a;border-radius:8px}
 .ckopf .ck-z1 em{color:var(--gold)}
 .cvoll{position:static;font:700 .6rem var(--fliess);letter-spacing:.06em;color:var(--gold);border:1px solid color-mix(in srgb,var(--gold) 50%,transparent);border-radius:999px;padding:0 6px;text-transform:uppercase}
+#rail [data-refresh].dreht svg{animation:dreh 1s linear infinite}
