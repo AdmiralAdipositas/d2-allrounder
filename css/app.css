@@ -1461,3 +1461,10 @@ html[data-modus=einfach] .st-auf .st-klein{display:block}
 .ikon-svg.emo{width:1.1em;height:1.1em;vertical-align:-.18em;margin:0 .1em;stroke-width:1.9}
 .chip .ikon-svg.emo,button .ikon-svg.emo{color:var(--gold)}
 .okopf2{padding-bottom:8px;margin-bottom:6px;align-items:center}.okopf2 .ansicht-w{padding:2px 0}
+/* Inventar leeren: je Slot und ganzer Charakter */
+.creihe>small{display:flex;align-items:center;gap:6px}
+.cleeren{margin-left:auto;padding:1px 8px;border-radius:999px;border:1px solid var(--linie2);background:var(--bg);color:var(--text2);font:600 .66rem var(--fliess);letter-spacing:.03em;cursor:pointer;opacity:.55;transition:opacity .15s,border-color .15s}
+.creihe:hover .cleeren,.cleeren:hover,.cleeren.frage{opacity:1;border-color:var(--gold);color:var(--gold)}
+.cleeren.frage{background:color-mix(in srgb,var(--gold) 16%,var(--bg))}
+.cleer-alle{padding:6px 8px 0}.cleeren.gross{width:100%;margin:0;padding:6px 10px;font-size:.74rem;opacity:.8;text-transform:none}
+@media (hover:none){.cleeren{opacity:.9}}

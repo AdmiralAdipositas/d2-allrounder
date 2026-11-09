@@ -51,6 +51,7 @@ const SONST = [[3284755031, 'Subclass'], [4023194814, 'Ghost'], [2025709351, 'Sp
 const ENGRAMME = 375726501, POST = 215593132;
 const ELEMENT = { 1: 'kinetic', 2: 'arc', 3: 'solar', 4: 'void', 6: 'stasis', 7: 'strand' };
 
+let leerenFrage = null, leerenT = 0;
 let wahl = null, bereich = 'ausr', suche = '', filter = new Set();
 // Allgemeine Items (Ghost, Sparrow, Schiff, Emblem, Subclass) – nicht in sammle(); eigene Liste + lokale Änderungen nach dem Verschieben.
 const ALLG = new Set([4023194814, 2025709351, 284967655, 4274335291, 3284755031]);
@@ -102,12 +103,12 @@ export function zeigeCharakter(haupt, zustand) {
       const e = an.find((i) => i.bucketHash === b);
       const rest = inv.filter((i) => i.bucketHash === b);
       const max = b === 3284755031 ? rest.length : 9;
-      return `<div class="creihe" data-bucket="${b}" data-cfor="${cid}"><small>${name}</small><div class="cr-in">${e ? kachel(e, true) : '<span class="ck gross leer-k"></span>'}<div class="cgitter">${rest.map((i) => kachel(i)).join('')}${Array(Math.max(0, max - rest.length)).fill('<span class="ck leer-k"></span>').join('')}</div></div> ${b !== 3284755031 && rest.length >= max ? '<b class="cvoll" title="Full: the app makes room automatically when it moves something here">full</b>' : ''}</div>`;
+      const gear = [...WAFFEN, ...RUESTUNG].some(([x]) => x === b); return `<div class="creihe" data-bucket="${b}" data-cfor="${cid}"><small>${name}${gear && rest.length ? `<button class="cleeren ${leerenFrage === `${cid}|${b}` ? 'frage' : ''}" data-leeren="${cid}|${b}" title="Move all ${rest.length} unequipped ${name} items to the vault">${leerenFrage === `${cid}|${b}` ? `${rest.length} → vault?` : '⇩ vault'}</button>` : ''}</small><div class="cr-in">${e ? kachel(e, true) : '<span class="ck gross leer-k"></span>'}<div class="cgitter">${rest.map((i) => kachel(i)).join('')}${Array(Math.max(0, max - rest.length)).fill('<span class="ck leer-k"></span>').join('')}</div></div> ${b !== 3284755031 && rest.length >= max ? '<b class="cvoll" title="Full: the app makes room automatically when it moves something here">full</b>' : ''}</div>`;
     };
     const statsVon = (x) => ARMOR_STATS.map((n) => { const h = Object.keys(defs.stats || {}).find((k) => defs.stats[k].n === n && x.stats?.[k] != null) || Object.keys(defs.stats || {}).find((k) => defs.stats[k].n === n); return [n, x.stats?.[h] || 0, defs.stats?.[h]?.i]; });
     const kopfVon = (x) => `<div class="ckopf" data-wahl="${x.characterId}" style="background-image:url(${BILD}${x.emblemBackgroundPath || ''})"><span class="ck-z1"><b>${KLASSE[x.classType]}</b><small>${RASSE[x.raceType] || ''}</small><em>✦ ${x.light}</em></span><span class="ck-stats">${statsVon(x).map(([n, v, ic]) => `<span title="${n}: ${v}">${ic ? `<i style="background-image:url(${BILD}${ic})"></i>` : ''}<b>${v}</b><small class="ck-sn">${n.slice(0, 3)}</small></span>`).join('')}</span></div>`;
     const extraVon = (cid) => { const inv = invVon(cid); const e = inv.filter((i) => i.bucketHash === ENGRAMME), po = inv.filter((i) => i.bucketHash === POST); if (!e.length && !po.length) return ''; return `<div class="cextra">${e.length ? '' : '<!--'}<div><small>Engrams ${e.length}/10</small><div class="cgitter klein">${e.map((i) => kachel(i)).join('')}</div></div>${e.length ? '' : '-->'}${po.length ? `<div><small>Postmaster <b class="${po.length >= 18 ? 'warn' : ''}">${po.length}/21</b></small><div class="cgitter klein">${po.map((i) => kachel(i)).join('')}</div><button class="chip klein" data-postpanel>Open Postmaster</button></div>` : ''}</div>`; };
-    const spalte = (x) => { const an = anVon(x.characterId), inv = invVon(x.characterId); return `<section class="cspalte ${x.characterId === wahl ? 'an' : ''}" data-ziel="${x.characterId}">${kopfVon(x)}${extraVon(x.characterId)}${reihen.map(reihe(x.characterId, an, inv)).join('')}</section>`; };
+    const spalte = (x) => { const an = anVon(x.characterId), inv = invVon(x.characterId); return `<section class="cspalte ${x.characterId === wahl ? 'an' : ''}" data-ziel="${x.characterId}">${kopfVon(x)}${extraVon(x.characterId)}<div class="cleer-alle"><button class="cleeren gross ${leerenFrage === `${x.characterId}|alle` ? 'frage' : ''}" data-leeren="${x.characterId}|alle" title="Move every unequipped weapon and armor piece of this character to the vault (not ghosts, ships, sparrows…)">${leerenFrage === `${x.characterId}|alle` ? 'Tap again: all weapons & armor → vault' : '⇩ Empty weapons & armor to vault'}</button></div>${reihen.map(reihe(x.characterId, an, inv)).join('')}</section>`; };
     // Schmaler Streifen (Handy): Emblem + angelegte Teile; beim Ziehen klappt er auf.
     const streifen = (x) => { const an = anVon(x.characterId); return `<section class="cstreifen" data-ziel="${x.characterId}" data-wahl="${x.characterId}" style="--emb:url(${BILD}${x.emblemPath || x.emblemBackgroundPath || ''})"><span class="cs-kopf"><i></i><b>${KLASSE[x.classType][0]}</b></span>${reihen.map(([b]) => { const e = an.find((i) => i.bucketHash === b); return `<span class="cs-slot">${e ? kachel(e) : '<span class="ck leer-k"></span>'}</span>`; }).join('')}</section>`; };
     const tresorItems = [...items, ...allg].filter((x) => x.ort === 'tresor' && reihen.some(([b]) => b === x.d.b));
@@ -276,7 +277,21 @@ export function zeigeCharakter(haupt, zustand) {
   // In-Game-Hover für Waffen und Rüstung.
   haupt.onpointerover = (e) => { if (e.pointerType !== 'mouse' || zug?.aktiv) return; const t = e.target.closest('.ck[data-cid]'); const it = t && proId.get(t.dataset.cid); if (it && !it.allg) zeigeItemTipp(it, p, e.clientX, e.clientY); };
   haupt.onpointerout = (e) => { if (e.target.closest('.ck[data-cid]') && !e.relatedTarget?.closest?.('.ck[data-cid]') && !document.querySelector('#tippFest:checked')) { const tp = document.querySelector('#tipp'); if (tp) tp.hidden = true; } };
+  async function leeren(was) {
+    const [cid, b] = was.split('|'); const gear = new Set([...WAFFEN, ...RUESTUNG].map(([x]) => x));
+    const liste = sammle(zustand.profil).filter((x) => x.ort === cid && !x.angelegt && (b === 'alle' ? gear.has(x.d.b) : x.d.b === Number(b)));
+    if (!liste.length) return meldung('Nothing to move.');
+    let ok = 0, fehl = 0;
+    for (const x of liste) {
+      try { await bungie.verschiebe(zustand.konto, x, cid, true); merkeAenderung(x.id, { ort: 'tresor', angelegt: false }); ok++; } catch { fehl++; }
+      meldung(`To vault: ${ok + fehl}/${liste.length}…`);
+    }
+    meldung(fehl ? `${ok} moved, ${fehl} failed (vault full or locked by the game).` : `${ok} items moved to the vault.`, !!fehl);
+    zeichne();
+  }
   haupt.onclick = (e) => {
+    const lb = e.target.closest('[data-leeren]');
+    if (lb) { e.stopPropagation(); if (leerenFrage !== lb.dataset.leeren) { leerenFrage = lb.dataset.leeren; clearTimeout(leerenT); leerenT = setTimeout(() => { leerenFrage = null; zeichne(); }, 5000); return zeichne(); } leerenFrage = null; return leeren(lb.dataset.leeren); }
     if (haupt.dataset.keinKlick) return;
     { const tp = document.querySelector('#tipp'); if (tp) tp.hidden = true; }
     const fi = e.target.closest('[data-filter]');
