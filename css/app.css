@@ -1460,3 +1460,4 @@ html[data-modus=einfach] .st-auf .st-klein{display:block}
 /* Ersetzte Emojis: Linien-Icon in Textgröße, Farbe vom Text */
 .ikon-svg.emo{width:1.1em;height:1.1em;vertical-align:-.18em;margin:0 .1em;stroke-width:1.9}
 .chip .ikon-svg.emo,button .ikon-svg.emo{color:var(--gold)}
+.okopf2{padding-bottom:8px;margin-bottom:6px;align-items:center}.okopf2 .ansicht-w{padding:2px 0}

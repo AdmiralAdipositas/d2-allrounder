@@ -160,8 +160,9 @@ const SLOTNAME = ['Helmet', 'Gauntlets', 'Chest', 'Legs', 'Class item'];
 function grundLeer(liste, wunsch) {
   const ex = wunsch.exotic ? liste.find((i) => i.hash === wunsch.exotic) : null;
   const frei = SLOTS.filter((b) => b !== ex?.d.b);
-  const teile = [];
+  const teile = []; const gesehen = new Set();
   for (const st of setListe(wunsch)) {
+    if (gesehen.has(st.n)) continue; gesehen.add(st.n);
     const da = frei.filter((b) => liste.some((i) => i.d.b === b && !i.exo && i.set?.n === st.n));
     if (da.length < st.stk) {
       const fehlt = frei.filter((b) => !da.includes(b)).map((b) => SLOTNAME[SLOTS.indexOf(b)]);
