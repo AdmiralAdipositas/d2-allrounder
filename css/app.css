@@ -1620,3 +1620,14 @@ html[data-kachel=gross] .ic-fuss{height:16px}html[data-kachel=gross] .ic .ic-fus
 #tipp .urteil.u-junk b,.urteil.u-junk b{color:#ff7b7b}#tipp .urteil.u-infuse b{color:#ffab52}#tipp .urteil.u-frei b{color:#b7bad3}
 .rb em{white-space:nowrap}
 #tipp .rb small,#tippFest .rb small{display:inline;margin:0}
+/* --- Optimizer-Ergebnisse: nach Platz beschriftet, Werte je Teil mit Stat-Symbolen, Hover = volles Item-Fenster --- */
+.sti{width:13px;height:13px;vertical-align:-2px;margin-right:3px;opacity:.9}
+.kteil .kslot{font:700 .58rem var(--kopf);letter-spacing:.1em;text-transform:uppercase;color:var(--matt)}
+.kst{display:grid;grid-template-columns:repeat(3,auto);gap:1px 6px;font-size:.66rem;font-weight:700;color:var(--text2);margin-top:2px}
+.kst span{display:inline-flex;align-items:center;white-space:nowrap}.kst .sti{width:11px;height:11px;margin-right:2px}.kst .hoch{color:var(--gold)}.kst .tief{opacity:.45}
+.otkopf{display:flex;gap:3px}.otkopf span{width:34px;text-align:center;font-size:.5rem;letter-spacing:.02em}
+.otab th .sti{display:block;margin:0 auto 2px}
+.it-platz{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.76rem;color:var(--text2)}#tipp .it-platz b{font:700 .66rem var(--kopf);letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.it-platz .tmod{display:inline-flex;align-items:center;gap:4px;color:var(--gut)}.it-platz .tmod i{width:16px;height:16px;background:center/cover;border-radius:3px}
+.it-stats.mitic>div{grid-template-columns:108px 1fr 30px}.it-stats.mitic small{display:flex;align-items:center;justify-content:flex-end}
+@media(max-width:760px){.otkopf span{width:24px;font-size:.42rem}.otkopf{gap:2px}.kst{grid-template-columns:repeat(2,auto)}}

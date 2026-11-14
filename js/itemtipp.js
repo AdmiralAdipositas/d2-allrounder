@@ -24,6 +24,8 @@ export const STAT_INFO = {
   Health: 'More health and flinch resistance; orbs heal you.', Melee: 'Melee ability recharges faster; above 100 it also hits harder.', Grenade: 'Grenade recharges faster; above 100 it also hits harder.',
   Super: 'Super charges faster; above 100 it also deals more damage.', Class: 'Class ability recharges faster; above 100 you gain an overshield on use.', Weapons: 'Faster reload and handling, more weapon damage; above 100 extra ammo and boss damage.',
 };
+let sIcons = null;
+export const statIcon = (n) => { if (!sIcons) { sIcons = {}; for (const v of Object.values(defs.stats || {})) if (v.i && !sIcons[v.n]) sIcons[v.n] = v.i; } return sIcons[n] ? `<img class="sti" src="${BILD}${sIcons[n]}" alt="">` : ''; };
 const ti = (n) => (STAT_INFO[n] ? ` data-tip="${esc(`<b>${n}</b><br>${STAT_INFO[n]}`)}"` : '');
 // Urteil (behalten / weg / Infusion) als Zeile mit Begründung.
 export const URTEIL_NAME = { junk: 'Can go', infuse: 'Infusion fuel', best: 'Best copy', keep: 'Keep', frei: 'No verdict' };
@@ -49,7 +51,8 @@ export function itemTipp(it, profil) {
     if (mods.length) html += `<div class="it-mods">${mods.map(([, x]) => `<span data-tip="${esc(`<b>${x.n}</b><br>${x.d || ''}`)}"><i style="background-image:url(${BILD}${x.i})"></i>${esc(x.n)}</span>`).join('')}</div>`;
     if (balken.length || zahl.length) html += `<div class="it-stats zweisp">${balken.map(([n, v]) => `<div${ti(n)}><small>${esc(n)}</small><i><u style="width:${Math.min(100, v)}%"></u></i><b>${v}</b></div>`).join('')}${zahl.map(([n, v]) => `<div class="zahl"${ti(n)}><small>${esc(n)}</small><b>${v}</b></div>`).join('')}</div>`;
   } else if (d.t === 2) {
-    if (it.st) html += `<div class="it-stats">${ARMOR_STATS.map((n) => `<div${ti(n)}><small>${n}</small><i><u style="width:${Math.min(100, (it.st[n] || 0) / 0.45)}%"></u></i><b>${it.st[n] || 0}</b></div>`).join('')}<div class="zahl"><small>Total</small><b>${it.st.Total}</b></div></div>`;
+    if (it.tippExtra) html += it.tippExtra;
+    if (it.st) html += `<div class="it-stats mitic">${ARMOR_STATS.map((n) => `<div${ti(n)}><small>${statIcon(n)}${n}</small><i><u style="width:${Math.min(100, (it.st[n] || 0) / 0.45)}%"></u></i><b>${it.st[n] || 0}</b></div>`).join('')}<div class="zahl"><small>Total</small><b>${it.st.Total}</b></div></div>`;
     if (d.xd) html += `<p class="tt"><b class="tgold">${esc(d.xp || 'Exotic perk')}</b> ${esc(d.xd)}</p>`;
     const mods = plugs.filter(([, x]) => /^enhancements\.v2_/.test(x.pc || ''));
     const kosten = mods.reduce((a, [, x]) => a + ((x.s || []).find(([h]) => Number(h) === ENERGIE)?.[1] || 0), 0);
@@ -58,7 +61,7 @@ export function itemTipp(it, profil) {
     const set = d.e ? defs.sets?.[d.e] : null;
     if (set) html += `<div class="tset"><b>${esc(set.n)}</b>${set.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>`;
   }
-  html += `<small class="thint">Click the item for all actions · move the mouse down into this window to read every perk</small></div></div>`;
+  html += `<small class="thint">${it.tippExtra ? 'Click the piece to lock or exclude it' : d.t === 3 ? 'Click the item for all actions · move the mouse down into this window to read every perk' : 'Click the item for all actions'}</small></div></div>`;
   return html;
 }
 
