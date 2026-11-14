@@ -1,9 +1,10 @@
 // Item-Detail: Perk-Spalten wie im Spiel, Perks und Mods umstellen, Verschieben, Ausrüsten, Postmaster.
+import { setMarke } from './sets.js';
 import * as bungie from './bungie.js';
 import { defs } from './defs.js';
 import { NEBENSACHE, merkeAenderung, sammle } from './vault.js';
 import { rollWert, rollBalken, perkMarke } from './rolls.js';
-import { PERKSPALTE, perkRaster, alleOptionen, PERK_LEGENDE } from './perks.js';
+import { PERKSPALTE, perkRaster, alleOptionen, PERK_LEGENDE, ringKlasse, wendePerkAn } from './perks.js';
 import { STAT_INFO, urteilZeile } from './itemtipp.js';
 import { TAGS, tags, notizen, setzeTag, setzeNotiz } from './suche.js';
 
@@ -76,7 +77,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
   };
   const knopf = (sp, h) => {
     const p = defs.items[h]; const m = marke && sp.perk ? marke(h) : {};
-    return `<button class="pk pkb ${h === sp.aktiv ? 'an' : ''} ${m.g ? 'pk-god' : ''} ${/Enhanced/i.test(p.k || '') ? 'pk-enh' : ''} ${wahl?.h === h && wahl?.s === sp.s ? 'wahl' : ''}" data-s="${sp.s}" data-h="${h}" aria-label="${esc(p.n)}" style="background-image:url(${BILD}${p.i})">${m.e ? '<u class="pk-e">E</u>' : ''}${m.v ? '<u class="pk-v">P</u>' : ''}</button>`;
+    return `<button class="pk pkb ${h === sp.aktiv ? 'an' : ''} ${ringKlasse(m)} ${/Enhanced/i.test(p.k || '') ? 'pk-enh' : ''} ${wahl?.h === h && wahl?.s === sp.s ? 'wahl' : ''}" data-s="${sp.s}" data-h="${h}" aria-label="${esc(p.n)}" style="background-image:url(${BILD}${p.i})">${m.e ? '<u class="pk-e">E</u>' : ''}${m.v ? '<u class="pk-v">P</u>' : ''}</button>`;
   };
   const perkTeil = () => { const l = spalten.filter((sp) => sp.perk); return l.length ? `<div class="pkraster gross">${l.map((sp) => `<div class="pkspalte"><small>${esc(sp.art)}</small>${sp.plugs.map((h) => knopf(sp, h)).join('')}</div>`).join('')}</div>` : ''; };
   const modTeil = () => { const l = spalten.filter((sp) => !sp.perk); return l.length ? `<div class="dx-mods">${l.map((sp) => { const auf = offen === sp.s; const viele = sp.plugs.length > 1; return `<div class="dx-mod ${auf ? 'auf' : ''}"><small>${esc(sp.art)}</small><div>${auf ? sp.plugs.map((h) => knopf(sp, h)).join('') : knopf(sp, sp.aktiv)}${viele ? `<button class="mehr" data-mehr="${sp.s}" data-tip="${auf ? 'Collapse' : `Show all ${sp.plugs.length} options for this slot`}">${auf ? 'Less' : `+${sp.plugs.length - 1}`}</button>` : ''}</div></div>`; }).join('')}</div>` : ''; };
@@ -86,7 +87,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     if (!z) return `<div class="dx-lese leer"><span><span class="t-maus">Move the mouse over a perk or mod to read it. Click it to select, then “Apply” switches to it in the game.</span><span class="t-touch">Tap a perk or mod to read it, then “Apply” to switch to it.</span></span></div>`;
     const p = defs.items[z.h]; const sp = spalten.find((x) => x.s === z.s); const m = marke && sp?.perk ? marke(z.h) : {};
     const aktiv = sp?.aktiv === z.h; const gewaehlt = wahl && wahl.h === z.h && wahl.s === z.s;
-    return `<div class="dx-lese"><div><b>${esc(p.n)}</b><small>${esc(p.k || '')}${m.g ? ' · god roll perk' : ''}${m.e ? ' · PvE pick' : ''}${m.v ? ' · PvP pick' : ''}</small><p>${esc(p.d || 'No description.')}</p></div>
+    return `<div class="dx-lese"><div><b>${esc(p.n)}</b><small>${esc(p.k || '')}${m.ge ? ' · PvE god roll perk' : ''}${m.gv ? ' · PvP god roll perk' : ''}${m.e ? ' · PvE pick' : ''}${m.v ? ' · PvP pick' : ''}</small><p>${esc(p.d || 'No description.')}</p></div>
       ${aktiv ? '<em>Active</em>' : gewaehlt && sp.plugs.length > 1 ? '<button data-a="setz" class="haupt-knopf">Apply</button>' : sp?.plugs.length > 1 ? '<em class="matt">click to select</em>' : ''}</div>`;
   };
   const statTeil = () => {
@@ -105,11 +106,11 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
         ${x.d.t === 3 ? perkRaster(x, profil, { klein: true }) : x.st ? `<div class="dx-kst">${['Health', 'Melee', 'Grenade', 'Super', 'Class', 'Weapons'].map((n) => `<span class="${x.st[n] > (it.st?.[n] || 0) ? 'mehr' : x.st[n] < (it.st?.[n] || 0) ? 'wen' : ''}" data-tip="${n}: this copy ${x.st[n]}, the open one ${it.st?.[n] ?? '–'}"><small>${n.slice(0, 3)}</small>${x.st[n]}</span>`).join('')}</div>` : ''}
         <div class="dx-kakt"><button data-oeffne="${x.id}" data-tip="Open this copy here">Open</button>${x.ort !== 'tresor' ? `<button data-kzu="${x.id}|tresor" data-tip="Send this copy to the vault">→ Vault</button>` : ''}${chars.filter((c) => c.characterId !== x.ort && !x.ort.endsWith(c.characterId)).map((c) => `<button data-kzu="${x.id}|${c.characterId}" data-tip="Move this copy to your ${KLASSE[c.classType]}">→ ${KLASSE[c.classType]}</button>`).join('')}<button data-lock="${x.id}" aria-pressed="${x.locked}" data-tip="${x.locked ? 'Unlock' : 'Lock'} this copy in the game">${x.locked ? '🔒' : '🔓'}</button></div></div>`;
     };
-    return `<section class="dx-kopien"><h3>Your other copies <small>${alle.length} · hover any perk to read it · bright = active</small></h3>${alle.sort((a, b) => (b.tier || 0) - (a.tier || 0) || b.power - a.power).map(zeile).join('')}</section>`;
+    return `<section class="dx-kopien"><h3>Your other copies <small>${alle.length} · hover a perk to read it · click a dimmed perk to switch to it</small></h3>${alle.sort((a, b) => (b.tier || 0) - (a.tier || 0) || b.power - a.power).map(zeile).join('')}</section>`;
   };
   const chips = () => [it.d.t === 3 && ELEM[it.element] ? [ELEM[it.element], 'Damage type'] : null, it.m.frame ? [it.m.frame, 'Weapon frame (archetype): decides fire rate and base stats'] : null, it.m.champ ? [`Stuns ${it.m.champ}`, 'Can stun this champion type'] : null,
-    it.tier ? [`Tier ${it.tier}`, 'Gear tier 1–5. Higher tiers roll more perks; Tier 5 has enhanced perks'] : null, it.m.set ? [it.m.set, 'Armor set – 2 and 4 pieces give set bonuses'] : null, it.crafted ? ['Crafted', 'Shaped at the Relic – perks can be re-chosen'] : null, it.mw ? ['Masterworked', 'Fully masterworked'] : null,
-    it.kills ? [`${it.kills.toLocaleString()} kills`, 'Kill tracker on this weapon'] : null, it.genutzt && !it.angelegt ? ['In a loadout', 'Used by one of your in-game loadouts'] : null].filter(Boolean).map(([t, tip]) => `<span data-tip="${esc(tip)}">${esc(t)}</span>`).join('');
+    it.tier ? [`Tier ${it.tier}`, 'Gear tier 1–5. Higher tiers roll more perks; Tier 5 has enhanced perks'] : null,  it.crafted ? ['Crafted', 'Shaped at the Relic – perks can be re-chosen'] : null, it.mw ? ['Masterworked', 'Fully masterworked'] : null,
+    it.kills ? [`${it.kills.toLocaleString()} kills`, 'Kill tracker on this weapon'] : null, it.genutzt && !it.angelegt ? ['In a loadout', 'Used by one of your in-game loadouts'] : null].filter(Boolean).map(([t, tip]) => `<span data-tip="${esc(tip)}">${esc(t)}</span>`).join('') + (it.d.e && it.m.set ? `<span class="dx-setchip">${setMarke(it.m.set, { id: it.d.e, klasse: it.d.c === 3 ? undefined : it.d.c })}</span>` : '');
 
   const zeichne = () => {
     const m = document.querySelector('#meldung');
@@ -199,6 +200,9 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
   };
   d.onclick = (e) => {
     if (e.target === d) return d.close();
+    // Perk einer anderen Kopie anklicken: dort direkt einsetzen.
+    const kp = e.target.closest('i.pk[data-s][data-iid]');
+    if (kp && !kp.classList.contains('an') && !beschaeftigt) { const x = alleItems().find((y) => y.id === kp.dataset.iid); if (x) { kp.classList.add('laedt'); wendePerkAn(x, profil, Number(kp.dataset.s), Number(kp.dataset.ph)).then(() => { zeichne(); neuZeichnen?.(); }); } return; }
     const b = e.target.closest('button');
     if (!b || b.disabled) return;
     if (b.dataset.a === 'schliessen') return d.close();

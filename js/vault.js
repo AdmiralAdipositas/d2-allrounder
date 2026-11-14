@@ -1,4 +1,5 @@
 // Tresor: alle Waffen und Rüstungen, gruppiert nach Slot, nebeneinander gestapelt.
+import { setMarke } from './sets.js';
 import { defs, champion, CHAMP_NAME } from './defs.js';
 import { oeffneDetail } from './detail.js';
 import { bewerte, rollWert, perkMarke } from './rolls.js';
@@ -343,7 +344,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
     const sichtbar = klassenItems.filter(passt);
     const sortiere = SORT[ansicht.sort]?.[1] || SORT.power[1];
     const teile = SLOTS.map(([b, name]) => [b, name, sichtbar.filter((x) => x.d.b === b).sort(sortiere)]).filter(([, , st]) => st.length);
-    haupt.querySelector('#sprung').innerHTML = (teile.length > 1 ? teile.map(([, name, st]) => `<button class="chip" data-spring="${name}">${name} <small>${st.length}</small></button>`).join('') : '') + '<span class="vlegende"><span data-tip="Where the item is: yellow = vault, green = on a character, red = Postmaster."><i class="ort tresor"></i><i class="ort char"></i><i class="ort post"></i>location</span><span data-tip="A complete community god roll (green = PvE, blue = PvP)."><b class="lg-god">★</b>god roll</span><span data-tip="Gold frame = masterworked."><b class="lg-mw"></b>masterwork</span><span data-tip="Clean-up suggestion. JUNK = duplicate with a weaker roll, FUEL = junk with high power (infuse it), BEST = best of your copies, ? = undecided duplicate. Hover the item for the reason."><i class="ub ub-junk">JUNK</i><i class="ub ub-infuse">FUEL</i><i class="ub ub-best">BEST</i>clean-up</span></span>';
+    haupt.querySelector('#sprung').innerHTML = (teile.length > 1 ? teile.map(([, name, st]) => `<button class="chip" data-spring="${name}">${name} <small>${st.length}</small></button>`).join('') : '') + '<span class="vlegende"><span data-tip="Where the item is: yellow = vault, green = on a character, red = Postmaster."><i class="ort tresor"></i><i class="ort char"></i><i class="ort post"></i>location</span><span data-tip="A complete community god roll (blue = PvE, red = PvP)."><b class="lg-god">★</b>god roll</span><span data-tip="Gold frame = masterworked."><b class="lg-mw"></b>masterwork</span><span data-tip="Clean-up suggestion. JUNK = duplicate with a weaker roll, FUEL = junk with high power (infuse it), BEST = best of your copies, ? = undecided duplicate. Hover the item for the reason."><i class="ub ub-junk">JUNK</i><i class="ub ub-infuse">FUEL</i><i class="ub ub-best">BEST</i>clean-up</span></span>';
     const reihen = teile.map(([, name, st]) => {
       const offenR = !zu.has(name);
       let inhalt = '';
@@ -351,7 +352,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
         if (ansicht.typ) {
           const g = new Map();
           for (const x of st) { const k = istWaffe ? x.d.k : x.d.q === 6 ? 'Exotic' : x.m.set || 'No set'; g.set(k, [...(g.get(k) || []), x]); }
-          inhalt = `<div class="tgruppen">${[...g].sort((a, b) => (istWaffe ? a[0].localeCompare(b[0]) : a[0] === 'Exotic' ? -1 : b[0] === 'Exotic' ? 1 : b[1].length - a[1].length)).map(([k, l]) => `<div class="tgr"><small>${esc(k)} <b>${l.length}</b></small><div class="raster">${l.map(kachel).join('')}</div></div>`).join('')}</div>`;
+          inhalt = `<div class="tgruppen">${[...g].sort((a, b) => (istWaffe ? a[0].localeCompare(b[0]) : a[0] === 'Exotic' ? -1 : b[0] === 'Exotic' ? 1 : b[1].length - a[1].length)).map(([k, l]) => `<div class="tgr"><small>${!istWaffe && l[0].d.e && k !== 'Exotic' ? setMarke(k, { id: l[0].d.e, klasse }) : esc(k)} <b>${l.length}</b></small><div class="raster">${l.map(kachel).join('')}</div></div>`).join('')}</div>`;
         } else inhalt = `<div class="raster">${st.map(kachel).join('')}</div>`;
       }
       return `<section class="reihe ${offenR ? '' : 'zu'}" id="slot-${name.replace(/\s/g, '')}"><h3><button class="klapp" data-reihe="${name}" aria-expanded="${offenR}">${offenR ? '▾' : '▸'} ${name} <small>${st.length}</small></button></h3>${inhalt}</section>`;

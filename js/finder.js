@@ -1,5 +1,6 @@
 // Build Finder als Feed: kuratierte Community-Builds plus eine Build-Idee je Exotic-Rüstung,
 // endlos scrollbar, Karten auf- und zuklappbar, Filter für Klasse, Element, Besitz und Nischen-Suche.
+import { setMarke } from './sets.js';
 import { defs } from './defs.js';
 import { sammle } from './vault.js';
 import { quelle } from './quellen.js';
@@ -82,11 +83,11 @@ function karte(b, besitz, besitzSets, sets) {
       <div class="fk-kopf"><div><h2>${esc(b.name)}</h2><small>${KLASSE[b.klasse]}${b.subclass ? ` · ${esc(b.subclass)}` : ''}${b.aktivitaet?.length && !b.idee ? ` · ${esc(b.aktivitaet.join(', '))}` : ''}</small></div>
         <div class="fk-tags">${els.map((e) => `<span class="eltag el-${e.toLowerCase()}">${e}</span>`).join('')}<span class="tag autor" title="Build author · ${esc(b.quelle)}">by ${esc((b.quelle || '').split(' (')[0].replace(/ on Mobalytics/, ''))}</span><span class="tag ${fehlt.length ? '' : 'gut'}">${fehlt.length ? `${fehlt.length} missing` : 'Ready'}</span></div></div>
       <p class="fk-warum"><b>Why it works:</b> ${esc(kurz)}</p>
-      <div class="fk-vorschau">${(b.plan || [])[0] ? `<span>🛡 ${esc(b.plan[0].set)} <em>${besitzSets(b.plan[0].set)} owned</em></span>` : ''}${b.empf?.exotic ? `<span><i data-ih="${b.empf.exotic.hash}" style="background-image:url(${BILD}${b.empf.exotic.i})"></i>${esc(b.empf.exotic.n)}${besitz.has(b.empf.exotic.n) ? ' ✓' : ''}</span>` : ''}</div>
+      <div class="fk-vorschau">${(b.plan || [])[0] ? `<span>${setMarke(b.plan[0].set, { klasse: b.klasse })} <em>${besitzSets(b.plan[0].set)} owned</em></span>` : ''}${b.empf?.exotic ? `<span><i data-ih="${b.empf.exotic.hash}" style="background-image:url(${BILD}${b.empf.exotic.i})"></i>${esc(b.empf.exotic.n)}${besitz.has(b.empf.exotic.n) ? ' ✓' : ''}</span>` : ''}</div>
       <button class="fk-klapp" data-klapp="${esc(b.id)}" aria-expanded="${auf}">${auf ? 'Less ▴' : 'Details ▾'}</button>
       ${auf ? `<div class="fk-mehr">
         <h3>Exotic armor</h3>${(b.exotics.filter((e) => finde(e)?.t !== 3).length ? b.exotics.filter((e) => finde(e)?.t !== 3) : []).map((e) => { const d = finde(e); const hat = besitz.has(e); return `<div class="fz ${hat ? 'hat' : 'fehlt'}">${d?.i ? `<i data-ih="${d.hash}" style="background-image:url(${BILD}${d.i})"></i>` : ''}<span>${esc(e)}</span><em>${hat ? 'owned' : 'missing'}</em>${hat ? '' : blip(e, quelleText(d))}${d?.xd && !b.idee ? `<small>${esc(d.xp || '')}: ${esc(d.xd)}</small>` : ''}</div>`; }).join('')}
-        ${(b.plan || []).length ? `<h3>Armor set</h3>${b.plan.map((p) => { const info = Object.entries(sets).find(([n]) => p.set.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(p.set.toLowerCase()))?.[1]; const n = besitzSets(p.set); return `<div class="fz ${n >= p.stuecke ? 'hat' : 'fehlt'}"><span><b>${esc(p.set)}</b> · ${p.stuecke} pieces</span><em>${n} owned</em>${blip(`${p.set}: where to farm`, info ? `${info.farm}${info.schnell ? ' · fast farm' : ''}` : 'Drop source not in the list yet.')}<small>${esc(p.grund)}</small></div>`; }).join('')}` : ''}
+        ${(b.plan || []).length ? `<h3>Armor set</h3>${b.plan.map((p) => { const info = Object.entries(sets).find(([n]) => p.set.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(p.set.toLowerCase()))?.[1]; const n = besitzSets(p.set); return `<div class="fz ${n >= p.stuecke ? 'hat' : 'fehlt'}"><span>${setMarke(p.set, { klasse: b.klasse })} · ${p.stuecke} pieces</span><em>${n} owned</em>${blip(`${p.set}: where to farm`, info ? `${info.farm}${info.schnell ? ' · fast farm' : ''}` : 'Drop source not in the list yet.')}<small>${esc(p.grund)}</small></div>`; }).join('')}` : ''}
         ${b.subclass ? `<h3>Subclass</h3><p class="fliste">${esc(b.subclass)}</p>` : ''}
         ${b.faehigkeiten?.length ? `<h3>Super & abilities</h3><p class="fliste">${esc(b.faehigkeiten.join(' · '))}</p>` : ''}
         ${b.aspekte?.length ? `<h3>Aspects</h3><p class="fliste">${esc(b.aspekte.join(' · '))}</p><h3>Fragments</h3><p class="fliste">${esc(b.fragmente.join(' · '))}</p>` : ''}

@@ -32,4 +32,10 @@ export function starteTipps() {
   });
   document.addEventListener('pointerout', (e) => { if (quelle && !quelle.contains(e.relatedTarget)) weg(); });
   ['pointerdown', 'keydown', 'wheel'].forEach((ev) => document.addEventListener(ev, weg, { passive: true, capture: true }));
+  // Seite (oder ein Bereich) scrollt: Info-Blase und Item-Fenster verschwinden, statt an der alten Stelle zu kleben.
+  document.addEventListener('scroll', (e) => {
+    if (e.target?.closest?.('#tipp,#tippFest,#minitip')) return;
+    weg();
+    const t = document.querySelector('#tipp'); if (t && !t.hidden) { if (t._zu) t._zu(); else t.hidden = true; }
+  }, { passive: true, capture: true });
 }

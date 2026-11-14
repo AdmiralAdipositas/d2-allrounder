@@ -1631,3 +1631,38 @@ html[data-kachel=gross] .ic-fuss{height:16px}html[data-kachel=gross] .ic .ic-fus
 .it-platz .tmod{display:inline-flex;align-items:center;gap:4px;color:var(--gut)}.it-platz .tmod i{width:16px;height:16px;background:center/cover;border-radius:3px}
 .it-stats.mitic>div{grid-template-columns:108px 1fr 30px}.it-stats.mitic small{display:flex;align-items:center;justify-content:flex-end}
 @media(max-width:760px){.otkopf span{width:24px;font-size:.42rem}.otkopf{gap:2px}.kst{grid-template-columns:repeat(2,auto)}}
+
+/* ===== Perk-Markierung neu: E blau = PvE, P rot = PvP, Gold-Ring mit blau/rot innen = God Roll, hell = aktiv ===== */
+.pk-e{background:#2f7fe0}.pk-v{background:#d83a3a}
+.pk u{z-index:2}
+.pk.an{opacity:1;border-color:#fff;background-color:#3a4a66}
+.pk.pk-enh.an{border-color:#fff;background-color:#8a6d1f}
+.pk.pk-god{box-shadow:none}
+.pk-ge::before,.pk-gv::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid #2f7fe0;box-shadow:0 0 0 1.5px #f2c14e;pointer-events:none}
+.pk-gv::before{border-color:#d83a3a}
+.pk-ge.pk-gv::before{border-color:#2f7fe0 #d83a3a #d83a3a #2f7fe0;transform:rotate(-45deg)}
+.pkraster{gap:13px}.pkspalte{gap:9px}.pkraster.klein{gap:12px}.pkraster.klein .pkspalte{gap:8px}.pkraster.gross .pkspalte{gap:11px}
+.pkb.wahl{border-color:#fff;box-shadow:none;outline:2px dashed #fff;outline-offset:7px}
+.pk[data-s]:not(.an){cursor:pointer}.pk[data-s]:not(.an):hover{opacity:1;transform:scale(1.08)}
+.pk.laedt{opacity:1;animation:pkLaedt .7s ease-in-out infinite alternate}@keyframes pkLaedt{to{opacity:.35}}
+.pk-ring{width:8px;height:8px;border:2px solid;border-color:#2f7fe0 #d83a3a #d83a3a #2f7fe0;transform:rotate(-45deg);box-shadow:0 0 0 1.5px #f2c14e;margin:0 3px}
+.pk-akt{background:#3a4a66;border-color:#fff}
+.it-desc em.klick{color:#fff;border-color:#fff6}
+.rb.pve i b.an{background:#2f7fe0}.rb.pvp i b.an{background:#d83a3a}.rb.voll,.rb.pve.voll{border-color:#2f7fe0;box-shadow:0 0 10px #2f7fe055}.rb.pvp.voll{border-color:#d83a3a;box-shadow:0 0 10px #d83a3a55}
+.ic .ic-fuss .god,.vlegende .lg-god{color:#4ea8ff}.ic .ic-fuss .god.pvp{color:#ff6b6b}
+#tipp:has(.itwrap){max-height:calc(100vh - 16px);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+/* ===== Sets überall mit Teile-Symbolen ===== */
+.setm{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;cursor:help}
+.setm-ic{display:inline-flex;gap:2px}.setm-ic i{width:20px;height:20px;border-radius:4px;background:var(--bg4) center/cover;border:1px solid #ffffff38;flex:none}
+.setm-ic i.fehlt{opacity:.28;filter:grayscale(1)}
+.tgr>small .setm{flex-direction:column;align-items:flex-start;gap:3px}.tgr>small .setm b{font-weight:400;color:var(--matt)}.tgr>small .setm-ic i{width:17px;height:17px}
+.dx-chips .dx-setchip{padding:2px 8px 2px 4px}.dx-setchip .setm-ic i{width:16px;height:16px}.dx-setchip .setm b{font-weight:400}
+.fk-vorschau .setm-ic i{width:18px;height:18px}
+.setinfo{display:flex;gap:6px;margin:8px 0 4px}.setinfo span{display:flex;flex-direction:column;align-items:center;gap:2px;width:56px}
+.setinfo i{width:40px;height:40px;border-radius:6px;background:var(--bg4) center/cover;border:1px solid #ffffff38}
+#tipp .setinfo small{font-size:.58rem;margin:0;text-align:center}.setinfo em{font-style:normal;font-size:.7rem;font-weight:700;color:var(--gut)}
+.setinfo .fehlt i{opacity:.3;filter:grayscale(1)}.setinfo .fehlt em{color:var(--matt)}
+.schip[data-sh],.kset[data-sh]{cursor:help}
+/* ===== Titel in Raid-/Dungeon-Zeilen mit Siegel ===== */
+.rtitel{display:inline-flex;align-items:center;gap:5px;cursor:help}.rsiegel{width:20px;height:20px;object-fit:contain;opacity:.45;filter:grayscale(1)}.rtitel.ok .rsiegel{opacity:1;filter:none}
+.rtitel small{font-size:.66rem;color:var(--matt)}.rtitel.ok small{color:var(--gold)}

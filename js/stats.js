@@ -204,7 +204,7 @@ function zeileRaid(e, d) {
   const sealTxt = seal ? `${recs.filter((r) => fertig(d.records, r)).length}/${recs.length}` : '';
   const punkte = e.laeufe.slice(0, 120).map((l, i) => `<i class="pkt ${l.voll ? 'voll' : l.voll === false ? 'cp' : ''} ${l.fl ? 'fl' : ''} ${l.master ? 'ms' : ''}" data-tipl="${e.n}|${i}"></i>`).join('');
   return `<details class="rzeile"><summary>
-      <span class="rn">${aktIcon(e.n)}${esc(e.n)}${seal ? `<em class="rtitel ${sealOk ? 'ok' : ''}" title="${esc(seal.t)}: ${sealTxt}">${sealOk ? '★' : '☆'} ${esc(seal.t)}</em>` : ''}</span>
+      <span class="rn">${aktIcon(e.n)}${esc(e.n)}${seal ? `<em class="rtitel ${sealOk ? 'ok' : ''}" data-tips="${s[0]}">${seal.i ? `<img class="rsiegel" src="${BILD}${seal.i}" alt="">` : sealOk ? '★' : '☆'} ${esc(seal.t)} <small>${sealOk ? 'earned' : sealTxt}</small></em>` : ''}</span>
       <b title="Full clears + checkpoint clears">${zahl(e.clears)}</b><span>${zahl(e.voll)}<small>full</small></span><span>${zahl(e.master)}<small>master</small></span><span>${zahl(e.flawless)}<small>flawless</small></span>
       ${e.art === 'dungeon' ? `<span>${zahl(e.solo)}<small>solo</small></span><span>${zahl(e.soloFl)}<small>solo fl.</small></span>` : `<span>${zahl(e.trio + e.duo + e.solo)}<small>lowman</small></span>`}
       <span>${zeitText(e.schnellste * 1000)}<small>fastest</small></span><span title="${esc(datum(e.zuletzt))}">${esc(vor(e.zuletzt))}<small>last</small></span></summary>

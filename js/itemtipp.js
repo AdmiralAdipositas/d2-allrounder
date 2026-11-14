@@ -3,7 +3,7 @@
 import { defs } from './defs.js';
 import { ARMOR_STATS } from './vault.js';
 import { rollWert, rollBalken } from './rolls.js';
-import { perkRaster, perkSpalten, alleOptionen, PERK_LEGENDE } from './perks.js';
+import { perkRaster, perkSpalten, alleOptionen, PERK_LEGENDE, wendePerkAn } from './perks.js';
 
 const BILD = 'https://www.bungie.net';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -45,7 +45,7 @@ export function itemTipp(it, profil) {
     const zahl = ZAHLEN.map((n) => werte.find(([w]) => w === n)).filter(Boolean);
     const sp = perkSpalten(it, profil);
     if (d.q !== 6) html += rollBalken(rollWert(it.hash, it.plugs || [], alleOptionen(it, profil)));
-    if (sp.length) html += `<div class="it-pk">${perkRaster(it, profil)}<div class="it-desc" data-leer="Move the mouse onto a perk to read what it does."></div>${d.q !== 6 ? PERK_LEGENDE : ''}</div>`;
+    if (sp.length) html += `<div class="it-pk">${perkRaster(it, profil)}<div class="it-desc" data-leer="Move the mouse onto a perk to read it. Click a dimmed perk to switch to it."></div>${d.q !== 6 ? PERK_LEGENDE : ''}</div>`;
     if (d.xd) html += `<p class="tt"><b class="tgold">${esc(d.xp || 'Exotic perk')}</b> ${esc(d.xd)}</p>`;
     const mods = plugs.filter(([, x]) => /^v400\.weapon\.mod_|weapon\.mod_|^masterworks/.test(x.pc || '') && x.i && !/^Empty/.test(x.n));
     if (mods.length) html += `<div class="it-mods">${mods.map(([, x]) => `<span data-tip="${esc(`<b>${x.n}</b><br>${x.d || ''}`)}"><i style="background-image:url(${BILD}${x.i})"></i>${esc(x.n)}</span>`).join('')}</div>`;
@@ -61,7 +61,7 @@ export function itemTipp(it, profil) {
     const set = d.e ? defs.sets?.[d.e] : null;
     if (set) html += `<div class="tset"><b>${esc(set.n)}</b>${set.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>`;
   }
-  html += `<small class="thint">${it.tippExtra ? 'Click the piece to lock or exclude it' : d.t === 3 ? 'Click the item for all actions · move the mouse down into this window to read every perk' : 'Click the item for all actions'}</small></div></div>`;
+  html += `<small class="thint">${it.tippExtra ? 'Click the piece to lock or exclude it' : d.t === 3 ? 'Move the mouse down into this window: hover a perk to read it, click it to switch · click the item for all actions' : 'Click the item for all actions'}</small></div></div>`;
   return html;
 }
 
@@ -80,8 +80,18 @@ function greifbar(tipp) {
     const pk = e.target.closest('.pk'); const box = tipp.querySelector('.it-desc'); if (!pk || !box) return;
     const p = defs.items[pk.dataset.ph]; if (!p) return;
     tipp.querySelectorAll('.pk.zeig').forEach((x) => x.classList.remove('zeig')); pk.classList.add('zeig');
-    box.innerHTML = `<b>${esc(p.n)}</b>${/Enhanced/i.test(p.k || '') ? ' <em>Enhanced</em>' : ''}${pk.classList.contains('an') ? ' <em class="akt">active</em>' : ''}<span>${esc(p.d || 'No description.')}</span>`;
+    box.innerHTML = `<b>${esc(p.n)}</b>${/Enhanced/i.test(p.k || '') ? ' <em>Enhanced</em>' : ''}${pk.classList.contains('an') ? ' <em class="akt">active</em>' : pk.dataset.s ? ' <em class="klick">click to switch</em>' : ''}<span>${esc(p.d || 'No description.')}</span>`;
   });
+  // Klick auf einen Perk im Fenster: direkt im Spiel einsetzen, Fenster bleibt offen und zeigt den neuen Stand.
+  tipp.addEventListener('click', async (e) => {
+    const pk = e.target.closest('.pk[data-s]'); const it = tipp._it;
+    if (!pk || !it || pk.classList.contains('an') || tipp.querySelector('.pk.laedt')) return;
+    pk.classList.add('laedt');
+    if (await wendePerkAn(it, tipp._profil, Number(pk.dataset.s), Number(pk.dataset.ph))) { if (tipp._it === it) tipp.innerHTML = itemTipp(it, tipp._profil); } else pk.classList.remove('laedt');
+  });
+  // Versehentliches Scrollen im Fenster soll die Seite dahinter nicht bewegen (sonst wäre das Fenster sofort weg).
+  tipp.addEventListener('wheel', (e) => { if (tipp.scrollHeight <= tipp.clientHeight + 1) e.preventDefault(); }, { passive: false });
+  tipp._zu = () => { clearTimeout(t); roh.set.call(tipp, true); };
 }
 
 // Tooltip zeigen. Mit el (die Kachel) dockt er direkt an die Kachel an, damit die Maus ohne Lücke hinüberkommt.
@@ -89,6 +99,7 @@ export function zeigeItemTipp(it, profil, x, y, el) {
   const tipp = document.querySelector('#tipp');
   if (!tipp || !it) return;
   greifbar(tipp);
+  tipp._it = it; tipp._profil = profil;
   tipp.innerHTML = itemTipp(it, profil);
   tipp.hidden = false;
   const r = tipp.getBoundingClientRect();

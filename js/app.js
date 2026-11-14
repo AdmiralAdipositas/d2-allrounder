@@ -92,6 +92,7 @@ setzeNav({
   items: () => alleMitUrteil(zustand),
   profil: () => zustand.profil,
 });
+import('./sets.js').then((m) => m.setzeSetQuelle(() => alleMitUrteil(zustand), () => Object.values(zustand.profil?.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed))[0]?.classType ?? 2));
 export const springeGuide = (id) => { zustand.guideZiel = id; wechsle('guide'); };
 export const springeWiki = (kat, suche) => { if (suche) setzeWikiSuche(suche); else setzeWikiKat(kat); wechsle('wiki'); };
 const TABS = Object.fromEntries(['start', 'char', 'vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats', 'hueter', 'squad'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));

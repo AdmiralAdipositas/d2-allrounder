@@ -1,5 +1,6 @@
 // Rüstungs-Optimizer mit Live-Leisten wie d2armorpicker: Klick setzt Mindestwert (5er-Schritte),
 // die Leiste zeigt, was mit den anderen Mindestwerten noch erreichbar ist.
+import { setId } from './sets.js';
 import { zeigeItemTipp, statIcon } from './itemtipp.js';
 import * as bungie from './bungie.js';
 import { defs } from './defs.js';
@@ -299,22 +300,9 @@ export function zeigeOptimizer(haupt, zustand) {
     const fq = fragmentQuelle(zustand.profil, charF?.characterId, zustandO.fragQuelle, zustandO.build);
     zustandO.frag = fragmentBonus(fq.plugs);
     const fragL = fragmentListe(fq.plugs);
-    let r = rechne(liste, zustandO);
-    // Kein Ergebnis wegen des Sets? Dann automatisch die beste Lösung mit weniger Set-Teilen zeigen und das ehrlich sagen.
-    let ersatzHinweis = '';
-    if (!r.beste.length && zustandO.sets.length) {
-      const grund = grundLeer(liste, zustandO);
-      const S0 = zustandO.sets[0], S1 = zustandO.sets[1];
-      // Reihenfolge: möglichst viel von deiner Auswahl behalten (erst ein Set weglassen, dann 4→2, erst zuletzt gar kein Set).
-      const versuche = [];
-      if (S1) { versuche.push([[S0], `${S0.stk}× ${S0.n} only (${S1.n} left out)`], [[S1], `2× ${S1.n} only (${S0.n} left out)`]); }
-      if (S0.stk === 4) versuche.push([[{ ...S0, stk: 2 }], `2 instead of 4 pieces of ${S0.n}`]);
-      versuche.push([[], 'no armor set']);
-      for (const [sets, text] of versuche) {
-        const alt = rechne(liste, { ...zustandO, sets });
-        if (alt.beste.length) { r = alt; ersatzHinweis = `<div class="ohinweis"><b>Your selection is not possible.</b><p>${grund}</p><p class="oh-statt">Shown instead: the best result with <b>${esc(text)}</b>${zustandO.exotic ? ' – your exotic is kept' : ''}.</p></div>`; break; }
-      }
-    }
+    const r = rechne(liste, zustandO);
+    // Deine Auswahl hat Vorrang: geht sie nicht auf, gibt es bewusst KEIN Ersatz-Ergebnis, nur die genaue Begründung.
+    const ersatzHinweis = r.beste.length ? '' : `<div class="ohinweis"><b>No result – your selection cannot be built.</b><p>${grundLeer(liste, zustandO)}</p><p class="oh-statt">Nothing else is shown on purpose. Change the exotic, a set or a minimum on the left.</p></div>`;
     ergebnisse = r.beste;
     speichere('d2a.opt', zustandO);
     const mods = statMods();
@@ -377,14 +365,14 @@ export function zeigeOptimizer(haupt, zustand) {
       <div class="okarten" ${zustandO.tabelle && r.beste.length ? 'hidden' : ''}><details class="warum"><summary>How does the optimizer pick?</summary><p>It looks at every armor piece of this class you own (vault and characters), adds automatic stat mods and your fragments, and keeps the combinations that reach all your minimums.</p><p><b>Rank: ${esc(RANG[zustandO.rang || 'total'][0])}.</b> ${esc(RANG[zustandO.rang || 'total'][1])}</p>
       <p><b>Exotic:</b> ${zustandO.exotic ? 'only the exotic you picked.' : { any: 'the one that gives the best result wins. If the same exotic shows up every time, it simply has the best stats — use “Compare exotics” or pick one.', vary: 'one card per exotic (and one without), best combination each.', none: 'legendary pieces only.' }[zustandO.exoModus || 'any']}</p>
       <p><b>Sets:</b> ${zustandO.sets.length ? zustandO.sets.map((x) => `${esc(x.n)} ×${x.stk}`).join(' + ') : 'no requirement. Pick a set (2 pieces) and a second set (2 pieces) for two 2-piece bonuses, or 4 pieces for both bonuses of one set.'}</p>
-      <p>Per slot the best ~14 pieces for your minimums are compared; every combination that reaches all minimums (with up to one stat mod per piece) is counted.</p></details>${r.beste.map((b, k) => `<article class="kombi"><div class="krang"><b>#${k + 1}</b><span>Total ${b.werte.reduce((a, v) => a + v, 0)}</span>${zustandO.exoModus === 'vary' && !zustandO.exotic ? `<em class="schip an" style="--sf:#e9c46a">${esc(b.exoName === '—' ? 'No exotic' : b.exoName)}</em>` : ''}${(() => { const w = b.items.filter((i) => i.ort !== zustandO.cid).length; return `<small class="kweg">${w ? `${w} of 5 pieces come from the vault or another character – moved for you when you equip` : 'All pieces are already on this character'}</small>`; })()}${(() => { const z = new Map(); b.items.forEach((i) => i.set && z.set(i.set.n, (z.get(i.set.n) || 0) + 1)); return [...z].sort((a, c) => c[1] - a[1]).map(([n, c]) => `<em class="schip ${c >= 2 ? 'an' : ''}" style="--sf:${setFarbe(n)}">${esc(n)} ${c}/4</em>`).join(''); })()}</div>
+      <p>Per slot the best ~14 pieces for your minimums are compared; every combination that reaches all minimums (with up to one stat mod per piece) is counted.</p></details>${r.beste.map((b, k) => `<article class="kombi"><div class="krang"><b>#${k + 1}</b><span>Total ${b.werte.reduce((a, v) => a + v, 0)}</span>${zustandO.exoModus === 'vary' && !zustandO.exotic ? `<em class="schip an" style="--sf:#e9c46a">${esc(b.exoName === '—' ? 'No exotic' : b.exoName)}</em>` : ''}${(() => { const w = b.items.filter((i) => i.ort !== zustandO.cid).length; return `<small class="kweg">${w ? `${w} of 5 pieces come from the vault or another character – moved for you when you equip` : 'All pieces are already on this character'}</small>`; })()}${(() => { const z = new Map(); b.items.forEach((i) => i.set && z.set(i.set.n, (z.get(i.set.n) || 0) + 1)); return [...z].sort((a, c) => c[1] - a[1]).map(([n, c]) => `<em class="schip ${c >= 2 ? 'an' : ''}" data-sh="${setId(n) || ''}" data-skl="${zustandO.klasse}" style="--sf:${setFarbe(n)}">${esc(n)} ${c}/4</em>`).join(''); })()}</div>
       ${(() => { const z = zuteilung(b); return `<div class="kitems">${b.items.map((i) => { const m = z.get(i.id); return `<div class="kteil"><b class="kslot">${SLOTNAME[SLOTS.indexOf(i.d.b)]}</b><i class="ic ${i.exo ? 'exotic' : ''} ${festIds.has(i.id) ? 'fest' : ''}" data-oid="${k}:${i.id}" style="background-image:url(${BILD}${i.d.i})"><i class="ort ${i.ort === 'tresor' ? 'tresor' : 'char'}"></i></i>${m ? `<span class="kmodl" title="${esc(m.name)} goes on this piece"><i style="background-image:url(${BILD}${m.icon})"></i>+${m.wert} ${esc(m.name.replace(/ Mod$/, ''))}</span>` : '<span class="kmodl leer">no stat mod</span>'}<small style="--sf:${i.set ? setFarbe(i.set.n) : 'transparent'}" class="kset-l ${i.set && b.items.filter((x) => x.set?.n === i.set.n).length >= 2 ? 'aktivset' : ''}">${i.exo ? 'Exotic' : i.set ? `${esc(i.set.n)} ${b.items.filter((x) => x.set?.n === i.set.n).length}/4` : '–'}</small><span class="kst">${ARMOR_STATS.map((n) => { const v = (zustandO.mods ? i.basis : i.st)[n] || 0; return `<span class="${v >= 25 ? 'hoch' : v <= 8 ? 'tief' : ''}" data-tip="${n}: ${v} on this piece">${statIcon(n)}${v}</span>`; }).join('')}</span></div>`; }).join('')}</div>`; })()}
       <div class="kwerte">${ARMOR_STATS.map((n, j) => { const basis = b.items.reduce((a, i) => a + ((zustandO.mods ? i.basis : i.st)[n] || 0), 0); const mod = b.werte[j] - basis - (zustandO.frag?.[n] || 0) - (Number(zustandO.bonus[n]) || 0); const fr = zustandO.frag?.[n] || 0; const ok = b.werte[j] >= (zustandO.ziele[n] || 0); return `<span class="${zustandO.ziele[n] ? (ok ? 'erreicht' : '') : ''}" title="${n}: armor ${basis}${mod ? ` + mods ${mod}` : ''}${fr ? ` ${fr > 0 ? '+' : '−'} fragments ${Math.abs(fr)}` : ''}${zustandO.bonus[n] ? ` + extra ${zustandO.bonus[n]}` : ''}${zustandO.ziele[n] ? ` · your minimum ${zustandO.ziele[n]}` : ''}"><small>${n}</small><b>${b.werte[j]}</b><i><u style="width:${Math.min(100, b.werte[j] / 2)}%"></u></i>${mod || fr ? `<em>${basis}${mod ? `<ins>+${mod}</ins>` : ''}${fr ? `<ins class="${fr < 0 ? 'minus' : ''}">${fr > 0 ? '+' : '−'}${Math.abs(fr)}</ins>` : ''}</em>` : ''}</span>`; }).join('')}</div>
       <small class="klegende">Small numbers: armor + <ins>mods</ins> + <ins>fragments</ins>. Hover a stat for details.</small>
       ${b.modsJeStat.some(Boolean) ? `<div class="kmods">${ARMOR_STATS.map((n, j) => { const k5 = b.klein?.[j] || 0, k10 = (b.modsJeStat[j] || 0) - k5; const m5 = statMods(5)[n]; return `${k10 ? `<span><i style="background-image:url(${BILD}${mods[n]?.icon || ''})"></i>${k10}× ${esc(mods[n]?.name || n)} <b>+${mods[n]?.wert || ''}</b></span>` : ''}${k5 ? `<span><i style="background-image:url(${BILD}${m5?.icon || ''})"></i>${k5}× ${esc(m5?.name || n)} <b>+5</b></span>` : ''}`; }).join('')}</div>` : ''}
       ${(() => { const z = new Map(); b.items.forEach((i) => i.set && z.set(i.set.n, (z.get(i.set.n) || 0) + 1)); const aktiv = [...z].filter(([, n]) => n >= 2); return aktiv.length ? '' : '<small class="kmods">No set bonus active (no 2 pieces of the same set). Pick a set above to force one.</small>'; })()}
-      ${setBoni(b.items).map((p) => `<div class="kset"><b>${esc(p.set)} ${p.c}-piece · ${esc(p.n)}</b><span>${esc(p.d)}</span></div>`).join('')}
-      <button class="haupt-knopf" data-equip="${k}">${bd ? 'Equip full build' : 'Equip on'} ${KLASSE[zustandO.klasse]}</button></article>`).join('') || `<p class="leer">${grundLeer(liste, zustandO)}</p>`}</div></section></div>`;
+      ${setBoni(b.items).map((p) => `<div class="kset" data-sh="${setId(p.set) || ''}" data-skl="${zustandO.klasse}"><b>${esc(p.set)} ${p.c}-piece · ${esc(p.n)}</b><span>${esc(p.d)}</span></div>`).join('')}
+      <button class="haupt-knopf" data-equip="${k}">${bd ? 'Equip full build' : 'Equip on'} ${KLASSE[zustandO.klasse]}</button></article>`).join('')}</div></section></div>`;
   };
   zeichne();
 

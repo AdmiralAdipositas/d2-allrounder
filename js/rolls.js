@@ -23,9 +23,9 @@ const namen = (liste) => new Set((liste || []).map(nm));
 
 // Markierung für einen einzelnen Perk dieser Waffe: PvE-Wunsch, PvP-Wunsch, Teil des God Rolls.
 export function perkMarke(hash) {
-  const r = empfehlung(hash); if (!r) return () => ({ e: false, v: false, g: false });
-  const e = namen(r.e), v = namen(r.v), g = namen([...(r.ge?.[0] || []), ...(r.gv?.[0] || [])]);
-  return (plug) => { const n = nm(plug); return { e: e.has(n), v: v.has(n), g: g.has(n) }; };
+  const r = empfehlung(hash); if (!r) return () => ({ e: false, v: false, g: false, ge: false, gv: false });
+  const e = namen(r.e), v = namen(r.v), ge = namen(r.ge?.[0] || []), gv = namen(r.gv?.[0] || []);
+  return (plug) => { const n = nm(plug); return { e: e.has(n), v: v.has(n), ge: ge.has(n), gv: gv.has(n), g: ge.has(n) || gv.has(n) }; };
 }
 
 // Bewertet eine Waffe: God Roll, wenn eine empfohlene Kombination komplett drauf ist; "good" ab drei empfohlenen Perks.

@@ -4,6 +4,7 @@ import { defs } from './defs.js';
 import { quelle } from './quellen.js';
 import { empfehlung } from './rolls.js';
 import { guideId } from './guidelinks.js';
+import { setInfo } from './sets.js';
 
 const BILD = 'https://www.bungie.net';
 const KLASSE = { 0: 'Titan', 1: 'Hunter', 2: 'Warlock', 3: '' };
@@ -41,7 +42,7 @@ function inhalt(el) {
     const n = a.n.split(':')[0].trim(); const g = guideId(n);
     return { titel: a.n, icon: a.i && !/pgcr/.test(a.i) ? a.i : '', unter: [a.g, a.o].filter(Boolean).join(' · '), text: a.d ? `<p>${esc(a.d)}</p>` : '', links: [['wiki', n, 'Loot & encounters'], ...(g ? [['guide', g, 'Raid guide']] : [])] };
   }
-  if (sh) { const s = defs.sets?.[sh]; return s && { titel: s.n, icon: '', unter: 'Armor set', text: s.p.map((p) => `<p><b>${p.c}-piece · ${esc(p.n)}</b> ${esc(p.d)}</p>`).join(''), links: [['wiki', s.n, 'In the wiki'], ['farm', s.n, 'Where to farm']] }; }
+  if (sh) { const s = defs.sets?.[sh]; return s && { titel: s.n, icon: '', unter: 'Armor set', text: setInfo(sh, el.dataset.skl != null ? Number(el.dataset.skl) : undefined), links: [['wiki', s.n, 'In the wiki'], ['farm', s.n, 'Where to farm']] }; }
   return null;
 }
 
@@ -74,13 +75,13 @@ function zeigeKarte(el) {
 const zu = () => { karte?.remove(); karte = null; };
 
 // Ein Element mit eigener Klick-Aktion (Kachel, Perk-Knopf …) behält seinen Klick; dort hilft Rechtsklick/langes Drücken.
-const eigenerKlick = (el) => el.closest('button:not([data-ik]),a,[data-id],[data-oid],.pl,[data-opt]') && !el.hasAttribute('data-ik');
+const eigenerKlick = (el) => el.closest('button:not([data-ik]),a,.ic[data-id],[data-oid],.pl,[data-opt]') && !el.hasAttribute('data-ik');
 document.addEventListener('pointerover', (e) => {
   if (e.pointerType !== 'mouse') return;
   const el = e.target.closest('[data-ih],[data-mh],[data-ah],[data-sh]');
-  if (el && !el.closest('.infokarte') && !el.closest('[data-id],[data-oid],[data-cid],.pl')) zeigeTipp(el);
+  if (el && !el.closest('.infokarte') && !el.closest('.ic[data-id],[data-oid],[data-cid],.pl')) zeigeTipp(el);
 });
-document.addEventListener('pointerout', (e) => { if (e.target.closest('[data-ih],[data-mh],[data-ah],[data-sh]') && !e.target.closest('[data-id],[data-oid],[data-cid],.pl') && !e.relatedTarget?.closest?.('#tipp') && !document.querySelector('#tippFest:checked')) tipp().hidden = true; });
+document.addEventListener('pointerout', (e) => { if (e.target.closest('[data-ih],[data-mh],[data-ah],[data-sh]') && !e.target.closest('.ic[data-id],[data-oid],[data-cid],.pl') && !e.relatedTarget?.closest?.('#tipp') && !document.querySelector('#tippFest:checked')) tipp().hidden = true; });
 document.addEventListener('click', (e) => {
   const l = e.target.closest('[data-ika]');
   if (l) { const { ika, ikz } = l.dataset; zu(); if (ika === 'wiki') nav.wiki(ikz); if (ika === 'farm') nav.wiki(ikz, 'farm'); if (ika === 'guide') nav.guide(ikz); return; }
