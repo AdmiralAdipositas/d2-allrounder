@@ -141,6 +141,7 @@ export function setzePutz(k, v) { putzRegeln = { ...putzRegeln, [k]: v }; try { 
 // Urteil je Teil: behalten / beste Kopie / kann weg / Infusions-Futter – immer mit Begründung.
 // Grundsätze: Nur echte Duplikate (Waffen) oder klar übertroffene Teile (Rüstung) können „weg“. Bewertet wird, was der Roll KANN
 // (alle wählbaren Perks der Spalten), nicht nur was gerade aktiv ist. Ohne Community-Daten gibt es kein Urteil statt Quatsch.
+const aelter = (a, b) => (a.length !== b.length ? a.length < b.length : a < b); // kleinere Instanz-ID = älteres Teil
 function aufraeumen(alle, profil) {
   const genutzt = new Set();
   for (const c of Object.values(profil.characterLoadouts?.data || {})) for (const l of c.loadouts || []) for (const i of l.items || []) genutzt.add(i.itemInstanceId);
@@ -205,7 +206,7 @@ function aufraeumen(alle, profil) {
       if (k.tier && k.tier === maxTier && kopien.filter((y) => y.tier === maxTier).length === 1) { setze(k, 'keep', `Your only Tier ${k.tier} copy`); continue; }
       if (k === meiste && k.kills >= 500) { setze(k, 'keep', `Your most used copy (${k.kills.toLocaleString()} kills)`); continue; }
       if (!hatDaten) {
-        const zwilling = kopien.find((y) => y !== k && y.oSet === k.oSet && y.tier >= k.tier && (y.urteil ? y.urteil.art !== 'junk' && y.urteil.art !== 'infuse' : true) && (y.locked || y.genutzt || BigInt(y.id) < BigInt(k.id)));
+        const zwilling = kopien.find((y) => y !== k && y.oSet === k.oSet && y.tier >= k.tier && (y.urteil ? y.urteil.art !== 'junk' && y.urteil.art !== 'infuse' : true) && (y.locked || y.genutzt || aelter(y.id, k.id)));
         if (zwilling && k.oSet) weg(k, 'Exact duplicate: another copy has the same perks');
         else setze(k, 'frei', `One of ${n} copies. No community roll data for this weapon – compare the perks yourself`);
         continue;
@@ -226,7 +227,7 @@ function aufraeumen(alle, profil) {
     const f = fest(x);
     if (f) { setze(x, f[0], f[1]); continue; }
     if (x.d.q === 6) { if (liste.filter((y) => y.d.n === x.d.n).length === 1) setze(x, 'keep', 'Your only copy of this exotic'); continue; }
-    const besser = liste.find((y) => y !== x && y.d.q !== 6 && (y.d.e || 0) === (x.d.e || 0) && (y.tier || 0) >= (x.tier || 0) && ARMOR_STATS.every((n) => y.st[n] >= x.st[n]) && (y.st.Total > x.st.Total || (y.st.Total === x.st.Total && (y.locked || y.genutzt || BigInt(y.id) < BigInt(x.id)))));
+    const besser = liste.find((y) => y !== x && y.d.q !== 6 && (y.d.e || 0) === (x.d.e || 0) && (y.tier || 0) >= (x.tier || 0) && ARMOR_STATS.every((n) => y.st[n] >= x.st[n]) && (y.st.Total > x.st.Total || (y.st.Total === x.st.Total && (y.locked || y.genutzt || aelter(y.id, x.id)))));
     if (besser) weg(x, `Outclassed: your ${besser.d.n} (total ${besser.st.Total}${besser.ort === 'tresor' ? ', vault' : ''}) is equal or better in every stat${x.d.e ? ' and from the same set' : ''}`);
   }
   for (const x of alle) x.m.putz = x.urteil?.art === 'junk' ? 'Dismantle suggestion' : x.urteil?.art === 'infuse' ? 'Infusion fuel' : x.urteil?.art === 'best' ? 'Best copy' : x.urteil?.art === 'frei' ? 'Undecided duplicate' : x.genutzt ? 'In a loadout' : '';
