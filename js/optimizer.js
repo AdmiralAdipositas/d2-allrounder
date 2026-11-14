@@ -157,22 +157,38 @@ function durchlaufe(g, fertig) {
 
 // Warum gibt es kein Ergebnis? Erst fehlende Teile (Set, Exotic, Slot), dann erst die Mindestwerte.
 const SLOTNAME = ['Helmet', 'Gauntlets', 'Chest', 'Legs', 'Class item'];
+// Welche Plätze (ohne den Exotic-Platz) hast du von einem Set?
+function setPlaetze(liste, wunsch, name) {
+  const ex = wunsch.exotic ? liste.find((i) => i.hash === wunsch.exotic) : null;
+  return SLOTS.filter((b) => b !== ex?.d.b && liste.some((i) => i.d.b === b && !i.exo && i.set?.n === name));
+}
+// Lassen sich die gewünschten Sets auf verschiedene Plätze verteilen? (z. B. 2 + 2 braucht vier verschiedene Plätze)
+function setsVerteilbar(liste, wunsch, sets) {
+  const wahl = (pl, n) => { const r = []; const g = (st, akt) => { if (akt.length === n) return r.push(akt); for (let i = st; i < pl.length; i++) g(i + 1, [...akt, pl[i]]); }; g(0, []); return r; };
+  const gehe = (k, belegt) => { if (k === sets.length) return true; return wahl(setPlaetze(liste, wunsch, sets[k].n).filter((b) => !belegt.has(b)), sets[k].stk).some((w) => gehe(k + 1, new Set([...belegt, ...w]))); };
+  return gehe(0, new Set());
+}
 function grundLeer(liste, wunsch) {
   const ex = wunsch.exotic ? liste.find((i) => i.hash === wunsch.exotic) : null;
   const frei = SLOTS.filter((b) => b !== ex?.d.b);
-  const teile = []; const gesehen = new Set();
-  for (const st of setListe(wunsch)) {
+  const sn = (b) => SLOTNAME[SLOTS.indexOf(b)];
+  const teile = []; const gesehen = new Set(); const sets = setListe(wunsch);
+  for (const st of sets) {
     if (gesehen.has(st.n)) continue; gesehen.add(st.n);
-    const da = frei.filter((b) => liste.some((i) => i.d.b === b && !i.exo && i.set?.n === st.n));
+    const da = setPlaetze(liste, wunsch, st.n);
     if (da.length < st.stk) {
-      const fehlt = frei.filter((b) => !da.includes(b)).map((b) => SLOTNAME[SLOTS.indexOf(b)]);
-      teile.push(`You need ${st.stk} ${esc(st.n)} pieces in different slots${ex ? ` (not the ${SLOTNAME[SLOTS.indexOf(ex.d.b)].toLowerCase()}, that's your exotic)` : ''}, but you only have ${da.length}: ${da.map((b) => SLOTNAME[SLOTS.indexOf(b)]).join(', ') || 'none'}. Still needed: ${st.stk - da.length} of ${fehlt.join(', ')}.`);
+      const fehlt = frei.filter((b) => !da.includes(b)).map(sn);
+      teile.push(`<b>${esc(st.n)}</b>: you need ${st.stk} pieces in different slots${ex ? ` (the ${sn(ex.d.b).toLowerCase()} is taken by your exotic)` : ''}, but you only own ${da.length ? da.map(sn).join(' + ') : 'none'}. Missing: ${st.stk - da.length} of ${fehlt.join(', ')}.`);
     }
   }
+  if (!teile.length && sets.length > 1 && !setsVerteilbar(liste, wunsch, sets)) {
+    teile.push(`These sets cannot be worn together${ex ? ` with ${esc(ex.d.n)}` : ''}: ${sets.map((st) => `<b>${esc(st.n)}</b> you own as ${setPlaetze(liste, wunsch, st.n).map(sn).join(', ')}`).join('; ')}. They would need ${sets.reduce((a, x) => a + x.stk, 0)} different slots, but their slots overlap${ex ? ` and the ${sn(ex.d.b).toLowerCase()} is your exotic` : ''}.`);
+  }
   const leer = SLOTS.filter((b) => !liste.some((i) => i.d.b === b));
-  if (leer.length) teile.push(`No armor for ${leer.map((b) => SLOTNAME[SLOTS.indexOf(b)]).join(', ')} on this class.`);
+  if (leer.length) teile.push(`No armor for ${leer.map(sn).join(', ')} on this class.`);
   if (teile.length) return teile.join(' ');
-  return ARMOR_STATS.some((n) => wunsch.ziele[n]) ? 'No combination reaches these minimums. Lower one of them.' : 'No combination found with these settings. Try “Any (no set needed)” or another exotic.';
+  if (ARMOR_STATS.some((n) => wunsch.ziele[n])) return sets.length ? 'With these sets no combination reaches your minimum stats. Lower a minimum or drop a set.' : 'No combination reaches these minimums. Lower one of them.';
+  return (wunsch.aus || []).length || Object.keys(wunsch.fest || {}).length ? 'Your locked or excluded pieces leave no valid combination. Reset them above the results.' : 'No combination found with these settings.';
 }
 function rechne(liste, wunsch) {
   const mods = statMods();
@@ -287,10 +303,15 @@ export function zeigeOptimizer(haupt, zustand) {
     let ersatzHinweis = '';
     if (!r.beste.length && zustandO.sets.length) {
       const grund = grundLeer(liste, zustandO);
-      for (const [sets, text] of [[[{ ...zustandO.sets[0], stk: 2 }], `2 pieces of ${zustandO.sets[0].n}`], [[], 'no set']]) {
-        if (zustandO.sets[0].stk === 2 && sets.length) continue;
+      const S0 = zustandO.sets[0], S1 = zustandO.sets[1];
+      // Reihenfolge: möglichst viel von deiner Auswahl behalten (erst ein Set weglassen, dann 4→2, erst zuletzt gar kein Set).
+      const versuche = [];
+      if (S1) { versuche.push([[S0], `${S0.stk}× ${S0.n} only (${S1.n} left out)`], [[S1], `2× ${S1.n} only (${S0.n} left out)`]); }
+      if (S0.stk === 4) versuche.push([[{ ...S0, stk: 2 }], `2 instead of 4 pieces of ${S0.n}`]);
+      versuche.push([[], 'no armor set']);
+      for (const [sets, text] of versuche) {
         const alt = rechne(liste, { ...zustandO, sets });
-        if (alt.beste.length) { r = alt; ersatzHinweis = `<p class="ohinweis">${grund}<br><b>Showing the best result with ${esc(text)} instead.</b></p>`; break; }
+        if (alt.beste.length) { r = alt; ersatzHinweis = `<div class="ohinweis"><b>Your selection is not possible.</b><p>${grund}</p><p class="oh-statt">Shown instead: the best result with <b>${esc(text)}</b>${zustandO.exotic ? ' – your exotic is kept' : ''}.</p></div>`; break; }
       }
     }
     ergebnisse = r.beste;
@@ -318,8 +339,29 @@ export function zeigeOptimizer(haupt, zustand) {
           <span class="swert"><b>${z}</b> / ${r.max[k]}</span></div>`;
       }).join('')}<button class="chip" id="reset">Reset minimums</button></div>
       <div class="oschritt"><h3><span>3</span>Exotic & armor set <small>optional</small></h3>
-        <label class="ozeile">Exotic <select id="exo">${[['any', 'Let the optimizer choose'], ['vary', 'Show one result per exotic'], ['none', 'No exotic']].map(([v, t]) => `<option value="${v}" ${!zustandO.exotic && (zustandO.exoModus || 'any') === v ? 'selected' : ''}>${t}</option>`).join('')}<optgroup label="Use this exotic">${exotics.map((e) => `<option value="${e.hash}" ${e.hash === zustandO.exotic ? 'selected' : ''}>${esc(e.d.n)} · ${esc(e.d.k || '')}</option>`).join('')}</optgroup></select></label>
-        ${[0, 1].map((k) => { const st = zustandO.sets[k] || {}; if (k === 1 && !(zustandO.sets[0]?.n && zustandO.sets[0].stk === 2)) return ''; return `<label class="ozeile">${k ? 'Second set (2 pieces)' : 'Armor set'} <select data-setn="${k}"><option value="">${k ? 'None' : 'Any (no set needed)'}</option>${[...new Set(liste.filter((i) => i.set).map((i) => i.set.n))].sort().filter((n) => k === 0 || n !== zustandO.sets[0]?.n).map((n) => `<option ${n === st.n ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>${st.n && k === 0 ? `<label class="ozeile">Pieces of it <select data-setk="0"><option value="2" ${st.stk !== 4 ? 'selected' : ''}>2 – one bonus, room for a second set</option><option value="4" ${st.stk === 4 ? 'selected' : ''}>4 – both bonuses</option></select></label>` : ''}`; }).join('')}</div>
+        ${(() => {
+          const exoJetzt = zustandO.exotic ? exotics.find((e) => e.hash === zustandO.exotic) : null;
+          const MODI = [['any', 'Best for the stats', 'The optimizer picks whichever exotic gives the best stats.'], ['vary', 'One result per exotic', 'Shows the best combination for every exotic you own, side by side.'], ['none', 'No exotic', 'Legendary armor only.']];
+          const modus = zustandO.exoModus || 'any';
+          const exoPick = `<details class="opick" data-pick="exo"><summary data-tip="Click to choose an exotic by slot"><span class="opick-l">Exotic</span>${exoJetzt ? `<i class="opick-ic" style="background-image:url(${BILD}${exoJetzt.d.i})"></i><b>${esc(exoJetzt.d.n)}</b><small>${esc(SLOTNAME[SLOTS.indexOf(exoJetzt.d.b)])}</small>` : `<b>${MODI.find((m) => m[0] === modus)[1]}</b>`}<em>change</em></summary>
+            <div class="opick-in"><div class="opick-modi">${MODI.map(([v, t, tip]) => `<button class="chip ${!exoJetzt && modus === v ? 'an' : ''}" data-exo="${v}" data-tip="${esc(tip)}">${t}</button>`).join('')}</div>
+            ${SLOTS.map((b, si) => { const l = exotics.filter((e) => e.d.b === b); return l.length ? `<div class="opick-reihe"><small>${SLOTNAME[si]}</small><div>${l.map((e) => `<button class="opick-i ${e.hash === zustandO.exotic ? 'an' : ''}" data-exo="${e.hash}" data-tip="${esc(`<b>${e.d.n}</b>${e.d.xp ? `<br><em>${e.d.xp}</em>` : ''}${e.d.xd ? `<br>${e.d.xd}` : ''}`)}"><i style="background-image:url(${BILD}${e.d.i})"></i><span>${esc(e.d.n)}</span></button>`).join('')}</div></div>` : ''; }).join('')}</div></details>`;
+          const exSlot = exoJetzt?.d.b;
+          const setNamen = [...new Set(liste.filter((i) => i.set && !i.exo).map((i) => i.set.n))];
+          const teileVon = (n) => SLOTS.map((b) => liste.filter((i) => !i.exo && i.set?.n === n && i.d.b === b).sort((x, y) => y.st.Total - x.st.Total)[0]);
+          const setPick = (k) => {
+            const st = zustandO.sets[k] || {};
+            if (k === 1 && !(zustandO.sets[0]?.n && zustandO.sets[0].stk === 2)) return '';
+            const andere = zustandO.sets[k ? 0 : 1]?.n; const belegt = andere ? new Set(setPlaetze(liste, zustandO, andere)) : new Set();
+            const karten = setNamen.filter((n) => n !== andere).map((n) => { const t = teileVon(n); const frei = t.filter((x, si) => x && SLOTS[si] !== exSlot).length; return [n, t, frei]; }).sort((x, y) => y[2] - x[2] || x[0].localeCompare(y[0]));
+            const def = (n) => liste.find((i) => i.set?.n === n)?.set;
+            return `<details class="opick" data-pick="set${k}"><summary data-tip="Click to choose a set. The five boxes show which slots you own."><span class="opick-l">${k ? 'Second set' : 'Armor set'}</span><b>${st.n ? esc(st.n) : k ? 'None' : 'Any (no set needed)'}</b>${st.n ? `<small>${st.stk || 2} pieces</small>` : ''}<em>change</em></summary>
+              <div class="opick-in"><div class="opick-modi"><button class="chip ${st.n ? '' : 'an'}" data-set="${k}|">${k ? 'None' : 'Any (no set needed)'}</button><span class="opick-leg">${SLOTNAME.map((x) => x.slice(0, 1)).join(' · ')} = ${SLOTNAME.join(', ')}</span></div>
+              <div class="oset-liste">${karten.map(([n, t, frei]) => { const sd = def(n); const reicht = frei >= (k ? 2 : 2); return `<button class="oset ${n === st.n ? 'an' : ''} ${reicht ? '' : 'knapp'}" data-set="${k}|${esc(n)}" data-tip="${esc(`<b>${n}</b>${(sd?.p || []).map((p2) => `<br><em>${p2.c}-piece · ${p2.n}</em> ${p2.d}`).join('')}<br>You own it for: ${t.map((x, si) => (x ? SLOTNAME[si] : null)).filter(Boolean).join(', ') || 'no slot'}${reicht ? '' : '<br><b>Not enough different slots for a 2-piece bonus' + (exSlot ? ' next to your exotic' : '') + '.</b>'}`)}"><b>${esc(n)}</b><span class="oset-teile">${t.map((x, si) => `<i class="${x ? '' : 'leer'} ${SLOTS[si] === exSlot ? 'exo' : ''} ${x && belegt.has(SLOTS[si]) ? 'doppelt' : ''}" ${x ? `style="background-image:url(${BILD}${x.d.i})"` : ''}>${x ? '' : SLOTNAME[si][0]}</i>`).join('')}</span><small>${frei} of ${exSlot ? 4 : 5} slots${(sd?.p || [])[0] ? ` · ${esc(sd.p[0].n)}` : ''}</small></button>`; }).join('')}</div></div></details>
+              ${st.n && k === 0 ? `<div class="ostk"><span>Pieces of ${esc(st.n)}</span><button class="chip ${st.stk !== 4 ? 'an' : ''}" data-stk="2" data-tip="Two pieces: the first set bonus, and room for a second set.">2 – one bonus</button><button class="chip ${st.stk === 4 ? 'an' : ''}" data-stk="4" data-tip="Four pieces: both bonuses of this set. No room for a second set.">4 – both bonuses</button></div>` : ''}`;
+          };
+          return exoPick + setPick(0) + setPick(1);
+        })()}</div>
       <details class="oschritt omehr"><summary>More options</summary>
         <label class="ozeile">Sort results by <select id="rang">${Object.entries(RANG).map(([v, [t]]) => `<option value="${v}" ${(zustandO.rang || 'total') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label><p class="ohilfe">${esc(RANG[zustandO.rang || 'total'][1])}</p>
         <label class="ozeile">Stat mods <select id="modWahl"><option value="auto" ${zustandO.mods && zustandO.modGroesse === 'auto' ? 'selected' : ''}>Automatic (recommended)</option><option value="10" ${zustandO.mods && zustandO.modGroesse === 10 ? 'selected' : ''}>Only +10 mods</option><option value="5" ${zustandO.mods && zustandO.modGroesse === 5 ? 'selected' : ''}>Only +5 mods</option><option value="0" ${!zustandO.mods ? 'selected' : ''}>No stat mods</option></select></label>
@@ -329,11 +371,12 @@ export function zeigeOptimizer(haupt, zustand) {
       <p class="anzahl"><b>${r.anzahl.toLocaleString()}</b> armor combinations reach your minimums.</p><div class="opt-sprung"><button class="haupt-knopf" data-zuerg>Show results (${r.anzahl.toLocaleString()}) ↓</button></div></section>
     <section><div class="okopf2"><h2>Best combinations</h2><span class="ansicht-w"><button class="chip ${zustandO.tabelle ? '' : 'an'}" data-oview="karten" title="Cards">▤ Cards</button><button class="chip ${zustandO.tabelle ? 'an' : ''}" data-oview="tabelle" title="Compact table">☰ Table</button></span></div>
       ${festIds.size || aus.size ? `<div class="ofest">${[...festIds].map((id) => kurz(id)).filter(Boolean).map((i) => `<button class="chip" data-unfest="${i.id}" title="Unlock">📌 ${esc(i.d.n)} ✕</button>`).join('')}${aus.size ? `<button class="chip" data-unaus="1" title="Bring excluded pieces back">⛔ ${aus.size} excluded · reset</button>` : ''}</div>` : ''}
-      ${zustandO.tabelle && r.beste.length ? `<table class="otab"><thead><tr><th>#</th><th>Armor</th>${ARMOR_STATS.map((n) => `<th title="${n}">${n.slice(0, 3)}</th>`).join('')}<th>Tot</th><th></th></tr></thead><tbody>${r.beste.map((b, k) => `<tr><td class="onr">${k + 1}</td><td><span class="otitems">${b.items.map((i) => `<i class="ic ${i.exo ? 'exotic' : ''} ${festIds.has(i.id) ? 'fest' : ''}" data-oid="${k}:${i.id}" style="background-image:url(${BILD}${i.d.i})"></i>`).join('')}</span></td>${ARMOR_STATS.map((n, j) => `<td class="${b.werte[j] >= (zustandO.ziele[n] || 0) && zustandO.ziele[n] ? 'ok' : ''} ${b.werte[j] >= 100 ? 'hoch' : ''}">${b.werte[j]}</td>`).join('')}<td class="otot">${b.werte.reduce((a, v) => a + v, 0)}</td><td><button class="chip" data-equip="${k}" title="Equip">⇩</button></td></tr>`).join('')}</tbody></table><small class="klegende">Tap an armor piece to 📌 lock or ⛔ exclude it.</small>` : ''}
+      ${ersatzHinweis}
+      ${zustandO.tabelle && r.beste.length ? `<table class="otab"><thead><tr><th>#</th><th>Armor</th>${ARMOR_STATS.map((n) => `<th title="${n}">${n.slice(0, 3)}</th>`).join('')}<th>Tot</th><th></th></tr></thead><tbody>${r.beste.map((b, k) => `<tr><td class="onr">${k + 1}</td><td><span class="otitems">${b.items.map((i) => `<i class="ic ${i.exo ? 'exotic' : ''} ${festIds.has(i.id) ? 'fest' : ''}" data-oid="${k}:${i.id}" style="background-image:url(${BILD}${i.d.i})"></i>`).join('')}</span>${(() => { const z = new Map(); b.items.forEach((i) => i.set && z.set(i.set.n, (z.get(i.set.n) || 0) + 1)); const akt = [...z].filter(([, c]) => c >= 2); return `<span class="otsets">${akt.length ? akt.map(([n, c]) => `<em class="schip an" style="--sf:${setFarbe(n)}" data-tip="${c} pieces of ${esc(n)} – ${c >= 4 ? 'both set bonuses' : 'first set bonus'} active">${esc(n)} ${c}</em>`).join('') : '<em class="schip" data-tip="No two pieces of the same set in this combination.">no set bonus</em>'}</span>`; })()}</td>${ARMOR_STATS.map((n, j) => `<td class="${b.werte[j] >= (zustandO.ziele[n] || 0) && zustandO.ziele[n] ? 'ok' : ''} ${b.werte[j] >= 100 ? 'hoch' : ''}">${b.werte[j]}</td>`).join('')}<td class="otot">${b.werte.reduce((a, v) => a + v, 0)}</td><td><button class="chip" data-equip="${k}" title="Equip">⇩</button></td></tr>`).join('')}</tbody></table><small class="klegende">Tap an armor piece to 📌 lock or ⛔ exclude it.</small>` : ''}
       <div class="okarten" ${zustandO.tabelle && r.beste.length ? 'hidden' : ''}><details class="warum"><summary>How does the optimizer pick?</summary><p>It looks at every armor piece of this class you own (vault and characters), adds automatic stat mods and your fragments, and keeps the combinations that reach all your minimums.</p><p><b>Rank: ${esc(RANG[zustandO.rang || 'total'][0])}.</b> ${esc(RANG[zustandO.rang || 'total'][1])}</p>
       <p><b>Exotic:</b> ${zustandO.exotic ? 'only the exotic you picked.' : { any: 'the one that gives the best result wins. If the same exotic shows up every time, it simply has the best stats — use “Compare exotics” or pick one.', vary: 'one card per exotic (and one without), best combination each.', none: 'legendary pieces only.' }[zustandO.exoModus || 'any']}</p>
       <p><b>Sets:</b> ${zustandO.sets.length ? zustandO.sets.map((x) => `${esc(x.n)} ×${x.stk}`).join(' + ') : 'no requirement. Pick a set (2 pieces) and a second set (2 pieces) for two 2-piece bonuses, or 4 pieces for both bonuses of one set.'}</p>
-      <p>Per slot the best ~14 pieces for your minimums are compared; every combination that reaches all minimums (with up to one stat mod per piece) is counted.</p></details>${ersatzHinweis}${r.beste.map((b, k) => `<article class="kombi"><div class="krang"><b>#${k + 1}</b><span>Total ${b.werte.reduce((a, v) => a + v, 0)}</span>${zustandO.exoModus === 'vary' && !zustandO.exotic ? `<em class="schip an" style="--sf:#e9c46a">${esc(b.exoName === '—' ? 'No exotic' : b.exoName)}</em>` : ''}${(() => { const w = b.items.filter((i) => i.ort !== zustandO.cid).length; return `<small class="kweg">${w ? `${w} of 5 pieces come from the vault or another character – moved for you when you equip` : 'All pieces are already on this character'}</small>`; })()}${(() => { const z = new Map(); b.items.forEach((i) => i.set && z.set(i.set.n, (z.get(i.set.n) || 0) + 1)); return [...z].sort((a, c) => c[1] - a[1]).map(([n, c]) => `<em class="schip ${c >= 2 ? 'an' : ''}" style="--sf:${setFarbe(n)}">${esc(n)} ${c}/4</em>`).join(''); })()}</div>
+      <p>Per slot the best ~14 pieces for your minimums are compared; every combination that reaches all minimums (with up to one stat mod per piece) is counted.</p></details>${r.beste.map((b, k) => `<article class="kombi"><div class="krang"><b>#${k + 1}</b><span>Total ${b.werte.reduce((a, v) => a + v, 0)}</span>${zustandO.exoModus === 'vary' && !zustandO.exotic ? `<em class="schip an" style="--sf:#e9c46a">${esc(b.exoName === '—' ? 'No exotic' : b.exoName)}</em>` : ''}${(() => { const w = b.items.filter((i) => i.ort !== zustandO.cid).length; return `<small class="kweg">${w ? `${w} of 5 pieces come from the vault or another character – moved for you when you equip` : 'All pieces are already on this character'}</small>`; })()}${(() => { const z = new Map(); b.items.forEach((i) => i.set && z.set(i.set.n, (z.get(i.set.n) || 0) + 1)); return [...z].sort((a, c) => c[1] - a[1]).map(([n, c]) => `<em class="schip ${c >= 2 ? 'an' : ''}" style="--sf:${setFarbe(n)}">${esc(n)} ${c}/4</em>`).join(''); })()}</div>
       ${(() => { const z = zuteilung(b); return `<div class="kitems">${b.items.map((i) => { const m = z.get(i.id); return `<div class="kteil"><i class="ic ${i.exo ? 'exotic' : ''} ${festIds.has(i.id) ? 'fest' : ''}" data-oid="${k}:${i.id}" style="background-image:url(${BILD}${i.d.i})"><i class="ort ${i.ort === 'tresor' ? 'tresor' : 'char'}"></i></i>${m ? `<span class="kmodl" title="${esc(m.name)} goes on this piece"><i style="background-image:url(${BILD}${m.icon})"></i>+${m.wert} ${esc(m.name.replace(/ Mod$/, ''))}</span>` : '<span class="kmodl leer">no stat mod</span>'}<small style="--sf:${i.set ? setFarbe(i.set.n) : 'transparent'}" class="kset-l ${i.set && b.items.filter((x) => x.set?.n === i.set.n).length >= 2 ? 'aktivset' : ''}">${i.exo ? 'Exotic' : i.set ? `${esc(i.set.n)} ${b.items.filter((x) => x.set?.n === i.set.n).length}/4` : '–'}</small></div>`; }).join('')}</div>`; })()}
       <div class="kwerte">${ARMOR_STATS.map((n, j) => { const basis = b.items.reduce((a, i) => a + ((zustandO.mods ? i.basis : i.st)[n] || 0), 0); const mod = b.werte[j] - basis - (zustandO.frag?.[n] || 0) - (Number(zustandO.bonus[n]) || 0); const fr = zustandO.frag?.[n] || 0; const ok = b.werte[j] >= (zustandO.ziele[n] || 0); return `<span class="${zustandO.ziele[n] ? (ok ? 'erreicht' : '') : ''}" title="${n}: armor ${basis}${mod ? ` + mods ${mod}` : ''}${fr ? ` ${fr > 0 ? '+' : '−'} fragments ${Math.abs(fr)}` : ''}${zustandO.bonus[n] ? ` + extra ${zustandO.bonus[n]}` : ''}${zustandO.ziele[n] ? ` · your minimum ${zustandO.ziele[n]}` : ''}"><small>${n}</small><b>${b.werte[j]}</b><i><u style="width:${Math.min(100, b.werte[j] / 2)}%"></u></i>${mod || fr ? `<em>${basis}${mod ? `<ins>+${mod}</ins>` : ''}${fr ? `<ins class="${fr < 0 ? 'minus' : ''}">${fr > 0 ? '+' : '−'}${Math.abs(fr)}</ins>` : ''}</em>` : ''}</span>`; }).join('')}</div>
       <small class="klegende">Small numbers: armor + <ins>mods</ins> + <ins>fragments</ins>. Hover a stat for details.</small>
@@ -350,6 +393,12 @@ export function zeigeOptimizer(haupt, zustand) {
     if (e.target.id === 'reset') { zustandO.ziele = {}; return zeichne(); }
     if (e.target.closest('#ohneBuild')) { zustandO.build = null; if (zustandO.fragQuelle === 'build') zustandO.fragQuelle = 'an'; return zeichne(); }
     if (e.target.closest('[data-zuerg]')) return haupt.querySelector('.okopf2')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const ex = e.target.closest('[data-exo]');
+    if (ex) { const v = ex.dataset.exo; zustandO.exotic = /^\d+$/.test(v) ? Number(v) : 0; if (!zustandO.exotic) zustandO.exoModus = v; return zeichne(); }
+    const sw = e.target.closest('[data-set]');
+    if (sw) { const [k0, n] = [Number(sw.dataset.set[0]), sw.dataset.set.slice(2)]; if (!n) zustandO.sets = zustandO.sets.slice(0, k0); else zustandO.sets[k0] = { n, stk: k0 ? 2 : zustandO.sets[0]?.stk || 2 }; return zeichne(); }
+    const sk = e.target.closest('[data-stk]');
+    if (sk) { zustandO.sets[0].stk = Number(sk.dataset.stk); if (zustandO.sets[0].stk === 4) zustandO.sets = zustandO.sets.slice(0, 1); return zeichne(); }
     const ov = e.target.closest('[data-oview]');
     if (ov) { zustandO.tabelle = ov.dataset.oview === 'tabelle'; return zeichne(); }
     const uf = e.target.closest('[data-unfest]');

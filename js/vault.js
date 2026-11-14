@@ -1,7 +1,8 @@
 // Tresor: alle Waffen und Rüstungen, gruppiert nach Slot, nebeneinander gestapelt.
 import { defs, champion, CHAMP_NAME } from './defs.js';
 import { oeffneDetail } from './detail.js';
-import { bewerte } from './rolls.js';
+import { bewerte, rollWert, perkMarke } from './rolls.js';
+import { alleOptionen, PERKSPALTE } from './perks.js';
 import { quelle } from './quellen.js';
 import { zeigeItemTipp } from './itemtipp.js';
 import { baueSuche, verbindeVorschlaege, tags as tagListe, notizen, TAGS, setzeTag } from './suche.js';
@@ -104,11 +105,19 @@ export function sammle(profil) {
   return liste;
 }
 
+// Kachel: feste Zonen, damit sich nichts überdeckt.
+//   links: Stufen-Rauten · oben rechts: Notiz, Markierung, Hergestellt, Ort-Punkt · rechts darunter: Champion
+//   Fußzeile: Urteil (JUNK / FUEL / BEST / ?) und God-Roll-Stern links, Power bzw. Stat-Summe rechts.
+const UB = { junk: ['JUNK', 'Clean-up suggestion: can be dismantled'], infuse: ['FUEL', 'Clean-up suggestion: use as infusion fuel'], best: ['BEST', 'Best of your copies'], frei: ['?', 'Duplicate without a clear verdict – compare yourself'] };
+const ORT_TIP = { tresor: 'In the vault', post: 'At the Postmaster', char: 'On a character' };
 function kachel(x) {
-  const champ = x.champ ? `<i class="ch" style="background-image:url(${BILD}${x.champ.i})" aria-label="${esc(CHAMP_NAME[x.champ.n] || x.champ.n)}"></i>` : '';
+  const champ = x.champ ? `<i class="ch" style="background-image:url(${BILD}${x.champ.i})" title="Stuns ${esc(CHAMP_NAME[x.champ.n] || x.champ.n)} champions"></i>` : '';
   const ort = x.ort === 'tresor' ? 'tresor' : x.ort.startsWith('post:') ? 'post' : 'char';
-  return `<div class="ic ${auswahl?.has(x.id) ? 'gewaehlt' : ''} ${x.d.q === 6 ? 'exotic' : ''} ${x.mw ? 'mw' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:${x.d.w ? `url(${BILD}${x.d.w}),` : ''}url(${BILD}${x.d.i})">
-    ${x.tier ? `<span class="ck-tier">${'<b></b>'.repeat(Math.min(5, x.tier))}</span>` : ''}${x.crafted ? '<i class="ck-shaped" title="Crafted"></i>' : ''}${champ}<i class="ort ${ort}"></i>${tagC[x.id] ? `<i class="tagm" title="${TAGS.find((t) => t[0] === tagC[x.id])?.[2] || ''}">${TAGS.find((t) => t[0] === tagC[x.id])?.[1] || ''}</i>` : ''}${notC[x.id] ? '<i class="notm" title="Has a note">✎</i>' : ''}${auswahl?.has(x.id) ? '<i class="wahlm">✓</i>' : ''}${/god/.test(x.m?.roll || '') ? `<i class="god ${/PvP/.test(x.m.roll) ? 'pvp' : ''}" title="${x.m.roll}">★</i>` : ''}${!(filter.putz || []).length ? '' : x.junk ? '<i class="mark junk" title="Dismantle suggestion"></i>' : x.fuel ? '<i class="mark fuel" title="Infusion fuel"></i>' : ''}${x.st ? `<span class="pow tot" title="Total stats">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</div>`;
+  const tag = tagC[x.id] ? TAGS.find((t) => t[0] === tagC[x.id]) : null;
+  const ub = UB[x.urteil?.art];
+  return `<div class="ic ${auswahl?.has(x.id) ? 'gewaehlt' : ''} ${x.d.q === 6 ? 'exotic' : ''} ${x.mw ? 'mw' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''} ${x.urteil ? `iu-${x.urteil.art}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:${x.d.w ? `url(${BILD}${x.d.w}),` : ''}url(${BILD}${x.d.i})">
+    ${x.tier ? `<span class="ck-tier">${'<b></b>'.repeat(Math.min(5, x.tier))}</span>` : ''}<span class="ic-ecke">${notC[x.id] ? '<i class="notm">✎</i>' : ''}${tag ? `<i class="tagm">${tag[1]}</i>` : ''}${x.crafted ? '<i class="ck-shaped"></i>' : ''}${x.locked ? '<i class="ic-lock"></i>' : ''}<i class="ort ${ort}"></i></span>${champ}${auswahl?.has(x.id) ? '<i class="wahlm">✓</i>' : ''}
+    <span class="ic-fuss">${ub ? `<i class="ub ub-${x.urteil.art}">${ub[0]}</i>` : ''}${/god/.test(x.m?.roll || '') ? `<i class="god ${/PvP/.test(x.m.roll) ? 'pvp' : ''}">★</i>` : ''}${x.st ? `<span class="pow tot">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</span></div>`;
 }
 
 // Filtergruppen: innerhalb einer Gruppe ODER, zwischen Gruppen UND.
@@ -129,12 +138,14 @@ export const PUTZ_REGELN = [
 export let putzRegeln = (() => { try { return { exo: true, god: true, gut: false, mw: true, ...JSON.parse(localStorage.getItem('d2a.putz') || '{}') }; } catch { return { exo: true, god: true, mw: true }; } })();
 export function setzePutz(k, v) { putzRegeln = { ...putzRegeln, [k]: v }; try { localStorage.setItem('d2a.putz', JSON.stringify(putzRegeln)); } catch {} }
 
-// Behalten: in Loadouts, angelegt, gesperrt, laut Schaltern geschützt, oder die beste Kopie (PvE und PvP getrennt).
-// Infusions-Futter: nicht genutzt, aber stärker als das schwächste genutzte Teil im gleichen Slot (pro Slot die zwei stärksten).
+// Urteil je Teil: behalten / beste Kopie / kann weg / Infusions-Futter – immer mit Begründung.
+// Grundsätze: Nur echte Duplikate (Waffen) oder klar übertroffene Teile (Rüstung) können „weg“. Bewertet wird, was der Roll KANN
+// (alle wählbaren Perks der Spalten), nicht nur was gerade aktiv ist. Ohne Community-Daten gibt es kein Urteil statt Quatsch.
 function aufraeumen(alle, profil) {
   const genutzt = new Set();
   for (const c of Object.values(profil.characterLoadouts?.data || {})) for (const l of c.loadouts || []) for (const i of l.items || []) genutzt.add(i.itemInstanceId);
   for (const x of alle) if (x.angelegt) genutzt.add(x.id);
+  const tg = tagListe();
   const fuel = new Set();
   const proSlot = new Map();
   for (const x of alle) { const f = proSlot.get(x.d.b) || { g: [], f: [] }; (genutzt.has(x.id) ? f.g : f.f).push(x); proSlot.set(x.d.b, f); }
@@ -144,23 +155,81 @@ function aufraeumen(alle, profil) {
     const schwach = Math.min(...p);
     f.f.filter((x) => x.power > schwach).sort((a, b) => b.power - a.power).slice(0, 2).forEach((x) => fuel.add(x.id));
   }
-  const gruppen = new Map();
-  for (const x of alle) if (x.d.t === 3) gruppen.set(x.hash, [...(gruppen.get(x.hash) || []), x]);
-  for (const x of alle) { x.genutzt = genutzt.has(x.id); x.fuel = fuel.has(x.id); x.junk = false; x.grund = ''; }
+  for (const x of alle) { x.genutzt = genutzt.has(x.id); x.fuel = false; x.junk = false; x.grund = ''; x.urteil = null; }
   const R = putzRegeln;
+  const setze = (x, art, grund) => { x.urteil = { art, grund }; x.grund = grund; x.junk = art === 'junk' || art === 'infuse'; x.fuel = art === 'infuse'; };
+  // Gründe, die immer schützen (oder die du selbst gesetzt hast).
+  const fest = (x) => {
+    const t = tg[x.id];
+    if (t === 'junk') return ['junk', 'You tagged it as junk'];
+    if (t === 'futter') return ['infuse', 'You tagged it as infusion fodder'];
+    if (x.angelegt) return ['keep', 'Equipped'];
+    if (x.genutzt) return ['keep', 'Used in an in-game loadout'];
+    if (x.locked) return ['keep', 'Locked in the game'];
+    if (t === 'keep' || t === 'fav') return ['keep', t === 'fav' ? 'Your favorite' : 'You tagged it to keep'];
+    return null;
+  };
+  const weg = (x, grund) => (fuel.has(x.id) ? setze(x, 'infuse', `${grund}. Its power is higher than gear you use – infuse it instead of dismantling.`) : setze(x, 'junk', grund));
+
+  // ---- Waffen: Kopien derselben Waffe vergleichen ----
+  const gruppen = new Map();
+  for (const x of alle) if (x.d.t === 3) { const k = x.d.n; gruppen.set(k, [...(gruppen.get(k) || []), x]); }
+  const bruch = (w) => (w?.von ? `${w.kann}/${w.von}` : '');
   for (const kopien of gruppen.values()) {
-    if (kopien.length < 2) { kopien[0].grund = 'Only copy'; continue; }
-    const wert = (k) => (k.genutzt ? 1000 : 0) + (k.locked ? 500 : 0) + (/god/.test(k.m.roll) ? 300 : /good/.test(k.m.roll) ? 100 : 0) + (k.crafted ? 80 : 0) + (k.mw ? 40 : 0) + k.plugs.length * 2 + k.power / 1000;
-    const beste = [...kopien].sort((a, b) => wert(b) - wert(a))[0];
-    const bestPvp = [...kopien].filter((k) => /PvP/.test(k.m.roll)).sort((a, b) => wert(b) - wert(a))[0];
     for (const k of kopien) {
-      k.grund = k.angelegt ? 'Equipped' : k.genutzt ? 'In an in-game loadout' : k.locked ? 'Locked' : R.exo && k.d.q === 6 ? 'Exotic (rule: keep all exotics)'
-        : k === beste ? `Best of your ${kopien.length} copies` : k === bestPvp ? 'Best PvP copy' : R.god && /god/.test(k.m.roll) ? `${k.m.roll} (rule)` : R.gut && /good/.test(k.m.roll) ? `${k.m.roll} (rule)`
-        : R.mw && (k.crafted || k.mw) ? `${k.crafted ? 'Crafted' : 'Masterworked'} (rule)` : k.fuel ? 'Infusion fuel (stronger than a weapon you use)' : '';
-      if (!k.grund) { k.junk = true; k.grund = `Duplicate: worse roll than your best copy${beste.m.roll ? ` (${beste.m.roll})` : ''}, not locked, not in a loadout`; }
+      const opt = alleOptionen(k, profil);
+      k.rw = k.d.q === 6 ? null : rollWert(k.hash, k.plugs, opt);
+      const marke = k.rw ? perkMarke(k.hash) : null;
+      k.wSet = new Set(marke ? [...k.plugs, ...opt].filter((p) => { const m = marke(p); return m.e || m.v; }).map((p) => defs.items[p]?.n) : []);
+      k.oSet = [...new Set([...k.plugs, ...opt].map((p) => defs.items[p]).filter((p) => p && PERKSPALTE.test(p.pc || '')).map((p) => p.n))].sort().join('|');
+    }
+    if (kopien.length < 2) { const f = fest(kopien[0]); setze(kopien[0], f ? f[0] : 'keep', f ? f[1] : 'Your only copy'); continue; }
+    const n = kopien.length;
+    const q = (k, m) => (k.rw?.[m]?.von ? k.rw[m].kann / k.rw[m].von : -1);
+    const reihe = (m) => [...kopien].sort((a, b) => q(b, m) - q(a, m) || (b.rw?.[m]?.hat || 0) - (a.rw?.[m]?.hat || 0) || b.tier - a.tier || (b.crafted + b.mw) - (a.crafted + a.mw) || b.genutzt - a.genutzt || b.locked - a.locked || b.kills - a.kills || b.power - a.power);
+    const hatDaten = kopien.some((k) => k.rw && (k.rw.pve || k.rw.pvp));
+    const bestE = hatDaten && kopien.some((k) => q(k, 'pve') >= 0) ? reihe('pve')[0] : null;
+    const bestV = hatDaten && kopien.some((k) => q(k, 'pvp') > 0) ? reihe('pvp')[0] : null;
+    const maxTier = Math.max(...kopien.map((k) => k.tier || 0));
+    const meiste = [...kopien].sort((a, b) => b.kills - a.kills)[0];
+    for (const k of kopien) {
+      const f = fest(k);
+      if (f) { f[0] === 'keep' ? setze(k, 'keep', f[1]) : setze(k, f[0], f[1]); if (k === bestE || k === bestV) k.urteil.beste = true; continue; }
+      if (R.exo && k.d.q === 6) { setze(k, 'keep', 'Exotic (rule: keep all exotics)'); continue; }
+      if (k === bestE) { setze(k, 'best', `Best PvE roll of your ${n} copies${bruch(k.rw.pve) ? ` (${bruch(k.rw.pve)} wish perks possible)` : ''}`); continue; }
+      if (k === bestV) { setze(k, 'best', `Best PvP roll of your ${n} copies (${bruch(k.rw.pvp)} wish perks possible)`); continue; }
+      const voll = k.rw && ['pve', 'pvp'].some((m) => k.rw[m]?.von && k.rw[m].kann === k.rw[m].von);
+      if (R.god && voll) { setze(k, 'keep', 'Complete god roll (rule: keep every god roll)'); continue; }
+      if (R.gut && /good|god/.test(k.m.roll)) { setze(k, 'keep', `${k.m.roll} (rule: keep good rolls)`); continue; }
+      if (R.mw && (k.crafted || k.mw)) { setze(k, 'keep', `${k.crafted ? 'Crafted' : 'Masterworked'} (rule: keep crafted & masterworked)`); continue; }
+      if (k.tier && k.tier === maxTier && kopien.filter((y) => y.tier === maxTier).length === 1) { setze(k, 'keep', `Your only Tier ${k.tier} copy`); continue; }
+      if (k === meiste && k.kills >= 500) { setze(k, 'keep', `Your most used copy (${k.kills.toLocaleString()} kills)`); continue; }
+      if (!hatDaten) {
+        const zwilling = kopien.find((y) => y !== k && y.oSet === k.oSet && y.tier >= k.tier && (y.urteil ? y.urteil.art !== 'junk' && y.urteil.art !== 'infuse' : true) && (y.locked || y.genutzt || BigInt(y.id) < BigInt(k.id)));
+        if (zwilling && k.oSet) weg(k, 'Exact duplicate: another copy has the same perks');
+        else setze(k, 'frei', `One of ${n} copies. No community roll data for this weapon – compare the perks yourself`);
+        continue;
+      }
+      // Hat diese Kopie Wunsch-Perks, die deine besten Kopien NICHT haben? Dann ist sie kein klarer Müll.
+      const besteNamen = new Set([...(bestE?.wSet || []), ...(bestV?.wSet || [])]);
+      const eigen = [...k.wSet].filter((x) => !besteNamen.has(x));
+      const gleichGut = (bestE && q(k, 'pve') === q(bestE, 'pve')) || (bestV && q(k, 'pvp') === q(bestV, 'pvp') && q(k, 'pvp') > 0);
+      if (eigen.length && gleichGut) { setze(k, 'frei', `As good as your best copy, but with other wish perks (${eigen.slice(0, 3).join(', ')}) – your call`); continue; }
+      const vgl = [bestE ? `PvE ${bruch(k.rw?.pve) || '0'} vs ${bruch(bestE.rw.pve)}` : '', bestV ? `PvP ${bruch(k.rw?.pvp) || '0'} vs ${bruch(bestV.rw.pvp)}` : ''].filter(Boolean).join(', ');
+      weg(k, `Duplicate with a weaker roll than your best copy (${vgl}); not locked, not in a loadout`);
     }
   }
-  for (const x of alle) x.m.putz = x.junk ? 'Dismantle suggestion' : x.fuel ? 'Infusion fuel' : x.genutzt ? 'In a loadout' : '';
+  // ---- Rüstung: nur wenn ein anderes Teil (gleiche Klasse, gleicher Platz, gleiches Set, gleiche oder höhere Stufe) in JEDEM Wert mindestens gleich gut ist ----
+  const rg = new Map();
+  for (const x of alle) if (x.d.t === 2 && x.st) { const k = `${x.d.c}|${x.d.b}`; rg.set(k, [...(rg.get(k) || []), x]); }
+  for (const liste of rg.values()) for (const x of liste) {
+    const f = fest(x);
+    if (f) { setze(x, f[0], f[1]); continue; }
+    if (x.d.q === 6) { if (liste.filter((y) => y.d.n === x.d.n).length === 1) setze(x, 'keep', 'Your only copy of this exotic'); continue; }
+    const besser = liste.find((y) => y !== x && y.d.q !== 6 && (y.d.e || 0) === (x.d.e || 0) && (y.tier || 0) >= (x.tier || 0) && ARMOR_STATS.every((n) => y.st[n] >= x.st[n]) && (y.st.Total > x.st.Total || (y.st.Total === x.st.Total && (y.locked || y.genutzt || BigInt(y.id) < BigInt(x.id)))));
+    if (besser) weg(x, `Outclassed: your ${besser.d.n} (total ${besser.st.Total}${besser.ort === 'tresor' ? ', vault' : ''}) is equal or better in every stat${x.d.e ? ' and from the same set' : ''}`);
+  }
+  for (const x of alle) x.m.putz = x.urteil?.art === 'junk' ? 'Dismantle suggestion' : x.urteil?.art === 'infuse' ? 'Infusion fuel' : x.urteil?.art === 'best' ? 'Best copy' : x.urteil?.art === 'frei' ? 'Undecided duplicate' : x.genutzt ? 'In a loadout' : '';
 }
 const merkmale = (x, anzahl, nachChar) => ({
   ort: x.ort === 'tresor' ? 'Vault' : x.ort.startsWith('post:') ? 'Postmaster' : nachChar[x.ort] || 'Character',
@@ -194,15 +263,31 @@ const SORT = {
   power: ['Power / total', (p, q) => (q.d.q === 6) - (p.d.q === 6) || (q.st?.Total || q.power) - (p.st?.Total || p.power) || p.d.n.localeCompare(q.d.n)],
   name: ['Name', (p, q) => p.d.n.localeCompare(q.d.n) || q.power - p.power],
   roll: ['Best rolls first', (p, q) => rang(q) - rang(p) || p.d.n.localeCompare(q.d.n)],
+  putz: ['Clean-up: junk first', (p, q) => UR[q.urteil?.art || ''] - UR[p.urteil?.art || ''] || p.d.n.localeCompare(q.d.n) || rang(q) - rang(p)],
   kills: ['Most kills', (p, q) => q.kills - p.kills || p.d.n.localeCompare(q.d.n)],
   neu: ['Newest first', (p, q) => (BigInt(q.id) > BigInt(p.id) ? 1 : -1)],
 };
-const rang = (x) => (/god/.test(x.m?.roll || '') ? 3 : /good/.test(x.m?.roll || '') ? 2 : 0) + (x.d.q === 6 ? 0.5 : 0) + (x.st?.Total || 0) / 1000;
+const UR = { junk: 5, infuse: 4, frei: 3, best: 2, keep: 1, '': 0 };
+const rang = (x) => (/god/.test(x.m?.roll || '') ? 3 : /good/.test(x.m?.roll || '') ? 2 : 0) + (x.rw ? Math.max(x.rw.pve?.von ? x.rw.pve.kann / x.rw.pve.von : 0, x.rw.pvp?.von ? x.rw.pvp.kann / x.rw.pvp.von : 0) : 0) + (x.d.q === 6 ? 0.5 : 0) + (x.st?.Total || 0) / 1000;
 const ansicht = (() => { try { const a = { sort: 'power', typ: true, ...JSON.parse(localStorage.getItem('d2a.ansicht') || '{}') }; if (!a.v) { a.typ = true; a.v = 2; } return a; } catch { return { sort: 'power', typ: true }; } })();
 const merkeAnsicht = () => { try { localStorage.setItem('d2a.ansicht', JSON.stringify(ansicht)); } catch {} };
 
 const zuRaw = (() => { try { return JSON.parse(localStorage.getItem('d2a.zu') || '[]'); } catch { return []; } })();
 const zu = new Set(zuRaw);
+
+// Alle Teile inklusive Merkmalen und Urteil – für Hover-Fenster außerhalb des Tresors (Loadouts, Info-Karten).
+export function alleMitUrteil(zustand) {
+  const profil = zustand.profil; if (!profil) return [];
+  if (zustand.alleItems?.fertig) return zustand.alleItems;
+  const chars = Object.values(profil.characters?.data || {});
+  const alle = sammle(profil);
+  const nachChar = Object.fromEntries(chars.map((c) => [c.characterId, KLASSE[c.classType]]));
+  const anzahl = {}; for (const x of alle) anzahl[x.hash] = (anzahl[x.hash] || 0) + 1;
+  for (const x of alle) x.m = merkmale(x, anzahl, nachChar);
+  aufraeumen(alle, profil);
+  alle.fertig = true; zustand.alleItems = alle;
+  return alle;
+}
 
 export function zeigeVault(haupt, zustand, art = 'waffen') {
   if (art !== letzteArt) { suche = ''; letzteArt = art; }
@@ -217,7 +302,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   for (const x of alle) anzahl[x.hash] = (anzahl[x.hash] || 0) + 1;
   for (const x of alle) x.m = merkmale(x, anzahl, nachChar);
   aufraeumen(alle, profil);
-  zustand.alleItems = alle;
+  alle.fertig = true; zustand.alleItems = alle;
 
   const tresorItems = (profil.profileInventory?.data?.items || []).filter((i) => i.bucketHash === 138197802);
   const tz = { alle: tresorItems.length, w: 0, r: 0 };
@@ -245,7 +330,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
       const gewaehlt = filter[g] || [];
       return `<details data-gruppe="${g}" ${offen.has(g) ? 'open' : ''}><summary>${titel}${gewaehlt.length ? ` <b>${gewaehlt.length}</b>` : ''}</summary><div class="fpop"><div class="chips">
         ${werte.map((w) => `<button class="chip" data-g="${g}" data-w="${esc(w)}" aria-pressed="${gewaehlt.includes(w)}">${esc(w)} <small>${zaehl[w]}</small></button>`).join('') || '<small class="leer">No duplicates to clean up.</small>'}</div>
-        ${regeln ? `<div class="putzregeln"><b>Clean-up rules</b><small>Only duplicates of the same weapon can get a red “dismantle” mark. Hover a weapon to see why it stays or goes.</small>${PUTZ_REGELN.filter(([k]) => k !== 'neu').map(([k, t, e]) => `<label class="haken" title="${esc(e)}"><input type="checkbox" data-putz="${k}" ${putzRegeln[k] ? 'checked' : ''}> ${t}</label>`).join('')}<small>Always kept: equipped, locked, in an in-game loadout, the best copy and the best PvP copy, infusion fuel.</small></div>` : ''}</div></details>`;
+        ${regeln ? `<div class="putzregeln"><b>Clean-up rules</b><small>Only duplicates of the same weapon can get a red “dismantle” mark. Hover a weapon to see why it stays or goes.</small>${PUTZ_REGELN.filter(([k]) => k !== 'neu').map(([k, t, e]) => `<label class="haken" title="${esc(e)}"><input type="checkbox" data-putz="${k}" ${putzRegeln[k] ? 'checked' : ''}> ${t}</label>`).join('')}<small>Always kept: equipped, locked, in an in-game loadout, tagged Keep/Favorite, your best PvE and best PvP copy, your only copy of the highest tier, your most-used copy. A roll is judged by every perk you can select on it, not only the active ones. Without community roll data only exact duplicates are marked.</small></div>` : ''}</div></details>`;
     }).join('');
     const aktiv = Object.entries(filter).flatMap(([g, l]) => l.map((w) => [g, w]));
     haupt.querySelector('#aktivF').innerHTML = aktiv.length ? `${aktiv.map(([g, w]) => `<button class="chip an" data-g="${g}" data-w="${esc(w)}" title="Remove filter">${esc(w)} ✕</button>`).join('')}<button id="leeren" class="chip">Clear all</button>` : '';
@@ -257,7 +342,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
     const sichtbar = klassenItems.filter(passt);
     const sortiere = SORT[ansicht.sort]?.[1] || SORT.power[1];
     const teile = SLOTS.map(([b, name]) => [b, name, sichtbar.filter((x) => x.d.b === b).sort(sortiere)]).filter(([, , st]) => st.length);
-    haupt.querySelector('#sprung').innerHTML = (teile.length > 1 ? teile.map(([, name, st]) => `<button class="chip" data-spring="${name}">${name} <small>${st.length}</small></button>`).join('') : '') + '<span class="vlegende" title="What the marks on a tile mean"><i class="ort tresor"></i>vault <i class="ort char"></i>character <i class="ort post"></i>postmaster <b class="lg-god">★</b>god roll <b class="lg-mw"></b>masterwork</span>';
+    haupt.querySelector('#sprung').innerHTML = (teile.length > 1 ? teile.map(([, name, st]) => `<button class="chip" data-spring="${name}">${name} <small>${st.length}</small></button>`).join('') : '') + '<span class="vlegende"><span data-tip="Where the item is: yellow = vault, green = on a character, red = Postmaster."><i class="ort tresor"></i><i class="ort char"></i><i class="ort post"></i>location</span><span data-tip="A complete community god roll (green = PvE, blue = PvP)."><b class="lg-god">★</b>god roll</span><span data-tip="Gold frame = masterworked."><b class="lg-mw"></b>masterwork</span><span data-tip="Clean-up suggestion. JUNK = duplicate with a weaker roll, FUEL = junk with high power (infuse it), BEST = best of your copies, ? = undecided duplicate. Hover the item for the reason."><i class="ub ub-junk">JUNK</i><i class="ub ub-infuse">FUEL</i><i class="ub ub-best">BEST</i>clean-up</span></span>';
     const reihen = teile.map(([, name, st]) => {
       const offenR = !zu.has(name);
       let inhalt = '';
@@ -366,11 +451,11 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
   const zeige = (el, x, y) => {
     const it = alle.find((a) => a.id === el.dataset.id);
     if (!it) return;
-    zeigeItemTipp(it, zustand.profil, x, y);
+    zeigeItemTipp(it, zustand.profil, x, y, el);
   };
   haupt.oncontextmenu = (e) => { if (e.target.closest('.ic')) e.preventDefault(); };
   haupt.onpointerover = (e) => { if (auswahl || e.pointerType !== 'mouse') return; const el = e.target.closest('.ic'); if (el) zeige(el, e.clientX, e.clientY); };
-  haupt.onpointerout = (e) => { if (e.target.closest('.ic') && !e.relatedTarget?.closest?.('.ic')) tipp.hidden = true; };
+  haupt.onpointerout = (e) => { if (e.target.closest('.ic') && !e.relatedTarget?.closest?.('.ic,#tipp')) tipp.hidden = true; };
   haupt.onfocusin = (e) => { if (!matchMedia('(hover: hover)').matches) return; const el = e.target.closest('.ic'); if (el) { const r = el.getBoundingClientRect(); zeige(el, r.right, r.top); } };
   haupt.onfocusout = () => { tipp.hidden = true; };
 }

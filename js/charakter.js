@@ -275,7 +275,7 @@ export function zeigeCharakter(haupt, zustand) {
   haupt.oncontextmenu = (e) => { if (e.target.closest('.ck[data-cid]') && (zug?.finger || e.pointerType === 'touch')) e.preventDefault(); };
 
   // In-Game-Hover für Waffen und Rüstung.
-  haupt.onpointerover = (e) => { if (e.pointerType !== 'mouse' || zug?.aktiv) return; const t = e.target.closest('.ck[data-cid]'); const it = t && proId.get(t.dataset.cid); if (it && !it.allg) zeigeItemTipp(it, p, e.clientX, e.clientY); };
+  haupt.onpointerover = (e) => { if (e.pointerType !== 'mouse' || zug?.aktiv) return; const t = e.target.closest('.ck[data-cid]'); const it = t && proId.get(t.dataset.cid); if (it && !it.allg) zeigeItemTipp(it, p, e.clientX, e.clientY, t); };
   haupt.onpointerout = (e) => { if (e.target.closest('.ck[data-cid]') && !e.relatedTarget?.closest?.('.ck[data-cid]') && !document.querySelector('#tippFest:checked')) { const tp = document.querySelector('#tipp'); if (tp) tp.hidden = true; } };
   async function leeren(was) {
     const [cid, b] = was.split('|'); const gear = new Set([...WAFFEN, ...RUESTUNG].map(([x]) => x));

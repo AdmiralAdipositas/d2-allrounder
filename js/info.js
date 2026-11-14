@@ -47,6 +47,8 @@ function inhalt(el) {
 
 const tipp = () => document.querySelector('#tipp');
 function zeigeTipp(el) {
+  // Ein konkretes Teil (data-iid): das volle Item-Fenster mit Perk-Spalten, Werten und Urteil – wie im Tresor.
+  if (el.dataset.iid) { const it = nav.items().find((x) => x.id === el.dataset.iid); if (it && (it.d.t === 2 || it.d.t === 3)) return import('./itemtipp.js').then((m) => m.zeigeItemTipp(it, nav.profil?.(), 0, 0, el)); }
   const x = inhalt(el); if (!x) return;
   const t = tipp();
   t.innerHTML = `<b>${esc(x.titel)}</b><small>${esc(x.unter)}</small>${x.text}<small class="thint">Click for links · Shift to pin</small>`;
@@ -78,7 +80,7 @@ document.addEventListener('pointerover', (e) => {
   const el = e.target.closest('[data-ih],[data-mh],[data-ah],[data-sh]');
   if (el && !el.closest('.infokarte') && !el.closest('[data-id],[data-oid],[data-cid],.pl')) zeigeTipp(el);
 });
-document.addEventListener('pointerout', (e) => { if (e.target.closest('[data-ih],[data-mh],[data-ah],[data-sh]') && !e.target.closest('[data-id],[data-oid],[data-cid],.pl') && !document.querySelector('#tippFest:checked')) tipp().hidden = true; });
+document.addEventListener('pointerout', (e) => { if (e.target.closest('[data-ih],[data-mh],[data-ah],[data-sh]') && !e.target.closest('[data-id],[data-oid],[data-cid],.pl') && !e.relatedTarget?.closest?.('#tipp') && !document.querySelector('#tippFest:checked')) tipp().hidden = true; });
 document.addEventListener('click', (e) => {
   const l = e.target.closest('[data-ika]');
   if (l) { const { ika, ikz } = l.dataset; zu(); if (ika === 'wiki') nav.wiki(ikz); if (ika === 'farm') nav.wiki(ikz, 'farm'); if (ika === 'guide') nav.guide(ikz); return; }

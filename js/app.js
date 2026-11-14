@@ -1,6 +1,7 @@
 // Rahmen der App: Seitenleiste, Tabs, Seitenpanel, Anmeldung.
 import { ikon, vorschauKarten, starteEmojiErsatz } from './ikonen.js';
 starteEmojiErsatz();
+import('./tip.js').then((m) => m.starteTipps());
 import * as bungie from './bungie.js';
 import { ladeDefs } from './defs.js';
 import { ladeRolls } from './rolls.js';
@@ -22,7 +23,7 @@ import { setzeNav } from './info.js';
 import { zeigeCharakter } from './charakter.js';
 import { starte as starteSprache, gewaehlt } from './sprache.js';
 import { zeigeWillkommen, schonGesehen, zeigeNeues } from './willkommen.js';
-import { sammle } from './vault.js';
+import { sammle, alleMitUrteil } from './vault.js';
 
 const $ = (s) => document.querySelector(s);
 const rail = $('#rail');
@@ -88,7 +89,8 @@ const ANSICHTEN = {
 setzeNav({
   wiki: (q, art) => { setzeWikiSuche(q, art); wechsle('wiki'); },
   guide: (id) => { zustand.guideZiel = id; wechsle('guide'); },
-  items: () => zustand.alleItems || (zustand.profil ? (zustand.alleItems = sammle(zustand.profil)) : []),
+  items: () => alleMitUrteil(zustand),
+  profil: () => zustand.profil,
 });
 export const springeGuide = (id) => { zustand.guideZiel = id; wechsle('guide'); };
 export const springeWiki = (kat, suche) => { if (suche) setzeWikiSuche(suche); else setzeWikiKat(kat); wechsle('wiki'); };
