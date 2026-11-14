@@ -1619,3 +1619,4 @@ html[data-kachel=gross] .ic-fuss{height:16px}html[data-kachel=gross] .ic .ic-fus
 .ic>.ort{right:2px;top:2px;width:8px;height:8px;border:1px solid #000a}
 #tipp .urteil.u-junk b,.urteil.u-junk b{color:#ff7b7b}#tipp .urteil.u-infuse b{color:#ffab52}#tipp .urteil.u-frei b{color:#b7bad3}
 .rb em{white-space:nowrap}
+#tipp .rb small,#tippFest .rb small{display:inline;margin:0}
