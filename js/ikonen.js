@@ -22,8 +22,14 @@ const P = {
   stapel: '<path d="M4 7l8-4 8 4-8 4z"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4"/>',
   haken: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/>',
   aehre: '<path d="M12 21V8"/><path d="M12 8c-3 0-4-3-4-5 3 0 4 2 4 5zM12 8c3 0 4-3 4-5-3 0-4 2-4 5zM12 13c-3 0-4-3-4-5 3 0 4 2 4 5zM12 13c3 0 4-3 4-5-3 0-4 2-4 5z"/>',
+  // Eigene Klassen-Zeichen (keine Bungie-Grafik): Titan = Schild mit Kreuzbalken, Hunter = Umhang-Spitze, Warlock = Kelch mit Funke.
+  titan: '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8 10h8M12 7v9"/>',
+  hunter: '<path d="M4 5l8 15 8-15"/><path d="M8.5 5L12 12l3.5-7"/>',
+  warlock: '<path d="M5 9c0 6 3 10 7 12 4-2 7-6 7-12"/><circle cx="12" cy="10" r="2.6"/><path d="M12 2.5v3"/>',
+  tresor: '<rect x="4" y="6" width="16" height="13" rx="2"/><path d="M4 11h16M10 11v3h4v-3"/>',
   kamera: '<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/>',
 };
+export const klIkon = (ct) => ikon(['titan', 'hunter', 'warlock'][ct] ?? 'tresor', `kl kl-${ct ?? 'v'}`);
 export const ikon = (n, k = '') => `<svg class="ikon-svg ${k}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ''}</svg>`;
 
 // Lebendige Mini-Vorschau der App (Landing + Willkommen): Tresor, Würfel, Raid-Läufer, Optimizer-Leisten.

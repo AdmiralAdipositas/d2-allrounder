@@ -1,4 +1,5 @@
 // Tresor: alle Waffen und Rüstungen, gruppiert nach Slot, nebeneinander gestapelt.
+import { klIkon } from './ikonen.js';
 import { setMarke } from './sets.js';
 import { defs, champion, CHAMP_NAME } from './defs.js';
 import { oeffneDetail } from './detail.js';
@@ -365,7 +366,7 @@ export function zeigeVault(haupt, zustand, art = 'waffen') {
     if (!ml) { ml = document.createElement('div'); ml.id = 'mfach'; haupt.append(ml); }
     ml.dataset.leer = auswahl.size ? '' : '1';
     ml.innerHTML = `<b>${auswahl.size}</b><span class="mf-t">selected</span><button data-mfach="alle" title="Select everything shown">All shown</button>
-      <span class="mf-g">${chars.map((c) => `<button data-mfach="zu" data-c="${c.characterId}" title="Move to ${KLASSE[c.classType]}">→ ${KLASSE[c.classType][0]}</button>`).join('')}<button data-mfach="tresor" title="Move to vault">→ ${KISTEN}</button></span>
+      <span class="mf-g">${chars.map((c) => `<button class="kz-b kz-${c.classType}" data-mfach="zu" data-c="${c.characterId}" title="Move the selected items to your ${KLASSE[c.classType]}">${klIkon(c.classType)}${KLASSE[c.classType]}</button>`).join('')}<button class="kz-b kz-v" data-mfach="tresor" title="Move the selected items to the vault">${klIkon()}Vault</button></span>
       <span class="mf-g"><button data-mfach="lock" title="Lock">🔒</button><button data-mfach="unlock" title="Unlock">🔓</button></span>
       <span class="mf-g">${TAGS.map(([t, e, n]) => `<button data-mfach="tag:${t}" title="${n}">${e}</button>`).join('')}<button data-mfach="tag:" title="Remove tag">⌫</button></span>
       <button data-mfach="ende" class="mf-zu" title="Done">✕</button>`;

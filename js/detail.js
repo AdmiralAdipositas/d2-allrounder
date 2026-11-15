@@ -1,4 +1,5 @@
 // Item-Detail: Perk-Spalten wie im Spiel, Perks und Mods umstellen, Verschieben, Ausrüsten, Postmaster.
+import { klIkon } from './ikonen.js';
 import { setMarke } from './sets.js';
 import * as bungie from './bungie.js';
 import { defs } from './defs.js';
@@ -48,7 +49,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
   const name = (cid) => KLASSE[chars.find((c) => c.characterId === cid)?.classType] || 'Character';
   const passt = (x, c) => x.d.c === 3 || x.d.c === c.classType;
   const alleItems = () => zustand.alleItems || sammle(profil);
-  let wahl = null, zeig = null, beschaeftigt = false, offen = null;
+  let wahl = null, zeig = null, beschaeftigt = false, offen = null, laeuft = null;
   const marke = it.d.q === 6 || it.d.t !== 3 ? null : perkMarke(it.hash);
 
   // Spalten aus Profil-Daten (Sockets 305 + wählbare Plugs 310).
@@ -67,14 +68,16 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
 
   const ortText = (x = it) => x.ort === 'tresor' ? 'Vault' : x.ort.startsWith('post:') ? `Postmaster (${name(x.ort.slice(5))})` : `${name(x.ort)}${x.angelegt ? ', equipped' : ''}`;
   const knoepfe = () => {
+    const ziel = (kz, key, name, hier, hierText, btns) => `<div class="dx-ziel kz-${kz} ${hier ? 'hier' : ''} ${laeuft === key ? 'laeuft' : ''}"><span class="kz-ic">${klIkon(kz === 'v' ? undefined : kz)}</span><span class="kz-n">${name}${hier ? `<em>${hierText}</em>` : ''}</span>${btns}</div>`;
     const gruppen = chars.map((c) => {
       const hier = it.ort === c.characterId;
       const an = passt(it, c) && !(hier && it.angelegt);
-      return `<div class="dx-ziel ${hier ? 'hier' : ''}"><span>${KLASSE[c.classType]}${hier ? `<em>${it.angelegt ? 'equipped' : 'here'}</em>` : ''}</span>${an ? `<button data-a="an" data-c="${c.characterId}" class="haupt-knopf" data-tip="Moves it to your ${KLASSE[c.classType]} if needed and equips it. A full slot is cleared automatically.">Equip</button>` : ''}${!hier ? `<button data-a="zu" data-c="${c.characterId}" data-tip="Moves it into your ${KLASSE[c.classType]}’s inventory without equipping.">Move</button>` : ''}</div>`;
+      return ziel(c.classType, c.characterId, KLASSE[c.classType], hier, it.angelegt ? 'equipped' : 'here',
+        `${an ? `<button data-a="an" data-c="${c.characterId}" class="kz-b kz-haupt" data-tip="Moves it to your ${KLASSE[c.classType]} if needed and equips it. A full slot is cleared automatically.">Equip</button>` : ''}${!hier ? `<button data-a="zu" data-c="${c.characterId}" class="kz-b" data-tip="Moves it into your ${KLASSE[c.classType]}’s inventory without equipping.">Move</button>` : ''}`);
     }).join('');
-    return `${gruppen}<div class="dx-ziel ${it.ort === 'tresor' ? 'hier' : ''}"><span>Vault${it.ort === 'tresor' ? '<em>here</em>' : ''}</span>${it.ort.startsWith('post:') ? '<button data-a="hol" data-tip="Pulls it from the Postmaster to that character.">Pull</button>' : ''}${it.ort !== 'tresor' ? '<button data-a="tresor" data-tip="Sends it to the vault.">Store</button>' : ''}</div>
-      <button class="dx-lock" data-lock="${it.id}" aria-pressed="${it.locked}" data-tip="${it.locked ? 'Locked in the game: cannot be dismantled. Click to unlock.' : 'Not locked. Click to lock it in the game so it cannot be dismantled by accident.'}">${it.locked ? '🔒 Locked' : '🔓 Lock'}</button>`;
+    return `${gruppen}${ziel('v', 'tresor', 'Vault', it.ort === 'tresor', 'here', `${it.ort.startsWith('post:') ? '<button data-a="hol" class="kz-b" data-tip="Pulls it from the Postmaster to that character.">Pull</button>' : ''}${it.ort !== 'tresor' ? '<button data-a="tresor" class="kz-b" data-tip="Sends it to the vault.">Store</button>' : ''}`)}`;
   };
+  const lockKnopf = () => `<button class="dx-lock" data-lock="${it.id}" aria-pressed="${it.locked}" data-tip="${it.locked ? 'Locked in the game: cannot be dismantled. Click to unlock.' : 'Not locked. Click to lock it in the game so it cannot be dismantled by accident.'}">${it.locked ? '🔒 Locked' : '🔓 Lock'}</button>`;
   const knopf = (sp, h) => {
     const p = defs.items[h]; const m = marke && sp.perk ? marke(h) : {};
     return `<button class="pk pkb ${h === sp.aktiv ? 'an' : ''} ${ringKlasse(m)} ${/Enhanced/i.test(p.k || '') ? 'pk-enh' : ''} ${wahl?.h === h && wahl?.s === sp.s ? 'wahl' : ''}" data-s="${sp.s}" data-h="${h}" aria-label="${esc(p.n)}" style="background-image:url(${BILD}${p.i})">${m.e ? '<u class="pk-e">E</u>' : ''}${m.v ? '<u class="pk-v">P</u>' : ''}</button>`;
@@ -104,7 +107,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
       const ub = UBK[x.urteil?.art];
       return `<div class="dx-kopie"><div class="dx-kkopf"><b>${x.power || ''}</b>${x.tier ? `<span data-tip="Gear tier ${x.tier} of 5. Higher tiers have more perk options and enhanced perks.">T${x.tier}</span>` : ''}<span>${esc(ortText(x))}</span>${x.locked ? '<span data-tip="Locked in the game">🔒</span>' : ''}${x.kills ? `<span data-tip="Kill tracker on this copy">${x.kills.toLocaleString()} kills</span>` : ''}${ub ? `<i class="ub ub-${x.urteil.art}" data-tip="${esc(x.urteil.grund)}">${ub}</i>` : ''}${rw ? rollBalken(rw) : ''}${x.st ? `<span>Total ${x.st.Total}</span>` : ''}</div>
         ${x.d.t === 3 ? perkRaster(x, profil, { klein: true }) : x.st ? `<div class="dx-kst">${['Health', 'Melee', 'Grenade', 'Super', 'Class', 'Weapons'].map((n) => `<span class="${x.st[n] > (it.st?.[n] || 0) ? 'mehr' : x.st[n] < (it.st?.[n] || 0) ? 'wen' : ''}" data-tip="${n}: this copy ${x.st[n]}, the open one ${it.st?.[n] ?? '–'}"><small>${n.slice(0, 3)}</small>${x.st[n]}</span>`).join('')}</div>` : ''}
-        <div class="dx-kakt"><button data-oeffne="${x.id}" data-tip="Open this copy here">Open</button>${x.ort !== 'tresor' ? `<button data-kzu="${x.id}|tresor" data-tip="Send this copy to the vault">→ Vault</button>` : ''}${chars.filter((c) => c.characterId !== x.ort && !x.ort.endsWith(c.characterId)).map((c) => `<button data-kzu="${x.id}|${c.characterId}" data-tip="Move this copy to your ${KLASSE[c.classType]}">→ ${KLASSE[c.classType]}</button>`).join('')}<button data-lock="${x.id}" aria-pressed="${x.locked}" data-tip="${x.locked ? 'Unlock' : 'Lock'} this copy in the game">${x.locked ? '🔒' : '🔓'}</button></div></div>`;
+        <div class="dx-kakt"><button data-oeffne="${x.id}" data-tip="Open this copy here">Open</button>${x.ort !== 'tresor' ? `<button class="kz-b kz-v" data-kzu="${x.id}|tresor" data-tip="Send this copy to the vault">${klIkon()}Vault</button>` : ''}${chars.filter((c) => c.characterId !== x.ort && !x.ort.endsWith(c.characterId)).map((c) => `<button class="kz-b kz-${c.classType}" data-kzu="${x.id}|${c.characterId}" data-tip="Move this copy to your ${KLASSE[c.classType]}">${klIkon(c.classType)}${KLASSE[c.classType]}</button>`).join('')}<button data-lock="${x.id}" aria-pressed="${x.locked}" data-tip="${x.locked ? 'Unlock' : 'Lock'} this copy in the game">${x.locked ? '🔒' : '🔓'}</button></div></div>`;
     };
     return `<section class="dx-kopien"><h3>Your other copies <small>${alle.length} · hover a perk to read it · click a dimmed perk to switch to it</small></h3>${alle.sort((a, b) => (b.tier || 0) - (a.tier || 0) || b.power - a.power).map(zeile).join('')}</section>`;
   };
@@ -122,7 +125,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
         <button class="zu" data-a="schliessen" aria-label="Close">✕</button></header>
       ${urteilZeile(it)}
       <div class="dx-aktionen">${knoepfe()}</div>
-      <div class="dtags">${TAGS.map(([t, e, n]) => `<button data-tag="${t}" class="dtag ${tags()[it.id] === t ? 'an' : ''}" data-tip="${esc({ fav: 'Your favorite – never suggested for clean-up.', keep: 'Keep – never suggested for clean-up.', junk: 'Mark as junk – shows the JUNK label on the tile.', futter: 'Infusion fodder – shows the FUEL label on the tile.' }[t] || n)} Search: tag:${t}">${e} <span>${n}</span></button>`).join('')}<input class="dnotiz" data-notiz placeholder="📝 Note (searchable with note:)" value="${esc(notizen()[it.id] || '')}" maxlength="120"></div>
+      <div class="dtags">${lockKnopf()}${TAGS.map(([t, e, n]) => `<button data-tag="${t}" class="dtag ${tags()[it.id] === t ? 'an' : ''}" data-tip="${esc({ fav: 'Your favorite – never suggested for clean-up.', keep: 'Keep – never suggested for clean-up.', junk: 'Mark as junk – shows the JUNK label on the tile.', futter: 'Infusion fodder – shows the FUEL label on the tile.' }[t] || n)} Search: tag:${t}">${e} <span>${n}</span></button>`).join('')}<input class="dnotiz" data-notiz placeholder="📝 Note (searchable with note:)" value="${esc(notizen()[it.id] || '')}" maxlength="120"></div>
       <div class="dx-koerper"><section class="dx-perks">
           <div class="dx-ph"><h3>Perks</h3>${rw ? rollBalken(rw) : ''}</div>
           ${perkTeil() || (it.d.t === 3 ? '<p class="leer klein">No selectable perks.</p>' : '')}${marke ? PERK_LEGENDE : ''}
@@ -159,7 +162,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
   }
   const melde = (text, fehler) => import('./app.js').then((m) => m.meldung(text, fehler));
   async function fuehreAus(a, cid, x = it) {
-    beschaeftigt = true; zeichne();
+    beschaeftigt = true; laeuft = x === it ? (a === 'tresor' ? 'tresor' : a === 'hol' ? null : cid) : null; zeichne();
     try {
       if (a === 'hol') { await bringe(x.ort.slice(5), x); melde('Pulled from Postmaster.'); }
       if (a === 'zu') { await bringe(cid, x); melde(`Moved to ${name(cid)}.`); }
@@ -186,7 +189,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
       melde(e.message, true);
     } finally {
       merkeAenderung(x.id, { ort: x.ort, angelegt: x.angelegt });
-      beschaeftigt = false; zeichne(); neuZeichnen();
+      beschaeftigt = false; laeuft = null; zeichne(); neuZeichnen();
     }
   }
   d.onchange = (e) => { if (e.target.matches('[data-notiz]')) { setzeNotiz(it.id, e.target.value.trim()); neuZeichnen?.(); } };

@@ -1666,3 +1666,34 @@ html[data-kachel=gross] .ic-fuss{height:16px}html[data-kachel=gross] .ic .ic-fus
 /* ===== Titel in Raid-/Dungeon-Zeilen mit Siegel ===== */
 .rtitel{display:inline-flex;align-items:center;gap:5px;cursor:help}.rsiegel{width:20px;height:20px;object-fit:contain;opacity:.45;filter:grayscale(1)}.rtitel.ok .rsiegel{opacity:1;filter:none}
 .rtitel small{font-size:.66rem;color:var(--matt)}.rtitel.ok small{color:var(--gold)}
+
+/* ===== Verschieben-Knöpfe: Klassen-Zeichen in Klassenfarbe + kleine Animation ===== */
+.kz-0{--kf:#e5534b}.kz-1{--kf:#3fa9f5}.kz-2{--kf:#e8c35a}.kz-v{--kf:#9b7bff}
+.ikon-svg.kl{width:19px;height:19px;color:var(--kf);stroke-width:1.9;margin:0;vertical-align:0;flex:none}
+.dx-ziel{position:relative;overflow:hidden;border-color:color-mix(in srgb,var(--kf) 34%,var(--linie));transition:border-color .2s,box-shadow .2s}
+.dx-ziel::before{content:'';position:absolute;inset:0;background:linear-gradient(100deg,color-mix(in srgb,var(--kf) 18%,transparent),transparent 62%);opacity:.55;pointer-events:none;transition:opacity .2s}
+.dx-ziel:hover{border-color:color-mix(in srgb,var(--kf) 70%,var(--linie))}.dx-ziel:hover::before{opacity:1}
+.dx-ziel.hier{border-color:var(--kf);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--kf) 45%,transparent)}.dx-ziel.hier em{color:var(--kf)}
+.dx-ziel>*{position:relative}
+.dx-ziel>.kz-ic{flex:none;width:32px;height:32px;margin:0;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--kf) 15%,var(--bg));border:1px solid color-mix(in srgb,var(--kf) 60%,transparent);transition:transform .28s cubic-bezier(.3,1.7,.5,1),box-shadow .2s,background .2s}
+.dx-ziel:hover>.kz-ic{transform:rotate(-8deg) scale(1.1);box-shadow:0 0 14px color-mix(in srgb,var(--kf) 55%,transparent)}
+.dx-ziel:has(button:active)>.kz-ic{transform:scale(.82)}
+.dx-ziel.hier>.kz-ic{background:var(--kf)}.dx-ziel.hier>.kz-ic .kl{color:#0b0b10}
+.dx-ziel.laeuft>.kz-ic{animation:kzPuls .7s ease-in-out infinite}.dx-ziel.laeuft{border-color:var(--kf)}
+@keyframes kzPuls{50%{transform:scale(1.18);box-shadow:0 0 18px var(--kf)}}
+.kz-b{position:relative;display:inline-flex;align-items:center;gap:5px;overflow:hidden;border:1px solid color-mix(in srgb,var(--kf) 50%,var(--linie2));background:var(--bg);color:var(--text);border-radius:8px;font-weight:700;cursor:pointer;transition:transform .12s,box-shadow .15s,border-color .15s,background .15s}
+.kz-b::after{content:'›';font-weight:900;color:var(--kf);transition:transform .18s}
+.kz-b::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,color-mix(in srgb,var(--kf) 38%,transparent) 50%,transparent 65%);background-size:260% 100%;background-position:130% 0;pointer-events:none}
+.kz-b:hover:not(:disabled){transform:translateY(-1px);border-color:var(--kf);box-shadow:0 4px 14px color-mix(in srgb,var(--kf) 35%,transparent)}
+.kz-b:hover:not(:disabled)::after{transform:translateX(3px)}.kz-b:hover:not(:disabled)::before{background-position:-30% 0;transition:background-position .55s}
+.kz-b:hover:not(:disabled) .kl{animation:kzWipp .45s ease}@keyframes kzWipp{40%{transform:translateY(-3px) rotate(-10deg)}70%{transform:translateY(1px)}}
+.kz-b:active:not(:disabled){transform:scale(.93);box-shadow:0 0 0 3px color-mix(in srgb,var(--kf) 45%,transparent)}
+.kz-b.kz-haupt{background:var(--kf);border-color:var(--kf);color:#0b0b10}.kz-b.kz-haupt::after{color:#0b0b10}
+.kz-b:disabled{opacity:.5;cursor:default}
+#mfach .kz-b{border-color:color-mix(in srgb,var(--kf) 50%,var(--linie2))}#mfach .kz-b .kl{width:17px;height:17px;stroke:var(--kf)}
+@media (prefers-reduced-motion:reduce){.kz-b,.kz-b::before,.kz-b::after,.dx-ziel>.kz-ic{transition:none;animation:none!important}}
+.dx-aktionen{grid-template-columns:repeat(auto-fit,minmax(222px,1fr))}
+.dx-ziel{gap:5px;padding:6px 7px 6px 8px}.dx-ziel>.kz-n{margin-right:auto;min-width:0}
+.dx-ziel .kz-b{padding:5px 9px;font-size:.78rem}.dx-ziel .kz-b::after{content:none}
+.dtags .dx-lock{min-height:0;border-radius:999px;padding:5px 12px;font-size:.8rem}
+@media(max-width:760px){.dx-aktionen{grid-template-columns:1fr}}
