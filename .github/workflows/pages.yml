@@ -43,7 +43,7 @@ jobs:
       - name: Stamp the service worker so browsers pick up the new version
         run: sed -i "s/const CACHE = 'd2a-v[0-9a-z]*';/const CACHE = 'd2a-${GITHUB_SHA::7}';/" sw.js
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: .
       - id: deployment
