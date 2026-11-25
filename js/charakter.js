@@ -96,7 +96,7 @@ export function zeigeCharakter(haupt, zustand) {
       const elName = ELEMENT[inst[i.itemInstanceId]?.damageType] || '';
       const passt = (f) => (f === 'exo' ? d.q === 6 : f === 'leg' ? d.q === 5 : f === 'lock' ? x?.locked : f === 'dupe' ? x && (anzahl.get(d.n) || 0) > 1 : f === 'futter' ? futter.has(i.itemInstanceId) : f.startsWith('el:') ? elName === f.slice(3) : true);
       const dim = (q && !d.n.toLowerCase().includes(q) && !(d.k || '').toLowerCase().includes(q)) || (filter.size && ![...filter].every(passt));
-      return `<button class="ck ${gross ? 'gross' : ''} ${d.q === 6 ? 'exo' : ''} ${x?.mw ? 'mw' : ''} ${el ? `elr-${el}` : ''} ${dim ? 'dim' : ''}" ${klick} data-ih="${i.itemHash}" aria-label="${esc(d.n)}" style="background-image:${d.w ? `url(${BILD}${d.w}),` : ''}url(${BILD}${d.i})">${tierPips(inst[i.itemInstanceId]?.gearTier)}${futter.has(i.itemInstanceId) ? '<i class="ck-futter" title="Infusion fodder">🔥</i>' : ''}${x?.crafted ? '<i class="ck-shaped" title="Crafted"></i>' : ''}${power ? `<em class="${el}">${power}</em>` : ''}${i.quantity > 1 ? `<em>${i.quantity}</em>` : ''}${x?.locked ? '<i class="ck-lock">🔒</i>' : ''}</button>`;
+      return `<button class="ck ${gross ? 'gross' : ''} ${d.q === 6 ? 'exo' : ''} ${x?.mw ? 'mw' : ''} ${el ? `elr-${el}` : ''} ${dim ? 'dim' : ''}" ${klick} data-ih="${i.itemHash}" aria-label="${esc(d.n)}" style="background-image:${d.w ? `url(${BILD}${d.w}),` : ''}url(${BILD}${d.i})">${tierPips(inst[i.itemInstanceId]?.gearTier)}${futter.has(i.itemInstanceId) ? '<i class="ck-futter" title="Infusion fodder">🔥</i>' : ''}${x?.crafted ? '<i class="ck-shaped" title="Crafted"></i>' : ''}${d.t === 3 && d.a ? `<i class="am am-${d.a}"></i>` : ''}${power ? `<em class="${el}">${power}</em>` : ''}${i.quantity > 1 ? `<em>${i.quantity}</em>` : ''}${x?.locked ? '<i class="ck-lock">🔒</i>' : ''}</button>`;
     };
     const reihen = bereich === 'waffen' ? WAFFEN : bereich === 'ruestung' ? RUESTUNG : bereich === 'sonst' ? SONST : bereich === 'ausr' ? [...WAFFEN, ...RUESTUNG] : [...WAFFEN, ...RUESTUNG, ...SONST];
     const reihe = (cid, an, inv) => ([b, name]) => {
@@ -116,8 +116,11 @@ export function zeigeCharakter(haupt, zustand) {
     // Tresor kompakt: oben eine Symbolleiste (Waffentyp bzw. Klasse) mit Anzahl; nur angeklickte Gruppen klappen auf.
     // Standard: alles zu. Der Zustand wird gemerkt.
     const maske = (f) => `style="-webkit-mask-image:url(img/wtyp/${f}.svg);mask-image:url(img/wtyp/${f}.svg)"`;
-    const gruppenLeiste = (b, gruppen) => `<div class="tleiste">${gruppen.map(([k, titel, f, l]) => { const auf = tauf.has(`${b}:${k}`); return `<button class="tsym ${auf ? 'auf' : ''}" data-tauf="${b}:${esc(k)}" title="${esc(titel)} · ${l.length}" aria-expanded="${auf}">${f ? `<i ${maske(f)}></i>` : `<small>${esc(titel)}</small>`}<em>${l.length}</em></button>`; }).join('')}</div>`;
-    const gruppenInhalt = (b, gruppen) => gruppen.filter(([k]) => tauf.has(`${b}:${k}`)).map(([k, titel, f, l]) => `<div class="tgruppe"><span class="tg-kopf">${f ? `<i ${maske(f)}></i>` : ''}${esc(titel)} <em>${l.length}</em></span><div class="cgitter breit">${l.sort(sortiere).map((x) => kachel(alsRoh(x))).join('')}</div></div>`).join('');
+    // Offene Gruppen hängen mit ihrer Silhouette direkt an ihren Items (Silhouette = Knopf zum Zuklappen);
+    // in der Leiste oben bleiben nur die zugeklappten.
+    const alleGruppen = [];
+    const gruppenLeiste = (b, gruppen) => { gruppen.forEach(([k]) => alleGruppen.push(`${b}:${k}`)); const zu = gruppen.filter(([k]) => !tauf.has(`${b}:${k}`)); return zu.length ? `<div class="tleiste">${zu.map(([k, titel, f, l]) => `<button class="tsym" data-tauf="${b}:${esc(k)}" data-tip="${esc(titel)} · ${l.length} – click to open" aria-expanded="false">${f ? `<i ${maske(f)}></i>` : `<small>${esc(titel)}</small>`}<em>${l.length}</em></button>`).join('')}</div>` : ''; };
+    const gruppenInhalt = (b, gruppen) => gruppen.filter(([k]) => tauf.has(`${b}:${k}`)).map(([k, titel, f, l]) => `<div class="tgruppe"><button class="tg-kopf" data-tauf="${b}:${esc(k)}" aria-expanded="true" data-tip="${esc(titel)} – click to close">${f ? `<i ${maske(f)}></i>` : ''}<span>${esc(titel)}</span><em>${l.length}</em></button><div class="cgitter breit">${l.sort(sortiere).map((x) => kachel(alsRoh(x))).join('')}</div></div>`).join('');
     const KL_DATEI = { 0: 'titan', 1: 'hunter', 2: 'warlock' };
     const tresorBlock = ([b, name]) => {
       const l = tresorItems.filter((x) => x.d.b === b); if (!l.length) return '';
@@ -128,7 +131,9 @@ export function zeigeCharakter(haupt, zustand) {
       if (gruppen) return `<div class="treihe">${kopf}${gruppenLeiste(b, gruppen)}${gruppenInhalt(b, gruppen)}</div>`;
       return `<div class="treihe">${kopf}<div class="cgitter breit">${l.sort(sortiere).map((x) => kachel(alsRoh(x))).join('')}</div></div>`;
     };
-    const tresor = `<section class="ctresorbox" data-ziel="tresor"><div class="ckopf tres"><b>Vault</b><em>${tresorItems.length}</em></div>${(() => { const sp = [WAFFEN, RUESTUNG, SONST].map((g) => reihen.filter((r) => g.includes(r)).map(tresorBlock).join('')).filter(Boolean); return sp.length ? `<div class="tspalten n${sp.length}">${sp.map((x) => `<div class="tspalte">${x}</div>`).join('')}</div>` : '<p class="leer klein">Nothing of this kind in the vault.</p>'; })()}</section>`;
+    const tresor = `<section class="ctresorbox" data-ziel="tresor"><div class="ckopf tres"><b>Vault</b><button class="chip klein talle" data-talle>__TALLE__</button><em>${tresorItems.length}</em></div>${(() => { const sp = [WAFFEN, RUESTUNG, SONST].map((g) => reihen.filter((r) => g.includes(r)).map(tresorBlock).join('')).filter(Boolean); return sp.length ? `<div class="tspalten n${sp.length}">${sp.map((x) => `<div class="tspalte">${x}</div>`).join('')}</div>` : '<p class="leer klein">Nothing of this kind in the vault.</p>'; })()}</section>`;
+    const alleAuf = alleGruppen.length && alleGruppen.every((g) => tauf.has(g));
+    const tresorFertig = tresor.replace('__TALLE__', alleAuf ? '⊟ Collapse all' : '⊞ Expand all');
     const c = chars.find((x) => x.characterId === wahl);
     const breit = (haupt.clientWidth || innerWidth) >= 980;
     const FILTER = [['exo', 'Exotic'], ['leg', 'Legendary'], ['lock', 'Locked'], ['dupe', 'Duplicates'], ['futter', '🔥 Fodder'], ['el:kinetic', 'Kinetic'], ['el:arc', 'Arc'], ['el:solar', 'Solar'], ['el:void', 'Void'], ['el:stasis', 'Stasis'], ['el:strand', 'Strand']];
@@ -136,8 +141,8 @@ export function zeigeCharakter(haupt, zustand) {
       <div class="invleiste"><div class="wsub">${BEREICHE.map(([k, t]) => `<button class="chip" data-bereich="${k}" aria-pressed="${k === bereich}">${t}</button>`).join('')}</div><input id="invSuche" type="search" placeholder="Highlight: name or type…" value="${esc(suche)}" aria-label="Highlight items"></div>
       <div class="invfilter">${FILTER.map(([k, t]) => `<button class="chip klein ${k.startsWith('el:') ? `el-${k.slice(3)}` : ''}" data-filter="${k}" aria-pressed="${filter.has(k)}">${t}</button>`).join('')}<button class="chip klein futter-modus" data-markieren aria-pressed="${markieren}" title="Click items to mark or unmark them as infusion fodder">${markieren ? '🔥 Marking… click items · done' : '🔥 Mark fodder'}</button>${filter.size || q ? '<button class="chip klein" data-filterweg>✕ clear</button>' : ''}<span class="invlinks"><button class="chip klein" data-tabweiter="vault" title="All weapons with every filter">Weapon list ↗</button><button class="chip klein" data-tabweiter="armor" title="All armor with stats">Armor list ↗</button></span></div>
       ${breit
-        ? `<div class="inv inv-alle b-${bereich}" style="--n:${chars.length}">${chars.map(spalte).join('')}<div class="crechts">${tresor}<section class="cpostbox" aria-label="Postmaster"></section></div></div>`
-        : `<div class="chandy-tabs">${chars.map((x) => `<button data-wahl="${x.characterId}" class="${x.characterId === wahl ? 'an' : ''}" style="--emb:url(${BILD}${x.emblemPath || ''})"><i></i><b>${KLASSE[x.classType]}</b><small>✦ ${x.light}</small></button>`).join('')}</div><div class="inv inv-fokus b-${bereich}">${spalte(c)}<div class="cstreifen-box">${chars.filter((x) => x.characterId !== wahl).map(streifen).join('')}</div></div>${tresor}`}`;
+        ? `<div class="inv inv-alle b-${bereich}" style="--n:${chars.length}">${chars.map(spalte).join('')}<div class="crechts">${tresorFertig}<section class="cpostbox" aria-label="Postmaster"></section></div></div>`
+        : `<div class="chandy-tabs">${chars.map((x) => `<button data-wahl="${x.characterId}" class="${x.characterId === wahl ? 'an' : ''}" style="--emb:url(${BILD}${x.emblemPath || ''})"><i></i><b>${KLASSE[x.classType]}</b><small>✦ ${x.light}</small></button>`).join('')}</div><div class="inv inv-fokus b-${bereich}">${spalte(c)}<div class="cstreifen-box">${chars.filter((x) => x.characterId !== wahl).map(streifen).join('')}</div></div>${tresorFertig}`}`;
     const pb = haupt.querySelector('.cpostbox'); if (pb) import('./post.js').then((m) => m.zeigePost(pb, zustand)).catch(() => pb.remove());
     haupt.querySelectorAll('img.d1ammo[style]').forEach((el) => freistellen(el.dataset.frei).then((u) => { if (u) el.src = u; el.style.opacity = ''; }));
     const si = haupt.querySelector('#invSuche');
@@ -307,6 +312,7 @@ export function zeigeCharakter(haupt, zustand) {
     const w = e.target.closest('[data-wahl]');
     if (w) { wahl = w.dataset.wahl; try { localStorage.setItem('d2a.charWahl', wahl); } catch {} return zeichne(); }
     if (e.target.closest('[data-postpanel]')) return zustand.oeffnePanel?.('post');
+    if (e.target.closest('[data-talle]')) { const g = [...haupt.querySelectorAll('.ctresorbox [data-tauf]')].map((x) => x.dataset.tauf); const alle = g.every((x) => tauf.has(x)); g.forEach((x) => (alle ? tauf.delete(x) : tauf.add(x))); try { localStorage.setItem('d2a.tauf', JSON.stringify([...tauf])); } catch {} return zeichne(); }
     const tt = e.target.closest('[data-tauf]');
     if (tt) { const t = tt.dataset.tauf; tauf.has(t) ? tauf.delete(t) : tauf.add(t); try { localStorage.setItem('d2a.tauf', JSON.stringify([...tauf])); } catch {} return zeichne(); }
     const k = e.target.closest('[data-cid]');

@@ -1697,3 +1697,32 @@ html[data-kachel=gross] .ic-fuss{height:16px}html[data-kachel=gross] .ic .ic-fus
 .dx-ziel .kz-b{padding:5px 9px;font-size:.78rem}.dx-ziel .kz-b::after{content:none}
 .dtags .dx-lock{min-height:0;border-radius:999px;padding:5px 12px;font-size:.8rem}
 @media(max-width:760px){.dx-aktionen{grid-template-columns:1fr}}
+
+/* Munitionsart auf Waffen-Kacheln (eigene Symbole: weiß = Primär, grün = Spezial, lila = Schwer) */
+.am{position:absolute;left:1px;bottom:1px;width:12px;height:12px;border-radius:2px;background:#000b center/10px no-repeat;pointer-events:none;flex:none}
+.am-1{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2012%2012%27%3E%3Cpath%20d%3D%27M5%201.5c1%200%201.6%201.2%201.6%202.6V10H3.4V4.1%2523f2f2f23.4%202.7%204%201.5%205%201.5z%27%20fill%3D%27%2523f2f2f2%27%20transform%3D%27translate%281%200%29%27/%3E%3C/svg%3E")}.am-2{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2012%2012%27%3E%3Cpath%20d%3D%27M3.3%202c.8%200%201.3%201%201.3%202.1V10H2V4.1%252366e08f2%203%202.5%202%203.3%202zM8.7%202c.8%200%201.3%201%201.3%202.1V10H7.4V4.1%252366e08f7.4%203%207.9%202%208.7%202z%27%20fill%3D%27%252366e08f%27/%3E%3C/svg%3E")}.am-3{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2012%2012%27%3E%3Cpath%20d%3D%27M2%203.5h8v6.5H2z%27%20fill%3D%27%2523b48cff%27/%3E%3Cpath%20d%3D%27M3%202h2v1.5H3zM7%202h2v1.5H7z%27%20fill%3D%27%2523b48cff%27/%3E%3Cpath%20d%3D%27M4%206h4v1H4z%27%20fill%3D%27%2523000%27%20fill-opacity%3D%27.45%27/%3E%3C/svg%3E")}
+.ic .ic-fuss .am{position:static;width:11px;height:11px;background-size:9px;background-color:transparent}
+html[data-kachel=gross] .ic .ic-fuss .am{width:13px;height:13px;background-size:11px}
+/* Tresor im Inventar: offene Waffenart = Zeile mit Silhouette links (Klick klappt zu), „Expand all“ im Kopf */
+.ckopf.tres{display:flex;align-items:center;gap:8px}.ckopf.tres .talle{margin-left:auto;font-size:.68rem;padding:2px 9px}
+.tgruppe{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;align-items:start;margin:0;padding:5px 0;border-top:1px solid #ffffff0d}
+button.tg-kopf{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border-radius:8px;border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);background:color-mix(in srgb,var(--gold) 9%,transparent);transition:background .15s,transform .15s}
+button.tg-kopf:hover{background:color-mix(in srgb,var(--gold) 20%,transparent);transform:translateY(-1px)}
+button.tg-kopf i{width:44px;height:16px}button.tg-kopf span{font:700 .5rem/1.1 var(--fliess);letter-spacing:.03em;text-transform:uppercase;color:var(--gold);text-align:center;max-width:58px}
+button.tg-kopf em{font:700 .62rem var(--fliess);color:var(--text2);font-style:normal}
+/* Katalysator */
+.kat{display:flex;flex-direction:column;gap:5px;padding:8px 10px;border-radius:8px;background:#ffffff08;border:1px solid #ffffff14;border-left:3px solid #b48cff;font-size:.76rem;line-height:1.35}
+.kat.k-fertig{border-left-color:#e8c35a}.kat.k-fehlt{border-left-color:#5b5f7a}
+.kat-kopf{display:flex;align-items:center;gap:7px}.kat-kopf b{font-size:.84rem}.kat-kopf small{color:var(--matt)}
+.kat-ic{width:22px;height:22px;border-radius:4px;background:center/cover;flex:none}
+.kat-st{margin-left:auto;font-style:normal;font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:999px;background:#b48cff33;color:#d6c2ff}
+.k-fertig .kat-st{background:#e8c35a33;color:#f2d98a}.k-fehlt .kat-st{background:#ffffff14;color:var(--matt)}
+.kat p{margin:0;color:var(--text2)}.kat-wie small{display:block;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--matt)}
+.kat-ziele{display:flex;flex-direction:column;gap:3px}.kat-ziel{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:8px;align-items:center}
+.kat-ziel i{height:5px;border-radius:3px;background:#ffffff14;overflow:hidden;display:block}.kat-ziel i b{display:block;height:100%;background:#b48cff}
+.kat-ziel:not(:has(i)){grid-template-columns:minmax(0,1fr) auto}.kat-ziel em{font-style:normal;font-weight:700}
+.wkat{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:start;margin:6px 0}
+@media(max-width:760px){.wkat{grid-template-columns:1fr}}
+/* Name → Wiki */
+.zuwiki{cursor:pointer;text-decoration:underline dotted #ffffff55;text-underline-offset:3px}.zuwiki:hover{text-decoration-color:currentColor;color:var(--gold)}
+button.zuwiki{all:unset;cursor:pointer;font:inherit;text-decoration:underline dotted #ffffff55;text-underline-offset:4px}

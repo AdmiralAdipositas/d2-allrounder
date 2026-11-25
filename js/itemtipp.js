@@ -3,6 +3,7 @@
 import { defs } from './defs.js';
 import { ARMOR_STATS } from './vault.js';
 import { rollWert, rollBalken } from './rolls.js';
+import { katBlock } from './katalysator.js';
 import { perkRaster, perkSpalten, alleOptionen, PERK_LEGENDE, wendePerkAn } from './perks.js';
 
 const BILD = 'https://www.bungie.net';
@@ -38,7 +39,7 @@ export function itemTipp(it, profil) {
   const plugs = (it.sockel || it.plugs || []).filter(Boolean).map((p) => [p, defs.items[p]]).filter(([, x]) => x);
   const klasse = d.q === 6 ? 'exo' : d.q === 5 ? 'leg' : 'sel';
   const wo = it.ort ? (it.ort === 'tresor' ? 'Vault' : it.ort.startsWith('post:') ? 'Postmaster' : it.m?.ort || 'Character') + (it.angelegt ? ' · equipped' : '') : '';
-  let html = `<div class="itwrap"><div class="it-kopf ${klasse}"><b>${esc(d.n)}</b><span>${esc(d.k)}${it.tier ? ` · Tier ${it.tier}` : ''}${wo ? ` · ${esc(wo)}` : ''}${it.locked ? ' · locked' : ''}</span>${it.power ? `<em>${it.power}</em>` : ''}</div><div class="it-rumpf">${urteilZeile(it)}${it.kills ? `<div class="it-kills"><b>${it.kills.toLocaleString()}</b> kills <small>kill tracker</small></div>` : ''}`;
+  let html = `<div class="itwrap"><div class="it-kopf ${klasse}"><b class="zuwiki" data-zuwiki="${it.hash}" data-tip="Open ${esc(d.n)} in the wiki">${esc(d.n)}</b><span>${esc(d.k)}${d.t === 3 && d.a ? ` · ${['', 'Primary', 'Special', 'Heavy'][d.a]} ammo` : ''}${it.tier ? ` · Tier ${it.tier}` : ''}${wo ? ` · ${esc(wo)}` : ''}${it.locked ? ' · locked' : ''}</span>${it.power ? `<em>${it.power}</em>` : ''}</div><div class="it-rumpf">${urteilZeile(it)}${it.kills ? `<div class="it-kills"><b>${it.kills.toLocaleString()}</b> kills <small>kill tracker</small></div>` : ''}`;
   if (d.t === 3) {
     const werte = Object.values(st).map((s) => [name(s.statHash), s.value]).filter(([n]) => n);
     const balken = WSTATS.map((n) => werte.find(([w]) => w === n)).filter(Boolean);
@@ -47,7 +48,8 @@ export function itemTipp(it, profil) {
     if (d.q !== 6) html += rollBalken(rollWert(it.hash, it.plugs || [], alleOptionen(it, profil)));
     if (sp.length) html += `<div class="it-pk">${perkRaster(it, profil)}<div class="it-desc" data-leer="Move the mouse onto a perk to read it. Click a dimmed perk to switch to it."></div>${d.q !== 6 ? PERK_LEGENDE : ''}</div>`;
     if (d.xd) html += `<p class="tt"><b class="tgold">${esc(d.xp || 'Exotic perk')}</b> ${esc(d.xd)}</p>`;
-    const mods = plugs.filter(([, x]) => /^v400\.weapon\.mod_|weapon\.mod_|^masterworks/.test(x.pc || '') && x.i && !/^Empty/.test(x.n));
+    if (d.q === 6) html += katBlock(it.hash, it, profil, { kurz: true });
+    const mods = plugs.filter(([, x]) => /^v400\.weapon\.mod_|weapon\.mod_|^masterworks/.test(x.pc || '') && x.i && !/^Empty/.test(x.n) && !/ Catalyst$/.test(x.n));
     if (mods.length) html += `<div class="it-mods">${mods.map(([, x]) => `<span data-tip="${esc(`<b>${x.n}</b><br>${x.d || ''}`)}"><i style="background-image:url(${BILD}${x.i})"></i>${esc(x.n)}</span>`).join('')}</div>`;
     if (balken.length || zahl.length) html += `<div class="it-stats zweisp">${balken.map(([n, v]) => `<div${ti(n)}><small>${esc(n)}</small><i><u style="width:${Math.min(100, v)}%"></u></i><b>${v}</b></div>`).join('')}${zahl.map(([n, v]) => `<div class="zahl"${ti(n)}><small>${esc(n)}</small><b>${v}</b></div>`).join('')}</div>`;
   } else if (d.t === 2) {

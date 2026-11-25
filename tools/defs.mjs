@@ -11,7 +11,7 @@ const holen = async (pfad) => { const r = await fetch(BASIS + pfad, { headers: {
 const manifest = (await holen('/Platform/Destiny2/Manifest/')).Response;
 const pfade = manifest.jsonWorldComponentContentPaths.en;
 const alt = fs.existsSync('data/defs.json') ? JSON.parse(fs.readFileSync('data/defs.json', 'utf8')) : null;
-if (alt?.version === manifest.version && alt?.schema === 20) { console.log('Game data unchanged.'); process.exit(0); }
+if (alt?.version === manifest.version && alt?.schema === 21) { console.log('Game data unchanged.'); process.exit(0); }
 
 const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, typen, modifier, ziele, loNamen, loIcons, loFarben, knoten, records, ziele2, statGruppen, checklisten] = await Promise.all([
   'DestinyInventoryItemDefinition', 'DestinySandboxPerkDefinition', 'DestinyCollectibleDefinition', 'DestinyStatDefinition',
@@ -22,7 +22,7 @@ const [items, sandbox, sammlung, stats, sets, breaker, schaden, aktivitaeten, ty
 ].map((n) => (pfade[n] ? holen(pfade[n]) : {})));
 
 const text = (item) => item.displayProperties?.description || (item.perks || []).map((p) => sandbox[p.perkHash]?.displayProperties?.description).find(Boolean) || '';
-const aus = { schema: 20, soz: {}, wtyp: {}, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
+const aus = { schema: 21, kat: {}, soz: {}, wtyp: {}, cl: {}, seal: {}, rec: {}, lo: { n: {}, i: {}, f: {} }, akt: {}, mod: {}, ziel: {}, version: manifest.version, erstellt: new Date().toISOString(), items: {}, stats: {}, sets: {}, breaker: {}, schaden: {} };
 for (const [hash, it] of Object.entries(items)) {
   const n = it.displayProperties?.name;
   // Nur, was die App braucht: Waffen, Rüstung, Subclasses, Plugs, Artefakte.
@@ -63,6 +63,23 @@ for (const [hash, it] of Object.entries(items)) {
   if (it.iconWatermark) e.w = it.iconWatermark;
   aus.items[hash] = e;
 }
+// Katalysatoren: Exotic-Waffe → Katalysator-Triumph (Zuordnung aus DIMs Community-Daten), dazu Bungies Text,
+// Ziele (z. B. „Kristalle sammeln“), der Katalysator-Plug und seine Perks. Fehlt die Zuordnung, bleibt kat leer.
+try {
+  const zuord = await (await fetch('https://raw.githubusercontent.com/DestinyItemManager/d2-additional-info/master/output/exotic-to-catalyst-record.json')).json();
+  const plugNachName = new Map();
+  for (const [h, it] of Object.entries(items)) { const n = it.displayProperties?.name || ''; if (it.itemType === 19 && / Catalyst$/.test(n) && /masterwork|catalyst/i.test(it.plug?.plugCategoryIdentifier || '')) plugNachName.set(n, [h, it]); }
+  for (const [w, r] of Object.entries(zuord)) {
+    const wi = items[w], rec = records[r]; if (!wi || !rec) continue;
+    const wn = wi.displayProperties?.name || '';
+    const [ph, pl] = plugNachName.get(`${wn} Catalyst`) || [];
+    const perks = (pl?.perks || []).map((x) => sandbox[x.perkHash]).filter((x) => x?.isDisplayable && x.displayProperties?.name).map((x) => [x.displayProperties.name, x.displayProperties.description || '']);
+    const o = (rec.objectiveHashes || []).map((h) => ziele[h]).filter(Boolean).map((z) => [z.hash, z.progressDescription || '', z.completionValue || 1]);
+    aus.kat[w] = { r: Number(r), n: rec.displayProperties?.name || `${wn} Catalyst`, d: rec.displayProperties?.description || '', i: rec.displayProperties?.icon || pl?.displayProperties?.icon || '', o, p: perks, k: ph ? Number(ph) : 0 };
+    if (!aus.rec[r]) aus.rec[r] = { n: rec.displayProperties?.name || '', d: rec.displayProperties?.description || '' };
+  }
+  console.log(`Catalysts: ${Object.keys(aus.kat).length}`);
+} catch (e) { console.log('Catalyst list not reachable:', e.message); }
 for (const [h, s] of Object.entries(stats)) if (s.displayProperties?.name) aus.stats[h] = { n: s.displayProperties.name, i: s.displayProperties.icon || '' };
 for (const [h, s] of Object.entries(sets)) aus.sets[h] = { n: s.displayProperties?.name || '', p: (s.setPerks || []).map((p) => ({ c: p.requiredSetCount, n: sandbox[p.sandboxPerkHash]?.displayProperties?.name || '', d: sandbox[p.sandboxPerkHash]?.displayProperties?.description || '', i: sandbox[p.sandboxPerkHash]?.displayProperties?.icon || '' })) };
 for (const b of Object.values(breaker)) aus.breaker[b.enumValue] = { n: b.displayProperties?.name || '', i: b.displayProperties?.icon || '' };

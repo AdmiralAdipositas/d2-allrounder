@@ -10,6 +10,9 @@ import { empfehlung } from './rolls.js';
 import { quelle, KLASSEN_EXO } from './quellen.js';
 import { anzeige, vergleiche, sprache } from './sprache.js';
 import { guideId } from './guidelinks.js';
+import { katBlock } from './katalysator.js';
+// Deine Kopie mit dem weitesten Katalysator-Stand (für Fortschritt im Wiki).
+const katKopie = (n, x) => (x.meine || []).filter((y) => y.d.n === n).sort((p, q) => (q.mw ? 1 : 0) - (p.mw ? 1 : 0))[0] || null;
 import { VOW, VOW_DE } from './symbole.js';
 import * as bungie from './bungie.js';
 
@@ -31,6 +34,7 @@ let ansicht = { kat: null, seite: null, sub: 'alle', suche: '', farm: '', wf: {}
 // Zurück-Verlauf: vorherige Seite und Scrollhöhe, damit „←“ wieder an dieselbe Stelle führt.
 const verlauf = [];
 export function setzeWikiKat(kat) { ansicht = { ...ansicht, kat, seite: null, suche: '', check: null }; verlauf.length = 0; }
+export function setzeWikiItem(h) { ansicht = { ...ansicht, kat: null, seite: `item:${h}`, suche: '' }; }
 export function setzeWikiSuche(q, art) {
   if (art === 'farm') ansicht = { ...ansicht, kat: 'farm', seite: null, farm: q, suche: '' };
   else ansicht = { ...ansicht, kat: null, seite: null, suche: q };
@@ -135,7 +139,8 @@ async function baue(zustand) {
   const [setsFarm, lootRoh] = await Promise.all([json('data/sets.json'), json('data/loot.json')]);
   const loot = lootRoh?.akt || {};
   const besitz = new Map();
-  for (const x of zustand.alleItems || sammle(zustand.profil)) besitz.set(x.d.n, (besitz.get(x.d.n) || 0) + 1);
+  const meine = zustand.alleItems || sammle(zustand.profil);
+  for (const x of meine) besitz.set(x.d.n, (besitz.get(x.d.n) || 0) + 1);
   // Pro Name nur ein Eintrag: bevorzugt die Version mit Quelle (Sammlungen) und Perk-Pool.
   const proName = new Map();
   for (const [h, d] of Object.entries(defs.items)) {
@@ -175,7 +180,7 @@ async function baue(zustand) {
     return Object.entries(ENC_EXTRA).find(([k]) => norm(enc).startsWith(norm(k)))?.[1] || 'Other';
   };
   const chals = Object.entries(CHALLENGES).map(([n, [enc, text]]) => ({ n, enc, text, raid: encRaid(enc) })).filter((c, i, l) => l.findIndex((y) => y.text === c.text && y.enc === c.enc) === i);
-  ix = { loot, besitz, alle, exos, waffen, sets, akts, chals, fundorte, setsFarm: setsFarm?.sets || {} };
+  ix = { loot, besitz, meine, profil: zustand.profil, alle, exos, waffen, sets, akts, chals, fundorte, setsFarm: setsFarm?.sets || {} };
   return ix;
 }
 
@@ -382,6 +387,7 @@ async function seiteItem(h, x) {
   const allgemein = d.q === 6 && d.t === 2 && !q ? '<p>Exotic armor: exotic engrams, Legend/Master Lost Sectors played solo (the exotic armor reward rotates), Xûr, or the Monument to Lost Lights in the Tower.</p>' : '';
   return `<div class="wseite-kopf">${ic(h, d, true)}<div><h2>${esc(d.n)}</h2><small>${esc([d.k, d.t === 2 ? KLASSE[d.c] : SLOT[d.b], d.q === 6 ? 'Exotic' : 'Legendary'].filter(Boolean).join(' · '))}</small>${x.besitz.get(d.n) ? `<small class="hat">✓ You own ${x.besitz.get(d.n)}</small>` : ''}</div></div>
     ${d.xd ? `<p class="tt"><b class="tgold">${esc(d.xp || 'Exotic perk')}</b> ${esc(d.xd)}</p>` : ''}
+    ${d.t === 3 && d.q === 6 ? `<h3>Catalyst</h3>${katBlock(h, katKopie(d.n, x), x.profil)}` : ''}
     ${details}
     <h3>Where it drops</h3>${fund}${q ? `<p class="wm">${esc(q.text)} <span>(${esc(q.von)})</span></p>` : ''}${allgemein}${!fund && !q && !allgemein ? '<p class="leer">No confirmed source.</p>' : ''}
     ${chance}
@@ -412,6 +418,8 @@ function seiteAkt(n, x) {
     ${n === 'Vow of the Disciple' ? '<div class="wlinks"><a href="#" class="chip an" data-zu="symbole">🔣 Symbols & callouts</a></div>' : ''}${a.d ? `<p class="leer">${esc(a.d)}</p>` : ''}${a.a.frei ? `<p class="wm">${esc(a.a.frei)}</p>` : ''}${a.a.alleText ? `<p class="wm">${esc(a.a.alleText)}</p>` : ''}
     ${defs.dtri?.[n] ? `<div class="wtri" data-tri="${esc(n)}"><h3>Title & triumphs</h3><p class="leer klein">Loading progress…</p></div>` : ''}
     ${a.a.exo ? `<div class="wfund exo"><span>⭐</span><div><b>${esc(a.a.exo[0])}</b><small>${esc(a.a.exo[1])}</small></div></div>` : ''}
+    ${(() => { const exw = [...new Set([...(a.a.exo ? [a.a.exo[0]] : []), ...a.a.enc.flatMap((e) => e[1]), ...(a.a.pool || [])])].map((w) => x.alle.find((z) => z.d.t === 3 && z.d.q === 6 && z.d.n === w)).filter(Boolean);
+      return exw.length ? `<h3>Exotic & catalyst</h3>${exw.map((y) => `<div class="wkat"><button class="wmini" data-seite="item:${y.h}">${ic(y.h, y.d)}<span>${esc(y.d.n)}</span></button>${katBlock(y.h, katKopie(y.d.n, x), x.profil)}</div>`).join('')}` : ''; })()}
     ${a.a.feats ? `<h3>Feats</h3><p class="leer klein">${esc(a.a.feats.text)} <a href="${a.a.feats.q}" target="_blank" rel="noopener">Source ↗</a></p><div class="wlinks">${a.a.feats.liste.map(([f, t]) => `<span class="chip" title="Triumph: ${esc(t)}">${esc(f)} <small>→ ${esc(t)}</small></span>`).join('')}</div>` : ''}
     <h3>Loot by encounter</h3>${a.a.enc.map(([enc, ws, r]) => `<div class="wenc"><div class="wenc-kopf"><b>${esc(enc)}</b>${guideKnopf(enc, n)}</div><div class="wenc-loot">${ws.map((w) => (/^any /.test(w) ? `<span class="wmini"><span>${esc(w)}</span></span>` : waffeIc(w))).join('')}</div>${r.length ? `<small>Armor: ${esc(r.join(', '))}</small>` : ''}
       ${chals.filter((c, i, l) => norm(enc).startsWith(norm(c.enc).split(/[ (]/)[0]) && l.findIndex((y) => y.text === c.text) === i).map((c) => `<p class="wchal-k">🏆 <b>${esc(c.n)}</b> – ${esc(c.text)}</p>`).join('')}</div>`).join('')}

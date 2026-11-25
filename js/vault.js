@@ -119,7 +119,7 @@ function kachel(x) {
   const ub = UB[x.urteil?.art];
   return `<div class="ic ${auswahl?.has(x.id) ? 'gewaehlt' : ''} ${x.d.q === 6 ? 'exotic' : ''} ${x.mw ? 'mw' : ''} ${x.d.t === 3 ? `el-${x.element}` : ''} ${x.urteil ? `iu-${x.urteil.art}` : ''}" data-id="${x.id}" tabindex="0" style="background-image:${x.d.w ? `url(${BILD}${x.d.w}),` : ''}url(${BILD}${x.d.i})">
     ${x.tier ? `<span class="ck-tier">${'<b></b>'.repeat(Math.min(5, x.tier))}</span>` : ''}<span class="ic-ecke">${notC[x.id] ? '<i class="notm">✎</i>' : ''}${tag ? `<i class="tagm">${tag[1]}</i>` : ''}${x.crafted ? '<i class="ck-shaped"></i>' : ''}${x.locked ? '<i class="ic-lock"></i>' : ''}<i class="ort ${ort}"></i></span>${champ}${auswahl?.has(x.id) ? '<i class="wahlm">✓</i>' : ''}
-    <span class="ic-fuss">${ub ? `<i class="ub ub-${x.urteil.art}">${ub[0]}</i>` : ''}${/god/.test(x.m?.roll || '') ? `<i class="god ${/PvP/.test(x.m.roll) ? 'pvp' : ''}">★</i>` : ''}${x.st ? `<span class="pow tot">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</span></div>`;
+    <span class="ic-fuss">${x.d.t === 3 && x.d.a ? `<i class="am am-${x.d.a}"></i>` : ''}${ub ? `<i class="ub ub-${x.urteil.art}">${ub[0]}</i>` : ''}${/god/.test(x.m?.roll || '') ? `<i class="god ${/PvP/.test(x.m.roll) ? 'pvp' : ''}">★</i>` : ''}${x.st ? `<span class="pow tot">${x.st.Total}</span>` : x.power ? `<span class="pow">${x.power}</span>` : ''}</span></div>`;
 }
 
 // Filtergruppen: innerhalb einer Gruppe ODER, zwischen Gruppen UND.

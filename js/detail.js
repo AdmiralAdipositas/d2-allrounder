@@ -1,4 +1,5 @@
 // Item-Detail: Perk-Spalten wie im Spiel, Perks und Mods umstellen, Verschieben, Ausrüsten, Postmaster.
+import { katBlock } from './katalysator.js';
 import { klIkon } from './ikonen.js';
 import { setMarke } from './sets.js';
 import * as bungie from './bungie.js';
@@ -121,7 +122,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
     const rw = it.d.t === 3 && it.d.q !== 6 ? rollWert(it.hash, it.plugs, spalten.filter((sp) => sp.perk).flatMap((sp) => sp.plugs)) : null;
     d.innerHTML = `<div class="dx">
       <header class="dx-kopf q${it.d.q}"><i class="dx-bild" style="background-image:url(${BILD}${it.d.i})"></i>
-        <div class="dx-titel"><h2>${esc(it.d.n)}</h2><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''} · ${esc(ortText())}</small><div class="dx-chips">${chips()}</div></div>
+        <div class="dx-titel"><h2><button class="zuwiki" data-zuwiki="${it.hash}" data-tip="Open ${esc(it.d.n)} in the wiki">${esc(it.d.n)}</button></h2><small>${esc(it.d.k)}${it.power ? ` · ${it.power}` : ''} · ${esc(ortText())}</small><div class="dx-chips">${chips()}</div></div>
         <button class="zu" data-a="schliessen" aria-label="Close">✕</button></header>
       ${urteilZeile(it)}
       <div class="dx-aktionen">${knoepfe()}</div>
@@ -132,6 +133,7 @@ export function oeffneDetail(it, zustand, neuZeichnen) {
           ${leseFeld()}
           ${modTeil()}
           ${it.d.xd ? `<p class="tt"><b class="tgold">${esc(it.d.xp || 'Exotic perk')}</b> ${esc(it.d.xd)}</p>` : ''}
+          ${it.d.t === 3 && it.d.q === 6 ? katBlock(it.hash, it, profil) : ''}
           ${it.d.e && defs.sets?.[it.d.e] ? `<div class="tset"><b>${esc(defs.sets[it.d.e].n)}</b>${defs.sets[it.d.e].p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>` : ''}
         </section><section class="dx-werte"><h3>Stats</h3>${statTeil() || '<p class="leer klein">No stats.</p>'}</section></div>
       ${kopien()}</div>`;

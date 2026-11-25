@@ -93,6 +93,14 @@ setzeNav({
   profil: () => zustand.profil,
 });
 import('./sets.js').then((m) => m.setzeSetQuelle(() => alleMitUrteil(zustand), () => Object.values(zustand.profil?.characters?.data || {}).sort((a, b) => new Date(b.dateLastPlayed) - new Date(a.dateLastPlayed))[0]?.classType ?? 2));
+// Item-Namen (Hover-Fenster, Detail-Ansicht) führen ins Wiki des Items.
+document.addEventListener('click', (e) => {
+  const z = e.target.closest('[data-zuwiki]'); if (!z) return;
+  e.preventDefault(); e.stopPropagation();
+  document.querySelector('#detail')?.open && document.querySelector('#detail').close();
+  const t = document.querySelector('#tipp'); if (t) { if (t._zu) t._zu(); else t.hidden = true; }
+  import('./wiki.js').then((m) => { m.setzeWikiItem(z.dataset.zuwiki); wechsle('wiki'); });
+}, true);
 export const springeGuide = (id) => { zustand.guideZiel = id; wechsle('guide'); };
 export const springeWiki = (kat, suche) => { if (suche) setzeWikiSuche(suche); else setzeWikiKat(kat); wechsle('wiki'); };
 const TABS = Object.fromEntries(['start', 'char', 'vault', 'armor', 'loadouts', 'optimizer', 'finder', 'wiki', 'guide', 'stats', 'hueter', 'squad'].map((t) => [t, () => ANSICHTEN[t][1](haupt)]));
