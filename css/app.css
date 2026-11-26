@@ -1726,3 +1726,7 @@ button.tg-kopf em{font:700 .62rem var(--fliess);color:var(--text2);font-style:no
 /* Name → Wiki */
 .zuwiki{cursor:pointer;text-decoration:underline dotted #ffffff55;text-underline-offset:3px}.zuwiki:hover{text-decoration-color:currentColor;color:var(--gold)}
 button.zuwiki{all:unset;cursor:pointer;font:inherit;text-decoration:underline dotted #ffffff55;text-underline-offset:4px}
+/* Hover-Fenster durchlässig (Maus & Mausrad gehen zu den Items dahinter); mit Shift festgehalten wird es bedienbar */
+#tipp:has(.itwrap){pointer-events:none!important;transition:box-shadow .15s,border-color .15s}
+#tipp.greif:has(.itwrap){pointer-events:auto!important;border-color:var(--gold);box-shadow:0 0 0 2px color-mix(in srgb,var(--gold) 45%,transparent),0 18px 40px #000c}
+#tipp .thint b{color:var(--gold)}

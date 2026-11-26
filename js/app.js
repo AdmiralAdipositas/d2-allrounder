@@ -47,7 +47,7 @@ export function meldung(text, fehler = false) {
 document.addEventListener('keydown', (e) => {
   const t = $('#tipp');
   if (e.key === 'Escape') $('#tippFest')?.remove();
-  if (e.key !== 'Shift' || t.hidden || !t.innerHTML) return;
+  if (e.key !== 'Shift' || t.hidden || !t.innerHTML || t.querySelector('.itwrap')) return; // Item-Fenster hält sich selbst fest (itemtipp.js)
   $('#tippFest')?.remove();
   const f = document.createElement('div');
   f.id = 'tippFest';
