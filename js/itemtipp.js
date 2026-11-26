@@ -46,7 +46,7 @@ export function itemTipp(it, profil) {
     const zahl = ZAHLEN.map((n) => werte.find(([w]) => w === n)).filter(Boolean);
     const sp = perkSpalten(it, profil);
     if (d.q !== 6) html += rollBalken(rollWert(it.hash, it.plugs || [], alleOptionen(it, profil)));
-    if (sp.length) html += `<div class="it-pk">${perkRaster(it, profil)}<div class="it-desc" data-leer="Hold Shift, then move onto a perk to read it. Click a dimmed perk to switch to it."></div>${d.q !== 6 ? PERK_LEGENDE : ''}</div>`;
+    if (sp.length) html += `<div class="it-pk">${perkRaster(it, profil)}<div class="it-desc" data-leer="Right-click or Shift keeps this window, then move onto a perk to read it. Click a dimmed perk to switch to it."></div>${d.q !== 6 ? PERK_LEGENDE : ''}</div>`;
     if (d.xd) html += `<p class="tt"><b class="tgold">${esc(d.xp || 'Exotic perk')}</b> ${esc(d.xd)}</p>`;
     if (d.q === 6) html += katBlock(it.hash, it, profil, { kurz: true });
     const mods = plugs.filter(([, x]) => /^v400\.weapon\.mod_|weapon\.mod_|^masterworks/.test(x.pc || '') && x.i && !/^Empty/.test(x.n) && !/ Catalyst$/.test(x.n));
@@ -63,12 +63,12 @@ export function itemTipp(it, profil) {
     const set = d.e ? defs.sets?.[d.e] : null;
     if (set) html += `<div class="tset"><b>${esc(set.n)}</b>${set.p.map((p) => `<span><em>${p.c}-piece · ${esc(p.n)}</em> ${esc(p.d)}</span>`).join('')}</div>`;
   }
-  html += `<small class="thint">${it.tippExtra ? 'Click the piece to lock or exclude it' : d.t === 3 ? 'Hold <b>Shift</b> to keep this window and move into it: read every perk, click one to switch · click the item for all actions' : 'Hold <b>Shift</b> to keep this window · click the item for all actions'}</small></div></div>`;
+  html += `<small class="thint">${it.tippExtra ? 'Click the piece to lock or exclude it' : d.t === 3 ? '<b>Right-click</b> or <b>Shift</b> keeps this window – move into it, read every perk, click one to switch; Shift again lets go · click the item for all actions' : '<b>Right-click</b> or <b>Shift</b> keeps this window, Shift again lets go · click the item for all actions'}</small></div></div>`;
   return html;
 }
 
 // Das Hover-Fenster ist durchlässig: Maus und Mausrad gehen durch zu den Items dahinter (Scrollen klappt, nichts steht im Weg).
-// Shift drücken = Fenster festhalten: dann bleibt es stehen, man kann hineinfahren, Perks lesen und anklicken.
+// Shift oder Rechtsklick = Fenster festhalten (Shift nochmal = loslösen): dann bleibt es stehen, man kann hineinfahren, Perks lesen und anklicken.
 // Es löst sich wieder, sobald die Maus es verlässt, man scrollt oder Esc drückt.
 function greifbar(tipp) {
   if (tipp._greif) return; tipp._greif = true;
@@ -85,8 +85,15 @@ function greifbar(tipp) {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !roh.get.call(tipp)) return los();
     if (e.key !== 'Shift' || e.repeat || roh.get.call(tipp) || !tipp.querySelector('.itwrap')) return;
+    if (tipp.classList.contains('greif')) return los(); // Shift bei festgehaltenem Fenster: wieder loslösen
     clearTimeout(t); tipp.classList.add('greif');
   });
+  // Rechtsklick auf das Item (oder ins Fenster) hält das Fenster ebenfalls fest – statt Browser-Kontextmenü.
+  document.addEventListener('contextmenu', (e) => {
+    if (roh.get.call(tipp) || !tipp.querySelector('.itwrap')) return;
+    if (!e.target.closest('#tipp,.ic,.ck,[data-iid],[data-oid],[data-cid]')) return;
+    e.preventDefault(); clearTimeout(t); tipp.classList.add('greif');
+  }, true);
   tipp.addEventListener('pointerleave', () => { if (tipp.classList.contains('greif')) los(); });
   tipp.addEventListener('pointerover', (e) => {
     const pk = e.target.closest('.pk'); const box = tipp.querySelector('.it-desc'); if (!pk || !box) return;
